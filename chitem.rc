@@ -1623,7 +1623,7 @@ BEGIN
                     WS_TABSTOP,204,142,78,10
     CONTROL         "Baseclass",IDC_BASECLASS,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,204,152,78,10
-    CONTROL         "Ferlain",IDC_FERLAIN,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Archer",IDC_FERLAIN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,204,162,78,10
     CONTROL         "Berserker",IDC_BERSERKER,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,308,92,78,10
@@ -3884,10 +3884,10 @@ BEGIN
                     115,20,10
     CONTROL         "Not covered by wall",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,126,79,10
-    CONTROL         "Invisible in dark",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,13,137,65,10
-    CONTROL         "Doesn't cover",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,93,60,60,10
+    CONTROL         "Invisible in fog",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,137,61,10
+    CONTROL         "Transparent",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,60,54,10
     CONTROL         "Draw all cycles",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,93,71,63,10
     CONTROL         "Use palette BMP",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
@@ -4600,23 +4600,25 @@ BEGIN
                     WS_GROUP | WS_TABSTOP,342,15,54,10
     CONTROL         "Light map",IDC_LIGHTMAP,"Button",BS_AUTORADIOBUTTON,342,
                     26,54,10
+    CONTROL         "Night light map",IDC_NIGHTMAP,"Button",
+                    BS_AUTORADIOBUTTON,342,37,63,10
     CONTROL         "Search map",IDC_SEARCHMAP,"Button",BS_AUTORADIOBUTTON,
-                    342,37,54,10
-    PUSHBUTTON      "Clear",IDC_CLEAR,297,120,35,14,WS_GROUP
+                    342,48,54,10
     PUSHBUTTON      "Set to",IDC_SET,297,96,35,14
-    GROUPBOX        "Choose map type",IDC_STATIC,333,1,80,54
-    CONTROL         "",IDC_MAP,"Static",SS_BITMAP | SS_NOTIFY,7,1,15,13
-    PUSHBUTTON      "Create palette",IDC_INIT,297,146,52,14
-    PUSHBUTTON      "Edit map",IDC_EDIT,297,172,52,14
-    EDITTEXT        IDC_HEIGHT,376,70,20,14,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_WIDTH,342,70,20,14,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Map dimensions",IDC_STATIC,342,57,52,8
-    LTEXT           "x",IDC_STATIC,368,73,8,8
     COMBOBOX        IDC_VALUE,337,96,76,112,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    PUSHBUTTON      "Undo floodfill",IDC_UNDO,361,172,52,14
-    PUSHBUTTON      "Edit palette",IDC_PALETTE,361,146,52,14
+    PUSHBUTTON      "Clear",IDC_CLEAR,297,120,35,14,WS_GROUP
     PUSHBUTTON      "Special",IDC_SPECIAL,337,120,76,14
+    PUSHBUTTON      "Create palette",IDC_INIT,297,146,52,14
+    PUSHBUTTON      "Edit palette",IDC_PALETTE,361,146,52,14
+    PUSHBUTTON      "Edit map",IDC_EDIT,297,172,52,14
+    PUSHBUTTON      "Undo floodfill",IDC_UNDO,361,172,52,14
+    GROUPBOX        "Choose map type",IDC_STATIC,333,1,80,61
+    CONTROL         "",IDC_MAP,"Static",SS_BITMAP | SS_NOTIFY,7,1,15,13
+    EDITTEXT        IDC_HEIGHT,376,77,20,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_WIDTH,342,77,20,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Map dimensions",IDC_STATIC,342,64,52,8
+    LTEXT           "x",IDC_STATIC,368,80,8,8
 END
 
 IDD_STOREDRINKS DIALOG DISCARDABLE  0, 0, 360, 199
@@ -5598,8 +5600,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,5,0,1
- PRODUCTVERSION 6,5,0,1
+ FILEVERSION 6,5,0,2
+ PRODUCTVERSION 6,5,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5617,14 +5619,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 5, 0, 1\0"
+            VALUE "FileVersion", "6, 5, 0, 2\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2005 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 6.5\0"
-            VALUE "ProductVersion", "6, 5, 0, 1\0"
+            VALUE "ProductName", "DLTC Editor Pro 6.5b\0"
+            VALUE "ProductVersion", "6, 5, 0, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END

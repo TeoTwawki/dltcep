@@ -6164,6 +6164,14 @@ CAreaMap::~CAreaMap()
 
 void CAreaMap::RefreshMap()
 {
+  CWnd *cw;
+
+  if(!IsWindow(m_hWnd)) return;
+  cw=GetDlgItem(IDC_NIGHTMAP);
+  if(IsWindow(cw->m_hWnd))
+  {
+    cw->EnableWindow(bg2_weaprofs() && the_area.WedAvailable()&&(the_area.header.areatype&EXTENDED_NIGHT) );
+  }
 }
 
 BOOL CAreaMap::OnInitDialog() 
@@ -6178,16 +6186,20 @@ BOOL CAreaMap::OnInitDialog()
 	return TRUE;
 }
 
+static int maptypes[4]={MT_HEIGHT,MT_LIGHT, MT_LIGHT,MT_SEARCH};
+
 void CAreaMap::ResetCombo()
 {
   int i,max;
+  int maptype;
 
-  if(m_maptype==MT_LIGHT) max=256;
+  maptype=maptypes[m_maptype];
+  if(maptype==MT_LIGHT) max=256;
   else max=16;
   m_value_control.ResetContent();
   for(i=0;i<max;i++)
   {
-    m_value_control.AddString(GetMapTypeValue(m_maptype,i));
+    m_value_control.AddString(GetMapTypeValue(maptype,i));
   }
 }
 
@@ -6204,20 +6216,29 @@ void CAreaMap::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
   switch(m_maptype)
   {
-  case MT_HEIGHT:
+  case 0:
     the_map=the_area.heightmap;
     the_palette=the_area.htpal;
     m_special_control.SetWindowText("");
     m_special_control.EnableWindow(false);
     break;
-  case MT_LIGHT:
+  case 1:
+    the_area.m_night=false;
     the_map=the_area.lightmap;
     the_palette=the_area.lmpal;
     //not finished
     m_special_control.SetWindowText("Generate lightmap");
     m_special_control.EnableWindow(false);
     break;
-  case MT_SEARCH:
+  case 2:
+    the_area.m_night=true;
+    the_map=the_area.lightmap;
+    the_palette=the_area.lmpal;
+    //not finished
+    m_special_control.SetWindowText("Generate nightmap");
+    m_special_control.EnableWindow(false);
+    break;
+  case 3:
     the_map=the_area.searchmap;
     the_palette=the_area.srpal;
     m_special_control.SetWindowText("Add travel regions");
@@ -6227,7 +6248,7 @@ void CAreaMap::DoDataExchange(CDataExchange* pDX)
     the_map=NULL;
     the_palette=NULL;
   }
-  tmpstr=GetMapTypeValue(m_maptype,m_set);
+  tmpstr=GetMapTypeValue(maptypes[m_maptype],m_set);
   if(pDX->m_bSaveAndValidate==UD_DISPLAY) ResetCombo();
   DDX_Text(pDX, IDC_VALUE, tmpstr);
   m_set=strtonum(tmpstr);
@@ -6252,6 +6273,7 @@ BEGIN_MESSAGE_MAP(CAreaMap, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaMap)
 	ON_BN_CLICKED(IDC_HEIGHTMAP, OnHeightmap)
 	ON_BN_CLICKED(IDC_LIGHTMAP, OnLightmap)
+	ON_BN_CLICKED(IDC_NIGHTMAP, OnNightmap)
 	ON_BN_CLICKED(IDC_SEARCHMAP, OnSearchmap)
 	ON_CBN_KILLFOCUS(IDC_VALUE, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_CLEAR, OnClear)
@@ -6277,7 +6299,15 @@ void CAreaMap::OnHeightmap()
 
 void CAreaMap::OnLightmap() 
 {
-  UpdateData(UD_RETRIEVE);
+  if(GetLightMap(false)) m_maptype=2;
+  else UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnNightmap() 
+{
+  if(GetLightMap(true)) m_maptype=1;
+  else UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
@@ -6306,13 +6336,18 @@ void CAreaMap::Allocatemap(bool allocate)
     the_area.heightmap = the_map;
     break;
   case 1:
+    the_area.m_night=false;
     the_area.lightmap = the_map;
     break;
   case 2:
+    the_area.m_night=true;
+    the_area.lightmap = the_map;
+    break;
+  case 3:
     the_area.searchmap = the_map;
     break;
   }
-  the_area.changedmap[m_maptype]=TRUE;
+  the_area.changedmap[maptypes[m_maptype]]=TRUE;
 }
 
 void CAreaMap::OnClear() 
@@ -6321,7 +6356,7 @@ void CAreaMap::OnClear()
   if(the_map) delete [] the_map;
 	Allocatemap(true);
   memset(the_map,0,(the_area.m_width/GR_WIDTH)*((the_area.m_height+GR_HEIGHT-1)/GR_HEIGHT) );
-  the_area.changedmap[m_maptype]=TRUE;
+  the_area.changedmap[maptypes[m_maptype]]=TRUE;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6329,12 +6364,12 @@ void CAreaMap::OnSet()
 {
   UpdateData(UD_RETRIEVE);
 	if(!the_map) Allocatemap(true);
-  if(m_maptype!=1)
+  if(maptypes[m_maptype]!=MT_LIGHT)
   {
     if(m_set>15) m_set=15;
   }
 	memset(the_map,m_set,(the_area.m_width/GR_WIDTH)*((the_area.m_height+GR_HEIGHT-1)/GR_HEIGHT) );
-  the_area.changedmap[m_maptype]=TRUE;
+  the_area.changedmap[maptypes[m_maptype]]=TRUE;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6347,17 +6382,19 @@ RGB(255,0,0),RGB(255,0,255),RGB(255,255,0), RGB(255,255,255)
 void CAreaMap::OnInit() 
 {
   int i;
+  int maptype;
 
 	UpdateData(UD_RETRIEVE);
-  switch(m_maptype)
+  maptype=maptypes[m_maptype];
+  switch(maptype)
   {
-  case 0:
+  case MT_HEIGHT:
     for(i=0;i<16;i++)
     {
       the_palette[i]=RGB(i*15, i*15, i*15);
     }
     break;
-  case 1:
+  case MT_LIGHT:
     for(i=0;i<256;i++)
     {
       the_palette[255-i]=RGB((i&15)*15, (i&15)*15, (i&15)*15);
@@ -6399,11 +6436,11 @@ void CAreaMap::OnInit()
       the_palette[i]&=0xff0000;
     }
     break;
-  case 2:
+  case MT_SEARCH:
     memcpy(the_palette, srpalette, sizeof(srpalette) );
     break;
   }
-  the_area.changedmap[m_maptype]=TRUE;
+  the_area.changedmap[maptype]=TRUE;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6411,7 +6448,7 @@ void CAreaMap::OnPalette()
 {
 	CPaletteEdit dlg;
 
-  if(m_maptype!=1)
+  if(maptypes[m_maptype]!=MT_LIGHT)
   {
     dlg.m_max=16;
   }  
@@ -6430,7 +6467,7 @@ void CAreaMap::OnMap()
 
   if(SetupSelectPoint(0)) return;
   dlg.m_value=m_set;
-  dlg.SetMapType(m_maptype, the_map);
+  dlg.SetMapType(maptypes[m_maptype], the_map);
 
   dlg.InitView(IW_ENABLEBUTTON|IW_EDITMAP|IW_SHOWGRID|IW_ENABLEFILL|IW_SHOWALL, &the_mos);
   dlg.m_clipx=m_mousepoint.x*GR_WIDTH/the_mos.mosheader.dwBlockSize-dlg.m_maxextentx/2;
@@ -6447,7 +6484,7 @@ void CAreaMap::OnEdit()
 
   if(SetupSelectPoint(0)) return;
   dlg.m_value=m_set;
-  dlg.SetMapType(m_maptype, the_map);
+  dlg.SetMapType(maptypes[m_maptype], the_map);
 
   dlg.InitView(IW_ENABLEBUTTON|IW_EDITMAP|IW_SHOWGRID|IW_ENABLEFILL|IW_SHOWALL, &the_mos);
   dlg.DoModal();
@@ -6457,18 +6494,11 @@ void CAreaMap::OnEdit()
 
 void CAreaMap::OnRefresh() 
 {
-  nop();
-  /*
-  point=GetPoint(GP_TILE);
-  pos=point.y*the_mos.mosheader.wColumn+point.x;
-  the_map[pos].flags^=the_mos.m_overlay;
-  the_area.wedchanged=true;
-  */
 }
 
 void CAreaMap::OnUndo() 
 { 
-  the_area.ReadMap("TMP",the_map, the_palette, m_maptype==MT_LIGHT?256*4:16*4);
+  the_area.ReadMap("TMP",the_map, the_palette, maptypes[m_maptype]==MT_LIGHT?256*4:16*4);
   Allocatemap(false);
   UpdateData(UD_DISPLAY);
 }
@@ -6509,7 +6539,7 @@ void CAreaMap::AddTravelRegions()
 void CAreaMap::OnSpecial() 
 {
   if(!the_map) Allocatemap(true);
-	switch(m_maptype)
+	switch(maptypes[m_maptype])
   {
   case MT_LIGHT:
     //generate lightmap

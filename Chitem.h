@@ -1001,6 +1001,7 @@ int read_spell(CString key);
 int write_spell(CString key, CString filepath);
 int read_store(CString key);
 int write_store(CString key, CString filepath);
+int GetLightMap(bool night);
 int GetWed(bool night);
 int ReadWed(int res);
 int read_area(CString key);

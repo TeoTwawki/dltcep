@@ -4207,6 +4207,20 @@ int write_store(CString key, CString filepath)
   return ret;
 }
 
+int GetLightMap(bool night)
+{
+  if(night==the_area.m_night) return 0;
+  if(the_area.changedmap[MT_LIGHT] )
+  {
+    if(MessageBox(0,"Do you want to discard the changes made on the other lightmap?","Area editor",MB_YESNO)==IDNO)
+    {
+      return -99;
+    }
+  }
+  the_area.m_night=night;
+  return ReadWed(0);
+}
+
 int GetWed(bool night)
 {
   if(night==the_area.m_night) return 0;

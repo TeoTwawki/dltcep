@@ -149,7 +149,6 @@ bool INF_MOS_FRAMEDATA::IsTransparent(DWORD x, DWORD y)
 int INF_MOS_FRAMEDATA::TakeMosData(const BYTE *pRawBits, DWORD width, DWORD height, bool deepen)
 {
   DWORD x,y;
-  int nPixelCount = 0;
   
   nWidth=width;
   nHeight=height;

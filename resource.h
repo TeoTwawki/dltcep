@@ -1558,6 +1558,7 @@
 #define IDC_RECHARGES                   2302
 #define IDC_BLEND                       2305
 #define IDC_LOAD3                       2306
+#define IDC_NIGHTMAP                    2311
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1763,7 +1764,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33028
-#define _APS_NEXT_CONTROL_VALUE         2311
+#define _APS_NEXT_CONTROL_VALUE         2312
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

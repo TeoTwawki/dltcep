@@ -43,8 +43,16 @@ int OctQuant::QuantizeAllColors(LPBYTE pFrameData, const LPBYTE pRawBits, CPoint
   qualityloss=0;
   for(i=0;i<nPixelNum;i++)
   {
-    memcpy(&color.data,oldpalette+pRawBits[i],3);
-    qcolor = QuantizeColor(proot, color);
+    //this will work only if both bams got the 0. index as transparency, but it is default
+    if(pRawBits[i])
+    {
+      memcpy(&color.data,oldpalette+pRawBits[i],3);
+      qcolor = QuantizeColor(proot, color);
+    }
+    else
+    {
+      qcolor=0;
+    }
     pFrameData[i]=(BYTE) qcolor;
     qualityloss+=ChiSquare((LPBYTE) &color.data,(LPBYTE) (palette+qcolor) );
   }

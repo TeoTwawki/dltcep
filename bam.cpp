@@ -1516,6 +1516,7 @@ int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex)
   m_pFrames[nFrameIndex].wHeight=(unsigned short) point.y;
 
   oc.AddPalette(m_palette); //feeds palette into octtree
+  
   return oc.QuantizeAllColors(m_pFrameData[nFrameIndex].pFrameData,
     tmpbam.GetFrameData(nImportFrameIndex),point,tmpbam.m_palette,m_palette);
 }

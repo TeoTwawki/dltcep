@@ -1506,6 +1506,8 @@ int Carea::ReadWedFromFile(int fh, long ml)
   }
   ReadMap("SR", searchmap, srpal, sizeof(srpal) );
   ReadMap("HT", heightmap, htpal, sizeof(htpal) );
+  wedchanged=false;
+  for(ret=0;ret<3;ret++) changedmap[ret]=false;
 
   fullsizew+=esize;
   //precalculating the size of the overlaytilemap
