@@ -1282,31 +1282,33 @@ BEGIN_MESSAGE_MAP(CSpellExtended, CPropertyPage)
 	ON_BN_CLICKED(IDC_EXTCOPY, OnExtcopy)
 	ON_BN_CLICKED(IDC_EXTADD, OnExtadd)
 	ON_BN_CLICKED(IDC_EXTREMOVE, OnExtremove)
-	ON_CBN_KILLFOCUS(IDC_EXTTYPE, OnKillfocusExttype)
-	ON_CBN_KILLFOCUS(IDC_LOC, OnKillfocusLoc)
-	ON_CBN_KILLFOCUS(IDC_TARGET, OnKillfocusTarget)
-	ON_EN_KILLFOCUS(IDC_RANGE, OnKillfocusRange)
-	ON_CBN_KILLFOCUS(IDC_PROJFRAME, OnKillfocusProjframe)
-	ON_EN_KILLFOCUS(IDC_SPEED, OnKillfocusSpeed)
+	ON_CBN_KILLFOCUS(IDC_EXTTYPE, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_PROJFRAME, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SPEED, OnDefaultKillfocus)
 	ON_CBN_SELCHANGE(IDC_EXTHEADNUM, OnSelchangeExtheadnum)
-	ON_EN_KILLFOCUS(IDC_ROLL, OnKillfocusRoll)
-	ON_CBN_KILLFOCUS(IDC_DAMAGETYPE, OnKillfocusDamagetype)
-	ON_EN_KILLFOCUS(IDC_DIE, OnKillfocusDie)
-	ON_EN_KILLFOCUS(IDC_ADD, OnKillfocusAdd)
-	ON_EN_KILLFOCUS(IDC_TARGETNUM, OnKillfocusTargetnum)
-	ON_EN_KILLFOCUS(IDC_EXTUSEICON, OnKillfocusExtuseicon)
-	ON_CBN_KILLFOCUS(IDC_PROJID, OnKillfocusProjid)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN16, OnKillfocusUnknown16)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN1A, OnKillfocusUnknown1a)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN22, OnKillfocusUnknown22)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN24, OnKillfocusUnknown24)
+	ON_EN_KILLFOCUS(IDC_ROLL, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_DAMAGETYPE, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_DIE, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_ADD, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TARGETNUM, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_EXTUSEICON, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_PROJID, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN16, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN1A, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN22, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN24, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_ORDER, OnOrder)
-	ON_EN_KILLFOCUS(IDC_LEVEL, OnKillfocusLevel)
+	ON_EN_KILLFOCUS(IDC_LEVEL, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_USEICON, OnUseicon)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN01, OnKillfocusUnknown01)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN01, OnDefaultKillfocus)
 	ON_LBN_KILLFOCUS(IDC_EXTEFFNUM, OnKillfocusExteffnum)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
+	ON_BN_CLICKED(IDC_NEXT, OnNext)
 	ON_LBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
+	ON_BN_CLICKED(IDC_PREV, OnPrev)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1333,18 +1335,6 @@ void CSpellExtended::OnKillfocusExteffnum()
   UpdateData(UD_DISPLAY);
 }
 
-void CSpellExtended::OnKillfocusLevel() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusExtuseicon() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);	
-}
-
 void CSpellExtended::OnUseicon() 
 {
   pickerdlg.m_restype=REF_BAM;
@@ -1356,109 +1346,7 @@ void CSpellExtended::OnUseicon()
   UpdateData(UD_DISPLAY);	
 }
 
-void CSpellExtended::OnKillfocusExttype() 
-{
-  UpdateData(UD_RETRIEVE);  
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusLoc() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusTargetnum() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusTarget() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusProjframe() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusRange() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusSpeed() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusRoll() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusDie() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusAdd() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusDamagetype() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusProjid() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusUnknown01() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-/*
-void CSpellExtended::OnKillfocusUnknown03() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-*/
-void CSpellExtended::OnKillfocusUnknown16() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusUnknown1a() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusUnknown22() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellExtended::OnKillfocusUnknown24() 
+void CSpellExtended::OnDefaultKillfocus() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
@@ -1475,6 +1363,24 @@ static int CompareExtension(const void *a, const void *b)
 void CSpellExtended::OnOrder() 
 {
   qsort(the_spell.extheaders, the_spell.extheadcount, sizeof(spl_ext_header), CompareExtension);
+  RefreshExtended();
+  UpdateData(UD_DISPLAY);
+}
+
+
+void CSpellExtended::OnNext() 
+{
+  extheadnum++;
+  exteffnum=0;
+  RefreshExtended();
+  UpdateData(UD_DISPLAY);
+}
+
+void CSpellExtended::OnPrev() 
+{
+  if(extheadnum) extheadnum--;
+  else extheadnum=the_spell.extheadcount-1;
+  exteffnum=0;
   RefreshExtended();
   UpdateData(UD_DISPLAY);
 }
@@ -1790,8 +1696,6 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CSpellExtra message handlers
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 // CSpellTool property page
 
@@ -1817,7 +1721,7 @@ CSpellTool::~CSpellTool()
 
 void CSpellTool::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSpellTool)
 	DDX_Text(pDX, IDC_RANGEINC, m_rangeinc);
 	DDV_MinMaxInt(pDX, m_rangeinc, 0, 1000);
@@ -1846,12 +1750,12 @@ void CSpellTool::RefreshTool()
 
 BOOL CSpellTool::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshTool();
 	return TRUE;
 }
 
-BEGIN_MESSAGE_MAP(CSpellTool, CDialog)
+BEGIN_MESSAGE_MAP(CSpellTool, CPropertyPage)
 	//{{AFX_MSG_MAP(CSpellTool)
 	ON_EN_KILLFOCUS(IDC_RANGE, OnKillfocusRange)
 	ON_EN_KILLFOCUS(IDC_RANGEINC, OnKillfocusRangeinc)
@@ -2086,3 +1990,45 @@ BEGIN_MESSAGE_MAP(CSpellPropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CSpellPropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+
+BOOL CSpellDescription::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+BOOL CSpellExtended::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+BOOL CSpellEquip::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+BOOL CSpellExtra::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+BOOL CSpellGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+BOOL CSpellTool::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}

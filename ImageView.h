@@ -20,6 +20,9 @@
 #define IW_PLACEIMAGE   8
 #define IW_MATCH        16        //match the image
 #define IW_NOREDRAW     32
+#define IW_EDITMAP      64        //edit a map (light/search/height)
+
+typedef CList<CPoint, CPoint &> CPointList;
 
 class CImageView : public CDialog
 {
@@ -28,13 +31,19 @@ public:
 	CImageView(CWnd* pParent = NULL);   // standard constructor
 //  void SetBitMap(HBITMAP *hb); obsolete
   void InitView(int flags); //sets the viewer to the current mos dimensions
+  void SetMapType(int maptype, LPBYTE map);
   void RedrawContent();
   void SetupAnimationPlacement(Cbam *bam, int orgx, int orgy);
+  void DrawGrid();
   CPoint GetPoint(int frame);
 
 // Dialog Data
 	//{{AFX_DATA(CImageView)
 	enum { IDD = IDD_IMAGEVIEW };
+	CButton	m_fill_control;
+	CButton	m_showgrid_control;
+	CComboBox	m_value_control;
+	CButton	m_showall_control;
 	CSpinButtonCtrl	m_spiny;
 	CSpinButtonCtrl	m_spinx;
 	CButton	m_setbutton;
@@ -42,9 +51,16 @@ public:
 	CScrollBar	m_horizontal;
 	CButton	m_button;
 	CStatic	m_bitmap;
+	int		m_value;
+	BOOL	m_showall;
+	BOOL	m_showgrid;
+	BOOL	m_fill;
 	//}}AFX_DATA
+  int m_max;
+  int m_maptype;
   CPoint m_oladjust;
   CPoint m_mousepoint;
+  CPoint m_sourcepoint;
   CPoint m_confirmed;
   int m_maxclipx, m_maxclipy;
   int m_minclipx, m_minclipy;
@@ -52,7 +68,8 @@ public:
   int m_enablebutton;
   int m_maxextentx, m_maxextenty;
   Cbam *m_animbam;
-  Cbam *m_map;
+  LPBYTE m_map;
+  COLORREF *m_palette;
   HBITMAP m_bm;  //accessed from chui editor
 
 // Overrides
@@ -69,6 +86,10 @@ public:
 protected:
   CBitmap m_lines;
 
+  void PutPixel(CPoint point, unsigned char color);
+  int GetPixel(CPoint point);
+  void FloodFill(CPoint point, unsigned char color);
+  void DrawLine(CPoint source, CPoint destination, unsigned char color);
   void RefreshDialog();
   void DrawLines();
   void DrawMap(); //light, height, search maps
@@ -81,6 +102,11 @@ protected:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnDeltaposSpinx(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDeltaposSpiny(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnKillfocusValue();
+	afx_msg void OnShowall();
+	afx_msg void OnSelchangeValue();
+	afx_msg void OnShowgrid();
+	afx_msg void OnFill();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

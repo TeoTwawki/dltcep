@@ -198,6 +198,7 @@ int Cspell::ReadSpellFromFile(int fhandle, long maxlen)
   {
     KillExtHeaders();
     extheaders=new spl_ext_header[header.extheadcount];
+    if(!extheaders) return -3;
     extheadcount=header.extheadcount;
   }
   fbc=header.featblkcount;
@@ -214,6 +215,7 @@ int Cspell::ReadSpellFromFile(int fhandle, long maxlen)
   {
     KillFeatHeaders();
     featblocks=new feat_block[fbc];
+    if(!featblocks) return -3;
     featblkcount=fbc;
   }
   for(i=0;i<featblkcount;i++)
@@ -226,7 +228,7 @@ int Cspell::ReadSpellFromFile(int fhandle, long maxlen)
   }
   if(maxlen!=fullsize)
   {
-    return -3; //incorrect length
+    return 1; //incorrect length
   }
   return 0;
 }

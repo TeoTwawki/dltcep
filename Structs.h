@@ -503,7 +503,8 @@ typedef struct {
   long flags;
   long count;        //count must be 1 for bags
   long infinite;
-  char unknown28[60];
+  long trigger;
+  char unknown2c[56];
 } store_item_entry11; //this is for sto v1.1
 
 typedef struct {
@@ -951,7 +952,8 @@ typedef struct
   short missac;
   short piercac;
   short slashac;
-  short unkac;
+  char thac0;            //unused
+  unsigned char attacks; //unused
   unsigned char sfort;
   unsigned char sreflex;
   unsigned char swill;
@@ -967,16 +969,18 @@ typedef struct
   char respierc;
   char resmiss;
   char resmdam;
-  unsigned char unknown[41];
+  unsigned char unknown61[6];
+  unsigned char luck;
+  unsigned char unknown[34];
   unsigned char totlevel;
   unsigned char levels[11];
   unsigned char unknown2[22];
   long strrefs[64];
-  unsigned char script1[8];
-  unsigned char script2[8];
+  unsigned char script1[8]; //team script
+  unsigned char script2[8]; //special script1
   long unknown3;
   long feat1, feat2, feat3; //96 bits
-  char feats[143];
+  char skills[143];
   char enemy[8];
   char subrace;
   short unknown4;
@@ -1431,8 +1435,8 @@ typedef struct {
   long lockremoval;
   short locp1x, locp1y, locp2x, locp2y; //minimum bounding box for open location
   long strref;            //check this for missing strings STRREF!!!
-  char regionlink[8];
-  char unknowna4[16];
+  char regionlink[16];
+  char unknowna8[8];
   long nameref;           //check this for missing strings  STRREF!!!
   char dlgref[8];
   char unknownc0[8];
@@ -1729,6 +1733,12 @@ typedef struct {
   char voiceset[32];
   char unknown4[194];
 } gam_iwd_npc;
+
+typedef union {
+  gam_bg_npc gbn;
+  gam_pst_npc gpn;
+  gam_iwd_npc gin;
+} gam_npc_extension;
 
 typedef struct {
   char unknown[20];

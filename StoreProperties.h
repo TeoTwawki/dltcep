@@ -18,6 +18,7 @@ public:
   void RefreshGeneral();
 
 protected:
+  CToolTipCtrl m_tooltip;
 // Dialog Data
 	//{{AFX_DATA(CStoreGeneral)
 	enum { IDD = IDD_STOREGENERAL };
@@ -28,7 +29,9 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CStoreGeneral)
+	public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -91,6 +94,7 @@ public:
   void RefreshRental();
 
 protected:
+  CToolTipCtrl m_tooltip;
 // Dialog Data
 	//{{AFX_DATA(CStoreRental)
 	enum { IDD = IDD_STORERENTAL };
@@ -100,8 +104,10 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CStoreRental)
+	public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -137,13 +143,11 @@ public:
   void RefreshItems();
 
 protected:
+  CToolTipCtrl m_tooltip;
+  Citem my_item;
 // Dialog Data
 	//{{AFX_DATA(CStoreItems)
 	enum { IDD = IDD_STOREITEMS };
-	CButton	m_spell_button;
-	CComboBox	m_spellresref_control;
-	CComboBox	m_drink_control;
-	CComboBox	m_spell_control;
 	CButton	m_itemtype_button;
 	CComboBox	m_stored_control;
 	CComboBox	m_itemtype_picker_control;
@@ -154,15 +158,8 @@ protected:
 	int	m_infinite;
 	int	m_flags;
 	short	m_unknown;
-	int		m_curedescref;
-	int		m_drinknameref;
-	int		m_drinkprice;
-	int		m_cureprice;
-	CString	m_spellresref;
-	CString	m_drinkresref;
-	CString	m_curedesc;
-	CString	m_drinkname;
-	int		m_strength;
+	int		m_strref;
+	CString	m_trigger;
 	//}}AFX_DATA
   Citem tmpitem;
   int updateflags;
@@ -171,33 +168,25 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CStoreItems)
+	public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
-  void RefreshSpeldesc();
+  CString ResolveKey(CString key);
   void UpdateItemtypepicker();
   void UpdateStoreditempicker();
-  void UpdateSpellpicker();
-  void UpdateDrinkpicker();
   void RefreshEntry(int count);
   void DisplayEntry(int count);
-  void RefreshSpell(int count);
-  void DisplaySpell(int count);
-  void RefreshDrink(int count);
-  void DisplayDrink(int count);
 	// Generated message map functions
 	//{{AFX_MSG(CStoreItems)
 	virtual BOOL OnInitDialog();
-	afx_msg void OnAdddrink();
 	afx_msg void OnAdditem();
 	afx_msg void OnAdditem2();
-	afx_msg void OnAddspell();
 	afx_msg void OnKillfocusAlloweditems();
 	afx_msg void OnRemoveitem();
-	afx_msg void OnRemovedrink();
-	afx_msg void OnRemovespell();
 	afx_msg void OnRemoveitem2();
 	afx_msg void OnRemallitem();
 	afx_msg void OnKillfocusItemtype();
@@ -209,14 +198,84 @@ protected:
 	afx_msg void OnKillfocusUse2();
 	afx_msg void OnKillfocusUse3();
 	afx_msg void OnRemallitem2();
-	afx_msg void OnRemallspell();
-	afx_msg void OnRemalldrink();
 	afx_msg void OnKillfocusUnknown();
 	afx_msg void OnSelchangeAlloweditems();
 	afx_msg void OnSelchangeStoreditems();
 	afx_msg void OnIdentified();
 	afx_msg void OnStolen();
 	afx_msg void OnKillfocusFlags();
+	afx_msg void OnNosteal();
+	afx_msg void OnBrowse();
+	afx_msg void OnOrder();
+	afx_msg void OnKillfocusStrref();
+	afx_msg void OnKillfocusScript();
+	afx_msg void OnNew();
+	//}}AFX_MSG
+	DECLARE_MESSAGE_MAP()
+
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// CStoreDrinks dialog
+
+class CStoreDrinks : public CPropertyPage
+{
+	DECLARE_DYNCREATE(CStoreDrinks)
+
+// Construction
+public:
+	CStoreDrinks();
+	~CStoreDrinks();
+  void RefreshDrinks();
+
+protected:
+  CToolTipCtrl m_tooltip;
+// Dialog Data
+	//{{AFX_DATA(CStoreDrinks)
+	enum { IDD = IDD_STOREDRINKS };
+	CButton	m_spell_button;
+	CComboBox	m_spellresref_control;
+	CComboBox	m_drink_control;
+	CComboBox	m_spell_control;
+	int		m_curedescref;
+	int		m_drinknameref;
+	int		m_drinkprice;
+	int		m_cureprice;
+	CString	m_spellresref;
+	CString	m_drinkresref;
+	CString	m_curedesc;
+	CString	m_drinkname;
+	int		m_strength;
+	//}}AFX_DATA
+  int updateflags;
+
+// Overrides
+	// ClassWizard generate virtual function overrides
+	//{{AFX_VIRTUAL(CStoreDrinks)
+	public:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	//}}AFX_VIRTUAL
+
+// Implementation
+protected:
+  void UpdateSpellpicker();
+  void UpdateDrinkpicker();
+  void RefreshEntry(int count);
+  void DisplayEntry(int count);
+  void RefreshSpell(int count);
+  void DisplaySpell(int count);
+  void RefreshDrink(int count);
+  void DisplayDrink(int count);
+	// Generated message map functions
+	//{{AFX_MSG(CStoreDrinks)
+	virtual BOOL OnInitDialog();
+	afx_msg void OnAdddrink();
+	afx_msg void OnAddspell();
+	afx_msg void OnRemovedrink();
+	afx_msg void OnRemovespell();
+	afx_msg void OnRemallspell();
+	afx_msg void OnRemalldrink();
 	afx_msg void OnKillfocusSpells();
 	afx_msg void OnSelchangeSpells();
 	afx_msg void OnKillfocusSpellresref();
@@ -230,14 +289,9 @@ protected:
 	afx_msg void OnKillfocusDrinkname();
 	afx_msg void OnKillfocusDrinkprice();
 	afx_msg void OnKillfocusDrinkstrength();
-	afx_msg void OnNosteal();
-	afx_msg void OnBrowse();
-	afx_msg void OnOrder();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
-
 };
-
 /////////////////////////////////////////////////////////////////////////////
 // CStoreExtra dialog
 
@@ -252,6 +306,7 @@ public:
   void RefreshExtra();
 
 protected:
+  CToolTipCtrl m_tooltip;
   int page;
 // Dialog Data
 	//{{AFX_DATA(CStoreExtra)
@@ -295,6 +350,7 @@ public:
 	CStoreGeneral m_PageGeneral;
   CStoreRental m_PageRental;
 	CStoreItems m_PageItems;
+  CStoreDrinks m_PageDrinks;
 	CStoreExtra m_PageExtra;
 
 // Operations

@@ -114,7 +114,8 @@ void C2DAEdit::New2DA()
   CString *tmppoi;
 
 	the_2da.new_2da();
-  tmppoi=new CString[1]; //new_2da just freed some memory, we let it crash here if it has to
+  tmppoi=new CString[1];
+  if(!tmppoi) return;
   tmppoi[0]="";
   the_2da.collabels=tmppoi;
 	itemname="new 2da";

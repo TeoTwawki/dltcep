@@ -424,14 +424,13 @@ void Cbam::new_bam()
   KillFrameData();
   KillDIBits();
 
-  memset(&header,0,sizeof(INF_BAM_HEADER) );
+  memset(&m_header,0,sizeof(INF_BAM_HEADER) );
   memset(&c_header,0,sizeof(INF_BAMC_HEADER) );
-  memset(palette,0,sizeof(palette));
-  memcpy(&header,"BAM V1  ",8);
+  memset(m_palette,0,sizeof(m_palette));
+  memcpy(&m_header,"BAM V1  ",8);
   memcpy(&c_header,"BAMCV1  ",8);
-  m_bGotPalette=true;
+  m_palettesize=256*sizeof(COLORREF);
   m_bCompressed=false;
-//  m_nSaveOrder=0xe4;
   m_nSaveOrder=0xe1;
 }
 
@@ -533,11 +532,11 @@ int Cbam::ImplodeBamData()
     switch(so&3)
     {
     case 0:
-      if(m_bGotPalette) m_nDataSize+=sizeof(palette);                   //palette
+      m_nDataSize+=m_palettesize;                   //palette
       break;
     case 1:
-      m_nDataSize+=header.wFrameCount*sizeof(INF_BAM_FRAME);
-      m_nDataSize+=header.chCycleCount*sizeof(INF_BAM_CYCLE);        //frame/cycle
+      m_nDataSize+=m_header.wFrameCount*sizeof(INF_BAM_FRAME);
+      m_nDataSize+=m_header.chCycleCount*sizeof(INF_BAM_CYCLE);        //frame/cycle
       break;
     case 2:
       m_nDataSize+=m_nFrameLookupSize*sizeof(short);                   //lookup size
@@ -557,30 +556,30 @@ int Cbam::ImplodeBamData()
   //allocating bytes for m_nDataSize
   m_pData = new BYTE[m_nDataSize];
   if(!m_pData) return -3;
-  nActPos=sizeof(header);
+  nActPos=sizeof(m_header);
   so=m_nSaveOrder;
   for(i=0;i<4;i++)
   {
     switch(so&3)
     {
     case 0: //palette
-      if(m_bGotPalette)
+      if(m_palettesize)
       {
-        header.dwPaletteOffset=nActPos;
-        memcpy(m_pData+nActPos,palette,sizeof(palette) );
-        nActPos+=sizeof(palette);
+        m_header.dwPaletteOffset=nActPos;
+        memcpy(m_pData+nActPos,m_palette,m_palettesize );
+        nActPos+=m_palettesize;
       }
-      else header.dwPaletteOffset=0;
+      else m_header.dwPaletteOffset=0;
       break;
     case 1:
-      header.dwFrameOffset=nActPos;
-      memcpy(m_pData+nActPos, m_pFrames, header.wFrameCount*sizeof(INF_BAM_FRAME) );
-      nActPos+= header.wFrameCount*sizeof(INF_BAM_FRAME);
-      memcpy(m_pData+nActPos, m_pCycles, header.chCycleCount*sizeof(INF_BAM_CYCLE) );
-      nActPos+= header.chCycleCount*sizeof(INF_BAM_CYCLE);
+      m_header.dwFrameOffset=nActPos;
+      memcpy(m_pData+nActPos, m_pFrames, m_header.wFrameCount*sizeof(INF_BAM_FRAME) );
+      nActPos+= m_header.wFrameCount*sizeof(INF_BAM_FRAME);
+      memcpy(m_pData+nActPos, m_pCycles, m_header.chCycleCount*sizeof(INF_BAM_CYCLE) );
+      nActPos+= m_header.chCycleCount*sizeof(INF_BAM_CYCLE);
       break;
     case 2:
-      header.dwFrameLookupTableOffset=nActPos;
+      m_header.dwFrameLookupTableOffset=nActPos;
       memcpy(m_pData+nActPos,m_pFrameLookup,m_nFrameLookupSize*sizeof(short) );
       nActPos+=m_nFrameLookupSize*sizeof(short);
       break;
@@ -594,7 +593,7 @@ int Cbam::ImplodeBamData()
     }
     so>>=2;
   }
-  memcpy(m_pData, &header, sizeof(header) );
+  memcpy(m_pData, &m_header, sizeof(m_header) );
   //now nActPos should equal m_nDataSize
   //if not, then our code is wrong
   if((unsigned long) nActPos!=m_nDataSize)
@@ -628,19 +627,19 @@ int Cbam::ExplodeBamData(bool onlyheader)
   {
     return -4;
   }
-  memcpy(&header,m_pData,sizeof(INF_BAM_HEADER) ); //get header
+  memcpy(&m_header,m_pData,sizeof(INF_BAM_HEADER) ); //get header
   if(onlyheader) return 0;
-  if(header.dwPaletteOffset)                       //get palette
+  if(m_header.dwPaletteOffset)                       //get palette
   {
-    memcpy(palette,m_pData+(header.dwPaletteOffset),256*sizeof(COLORREF) );
-    order[0]=header.dwPaletteOffset<<2;
-    m_bGotPalette=true;
+    memcpy(m_palette,m_pData+(m_header.dwPaletteOffset),256*sizeof(COLORREF) );
+    order[0]=m_header.dwPaletteOffset<<2;
+    m_palettesize=256*sizeof(COLORREF);
   }
-  else m_bGotPalette=false;
+  else m_palettesize=0;
   KillFrameData();
 
-  m_nFrames=header.wFrameCount;
-  m_nCycles=header.chCycleCount;
+  m_nFrames=m_header.wFrameCount;
+  m_nCycles=m_header.chCycleCount;
   m_pFrameData=new INF_BAM_FRAMEDATA[m_nFrames];
   m_pFrames=new INF_BAM_FRAME[m_nFrames];
   m_pCycles=new INF_BAM_CYCLE[m_nCycles];
@@ -648,14 +647,14 @@ int Cbam::ExplodeBamData(bool onlyheader)
   {
     return -3;
   }
-  tmppoi=m_pData+header.dwFrameOffset;
-  order[1]=(header.dwFrameOffset<<2)|1;
-  nOffset=header.wFrameCount*sizeof(INF_BAM_FRAME);
+  tmppoi=m_pData+m_header.dwFrameOffset;
+  order[1]=(m_header.dwFrameOffset<<2)|1;
+  nOffset=m_header.wFrameCount*sizeof(INF_BAM_FRAME);
   memcpy(m_pFrames,(INF_BAM_FRAME *) tmppoi, nOffset);
-  memcpy(m_pCycles,(INF_BAM_CYCLE *) (tmppoi+nOffset), header.chCycleCount*sizeof(INF_BAM_CYCLE)  );
+  memcpy(m_pCycles,(INF_BAM_CYCLE *) (tmppoi+nOffset), m_header.chCycleCount*sizeof(INF_BAM_CYCLE)  );
   //get the lookup data using cycles
   m_nFrameLookupSize=0;
-  for(nCycle=0;nCycle<header.chCycleCount;nCycle++)
+  for(nCycle=0;nCycle<m_header.chCycleCount;nCycle++)
   {
     if(m_pCycles[nCycle].wFrameIndexCount)
     {
@@ -668,11 +667,11 @@ int Cbam::ExplodeBamData(bool onlyheader)
   {
     return -3;
   }
-  memcpy(m_pFrameLookup,m_pData+header.dwFrameLookupTableOffset,m_nFrameLookupSize*sizeof(short) ); //get framelookup
-  order[2]=(header.dwFrameLookupTableOffset<<2)|2;
+  memcpy(m_pFrameLookup,m_pData+m_header.dwFrameLookupTableOffset,m_nFrameLookupSize*sizeof(short) ); //get framelookup
+  order[2]=(m_header.dwFrameLookupTableOffset<<2)|2;
   //get the frame data using frames, also collecting the minimal frame data
   //offset so we can use it for offset ordering
-  for(nFrame=0;nFrame<header.wFrameCount;nFrame++)
+  for(nFrame=0;nFrame<m_header.wFrameCount;nFrame++)
   {
     nOffset=m_pFrames[nFrame].dwFrameDataOffset&0x7fffffff;
     if(nOffset<m_nMinFrameOffset) m_nMinFrameOffset=nOffset;
@@ -680,7 +679,7 @@ int Cbam::ExplodeBamData(bool onlyheader)
 	  	bIsCompressed = false;
 	  else
 		  bIsCompressed = true;
-    ret=m_pFrameData[nFrame].TakeBamData(m_pData+nOffset, m_pFrames[nFrame].wWidth, m_pFrames[nFrame].wHeight, header.chTransparentIndex, bIsCompressed, (int) (m_nDataSize-nOffset) );
+    ret=m_pFrameData[nFrame].TakeBamData(m_pData+nOffset, m_pFrames[nFrame].wWidth, m_pFrames[nFrame].wHeight, m_header.chTransparentIndex, bIsCompressed, (int) (m_nDataSize-nOffset) );
     if(ret<gret) gret=ret;
   }
   order[3]=(m_nMinFrameOffset<<2)|3;
@@ -763,7 +762,7 @@ int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
     }     
   }
   //cpoint is required due to one of the color reduction algorithms
-  oc.BuildTree(prFrameBuffer,GetFrameData(nFrameWanted),CPoint(nFrameSize,1),palette);
+  oc.BuildTree(prFrameBuffer,GetFrameData(nFrameWanted),CPoint(nFrameSize,1),m_palette);
 endofquest:
   if(prFrameBuffer) delete [] prFrameBuffer;
   if(pRawData) delete [] pRawData;
@@ -775,7 +774,6 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
   bmp_header sHeader;          //BMP header
   unsigned char *pcBuffer;     //buffer for a scanline
   int scanline;                //size of a scanline in bytes (ncols * bytesize of a pixel)
-  int palettesize;             //size of the palette in file (ncolor * bytesize of color)
   long original;
   int y;
   int nSourceOff;              //the source offset in the original scanline (which we cut up)
@@ -805,28 +803,30 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
       if(sHeader.bits==8) sHeader.colors=256;
       else sHeader.colors=16;
     }
-    palettesize=sHeader.colors*sizeof(RGBQUAD);
-    if(read(fhandle,&palette, palettesize)!=palettesize)
+    m_palettesize=sHeader.colors*sizeof(RGBQUAD);
+    if(read(fhandle,&m_palette, m_palettesize)!=m_palettesize)
     {
       return -2;
     }
   }
   else
   {
-    palettesize=0;
+    m_palettesize=0;
   }
   //check if the file fits in the claimed length
-  if(sHeader.offset!=palettesize+sHeader.headersize+((unsigned char *) &sHeader.headersize-(unsigned char *) &sHeader) ) return -2;
+  if(sHeader.offset!=m_palettesize+sHeader.headersize+((unsigned char *) &sHeader.headersize-(unsigned char *) &sHeader) ) return -2;
   scanline=(sHeader.width*sHeader.bits+7)>>3;
   if(scanline&3) scanline+=4-(scanline&3);
-  if(scanline*sHeader.height+sHeader.offset>sHeader.fullsize)
+  
+  if(scanline*sHeader.height+sHeader.offset>ml)
   {
     scanline=(sHeader.width*sHeader.bits+7)>>3;
-    if(scanline*sHeader.height+sHeader.offset>sHeader.fullsize)
+    if(scanline*sHeader.height+sHeader.offset>ml)
     {
       return -2;
     }
   }
+  
   //check if we are on the position we wanted to be
   nSourceOff=tell(fhandle);
   if(sHeader.offset!=nSourceOff-original ) return -2;
@@ -907,7 +907,7 @@ endofquest:
     m_pFrames[0].dwFrameDataOffset=0x80000000;
     m_pFrames[0].wWidth=(unsigned short) sHeader.width;
     m_pFrames[0].wHeight=(unsigned short) sHeader.height;
-    header.wFrameCount=(unsigned short) m_nFrames;
+    m_header.wFrameCount=(unsigned short) m_nFrames;
     memset(m_pCycles,0,sizeof(INF_BAM_CYCLE) );
     m_pCycles[0].wFirstFrameIndex=0;
     m_pCycles[0].wFrameIndexCount=1;
@@ -923,7 +923,7 @@ int Cbam::ReadPltFromFile(int fhandle, int ml)
 
   if(ml<0) ml=filelength(fhandle);
   if((ml<sizeof(plt_header)) || (ml>100000) ) return -2; //file is bad
-  if(read(fhandle,&pltheader,sizeof(plt_header) )!=sizeof(plt_header) )
+  if(read(fhandle,&m_pltheader,sizeof(plt_header) )!=sizeof(plt_header) )
   {
     return -2;
   }
@@ -947,6 +947,7 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
     return -2;
   }
   m_bCompressed=true;
+  m_palettesize=256;
   //not a compressed header, we read the raw data and compress the bam if needed (on save, if compressed=true)
   if(c_header.chSignature[3]!='C')
   {
@@ -958,7 +959,7 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
 	  if (!m_pData)
 		  return -3;
 
-    if(onlyheader) dwSize=sizeof(header)-sizeof(c_header);
+    if(onlyheader) dwSize=sizeof(m_header)-sizeof(c_header);
     else dwSize=m_nDataSize-sizeof(c_header);
     memcpy(m_pData,&c_header, sizeof(c_header) ); //move the pre-read part to the header
 	  if(read(fhandle,m_pData+sizeof(c_header),dwSize)!=(int) dwSize)
@@ -986,7 +987,7 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
     return -2;//cannot read compressed data
   }
 
-  if(onlyheader) c_header.nExpandSize=sizeof(header);
+  if(onlyheader) c_header.nExpandSize=sizeof(INF_BAM_HEADER);
 
   if(c_header.nExpandSize>10000000) //don't handle bams larger than 10M
   {
@@ -1027,12 +1028,12 @@ endofquest:
 
 int Cbam::GetFrameCount()
 {
-  return header.wFrameCount;
+  return m_header.wFrameCount;
 }
 
 int Cbam::GetCycleCount()
 {
-  return header.chCycleCount;
+  return m_header.chCycleCount;
 }
 
 CPoint Cbam::GetCycleData(int nCycle)
@@ -1174,11 +1175,11 @@ int Cbam::DropCycle(int nCycleWanted)
   if(!m_pCycles) return (DWORD) -1;
   if(nCycleWanted<0) return (DWORD) -1;
   if(m_nCycles <= nCycleWanted) return (DWORD) -1;
-  header.chCycleCount--;
-  newCycles=new INF_BAM_CYCLE[header.chCycleCount];
+  m_header.chCycleCount--;
+  newCycles=new INF_BAM_CYCLE[m_header.chCycleCount];
   if(!newCycles)
   {
-    header.chCycleCount++;
+    m_header.chCycleCount++;
     return -3;
   }
   memcpy(newCycles,m_pCycles,sizeof(INF_BAM_CYCLE)*nCycleWanted);
@@ -1227,7 +1228,7 @@ int Cbam::InsertCycle(int nCycleWanted)
   newCycles[nCycleWanted].wFrameIndexCount=0;
   if(m_pCycles) delete [] m_pCycles;
   m_pCycles=newCycles;
-  header.chCycleCount=(BYTE) m_nCycles;
+  m_header.chCycleCount=(BYTE) m_nCycles;
   return 0;
 }
 
@@ -1361,9 +1362,9 @@ int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam)
   m_pFrames[nFrameIndex].wWidth=(unsigned short) point.x;
   m_pFrames[nFrameIndex].wHeight=(unsigned short) point.y;
 
-  oc.AddPalette(palette); //fills palette into octtree
+  oc.AddPalette(m_palette); //fills palette into octtree
   return oc.QuantizeAllColors(m_pFrameData[nFrameIndex].pFrameData,
-    tmpbam.GetFrameData(0),tmpbam.GetFrameSize(0),tmpbam.palette,palette);//tmpbam.GetFrameDataSize(0),
+    tmpbam.GetFrameData(0),tmpbam.GetFrameSize(0),tmpbam.m_palette,m_palette);//tmpbam.GetFrameDataSize(0),
 }
 
 //creates a new, empty frame; readjusts lookup
@@ -1374,7 +1375,7 @@ int Cbam::AddFrame(int nFrameWanted, int nNewFrameSize)
   int nFrameLookupPos;
   
   if(nFrameWanted>65500) return -1;
-  if (m_nFrames < nFrameWanted )
+  if (m_nFrames < nFrameWanted ) //allow frame to be one bigger (insert as last frame)
   {
     //not enough frames
     return -1;
@@ -1407,7 +1408,7 @@ int Cbam::AddFrame(int nFrameWanted, int nNewFrameSize)
   m_pFrameData[nFrameWanted].pFrameData=new BYTE[nNewFrameSize]; 
   m_pFrameData[nFrameWanted].nFrameSize=nNewFrameSize;
   m_nFrames++;
-  header.wFrameCount++;
+  m_header.wFrameCount++;
   //increasing frame lookup positions which are higher than our insert position
   for(nFrameLookupPos=0;nFrameLookupPos<m_nFrameLookupSize;nFrameLookupPos++)
   {
@@ -1429,20 +1430,20 @@ int Cbam::DropFrame(int nFrameWanted)
     //not enough frames
     return -1;
   }
-  header.wFrameCount--;
+  m_header.wFrameCount--;
   m_nFrames--;
   newFrames=new INF_BAM_FRAME[m_nFrames];
   if(!newFrames)
   {
     m_nFrames++;
-    header.wFrameCount++;
+    m_header.wFrameCount++;
     return -3;
   }
   newFrameData=new INF_BAM_FRAMEDATA[m_nFrames];
   if(!newFrameData)
   {
     m_nFrames++;
-    header.wFrameCount++;
+    m_header.wFrameCount++;
     return -3;
   }
   memcpy(newFrames,m_pFrames,sizeof(INF_BAM_FRAME)*nFrameWanted);
@@ -1472,7 +1473,7 @@ int Cbam::SetFrameData(int nFrameWanted, LPBYTE pFrameData,const CPoint &cpFrame
 {
   if(nFrameWanted<0) return -1;
   if(!m_pFrameData) return -1;
-	if (m_nFrames < nFrameWanted )  //not enough frames
+	if (m_nFrames <= nFrameWanted )  //not enough frames
 		return -1;
   memset(m_pFrames+nFrameWanted,0,sizeof(INF_BAM_FRAME) );
   m_pFrames[nFrameWanted].dwFrameDataOffset=0x80000000;
@@ -1483,17 +1484,20 @@ int Cbam::SetFrameData(int nFrameWanted, LPBYTE pFrameData,const CPoint &cpFrame
   return 0;
 }
 
-void Cbam::DetachFrames()
+int Cbam::DetachFrameData(int nFrameWanted)
 {
-  m_pFrames=NULL;
+	if (m_nFrames <= nFrameWanted )  //not enough frames
+		return -1;
+  m_pFrameData[nFrameWanted].pFrameData=NULL;
   new_bam();
+  return 0;
 }
 
 LPBYTE Cbam::GetFrameData(int nFrameWanted)
 {
   if(nFrameWanted<0) return NULL;
   if(!m_pFrameData) return NULL;
-	if (m_nFrames < nFrameWanted )  //not enough frames
+	if (m_nFrames <= nFrameWanted )  //not enough frames
 		return NULL;
   return m_pFrameData[nFrameWanted].pFrameData;
 }
@@ -1502,7 +1506,7 @@ CPoint Cbam::GetFramePos(int nFrameWanted)
 {
   if(nFrameWanted<0) return (DWORD) -1;
   if(!m_pFrames) return (DWORD) -1;
-	if (m_nFrames < nFrameWanted )  //not enough frames
+	if (m_nFrames <= nFrameWanted )  //not enough frames
 		return (DWORD) -1;
   return CPoint(m_pFrames[nFrameWanted].wCenterX,m_pFrames[nFrameWanted].wCenterY);
 }
@@ -1540,13 +1544,13 @@ bool Cbam::SetFrameRLE(int nFrameWanted, BOOL NewRLE)
   if(RLE==NewRLE) return true; //made it without effort!
   if(NewRLE)
   {
-    ret=m_pFrameData[nFrameWanted].RLECompression(header.chTransparentIndex); 
+    ret=m_pFrameData[nFrameWanted].RLECompression(m_header.chTransparentIndex); 
     m_pFrames[nFrameWanted].dwFrameDataOffset&=0x7fffffff; //turn off the uncompressed flag
     if(ret<0) return false;
   }
   else
   {
-    ret=m_pFrameData[nFrameWanted].RLEDecompression(header.chTransparentIndex); 
+    ret=m_pFrameData[nFrameWanted].RLEDecompression(m_header.chTransparentIndex); 
     m_pFrames[nFrameWanted].dwFrameDataOffset|=0x80000000; //turn on the uncompressed flag
     if(ret<0) return false;
     nExpectedSize=m_pFrames[nFrameWanted].wHeight*m_pFrames[nFrameWanted].wWidth;
@@ -1554,7 +1558,7 @@ bool Cbam::SetFrameRLE(int nFrameWanted, BOOL NewRLE)
     {
       pNewFrameData=new BYTE[nExpectedSize];
       if(!pNewFrameData) return false; //cannot correct it due to memory shortage
-      memset(pNewFrameData,header.chTransparentIndex,nExpectedSize);
+      memset(pNewFrameData,m_header.chTransparentIndex,nExpectedSize);
       memcpy(pNewFrameData,m_pFrameData[nFrameWanted].pFrameData,min(nExpectedSize,ret));
       delete [] m_pFrameData[nFrameWanted].pFrameData;
       m_pFrameData[nFrameWanted].pFrameData=pNewFrameData;
@@ -1614,8 +1618,8 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, Cmos &host, int nMode,
 
   if(nOffset>=0)
   {
-    nReplaced=m_pFrameData[nFrameWanted].ExpandBamBits(header.chTransparentIndex,clrTrans,
-      host.GetDIB()+nOffset,bIsCompressed,nColumn,palette,
+    nReplaced=m_pFrameData[nFrameWanted].ExpandBamBits(m_header.chTransparentIndex,clrTrans,
+      host.GetDIB()+nOffset,bIsCompressed,nColumn,m_palette,
       m_pFrames[nFrameWanted].wWidth,nLimit);
   }
   else nReplaced=0;
@@ -1670,9 +1674,11 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
     cb->GetBitmap(&bm);
     //the size of the original bitmap
     nColumn=bm.bmWidth;
-    nRow=bm.bmHeight;
+    nRow=bm.bmHeight;    
     Reallocate(nColumn,nRow);
+    //this is a device dependent method, works only on 32 bit video display
     cb->GetBitmapBits(nColumn*nRow*sizeof(COLORREF),m_pclrDIBits);
+//    memcpy(m_pclrDIBits,bm.bmBits,nColumn*nRow*sizeof(COLORREF) ); //doesn't work. bm.bmbits isn't set
     nOffset=nWidth+nHeight*nColumn;
     nLimit=min(m_pFrames[nFrameWanted].wHeight,nRow-nHeight);
   }
@@ -1687,12 +1693,11 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
 
   if(nOffset>=0)
   {
-    nReplaced=m_pFrameData[nFrameWanted].ExpandBamBits(header.chTransparentIndex,clrTrans,
-      m_pclrDIBits+nOffset,bIsCompressed,nColumn,palette,
+    nReplaced=m_pFrameData[nFrameWanted].ExpandBamBits(m_header.chTransparentIndex,clrTrans,
+      m_pclrDIBits+nOffset,bIsCompressed,nColumn,m_palette,
       m_pFrames[nFrameWanted].wWidth,nLimit);
   }
   else nReplaced=0;
-	
   if (!MakeBitmapExternal(m_pclrDIBits,nColumn, nRow, hBitmap))
     return -1;
   
@@ -1774,32 +1779,33 @@ void Cbam::OrderPalette()
 
   //mark palette so we'll know the original order
   //making sure that the transparent index will shift to 0
-  for(i=0;i<256;i++)
+  if(!m_palettesize) return;
+  for(i=0;i<m_palettesize/4;i++)
   {
-    pClr = (BYTE *) (palette+i);
+    pClr = (BYTE *) (m_palette+i);
     *(pClr+3) = (unsigned char) (i);
   }
-  qsort(palette, 256, 4, colourorder);
-  for(i=0;i<256;i++)
+  qsort(m_palette, m_palettesize/4, 4, colourorder);
+  for(i=0;i<m_palettesize/4;i++)
   {
-    pClr=(BYTE *) (palette+i);
-    if(*(pClr+3)==header.chTransparentIndex)
+    pClr=(BYTE *) (m_palette+i);
+    if(*(pClr+3)==m_header.chTransparentIndex)
     {
-      SwapPalette(palette,i,0);
+      SwapPalette(m_palette,i,0);
       break;
     }
   }
   //do the pixel change
-  for(nFrame=0;nFrame<header.wFrameCount;nFrame++)
+  for(nFrame=0;nFrame<m_header.wFrameCount;nFrame++)
   {
-    m_pFrameData[nFrame].ReorderPixels(palette, header.chTransparentIndex,0,
+    m_pFrameData[nFrame].ReorderPixels(m_palette, m_header.chTransparentIndex,0,
          !(m_pFrames[nFrame].dwFrameDataOffset&0x80000000) );
   }
-  header.chTransparentIndex=0;
+  m_header.chTransparentIndex=0;
   //change the palette back to clean
-  for(i=0;i<256;i++)
+  for(i=0;i<m_palettesize/4;i++)
   {
-    pClr = (BYTE *) (palette+i);
+    pClr = (BYTE *) (m_palette+i);
     *(pClr+3) = 0;
   }
 }
@@ -1809,14 +1815,14 @@ void Cbam::ForcePalette(palettetype &newpalette)
   int nOrigIndex, nFoundIndex, nForceIndex;
   int nDiff, nMinDiff;
 
-  for(nOrigIndex=0;nOrigIndex<256;nOrigIndex++)
+  for(nOrigIndex=0;nOrigIndex<m_palettesize/4;nOrigIndex++)
   {
-    if(nOrigIndex==header.chTransparentIndex) continue; //don't fuck the transparent index
+    if(nOrigIndex==m_header.chTransparentIndex) continue; //don't fuck the transparent index
     nFoundIndex=-1;
-    for(nForceIndex=0;nForceIndex<256;nForceIndex++)
+    for(nForceIndex=0;nForceIndex<m_palettesize/4;nForceIndex++)
     {
-      if(nForceIndex==header.chTransparentIndex) continue; //don't fuck the transparent index
-      nDiff=ChiSquare((BYTE *) (palette+nOrigIndex), (BYTE *) (newpalette+nForceIndex) );
+      if(nForceIndex==m_header.chTransparentIndex) continue; //don't fuck the transparent index
+      nDiff=ChiSquare((BYTE *) (m_palette+nOrigIndex), (BYTE *) (newpalette+nForceIndex) );
       if( (nFoundIndex<0) || (nDiff<nMinDiff) )
       {
         nMinDiff=nDiff;
@@ -1824,7 +1830,7 @@ void Cbam::ForcePalette(palettetype &newpalette)
       }
     }
     // now we have the closest match in nFoundIndex, lets pick it
-    palette[nOrigIndex]=newpalette[nFoundIndex];
+    m_palette[nOrigIndex]=newpalette[nFoundIndex];
   }
 }
 
@@ -1835,21 +1841,22 @@ void Cbam::DropUnusedPalette()
   int i;
 
   //mark palette so we'll know which are unused
-  for(i=0;i<256;i++)
+  for(i=0;i<m_palettesize/4;i++)
   {
-    pClr = (BYTE *) (palette+i);
-    if(i!=header.chTransparentIndex) *(pClr+3) = (unsigned char) 1;
+    pClr = (BYTE *) (m_palette+i);
+    if(i!=m_header.chTransparentIndex) *(pClr+3) = (unsigned char) 1;
   }
+  while(i<256) m_palette[i++]=0;
   //do the pixel change
-  for(nFrame=0;nFrame<header.wFrameCount;nFrame++)
+  for(nFrame=0;nFrame<m_header.wFrameCount;nFrame++)
   {
-    m_pFrameData[nFrame].MarkPixels(palette, header.chTransparentIndex,
+    m_pFrameData[nFrame].MarkPixels(m_palette, m_header.chTransparentIndex,
          !(m_pFrames[nFrame].dwFrameDataOffset&0x80000000) );
   }
   //drop unused entries (turning them black)
-  for(i=0;i<256;i++)
+  for(i=0;i<m_palettesize/4;i++)
   {
-    pClr = (BYTE *) (palette+i);
+    pClr = (BYTE *) (m_palette+i);
     if(*(pClr+3) ) memset(pClr,0,sizeof(COLORREF));
     else *(pClr+3) = 0;
   }
@@ -1863,10 +1870,10 @@ void Cbam::ConvertToGrey(COLORREF Shade, bool keepgray)
   int i;
   int tmp, isgray;
 
-	for(i=0;i<256;i++)
+	for(i=0;i<m_palettesize/4;i++)
 	{
-    if(i==header.chTransparentIndex) continue; //don't fuck that colour
-		pClr = (BYTE *) (palette+i);
+    if(i==m_header.chTransparentIndex) continue; //don't fuck that colour
+		pClr = (BYTE *) (m_palette+i);
 
 		nBlue = *(pClr);
 		nGreen = *(pClr+1);
@@ -1898,74 +1905,6 @@ void Cbam::ConvertToGrey(COLORREF Shade, bool keepgray)
 		*(pClr+2) = (unsigned char) nRed;
 	}
 }
-
-/*
-bool Cbam::ExpandBamBits(const BYTE *pRawBits, int nWidth, int nHeight, BYTE chTransparentIndex,
-  COLORREF clrTransparent, const COLORREF *pPal, COLORREF *pDIBits, bool bIsCompressed, int nMaxLength, int nColumn)
-{
-	int nNumRow, nNumColumn;
-	int nSourceOff = 0;
-	int nPixelCount = 0;
-	int nCount;
-
-	// The red and blue values seem to be backwards from the RGB macro. When
-	// creating the bitmap it apparently wants it in the reverse order that 
-	// the RGB macro makes it.
-	COLORREF clrFixed = RGB(GetBValue(clrTransparent),GetGValue(clrTransparent),GetRValue(clrTransparent));
-
-  for(nNumRow=0;nNumRow<nHeight;nNumRow++)
-  {	
-    for(nNumColumn=0;nNumColumn<nWidth;)
-    {
-      if(nMaxLength<=nSourceOff) break;
-      if (bIsCompressed && (pRawBits[nSourceOff] == chTransparentIndex) )
-      {
-        nSourceOff++;
-        nCount = pRawBits[nSourceOff]+1;
-        while(nCount)
-        {
-          if(clrFixed!=0xffffff)
-          {
-            pDIBits[nPixelCount]=clrFixed;
-          }
-          nCount--;
-          nPixelCount++;
-          nNumColumn++;
-          if(nNumColumn>=nWidth)
-          {
-            nNumColumn-=nWidth;
-            nNumRow++;
-            nPixelCount+=nColumn-nWidth;
-            if(nNumRow==nHeight) return true;
-          }
-        }
-        nSourceOff++;
-      }
-      else
-      {
-        // If it is not compressed, still need to catch the transparent pixels and
-        // fill with the transparent color.
-        if (pRawBits[nSourceOff] == chTransparentIndex)
-        {
-          if(clrFixed!=0xffffff)
-          {
-            pDIBits[nPixelCount]=clrFixed;
-          }
-        }
-        else
-        {
-          pDIBits[nPixelCount]=pPal[pRawBits[nSourceOff]];
-        }
-        nSourceOff++;
-        nPixelCount++;
-        nNumColumn++;
-      }
-    }
-    nPixelCount+=nColumn-nWidth;
-	} 
-	return true;
-}
-*/
 
 bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nWidth, int nHeight)
 {

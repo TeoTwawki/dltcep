@@ -89,7 +89,7 @@ extern UINT WM_FINDREPLACE;
 #define SPT_POINT    'P'
 #define SPT_INTEGER  'I'  //1. position
 #define SPT_INTEGER2 'I2' //3. (trigger) or 4. (action) position
-#define SPT_INTEGER3 'I3' //5. position for action
+#define SPT_INTEGER3 'I3' //4. position (trigger) or 5. position for action
 #define SPT_STRREF   'IS' //1. position (strref)
 #define SPT_STRREF2  '2I'
 #define SPT_STRREF3  '3I'
@@ -740,6 +740,7 @@ private:
 extern CChitemApp theApp;
 
 bool MakeBitmapExternal(const COLORREF *pDIBits, int nWidth, int nHeight, HBITMAP &hBitmap);
+bool MakeBitmapExternal(const LPBYTE pPixels, const COLORREF *pPalette, int nWidth, int nHeight, HBITMAP &hBitmap);
 void SwapPalette(DWORD *palette, int idx1, int idx2);
 int fill_destination(CString key, CComboBox *cb);
 int determinemenu(CString commandline);
@@ -848,6 +849,10 @@ int longsortb(const void *a,const void *b); //ascending
 #define SMALL_DIFF    16
 #define DITHER_MAX 20   //for dl1 dithering
 
+//searchmap tile size
+#define GR_WIDTH  16
+#define GR_HEIGHT 12
+
 extern unsigned short r_offset[256], g_offset[256], b_offset[256];
 extern char *dith_max;
 extern BYTE *range;
@@ -882,6 +887,7 @@ CString getitemname(CString filepath);
 CString makeitemname(CString ext, int remember);
 CString ImageFilter(int mostisbmp);
 void CreateMinimap(HWND hwnd);
+int GetScanLineLength(int width, int bytes);
 CString AssembleWeiduCommandLine(CString filename, CString outpath);
 unsigned long getfreememory();
 afx_msg void DefaultKillFocus();
@@ -900,6 +906,7 @@ int read_src(CString key);
 int read_creature(CString key);
 int write_creature(CString key);
 void MakeGradientBitmap(HBITMAP &hb, int GradientIndex);
+CString GetMapTypeValue(int maptype, int value);
 int read_bmp(CString key,HBITMAP &hb);
 int read_bmp(CString key, Cbam *cb, int lazy=0); //cb can't be NULL due to polymorphism
 int read_bam(CString key, Cbam *cb=NULL, int lazy=0);

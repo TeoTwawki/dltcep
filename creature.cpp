@@ -101,7 +101,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   case 22:
     fullsize=sizeof(creature_iwd2_header);
   	memcpy(header.filetype,"CRE V2.2",8);
-    memcpy(&iwd2header,&header,((char *) &iwd2header.unkac)-(char *) &iwd2header);
+    memcpy(&iwd2header,&header,((char *) &iwd2header.sfort)-(char *) &iwd2header);
     memcpy(iwd2header.scripts,header.scripts,sizeof(iwd2header.scripts) );
     memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
     memcpy(&iwd2header.itemslots,&header.itemslots,5*sizeof(long)+8);
@@ -470,7 +470,7 @@ int Ccreature::handle_iwd2()
 //IWD2_SPELLCOUNT
   //copying the last part which is common
   KillIwd2Spells();
-  memcpy(&header,&iwd2header,((char *) &iwd2header.unkac)-(char *) &iwd2header);
+  memcpy(&header,&iwd2header,((char *) &iwd2header.sfort)-(char *) &iwd2header);
   memcpy(header.scripts,iwd2header.scripts,sizeof(iwd2header.scripts) );
   memcpy(&header.idsea,&iwd2header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
   memcpy(&header.itemslots,&iwd2header.itemslots,5*sizeof(long)+8);
@@ -513,7 +513,7 @@ int Ccreature::calculate_iwd2(int &fullsize)
 //IWD2_SPELLCOUNT
   //copying the last part which is common
 //  KillIwd2Spells();
-  memcpy(&iwd2header,&header,((char *) &iwd2header.unkac)-(char *) &iwd2header);
+  memcpy(&iwd2header,&header,((char *) &iwd2header.sfort)-(char *) &iwd2header);
   memcpy(iwd2header.scripts,header.scripts,sizeof(iwd2header.scripts) );
   memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
   memcpy(&iwd2header.itemslots,&header.itemslots,5*sizeof(long)+8);
@@ -770,7 +770,7 @@ redo:
   order_items();
   if(maxlen!=fullsize)
   {
-    return -3; //incorrect length
+    return 1; //incorrect length
   }
 
   return ret;

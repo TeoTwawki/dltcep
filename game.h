@@ -37,8 +37,7 @@ public:
   gam_journal *journals;
   char **npcstructs;
   char **pcstructs;
-  char **npcextensions;
-  char **pcextensions;
+  gam_npc_extension *pcextensions, *npcextensions;
 
 	Cgame();
 	virtual ~Cgame();
@@ -82,15 +81,8 @@ public:
 
   inline void KillPCExtensions()
   {
-    int i;
-    
     if(pcextensions)
     {
-      for(i=0;i<pcextensioncount;i++)
-      {
-        if( pcextensions[i]) delete [] pcextensions[i];
-        pcextensions[i]=0;
-      }
       delete [] pcextensions;
       pcextensions=NULL;
       pcextensioncount=0;
@@ -98,15 +90,8 @@ public:
   }
   inline void KillNPCExtensions()
   {
-    int i;
-    
     if(npcextensions)
     {
-      for(i=0;i<npcextensioncount;i++)
-      {
-        if(npcextensions[i]) delete [] npcextensions[i];
-        npcextensions[i]=0;
-      }
       delete [] npcextensions;
       npcextensions=NULL;
       npcextensioncount=0;
@@ -178,7 +163,7 @@ public:
   }
 private:
   int ReadCreData(int offset, int size, char *&pointer,int &fullsize);
-  int ReadExtension(char *&pointer, int &fullsize);
+  int ReadExtension(char *pointer, int &fullsize, int mysize);
   int adjust_actpoint(long offset);
   inline long myseek(long pos)
   {

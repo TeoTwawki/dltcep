@@ -3,6 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include "chitem.h"
 #include "area.h"
 
@@ -85,6 +88,7 @@ Carea::Carea()
   revision=10;
   wedchanged=true;
   wedavailable=true;
+  changedmap[0]=changedmap[1]=changedmap[2]=true;
   memset(&intheader,0,sizeof(intheader) );
 }
 
@@ -123,8 +127,11 @@ void Carea::new_area()
   KillWedvertices();
   KillWallgroupvertices();
   KillDoorvertices();
+  KillMaps();
+  
   wedchanged=true;
   wedavailable=true;
+  changedmap[0]=changedmap[1]=changedmap[2]=true;
 }
 
 int Carea::adjust_actpointa(long offset)
@@ -316,6 +323,82 @@ int Carea::ExplodeVertices()
   return 0;
 }
 
+int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize)
+{
+  CString filepath, tmpath;
+  unsigned char *buffer=NULL;
+  int fhandle;
+  int fullsize;
+  int bitspercolor;
+  int scanline, width, height, x;
+  int ret;
+
+  filepath=bgfolder+"override\\"+header.wed+suffix+".BMP";
+  tmpath=bgfolder+"override\\"+header.wed+suffix+".TMP";
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=0;
+  width=the_area.width/GR_WIDTH;
+  height=the_area.height/GR_HEIGHT;
+  palsize*=sizeof(COLORREF);
+  bitspercolor=palsize==64?4:8;
+  scanline=GetScanLineLength(width,bitspercolor);
+  fullsize=scanline*height;
+  bmp_header header={'B','M',fullsize+sizeof(header)+palsize, 0,
+  sizeof(header)+palsize, 40, width, height, (short) 1, (short) bitspercolor, 0, fullsize,
+  0xb12, 0xb12,0,0};
+
+  if(write(fhandle,&header,sizeof(header))!=sizeof(header))
+  {
+    ret=-2;
+    goto endofquest;
+  }
+
+  if(write(fhandle,pal,palsize)!=palsize)
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  buffer=new unsigned char[scanline];
+  if(!buffer)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  memset(buffer,0,scanline);
+  pixels+=height*width;
+  while(height--)
+  {
+    pixels-=width;
+    if(bitspercolor==8) memcpy(buffer, pixels, scanline);
+    else
+    {
+      for(x=0;x<width;x++)
+      {
+        if(x&1) buffer[x/2]|=pixels[x];
+        else buffer[x/2]=(unsigned char) (pixels[x]<<4);
+      }      
+    }
+    if(write(fhandle,buffer,scanline)!=scanline)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+  }
+endofquest:
+  if(buffer) delete [] buffer;
+  close(fhandle);
+  if(!ret)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+  }
+  return ret;
+}
+
 int Carea::WriteWedToFile(int fh, int night)
 {
   int otc, dtc, dpc;
@@ -325,7 +408,31 @@ int Carea::WriteWedToFile(int fh, int night)
   int i;
 
   memcpy(&wedheader,"WED V1.3",8);
-  if(!wedchanged) return 0; //not changed
+
+  if(heightmap)
+  {
+    if(changedmap[0])
+    {
+      WriteMap("HT",heightmap,htpal,16);
+      changedmap[0]=false;
+    }
+  }
+  if(lightmap)
+  {
+    if(changedmap[1])
+    {
+      WriteMap("LM",lightmap,lmpal,256);
+      changedmap[1]=false;
+    }
+  }
+  if(searchmap)
+  {
+    if(changedmap[2])
+    {
+      WriteMap("SR",searchmap,srpal,16);
+      changedmap[2]=false;
+    }
+  }
   if(!wedavailable) return -1; //internal error
 
   //adjusting offsets
@@ -472,7 +579,11 @@ int Carea::WriteWedToFile(int fh, int night)
     return -2;
   }
 
-  if(fullsizew==fullsize) return 0;
+  if(fullsizew==fullsize)
+  {
+    wedchanged=false;
+    return 0;
+  }
   return -2;
 }
 
@@ -958,7 +1069,7 @@ int Carea::CleanUpVertices()
     if(wallgroupheaders[i].firstvertex!=pos)
     {
       wallgroupheaders[i].firstvertex=pos;
-      wedchanged=1;
+      wedchanged=true;
       ret=1;
     }
     pos+=wallgroupheaders[i].countvertex;
@@ -983,7 +1094,7 @@ int Carea::CleanUpVertices()
     if(doorpolygonheaders[i].firstvertex!=pos+pos2)
     {
       doorpolygonheaders[i].firstvertex=pos+pos2;
-      wedchanged=1;
+      wedchanged=true;
       ret=1;
     }
     pos2+=doorpolygonheaders[i].countvertex;
@@ -995,7 +1106,7 @@ int Carea::CleanUpVertices()
     if(wallgroupindices[i].index!=pos2)
     {
       wallgroupindices[i].index=(short) pos2;
-      wedchanged=1;
+      wedchanged=true;
       ret=1;
     }
     pos2+=wallgroupindices[i].count;
@@ -1160,11 +1271,10 @@ int Carea::getotic(int overlay) //overlay tile index count
   return otic;
 }
 
-int Carea::ReadMap(const char *Suffix, unsigned char *Storage)
+int Carea::ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palette, int size)
 {
   Cbam tmpbam;
   CString resname;
-  int size;
 
   if(Storage)
   {
@@ -1175,11 +1285,11 @@ int Carea::ReadMap(const char *Suffix, unsigned char *Storage)
   resname+=Suffix;
   if(read_bmp(resname, &tmpbam, 0)) return -2;
   if(tmpbam.GetFrameCount()!=1) return -2;
-  size=tmpbam.GetFrameDataSize(0);
-  if(size!=height*width) return -2;
+  if(size<tmpbam.m_palettesize) return -2;
   Storage = tmpbam.GetFrameData(0);
-  tmpbam.DetachFrames();
-  return 0;
+  memset(Palette,0,size);
+  memcpy(Palette, tmpbam.m_palette, tmpbam.m_palettesize);
+  return tmpbam.DetachFrameData(0);
 }
 
 int Carea::ReadWedFromFile(int fh, long ml)
@@ -1230,15 +1340,12 @@ int Carea::ReadWedFromFile(int fh, long ml)
   {
     return -2;
   }
-  width=overlayheaders[0].width;
-  height=overlayheaders[0].height;
-  ReadMap("LM", lightmap);
-  ReadMap("SR", searchmap);
-  ReadMap("HT", heightmap);
-  if(header.exploredsize && (header.exploredsize!=width*height) )
-  {
-    ret|=8;
-  }
+  width=(unsigned short) (overlayheaders[0].width*64);
+  height=(unsigned short) (overlayheaders[0].height*64);
+  ReadMap("LM", lightmap, lmpal, sizeof(lmpal) );
+  ReadMap("SR", searchmap, srpal, sizeof(srpal) );
+  ReadMap("HT", heightmap, htpal, sizeof(htpal) );
+
   fullsizew+=esize;
   //precalculating the size of the overlaytilemap
   for(i=0;i<overlaycount;i++)
@@ -1557,6 +1664,7 @@ int Carea::ReadAreaFromFile(int fh, long ml)
 
   wedavailable=false;
   wedchanged=false;
+  for(ret=0;ret<3;ret++) changedmap[ret]=false;
   ret=0;
   fhandlea=fh;
   if(ml==-1) maxlena=filelength(fhandlea);

@@ -112,7 +112,6 @@ public:
   int Allocate(int x, int y);
   int GetImageWidth(int clipx, int maxclipx);
   int GetImageHeight(int clipy, int maxclipy);
-  int GetScanLineLength(int width, int bytes);
   DWORD GetColor(int x, int y);
 
   inline int GetDataSize()

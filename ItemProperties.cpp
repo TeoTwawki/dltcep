@@ -135,7 +135,7 @@ CItemGeneral::CItemGeneral() : CPropertyPage(CItemGeneral::IDD)
 {
 	//{{AFX_DATA_INIT(CItemGeneral)
 	//}}AFX_DATA_INIT
-  hbb=0;
+  hbb=NULL;
 }
 
 CItemGeneral::~CItemGeneral()
@@ -352,9 +352,9 @@ CItemIcons::CItemIcons() : CPropertyPage(CItemIcons::IDD)
 	m_conv = _T("");
 	//}}AFX_DATA_INIT
   topleft=CPoint(220,220);
-  hbmi1=0;
-  hbmi2=0;
-  hbmg=0;
+  hbmi1=NULL;
+  hbmi2=NULL;
+  hbmg=NULL;
   memset(hbmd,0,sizeof(hbmd));
 }
 
@@ -383,7 +383,6 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
   CString tmpstr;
   int id, bit;
   CButton *checkbox;
-//  HBITMAP hb=0;
   CPoint newtopleft;
   int fc;
   BOOL itemexcl;
@@ -560,7 +559,7 @@ void CItemIcons::RefreshIcons()
     break;
   default:
     cb=GetDlgItem(IDC_DESCICON);
-    if(cb) cb->SetWindowText("Description:");
+    if(cb) cb->SetWindowText("Description");
     cb=GetDlgItem(IDC_DCENTER);
     if(cb) cb->SetWindowText("Center BAM");
     cb=GetDlgItem(IDC_DESTRUCTED);
@@ -842,7 +841,6 @@ void CItemIcons::OnIcenter()
   write_bam(tmpstr);
   UpdateData(UD_DISPLAY);
 }
-
 
 void CItemIcons::OnBrowse2() 
 {
@@ -2025,7 +2023,7 @@ CItemExtended::CItemExtended() : CPropertyPage(CItemExtended::IDD)
 	//}}AFX_DATA_INIT
 	extheadnum = 0;
   exteffnum = 0;
-  hbmu=0;
+  hbmu=NULL;
 }
 
 CItemExtended::~CItemExtended()

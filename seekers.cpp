@@ -2329,10 +2329,10 @@ bool CChitemDlg::match_script()
   search_data tmpdata;
 
   memset(&tmpdata,0,sizeof(tmpdata) );
-  if(searchflags&MI)
+  if(searchflags&MT)
   {
     the_script.RollBack();
-    if(!the_script.find_itemtype(searchdata, tmpdata, FLG_MITEM)) return false;
+    if(!the_script.find_itemtype(searchdata, tmpdata, FLG_MTYPE)) return false;
   }
 
   if(searchflags&MF)
@@ -2352,13 +2352,13 @@ bool CChitemDlg::match_script()
     if(!the_script.find_itemtype(searchdata, tmpdata,FLG_MRES)) return false;
   }
 
-  if(searchflags&MI)
+  if(searchflags&MT)
   {
-    log("Found in %s",resolve_scriptelement(tmpdata.itemtype, 1, tmpdata.itemtype2));
+    log("Found in %s",resolve_scriptelement(tmpdata.itemtype, TRIGGER, tmpdata.itemtype2));
   }
   if(searchflags&MF)
   {
-    log("Found in %s",resolve_scriptelement(tmpdata.feature, 0, tmpdata.feature2));
+    log("Found in %s",resolve_scriptelement(tmpdata.feature, ACTION, tmpdata.feature2));
   }
   if(searchflags&MV )
   {
@@ -2705,7 +2705,7 @@ bool CChitemDlg::match_bam()
 {
   if(searchflags&MT)
   {
-    if(the_bam.header.chCycleCount<searchdata.itemtype || the_bam.header.chCycleCount>searchdata.itemtype2)
+    if(the_bam.m_header.chCycleCount<searchdata.itemtype || the_bam.m_header.chCycleCount>searchdata.itemtype2)
     {
       return false;
     }
@@ -2713,14 +2713,14 @@ bool CChitemDlg::match_bam()
 
   if(searchflags&MF)
   {
-    if(the_bam.header.wFrameCount<searchdata.feature || the_bam.header.wFrameCount>searchdata.feature2)
+    if(the_bam.m_header.wFrameCount<searchdata.feature || the_bam.m_header.wFrameCount>searchdata.feature2)
     {
       return false;
     }
   }
 
-  log("Cycle count: %d",the_bam.header.chCycleCount);
-  log("Frame count: %d",the_bam.header.wFrameCount);
+  log("Cycle count: %d",the_bam.m_header.chCycleCount);
+  log("Frame count: %d",the_bam.m_header.wFrameCount);
   return true;
 }
 
@@ -4730,7 +4730,7 @@ int CChitemDlg::check_bam()
     log("Could drop %d unused frame(s).",ret);
     ret=BAD_COMPRESS;
   }
-  if(the_bam.header.chTransparentIndex)
+  if(the_bam.GetTransparentIndex())
   {
     log("This bam has a nonzero transparent index.");
     ret|=BAD_ATTR;

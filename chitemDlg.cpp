@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.0l"
+#define PRG_VERSION "6.1"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -412,14 +412,17 @@ BOOL CChitemDlg::OnInitDialog()
   m_progressdlg=0;
   m_panicbutton=0;
 
-  if(read_effect_descs())
+  if(bgfolder.IsEmpty())
   {
-    MessageBox("There was an error while processing the effect descriptions.","Warning",MB_ICONWARNING|MB_OK);
+    MessageBox("Please run setup!");
   }
-
-  scan_chitin();
-  if(!bgfolder.IsEmpty())
+  else
   {
+    if(read_effect_descs())
+    {
+      MessageBox("There was an error while processing the effect descriptions.","Warning",MB_ICONWARNING|MB_OK);
+    }
+    scan_chitin();
     scan_override();
     scan_2da();
     scan_dialog();
@@ -954,7 +957,7 @@ int CChitemDlg::scan_dialog(bool refresh)
 }
 
 #define NUM_INI 4
-CString inifiles[NUM_INI]={"baldur.ini","icewind2.ini","icewind.ini","torment.ini"};
+CString inifiles[NUM_INI]={"torment.ini","baldur.ini","icewind2.ini","icewind.ini"};
 
 void CChitemDlg::read_cd_locations()
 {
@@ -2560,15 +2563,20 @@ void CChitemDlg::OnCompat()
   }
   else
   {
+    if(bgfolder.IsEmpty())
+    {
+      MessageBox("Setup isn't complete.");
+      return;
+    }
+  	if(read_effect_descs())
+    {
+      MessageBox("There was an error while processing the effect descriptions.","Warning",MB_ICONWARNING|MB_OK);
+    }
     scan_chitin();
     scan_override();
     scan_2da();
     scan_dialog();
 
-  	if(read_effect_descs())
-    {
-      MessageBox("There was an error while processing the effect descriptions.","Warning",MB_ICONWARNING|MB_OK);
-    }
     load_variables(m_hWnd, 0, 1, variables); //not verbose
     UpdateData(UD_DISPLAY);
     end_progress();
@@ -2911,7 +2919,7 @@ void CChitemDlg::OnFind2da()
   CFindItem dlg; //so far they are the same
   int ret;
   
-  dlg.mask=0x400000;
+  dlg.mask=0xc00000;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find tables";
@@ -3068,7 +3076,10 @@ leave:
       }
     }
   }
+  scan_chitin();
+  scan_override();
   RefreshMenu(); //updates .tlk
+  end_progress();
   if(flawless)
   {
     log("Imports done without error.");
@@ -3816,7 +3827,7 @@ int CChitemDlg::read_next_creature(loc_entry fileloc)
     break;
   case -3:
     if(chkflg&NOSTRUCT) break;
-    log("Crippled file");
+    log("Out of memory while reading creature.");
     break;
   case -2: //serious error
     if(chkflg&NOSTRUCT) break;
@@ -3825,6 +3836,10 @@ int CChitemDlg::read_next_creature(loc_entry fileloc)
   case -1:
     if(chkflg&NOSTRUCT) break;
     log("Invalid creature or length is zero.");
+    break;
+  case 1:
+    if(chkflg&NOSTRUCT) break;
+    log("Incorrect file size.");
     break;
   }
   return ret;
@@ -3842,13 +3857,17 @@ int CChitemDlg::read_next_chui(loc_entry fileloc)
   close(fhandle);
   switch(ret)
   {
+  case -3:
+    if(chkflg&NOSTRUCT) break;
+    log("Out of memory while reading chui.");
+    break;
   case -2: //serious error
     if(chkflg&NOSTRUCT) break;
-    log("Serious error while looking up chui");
+    log("Serious error while looking up chui.");
     break;
   case -1:
     if(chkflg&NOSTRUCT) break;
-    log("Invalid creature or length is zero.");
+    log("Invalid chui or length is zero.");
     break;
   }
   return ret;
@@ -3964,11 +3983,23 @@ int CChitemDlg::read_next_spell(loc_entry fileloc)
   close(fhandle);
   switch(ret)
   {
+  case -3:
+    if(chkflg&NOSTRUCT) break;
+    log("Out of memory while reading spell.");
+    break;
   case -2: //serious error
     if(chkflg&NOSTRUCT) break;
-    log("Serious error while looking up spell");
+    log("Invalid spell or length is zero.");
+    break;
+  case -1:
+    if(chkflg&NOSTRUCT) break;
+    log("Serious error while looking up spell.");
     break;
   case 0:
+    break;
+  case 1:
+    if(chkflg&(NOSTRUCT|WARNINGS)) break;
+    log("Incorrect file size.");
     break;
   }
   return ret;
@@ -3991,12 +4022,12 @@ int CChitemDlg::read_next_store(loc_entry fileloc)
   switch(ret)
   {
   case -3:
-    if(chkflg&NOSTRUCT) break;
-    log("Bad file size");
+    if(chkflg&(NOSTRUCT|WARNINGS)) break;
+    log("Incorrect file size.");
     break;
   case -2: //serious error
     if(chkflg&NOSTRUCT) break;
-    log("Serious error while looking up store");
+    log("Serious error while looking up store.");
     break;
   case 0:
     for(i=0;i<the_store.entrynum;i++)
@@ -4052,7 +4083,7 @@ int CChitemDlg::read_next_script(loc_entry fileloc)
   {
   case -4:
     if(chkflg&NOSTRUCT) break;
-    log("Incorrect filesize");
+    log("Incorrect filesize.");
     break;
   case -3:
     log("Out of memory at line: %d",line);
@@ -4084,11 +4115,12 @@ int CChitemDlg::read_next_dialog(loc_entry fileloc)
     log("Out of memory");
     break;
   case -2:
+    if(chkflg&NOSTRUCT) break;
     log("Serious error while looking up dialog.");
     break;
   case -1:
     if(chkflg&NOSTRUCT) break;
-    log("File structure error");
+    log("File structure error.");
     break;
   }
   return ret;
@@ -4131,21 +4163,22 @@ int CChitemDlg::read_next_area(loc_entry fileloc)
   switch(ret)
   {
   case -2: //serious error
+    if(chkflg&NOSTRUCT) break;
     log("Serious error while looking up area.");
     break;
   case 0:
     break;
   case 1:
     if(chkflg&(NOSTRUCT|WARNINGS) ) break;
-    log("Object is reordered");
+    log("Object is reordered.");
     break;
   case 2:
     if(chkflg&NOSTRUCT) break;
-    log("Object is crippled");
+    log("Object is crippled.");
     break;
   case 3:
     if(chkflg&NOSTRUCT) break;
-    log("Wedfile is not available");
+    log("Wedfile is not available.");
     break;
   }
   return ret;
@@ -4164,6 +4197,7 @@ int CChitemDlg::read_next_bam(loc_entry fileloc, bool onlyheader)
   switch(ret)
   {
   case -1:
+    if(chkflg&NOSTRUCT) break;
     log("Bam file is inconsistent.");
     break;
   case 0:
@@ -4189,6 +4223,7 @@ int CChitemDlg::read_next_game(loc_entry fileloc)
   switch(ret)
   {
   case -1:
+    if(chkflg&NOSTRUCT) break;
     log("Game file is inconsistent.");
     break;
   case 0:
@@ -4214,6 +4249,7 @@ int CChitemDlg::read_next_map(loc_entry fileloc)
   switch(ret)
   {
   case -1:
+    if(chkflg&NOSTRUCT) break;
     log("Worldmap is inconsistent.");
     break;
   case 0:

@@ -428,6 +428,7 @@ void CFileExtract3::OnOK()
   }
 
   maxlen=filelength(finput)-sizeof(header);
+  if(m_filetype==".*") m_filetype.Empty();
   do
   {
     ret=extract_from_cbf(m_filemask, m_filetype, finput, m_override,maxlen);

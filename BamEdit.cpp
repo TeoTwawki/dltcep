@@ -92,7 +92,7 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_FRAME2, m_framenum2);
 	//}}AFX_DATA_MAP
 	DDX_Check(pDX, IDC_COMPRESSED, the_bam.m_bCompressed); //kept it for simplicity
-  DDX_Text(pDX, IDC_TRANSPARENT, the_bam.header.chTransparentIndex);
+  DDX_Text(pDX, IDC_TRANSPARENT, the_bam.m_header.chTransparentIndex);
 
   framenum=(unsigned short) m_framenum_control.GetCurSel();
   if(pDX->m_bSaveAndValidate==UD_DISPLAY)
@@ -777,7 +777,8 @@ void CBamEdit::OnSavepalette()
 	
 	palette.new_bam();
   palette.SetCompress(0);
-  memcpy(palette.palette,the_bam.palette,1024); //sizeof(palette)
+  memcpy(palette.m_palette,the_bam.m_palette,the_bam.m_palettesize); //sizeof(palette)
+  palette.m_palettesize=the_bam.m_palettesize;
   //fhandle
   Savebam(palette,0);
 }
@@ -786,7 +787,6 @@ void CBamEdit::Loadpalette(bool force_or_import)
 {
   Cbam palette;
   int fhandle;
-  COLORREF *a, *b;
   CString filepath;
   int res;
   
@@ -807,12 +807,10 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=palette.ReadBamFromFile(fhandle,-1,0);
     close(fhandle);
-    if(force_or_import) the_bam.ForcePalette(palette.palette);
+    if(force_or_import) the_bam.ForcePalette(palette.m_palette);
     else
     {
-      a=palette.palette;
-      b=the_bam.palette;
-      memcpy(b,a,1024 ); //sizeof(palette)
+      memcpy(the_bam.m_palette,palette.m_palette,palette.m_palettesize ); //sizeof(palette)
     }
     switch(res)
     {
@@ -847,7 +845,7 @@ void CBamEdit::OnEditpalette()
   {
     the_bam.InitPalette();
   }
-  dlg.SetPalette(the_bam.palette, m_function, m_adjust);
+  dlg.SetPalette(the_bam.m_palette, m_function, m_adjust);
   if(dlg.DoModal()==IDOK)
   {
     m_function=dlg.m_function;
@@ -1181,15 +1179,16 @@ void CBamEdit::OnNewframe() //this imports one frame
   {
     //let's hope this works better
     tmpbam.DropUnusedPalette();            //try to free up at least one entry
-    tmpbam.header.chTransparentIndex=255;  //this is the least likely used entry
+    tmpbam.OrderPalette();
+    tmpbam.m_header.chTransparentIndex=255;  //this is the least likely used entry
     tmpbam.OrderPalette();
     if(the_bam.GetFrameCount()!=1)
     {
-      tmpbam.ForcePalette(the_bam.palette); //forcing the major palette
+      tmpbam.ForcePalette(the_bam.m_palette); //forcing the major palette
     }
     else
     { //taking the first palette without change
-      memcpy(the_bam.palette,tmpbam.palette,sizeof(the_bam.palette) ); 
+      memcpy(the_bam.m_palette,tmpbam.m_palette,sizeof(the_bam.m_palette) ); 
     }
     the_bam.SetFrameData(nFrameIndex, tmpbam.GetFrameData(0),tmpbam.GetFrameSize(0));
     nCycle=m_cyclenum_control.GetCurSel();

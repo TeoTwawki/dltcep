@@ -9,7 +9,8 @@ Description
 These files contain a description of the types of items and services available for sale in a given store, inn, tavern, or temple.
 STOR file versions
 
-    * V1.0: Planescape: Torment, Baldur's Gate, Icewind Dale
+    * V1.0: Baldur's Gate, Icewind Dale
+    * V1.1: Planescape: Torment
 
 STOR V1.0
 
@@ -87,6 +88,24 @@ Offset Size (data type) Description
 
 0x0014 4 (dword) Number of this item in stock.
 0x0018 4 (dword) Infinite supply flag (?)
+
+STOR V1.1 Items for Sale (PST)
+Offset Size (data type) Description
+0x0000 8 (resref) Resource name of the item in question
+0x0008 2 (word) Unknown
+0x000a 2 (word) Usage 1. This is the first parameter passed when CreateItem is called from a script, for instance. This value probably means "the number of 'primary' uses of this item". For quantity items, this is a quantity. For some magical items, this is a number of charges. (Some items may have more than one usable magical aspect -- for instance, cast fireball 5 times and aganazzar's scorcher 10 times. In a case like that, this would be 5.)
+0x000c 2 (word) Usage 2. This is the second parameter passed when CreateItem is called from a script, for instance. This value probably means "the number of 'secondary' uses of this item". (For items which have more than one usable aspect -- for instance, cast fireball 5 times and aganazzar's scorcher 10 times. In a case like that, this would be 10.)
+0x000e 2 (word) Usage 3. This is the third parameter passed when CreateItem is called from a script, for instance. This value probably means "the number of 'tertiary' uses of this item".
+0x0010 4 (dword) Flags. 
+
+    * bit 0 (0x01) is set, it means "identified" 
+    * bit 1 (0x02) is set, it means "unstealable"
+    * bit 2 (0x04) is set, it means "stolen".
+
+0x0014 4 (dword) Number of this item in stock.
+0x0018 4 (dword) Infinite supply flag (?)
+0x001c 4 (dword) Strref for item trigger
+0x0020 56 (bytes) Unknown
 
 STOR V1.0 Drinks for Sale
 Offset Size (data type) Description

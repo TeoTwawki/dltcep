@@ -434,13 +434,13 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
   if(pixelwidth<0) pixelwidth=0;
   if(pixelheight<0) pixelheight=0;
 
-  //check for overflow
-  if(pixelwidth*pixelheight<=0) return false;
   nXpos=pixelwidth*pixelheight;
+  //check for overflow
+  if(nXpos<=0) return false;
   if(m_DIBsize!=nXpos)
   {
     if(m_pclrDIBits) delete [] m_pclrDIBits;
-    m_pclrDIBits=new DWORD[nXpos];
+    m_pclrDIBits=new COLORREF[nXpos];
     if(!m_pclrDIBits) return false;
     m_DIBsize=nXpos;
   }
@@ -582,15 +582,6 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
 endofquest:
   delete [] zerobuffer;
   return ret;
-}
-
-int Cmos::GetScanLineLength(int width, int bytes)
-{
-  int paddedwidth;
-
-  paddedwidth=width*bytes;
-  if(paddedwidth&3) paddedwidth+=4-(paddedwidth&3); // rounding it up to 4 bytes boundary
-  return paddedwidth;
 }
 
 int Cmos::CreateBmpHeader(int fhandle, int width, int height, int bytes)

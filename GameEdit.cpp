@@ -257,7 +257,7 @@ void CGameEdit::RefreshDialog()
   m_creaturenum_control.ResetContent();
   for(i=0;i<the_game.header.pccount;i++)
   {    
-    tmpstr.Format("%d. %s",i+1,ResolveName(the_game.pcextensions[i],(creature_header *) the_game.pcstructs[i] ) );
+    tmpstr.Format("%d. %s",i+1,ResolveName((char *) (the_game.pcextensions+i),(creature_header *) the_game.pcstructs[i] ) );
     m_creaturenum_control.SetItemData(m_creaturenum_control.AddString(tmpstr),i);
   }
   m_creaturenum_control.SetCurSel(pos);
@@ -738,7 +738,7 @@ void CGameEdit::OnEdit()
 	if(creaturenum<0) return;
   //creatureedit
   tmpname=itemname;
-  itemname=ResolveName(the_game.pcextensions[creaturenum],(creature_header *) the_game.pcstructs[creaturenum] );
+  itemname=ResolveName((char *) (the_game.pcextensions+creaturenum),(creature_header *) the_game.pcstructs[creaturenum] );
   ret=WriteTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
   if(ret>=0)
   {
@@ -766,16 +766,15 @@ void CGameEdit::OnAddnpc()
 
   pos=m_npcpicker.GetCurSel()+1;
 	the_game.insert_npc_header(pos);
-  RefreshDialog();
+  m_npcpicker.AddString("");
   m_npcpicker.SetCurSel(pos);
+  RefreshDialog();
 }
 
 void CGameEdit::OnDelnpc() 
 {
   gam_npc *newnpcs;
-  gam_bg_npc *newextensions1;
-  gam_pst_npc *newextensions2;
-  gam_iwd_npc *newextensions3;
+  gam_npc_extension *newextensions;
   charpoi *newstructs;
   int pos;
 
@@ -806,45 +805,16 @@ void CGameEdit::OnDelnpc()
   memcpy(newnpcs+pos,the_game.npcs+pos+1, (the_game.npccount-pos)*sizeof(gam_npc) );
   memcpy(newstructs,the_game.npcstructs,pos*sizeof(charpoi) );
   memcpy(newstructs+pos,the_game.npcstructs+pos+1, (the_game.npccount-pos)*sizeof(charpoi) );
-  switch(the_game.revision)
+  newextensions=new gam_npc_extension[the_game.npccount];
+  if(!newextensions)
   {
-  case 11: case 20:
-    newextensions1=new gam_bg_npc[the_game.npccount];
-    if(!newextensions1)
-    {
-      the_game.npccount++;
-      return;
-    }
-    memcpy(newextensions1,the_game.npcextensions,pos*sizeof(gam_bg_npc) );
-    memcpy(newextensions1+pos,the_game.npcextensions+pos+1, (the_game.npccount-pos)*sizeof(gam_bg_npc) );
-    delete [] the_game.npcextensions;
-    the_game.npcextensions=(char **) newextensions1;
-    break;
-  case 12:
-    newextensions2=new gam_pst_npc[the_game.npccount];
-    if(!newextensions2)
-    {
-      the_game.npccount++;
-      return;
-    }
-    memcpy(newextensions2,the_game.npcextensions,pos*sizeof(gam_pst_npc) );
-    memcpy(newextensions2+pos,the_game.npcextensions+pos+1, (the_game.npccount-pos)*sizeof(gam_pst_npc) );
-    delete [] the_game.npcextensions;
-    the_game.npcextensions=(char **) newextensions2;
-    break;
-  case 22:
-    newextensions3=new gam_iwd_npc[the_game.npccount];
-    if(!newextensions3)
-    {
-      the_game.npccount++;
-      return;
-    }
-    memcpy(newextensions3,the_game.npcextensions,pos*sizeof(gam_iwd_npc) );
-    memcpy(newextensions3+pos,the_game.npcextensions+pos+1, (the_game.npccount-pos)*sizeof(gam_iwd_npc) );
-    delete [] the_game.npcextensions;
-    the_game.npcextensions=(char **) newextensions3;
-    break;
+    the_game.npccount++;
+    return;
   }
+  memcpy(newextensions,the_game.npcextensions,pos*sizeof(gam_npc_extension) );
+  memcpy(newextensions+pos,the_game.npcextensions+pos+1, (the_game.npccount-pos)*sizeof(gam_npc_extension) );
+  delete [] the_game.npcextensions;
+  the_game.npcextensions=newextensions;
   delete [] the_game.npcs;
   the_game.npcs=newnpcs;
   delete [] the_game.npcstructs;

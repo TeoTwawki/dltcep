@@ -1136,6 +1136,7 @@ int locate_file_compressed(loc_entry &fileloc, int fhandle, long origlen)
     //offset is the beginning of the tiledata in the uncompressed stream
     //no need to subtract 1 from index (dunno why)
     //now i had to subtract 1 (for some iwd2/iwd files it worked at least)
+    //headerinfo.file_offset == sizeof(tileinfo)
     offset=headerinfo.file_offset+headerinfo.file_entries*sizeof(entryinfo)+(index-1)*sizeof(tileinfo);
   }
   else
@@ -1304,7 +1305,7 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
       }
       //no need to subtract 1 from index (dunno why)
       //heh, we need to decrease it
-      offset=headerinfo.file_entries*sizeof(entryinfo)+(index-1)*sizeof(tileinfo);
+      offset=headerinfo.file_offset+headerinfo.file_entries*sizeof(entryinfo)+(index-1)*sizeof(tileinfo);
       if(lseek(fhandle,offset,SEEK_SET )!=offset)
       {
         return -1; //bif is corrupt
@@ -4665,6 +4666,44 @@ bool MakeBitmapExternal(const COLORREF *pDIBits, int nWidth, int nHeight, HBITMA
 	return(hBitmap != NULL);
 }
 
+bool MakeBitmapExternal(const LPBYTE pPixels, const COLORREF *pPalette, int nWidth, int nHeight, HBITMAP &hBitmap)
+{
+  int i;
+	CDC *pDC = AfxGetMainWnd()->GetDC();
+	if (!pDC)
+		return false;
+
+  COLORREF *pDIBits=new COLORREF[nWidth*nHeight];
+  if(!pDIBits)
+  {
+    AfxGetMainWnd()->ReleaseDC(pDC);
+    return false;
+  }
+  i=nWidth*nHeight;
+  while(i--)
+  {
+    pDIBits[i]=pPalette[pPixels[i]];
+  }
+
+	BITMAPINFOHEADER bih;
+	memset(&bih,0,sizeof(BITMAPINFOHEADER));
+	
+	bih.biSize = sizeof(BITMAPINFOHEADER);
+	bih.biWidth = nWidth;
+	bih.biHeight = nHeight * -1;// The graphics are stored as bottom up DIBs.
+	bih.biPlanes = 1;
+	bih.biBitCount = 32;
+	bih.biCompression = BI_RGB;
+
+	hBitmap = ::CreateDIBitmap(pDC->GetSafeHdc(), &bih,CBM_INIT,pDIBits,
+		(BITMAPINFO*)&bih,DIB_RGB_COLORS);
+
+  delete [] pDIBits;
+	AfxGetMainWnd()->ReleaseDC(pDC);
+
+	return(hBitmap != NULL);
+}
+
 void SwapPalette(COLORREF *pal, int idx1, int idx2)
 {
   COLORREF tmp;
@@ -4854,6 +4893,29 @@ void MakeGradientBitmap(HBITMAP &hb, int GradientIndex)
     bits[j]=colors[GradientIndex].rgb[(j&15)*12/16];
   }
   MakeBitmapExternal(bits,16,16,hb); 
+}
+
+CString searchmap[16]={
+  "0 - Solid obstacle", "1 - Sand","2 - Wood 2", "3 - Wood 3", "4 - Stone 1",
+  "5 - Soft surface","6 - Dirt","7 - Stone 2","8 - Light obstacle","9 - Wood 1",
+  "10 - Side wall",  "11- Snow","12- Water","13- Roof","14- Exit", "15- Grass"
+};
+
+CString GetMapTypeValue(int maptype, int value)
+{
+  CString tmpstr;
+
+  switch(maptype)
+  {
+  case 0:
+    tmpstr.Format("%d",value);
+    return tmpstr;
+  case 1:
+    tmpstr.Format("%d",value);
+    return tmpstr;
+  default:    
+    return searchmap[value];
+  }
 }
 
 int ReadPaletteFromFile(int fhandle, int ml)
@@ -5322,13 +5384,21 @@ endofquest:
   close(fhandle);
 }
 
+int GetScanLineLength(int width, int bitspercolor)
+{
+  int paddedwidth;
+
+  paddedwidth=(width*bitspercolor+7)/8;
+  if(paddedwidth&3) paddedwidth+=4-(paddedwidth&3); // rounding it up to 4 bytes boundary
+  return paddedwidth;
+}
+
 unsigned long getfreememory()
 {
   MEMORYSTATUS memstat;
 
   GlobalMemoryStatus(&memstat);
   return memstat.dwAvailPhys/1024;
-//  return memstat.dwAvailVirtual/1024;
 }
 
 CStringMapCStringMapInt::~CStringMapCStringMapInt()

@@ -19,6 +19,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CStoreGeneral, CPropertyPage)
 IMPLEMENT_DYNCREATE(CStoreRental, CPropertyPage)
 IMPLEMENT_DYNCREATE(CStoreItems, CPropertyPage)
+IMPLEMENT_DYNCREATE(CStoreDrinks, CPropertyPage)
 IMPLEMENT_DYNCREATE(CStoreExtra, CPropertyPage)
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,9 +37,10 @@ CStoreGeneral::~CStoreGeneral()
 }
 
 static int flagboxids[16]={
-IDC_BUYING, IDC_SELLING,IDC_IDENTIFY,IDC_STEALING,IDC_CURES, IDC_DONATE, IDC_DRINKS,
-IDC_UNKNOWN1, IDC_UNKNOWN2, IDC_FENCED, IDC_UNKNOWN3, IDC_UNKNOWN4, IDC_UNKNOWN5,
-IDC_UNKNOWN6, IDC_UNKNOWN7, IDC_UNKNOWN8};
+  IDC_BUYING, IDC_SELLING,IDC_IDENTIFY,IDC_STEALING,IDC_CURES, IDC_DONATE, IDC_DRINKS,
+    IDC_UNKNOWN1, IDC_UNKNOWN2, IDC_FENCED, IDC_UNKNOWN3, IDC_UNKNOWN4, IDC_UNKNOWN5,
+    IDC_UNKNOWN6, IDC_UNKNOWN7, IDC_UNKNOWN8
+};
 
 void CStoreGeneral::DoDataExchange(CDataExchange* pDX)
 {
@@ -106,6 +108,12 @@ BOOL CStoreGeneral::OnInitDialog()
 
 	CPropertyPage::OnInitDialog();
   RefreshGeneral();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   m_storetype_control.ResetContent();
   for(x=0;x<NUM_STORETYPE+1;x++)
   {
@@ -414,19 +422,22 @@ void CStoreGeneral::OnBrowse2()
 void CStoreGeneral::OnV10() 
 {
 	the_store.revision=10;
-	
 }
 
 void CStoreGeneral::OnV11() 
 {
 	the_store.revision=11;
-	
 }
 
 void CStoreGeneral::OnV90() 
 {
-	the_store.revision=90;
-	
+	the_store.revision=90;	
+}
+
+BOOL CStoreGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -443,7 +454,7 @@ CStoreRental::~CStoreRental()
 {
 }
 
-int rentalboxids[4]={
+static int rentalboxids[4]={
 IDC_PEASANT, IDC_MERCHANT, IDC_NOBLE, IDC_ROYAL,
 };
 void CStoreRental::DoDataExchange(CDataExchange* pDX)
@@ -495,8 +506,12 @@ BOOL CStoreRental::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 	RefreshRental();
-//
-//
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE; 
 }
@@ -643,6 +658,12 @@ void CStoreRental::OnClearall()
   UpdateData(UD_DISPLAY);
 }
 
+BOOL CStoreRental::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CStoreItems property page
 
@@ -655,15 +676,8 @@ CStoreItems::CStoreItems() : CPropertyPage(CStoreItems::IDD)
 	m_infinite = 0;
 	m_flags = 0;
 	m_unknown = 0;
-	m_curedescref = 0;
-	m_drinknameref = 0;
-	m_drinkprice = 0;
-	m_cureprice = 0;
-	m_spellresref = _T("");
-	m_drinkresref = _T("");
-	m_curedesc = _T("");
-	m_drinkname = _T("");
-	m_strength = 0;
+	m_strref = 0;
+	m_trigger = _T("");
 	//}}AFX_DATA_INIT
   updateflags=-1;
   memset(m_usages,0,sizeof(m_usages));
@@ -673,30 +687,28 @@ CStoreItems::~CStoreItems()
 {
 }
 
-int attrboxids[8]={IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN,0,0,0,0,0};
+static int attrboxids[8]={IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN,0,0,0,0,0};
 
 void CStoreItems::DoDataExchange(CDataExchange* pDX)
 {
   int i,j;
   CButton *cb;
 
+  RefreshItems();
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CStoreItems)
-	DDX_Control(pDX, IDC_REMALLSPELL, m_spell_button);
-	DDX_Control(pDX, IDC_SPELLRESREF, m_spellresref_control);
-	DDX_Control(pDX, IDC_DRINKS, m_drink_control);
-	DDX_Control(pDX, IDC_SPELLS, m_spell_control);
 	DDX_Control(pDX, IDC_REMALLITEM, m_itemtype_button);
 	DDX_Control(pDX, IDC_STOREDITEMS, m_stored_control);
 	DDX_Control(pDX, IDC_ITEMTYPE, m_itemtype_picker_control);
 	DDX_Control(pDX, IDC_ALLOWEDITEMS, m_itemtype_control);
+	DDX_Text(pDX, IDC_STRREF, m_strref);
+	DDX_Text(pDX, IDC_SCRIPT, m_trigger);
+	DDV_MaxChars(pDX, m_trigger, 1023);
 	//}}AFX_DATA_MAP
   if(pDX->m_bSaveAndValidate==UD_DISPLAY)
   {
     UpdateItemtypepicker();
     UpdateStoreditempicker();
-    UpdateSpellpicker();
-    UpdateDrinkpicker();
     j=1;
     for(i=0;i<8;i++)
     {
@@ -720,45 +732,28 @@ void CStoreItems::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_USE1+i,m_usages[i]);
     DDV_MinMaxInt(pDX, m_usages[i],0,65535);
   }
-	DDX_Text(pDX, IDC_CUREDESCREF, m_curedescref);
-	DDX_Text(pDX, IDC_DRINKNAMEREF, m_drinknameref);
-	DDX_Text(pDX, IDC_DRINKPRICE, m_drinkprice);
-	DDX_Text(pDX, IDC_CUREPRICE, m_cureprice);
-	DDX_Text(pDX, IDC_SPELLRESREF, m_spellresref);
-	DDX_Text(pDX, IDC_DRINKRESREF, m_drinkresref);
-	DDX_Text(pDX, IDC_CURENAME, m_curedesc);
-	DDX_Text(pDX, IDC_DRINKNAME, m_drinkname);
-	DDX_Text(pDX, IDC_DRINKSTRENGTH, m_strength);
 }
 
-void CStoreItems::RefreshSpeldesc()
-{
-  POSITION pos;
-  CString key;
-  tooltip_data value;
-
-  m_spellresref_control.ResetContent();
-  pos=store_spell_desc.GetStartPosition();
-  while(pos)
-  {
-    store_spell_desc.GetNextAssoc(pos, key, value);
-    m_spellresref_control.AddString(key);
-  }
-}
+static int pstcontrols[]={IDC_STRREF, IDC_SCRIPT, IDC_NEW,0};
 
 BOOL CStoreItems::OnInitDialog() 
 {
   int x;
-
+  
 	CPropertyPage::OnInitDialog();
 	RefreshItems();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   m_itemtype_control.SetDroppedWidth(150);
   m_stored_control.SetDroppedWidth(150);
   for(x=0;x<NUM_ITEMTYPE;x++)
   {
     m_itemtype_picker_control.AddString(format_itemtype(x) );
   }
-  RefreshSpeldesc();
   updateflags=-1;
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -776,6 +771,7 @@ void CStoreItems::RefreshItems()
   int x, y;
   int old;
   long *newitemtypes;
+  CWnd *cb;
   
   if(the_store.itemtypenum>1)
   {
@@ -801,19 +797,29 @@ void CStoreItems::RefreshItems()
         the_store.header.pitemcount=y;
         MessageBox("Consolidated itemtypes (corrected minor problem)","Warning",MB_OK);
       }
-      else MessageBox("Out of memory","Error",MB_OK);
+      else MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
     }
   }
   updateflags=-1;
+  if(!m_hWnd) return;
+  y=the_store.revision==REV_PST;
+  x=0;
+  while(pstcontrols[x])
+  {
+    cb=GetDlgItem(pstcontrols[x++]);
+    if(cb) cb->EnableWindow(y);
+  }
 }
 
 void CStoreItems::UpdateItemtypepicker()
 {
   CString tmpstr;
-  int x;
+  int x,pos;
+  CWnd *cb;
 
   if(updateflags&1)
   {
+    pos=m_itemtype_control.GetCurSel();
     m_itemtype_control.ResetContent();
     for(x=0;x<the_store.itemtypenum;x++)
     {
@@ -821,48 +827,77 @@ void CStoreItems::UpdateItemtypepicker()
       tmpstr.Format("%2d (%s)",x,m_itemtype);
       m_itemtype_control.AddString(tmpstr);
     }
+    cb=GetDlgItem(IDC_REMOVEITEM);
+    cb->EnableWindow(x);
     if(x)
     {
-      m_itemtype_control.SetCurSel(0);
       m_itemtype_button.SetWindowText("Remove All");
     }
     else
     {
       m_itemtype_button.SetWindowText("Add All");
     }
+    if(pos>=x) pos=x-1;
+    if(pos<0) pos=0;
+    m_itemtype_control.SetCurSel(pos);
   }
   updateflags&=~1;
 }
 
+CString CStoreItems::ResolveKey(CString key)
+{
+  CString tmpstr;
+  loc_entry fileloc;
+  int nameref;
+  int fhandle;
+  
+  if(items.Lookup(key, fileloc))
+  {
+    fhandle=locate_file(fileloc,0);
+    nameref=my_item.RetrieveNameRef(fhandle);
+    tmpstr=resolve_tlk_text(nameref);
+  }
+  return tmpstr;
+}
+
 static int storedboxids[]={
-  IDC_COUNT, IDC_UNLIMITED, IDC_USE1, IDC_USE2, IDC_USE3, IDC_FLAGS,
-  IDC_IDENTIFIED, IDC_NOSTEAL, IDC_STOLEN, IDC_UNKNOWN,
-0};
+IDC_COUNT, IDC_UNLIMITED, IDC_USE1, IDC_USE2, IDC_USE3, IDC_FLAGS,
+IDC_IDENTIFIED, IDC_NOSTEAL, IDC_STOLEN, IDC_UNKNOWN, IDC_BROWSE,
+IDC_ITEMRES, IDC_REMALLITEM2, IDC_REMOVEITEM2, IDC_STOREDITEMS, IDC_ORDER, 0
+};
 
 void CStoreItems::UpdateStoreditempicker()
 {
-  CString tmpstr;
-  int x;
+  CString tmpstr, name;
+  int x,pos;
   CWnd *cb;
-
+  
   if(updateflags&2)
   {
+    pos=m_stored_control.GetCurSel();
     m_stored_control.ResetContent();
     for(x=0;x<the_store.entrynum;x++)
     {
       RetrieveResref(m_itemres, the_store.entries[x].itemname);
-      tmpstr.Format("%d (%s)",x,m_itemres);
+      tmpstr.Format("%d %s",x,m_itemres);
+      if(!(editflg&RESOLVE))
+      {
+        name.Format(" (%s)",ResolveKey(m_itemres) );
+        tmpstr+=name;
+      }
       m_stored_control.AddString(tmpstr);
     }
+    if(pos>=x) pos=x-1;
+    if(pos<0) pos=0;
+    m_stored_control.SetCurSel(pos);
     if(x)
     {
-      m_stored_control.SetCurSel(0);
-      DisplayEntry(0);
       for(x=0;storedboxids[x];x++)
       {
         cb=(CButton *) GetDlgItem(storedboxids[x]);
         cb->EnableWindow(true);
       }
+      DisplayEntry(pos);
     }
     else
     {
@@ -876,107 +911,12 @@ void CStoreItems::UpdateStoreditempicker()
   updateflags&=~2;
 }
 
-static int spellboxids[]={IDC_CUREDESCREF, IDC_CURENAME, IDC_CUREPRICE,
-0};
-
-void CStoreItems::UpdateSpellpicker()
-{
-  CString tmpstr, spellname;
-  int x, pos;
-  tooltip_data refs;
-  CWnd *cb;
-
-  if(updateflags&4)
-  {
-    pos=m_spell_control.GetCurSel();
-    if(pos<0) pos=0;
-    m_spell_control.ResetContent();
-    for(x=0;x<the_store.curenum;x++)
-    {
-      RetrieveResref(m_spellresref, the_store.cures[x].curename);
-      if(store_spell_desc.Lookup(m_spellresref, refs))
-      {
-        spellname=resolve_tlk_text(refs.data[1]);
-      }
-      else spellname="<not in speldesc.2da>";
-      tmpstr.Format("%d (%s) %s",x,m_spellresref,spellname);
-      m_spell_control.AddString(tmpstr);
-    }
-    m_spell_control.SetCurSel(pos);
-    if(x)
-    {
-      DisplaySpell(pos);
-      for(x=0;spellboxids[x];x++)
-      {
-        cb=(CButton *) GetDlgItem(spellboxids[x]);
-        cb->EnableWindow(true);
-      }
-      m_spell_button.SetWindowText("Remove All");
-    }
-    else
-    {
-      for(x=0;spellboxids[x];x++)
-      {
-        cb=GetDlgItem(spellboxids[x]);
-        cb->EnableWindow(false);
-      }
-      m_spell_button.SetWindowText("Add All");
-    }
-  }
-  updateflags&=~4;
-}
-
-int drinkboxids[]={IDC_DRINKRESREF, IDC_DRINKNAMEREF,
-   IDC_DRINKNAME, IDC_DRINKPRICE, IDC_DRINKSTRENGTH,
-0};
-
-void CStoreItems::UpdateDrinkpicker()
-{
-  CString tmpstr;
-  int x;
-  CWnd *cb;
-
-  if(updateflags&8)
-  {
-    m_drink_control.ResetContent();
-    for(x=0;x<the_store.drinknum;x++)
-    {
-      m_drinkname=resolve_tlk_text(the_store.drinks[x].drinkname);
-      tmpstr.Format("%d %s",x, m_drinkname);
-      m_drink_control.AddString(tmpstr);
-    }
-    if(x)
-    {
-      m_drink_control.SetCurSel(0);
-      DisplayDrink(0);
-      for(x=0;drinkboxids[x];x++)
-      {
-        cb=(CButton *) GetDlgItem(drinkboxids[x]);
-        cb->EnableWindow(true);
-      }
-    }
-    else
-    {
-      for(x=0;drinkboxids[x];x++)
-      {
-        cb=GetDlgItem(drinkboxids[x]);
-        cb->EnableWindow(false);
-      }
-    }
-  }
-  updateflags&=~8;
-}
-
 BEGIN_MESSAGE_MAP(CStoreItems, CPropertyPage)
 	//{{AFX_MSG_MAP(CStoreItems)
-	ON_BN_CLICKED(IDC_ADDDRINK, OnAdddrink)
 	ON_BN_CLICKED(IDC_ADDITEM, OnAdditem)
 	ON_BN_CLICKED(IDC_ADDITEM2, OnAdditem2)
-	ON_BN_CLICKED(IDC_ADDSPELL, OnAddspell)
 	ON_CBN_KILLFOCUS(IDC_ALLOWEDITEMS, OnKillfocusAlloweditems)
 	ON_BN_CLICKED(IDC_REMOVEITEM, OnRemoveitem)
-	ON_BN_CLICKED(IDC_REMOVEDRINK, OnRemovedrink)
-	ON_BN_CLICKED(IDC_REMOVESPELL, OnRemovespell)
 	ON_BN_CLICKED(IDC_REMOVEITEM2, OnRemoveitem2)
 	ON_BN_CLICKED(IDC_REMALLITEM, OnRemallitem)
 	ON_CBN_KILLFOCUS(IDC_ITEMTYPE, OnKillfocusItemtype)
@@ -988,30 +928,18 @@ BEGIN_MESSAGE_MAP(CStoreItems, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_USE2, OnKillfocusUse2)
 	ON_EN_KILLFOCUS(IDC_USE3, OnKillfocusUse3)
 	ON_BN_CLICKED(IDC_REMALLITEM2, OnRemallitem2)
-	ON_BN_CLICKED(IDC_REMALLSPELL, OnRemallspell)
-	ON_BN_CLICKED(IDC_REMALLDRINK, OnRemalldrink)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN, OnKillfocusUnknown)
 	ON_CBN_SELCHANGE(IDC_ALLOWEDITEMS, OnSelchangeAlloweditems)
 	ON_CBN_SELCHANGE(IDC_STOREDITEMS, OnSelchangeStoreditems)
 	ON_BN_CLICKED(IDC_IDENTIFIED, OnIdentified)
 	ON_BN_CLICKED(IDC_STOLEN, OnStolen)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocusFlags)
-	ON_CBN_KILLFOCUS(IDC_SPELLS, OnKillfocusSpells)
-	ON_CBN_SELCHANGE(IDC_SPELLS, OnSelchangeSpells)
-	ON_CBN_KILLFOCUS(IDC_SPELLRESREF, OnKillfocusSpellresref)
-	ON_EN_KILLFOCUS(IDC_CUREDESCREF, OnKillfocusCuredescref)
-	ON_EN_KILLFOCUS(IDC_CURENAME, OnKillfocusCurename)
-	ON_EN_KILLFOCUS(IDC_CUREPRICE, OnKillfocusCureprice)
-	ON_CBN_KILLFOCUS(IDC_DRINKS, OnKillfocusDrinks)
-	ON_CBN_SELCHANGE(IDC_DRINKS, OnSelchangeDrinks)
-	ON_EN_KILLFOCUS(IDC_DRINKRESREF, OnKillfocusDrinkresref)
-	ON_EN_KILLFOCUS(IDC_DRINKNAMEREF, OnKillfocusDrinknameref)
-	ON_EN_KILLFOCUS(IDC_DRINKNAME, OnKillfocusDrinkname)
-	ON_EN_KILLFOCUS(IDC_DRINKPRICE, OnKillfocusDrinkprice)
-	ON_EN_KILLFOCUS(IDC_DRINKSTRENGTH, OnKillfocusDrinkstrength)
 	ON_BN_CLICKED(IDC_NOSTEAL, OnNosteal)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_ORDER, OnOrder)
+	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
+	ON_EN_KILLFOCUS(IDC_SCRIPT, OnKillfocusScript)
+	ON_BN_CLICKED(IDC_NEW, OnNew)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1046,7 +974,7 @@ void CStoreItems::OnSelchangeAlloweditems()
 void CStoreItems::OnKillfocusItemtype() 
 {
 	UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
+//  UpdateData(UD_DISPLAY);
 }
 
 void CStoreItems::OnAdditem() 
@@ -1066,7 +994,7 @@ void CStoreItems::OnAdditem()
   newitemtypes=new long[the_store.itemtypenum];
   if(!newitemtypes)
   {
-    MessageBox("Out of memory","Warning",MB_OK);
+    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
     return;
   }
   memcpy(newitemtypes,the_store.itemtypes,x*sizeof(long) );
@@ -1099,7 +1027,7 @@ void CStoreItems::OnRemoveitem()
     newitemtypes=new long[the_store.itemtypenum];
     if(!newitemtypes)
     {
-      MessageBox("Out of memory","Warning",MB_OK);
+      MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
       return;
     }
     memcpy(newitemtypes,the_store.itemtypes,x*sizeof(long) );
@@ -1151,6 +1079,8 @@ void CStoreItems::DisplayEntry(int count)
   m_flags=the_store.entries[count].flags;
   m_infinite=the_store.entries[count].infinite;
   m_unknown=the_store.entries[count].unknown08;
+  m_strref=the_store.entries[count].trigger;
+  m_trigger=resolve_tlk_text(m_strref);
   memcpy(m_usages,the_store.entries[count].usages,sizeof(m_usages));
 }
 
@@ -1162,6 +1092,7 @@ void CStoreItems::RefreshEntry(int count)
   the_store.entries[count].flags=m_flags;
   the_store.entries[count].infinite=m_infinite;
   the_store.entries[count].unknown08=m_unknown;
+  the_store.entries[count].trigger=m_strref;
   memcpy(the_store.entries[count].usages,m_usages,sizeof(m_usages));
 }
 
@@ -1203,12 +1134,30 @@ void CStoreItems::OnKillfocusItemres()
 {
   loc_entry dummy;
   CString tmpres;
+  int old;
 
   UpdateData(UD_RETRIEVE);
   if(m_itemres.IsEmpty()) return; 
   if(!items.Lookup(m_itemres, dummy) )
   {
     MessageBox("Non-existent item!","Warning",MB_OK);
+  }
+  for(old=0;old<the_store.entrynum;old++)
+  {
+    RetrieveResref(tmpres,the_store.entries[old].itemname);
+    if(tmpres==m_itemres)
+    {
+      m_stored_control.SetCurSel(old);
+//      MessageBox("Item is already on the list!","Warning",MB_OK);
+    	UpdateData(UD_DISPLAY);
+      return;
+    }
+  }
+
+  old=m_stored_control.GetCurSel();
+  if(old>=0)
+  {
+    RefreshEntry(old);
   }
 	UpdateData(UD_DISPLAY);
 }
@@ -1357,23 +1306,7 @@ void CStoreItems::OnAdditem2()
   store_item_entry11 *newentries;
 
 	UpdateData(UD_RETRIEVE);
-  if(m_itemres.IsEmpty())
-  {
-    MessageBox("Empty item resource.","Warning",MB_OK);
-  	UpdateData(UD_DISPLAY);
-    return;
-  }
-  for(old=0;old<the_store.entrynum;old++)
-  {
-    RetrieveResref(tmpres,the_store.entries[old].itemname);
-    if(tmpres==m_itemres)
-    {
-      m_stored_control.SetCurSel(old);
-      MessageBox("Item is already on the list!","Warning",MB_OK);
-    	UpdateData(UD_DISPLAY);
-      return;
-    }
-  }
+  m_itemres="";
   old=m_stored_control.GetCurSel()+1;
   the_store.entrynum++;
   newentries = new store_item_entry11[the_store.entrynum];
@@ -1388,8 +1321,11 @@ void CStoreItems::OnAdditem2()
   m_count=1;//default values
   m_flags=1;                      
   RefreshEntry(old); //this copies all data into an itementry
-  the_store.header.itemcount=the_store.entrynum;
   updateflags|=2;
+  UpdateStoreditempicker();
+  DisplayEntry(old);
+  m_stored_control.SetCurSel(old);
+  the_store.header.itemcount=the_store.entrynum;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1400,12 +1336,6 @@ void CStoreItems::OnRemoveitem2()
   store_item_entry11 *newentries;
 
 	UpdateData(UD_RETRIEVE);
-  if(m_itemres.IsEmpty())
-  {
-    MessageBox("Empty item resource.","Warning",MB_OK);
-  	UpdateData(UD_DISPLAY);
-    return;
-  }
   for(old=0;old<the_store.entrynum;old++)
   {
     RetrieveResref(tmpres,the_store.entries[old].itemname);
@@ -1448,11 +1378,16 @@ void CStoreItems::OnRemallitem2()
 
 void CStoreItems::OnBrowse() 
 {
+  int count;
+
   pickerdlg.m_restype=REF_ITM;
   pickerdlg.m_picked=m_itemres;
   if(pickerdlg.DoModal()==IDOK)
   {
     m_itemres=pickerdlg.m_picked;
+    count=m_stored_control.GetCurSel();
+    if(count>=0) RefreshEntry(count);
+    else m_itemres="";
     UpdateData(UD_DISPLAY);
   }
 }
@@ -1490,9 +1425,210 @@ void CStoreItems::OnOrder()
 	UpdateData(UD_DISPLAY);
 }
 
+void CStoreItems::OnKillfocusStrref() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+void CStoreItems::OnKillfocusScript() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+void CStoreItems::OnNew() 
+{
+	m_strref=-1;
+	UpdateData(UD_DISPLAY);
+}
+
+BOOL CStoreItems::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CStoreDrink dialog
+
+/////////////////////////////////////////////////////////////////////////////
+// CStoreDrinks property page
+
+CStoreDrinks::CStoreDrinks() : CPropertyPage(CStoreDrinks::IDD)
+{
+	//{{AFX_DATA_INIT(CStoreDrinks)
+	m_curedescref = 0;
+	m_drinknameref = 0;
+	m_drinkprice = 0;
+	m_cureprice = 0;
+	m_spellresref = _T("");
+	m_drinkresref = _T("");
+	m_curedesc = _T("");
+	m_drinkname = _T("");
+	m_strength = 0;
+	//}}AFX_DATA_INIT
+  updateflags=-1;
+}
+
+CStoreDrinks::~CStoreDrinks()
+{
+}
+
+void CStoreDrinks::DoDataExchange(CDataExchange* pDX)
+{
+	CPropertyPage::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CStoreDrinks)
+	DDX_Control(pDX, IDC_REMALLSPELL, m_spell_button);
+	DDX_Control(pDX, IDC_SPELLRESREF, m_spellresref_control);
+	DDX_Control(pDX, IDC_DRINKS, m_drink_control);
+	DDX_Control(pDX, IDC_SPELLS, m_spell_control);
+	//}}AFX_DATA_MAP
+  if(pDX->m_bSaveAndValidate==UD_DISPLAY)
+  {
+    UpdateSpellpicker();
+    UpdateDrinkpicker();
+  }
+	DDX_Text(pDX, IDC_CUREDESCREF, m_curedescref);
+	DDX_Text(pDX, IDC_DRINKNAMEREF, m_drinknameref);
+	DDX_Text(pDX, IDC_DRINKPRICE, m_drinkprice);
+	DDX_Text(pDX, IDC_CUREPRICE, m_cureprice);
+	DDX_Text(pDX, IDC_SPELLRESREF, m_spellresref);
+	DDX_Text(pDX, IDC_DRINKRESREF, m_drinkresref);
+	DDX_Text(pDX, IDC_CURENAME, m_curedesc);
+	DDX_Text(pDX, IDC_DRINKNAME, m_drinkname);
+	DDX_Text(pDX, IDC_DRINKSTRENGTH, m_strength);
+}
+
+BOOL CStoreDrinks::OnInitDialog() 
+{
+	CPropertyPage::OnInitDialog();
+  RefreshDrinks();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+  updateflags=-1;
+  UpdateData(UD_DISPLAY);
+	return TRUE;
+}
+
+static int spellboxids[]={IDC_CUREDESCREF, IDC_CURENAME, IDC_CUREPRICE,
+0};
+
+void CStoreDrinks::UpdateSpellpicker()
+{
+  CString tmpstr, spellname;
+  int x, pos;
+  tooltip_data refs;
+  CWnd *cb;
+
+  if(updateflags&4)
+  {
+    pos=m_spell_control.GetCurSel();
+    m_spell_control.ResetContent();
+    for(x=0;x<the_store.curenum;x++)
+    {
+      RetrieveResref(m_spellresref, the_store.cures[x].curename);
+      if(store_spell_desc.Lookup(m_spellresref, refs))
+      {
+        spellname=resolve_tlk_text(refs.data[1]);
+      }
+      else spellname="<not in speldesc.2da>";
+      tmpstr.Format("%d (%s) %s",x,m_spellresref,spellname);
+      m_spell_control.AddString(tmpstr);
+    }
+    if(pos>=x) pos=x-1;
+    if(pos<0) pos=0;
+    m_spell_control.SetCurSel(pos);
+    if(x)
+    {
+      DisplaySpell(pos);
+      for(x=0;spellboxids[x];x++)
+      {
+        cb=(CButton *) GetDlgItem(spellboxids[x]);
+        cb->EnableWindow(true);
+      }
+      m_spell_button.SetWindowText("Remove All");
+    }
+    else
+    {
+      for(x=0;spellboxids[x];x++)
+      {
+        cb=GetDlgItem(spellboxids[x]);
+        cb->EnableWindow(false);
+      }
+      m_spell_button.SetWindowText("Add All");
+    }
+  }
+  updateflags&=~4;
+}
+
+int drinkboxids[]={IDC_DRINKRESREF, IDC_DRINKNAMEREF,
+   IDC_DRINKNAME, IDC_DRINKPRICE, IDC_DRINKSTRENGTH,
+0};
+
+void CStoreDrinks::UpdateDrinkpicker()
+{
+  CString tmpstr;
+  int x, pos;
+  CWnd *cb;
+
+  if(updateflags&8)
+  {
+    pos=m_drink_control.GetCurSel();
+    m_drink_control.ResetContent();
+    for(x=0;x<the_store.drinknum;x++)
+    {
+      m_drinkname=resolve_tlk_text(the_store.drinks[x].drinkname);
+      tmpstr.Format("%d %s",x, m_drinkname);
+      m_drink_control.AddString(tmpstr);
+    }
+    if(pos>=x) pos=x-1;
+    if(pos<0) pos=0;
+    m_drink_control.SetCurSel(pos);
+    if(x)
+    {
+      DisplayDrink(pos);
+      for(x=0;drinkboxids[x];x++)
+      {
+        cb=(CButton *) GetDlgItem(drinkboxids[x]);
+        cb->EnableWindow(true);
+      }
+    }
+    else
+    {
+      for(x=0;drinkboxids[x];x++)
+      {
+        cb=GetDlgItem(drinkboxids[x]);
+        cb->EnableWindow(false);
+      }
+    }
+  }
+  updateflags&=~8;
+}
+
+BEGIN_MESSAGE_MAP(CStoreDrinks, CPropertyPage)
+	//{{AFX_MSG_MAP(CStoreDrinks)
+	ON_CBN_KILLFOCUS(IDC_SPELLS, OnKillfocusSpells)
+	ON_CBN_SELCHANGE(IDC_SPELLS, OnSelchangeSpells)
+	ON_CBN_KILLFOCUS(IDC_SPELLRESREF, OnKillfocusSpellresref)
+	ON_EN_KILLFOCUS(IDC_CUREDESCREF, OnKillfocusCuredescref)
+	ON_EN_KILLFOCUS(IDC_CURENAME, OnKillfocusCurename)
+	ON_EN_KILLFOCUS(IDC_CUREPRICE, OnKillfocusCureprice)
+	ON_BN_CLICKED(IDC_REMALLSPELL, OnRemallspell)
+	ON_BN_CLICKED(IDC_REMALLDRINK, OnRemalldrink)
+	ON_BN_CLICKED(IDC_REMOVEDRINK, OnRemovedrink)
+	ON_BN_CLICKED(IDC_REMOVESPELL, OnRemovespell)
+	ON_BN_CLICKED(IDC_ADDDRINK, OnAdddrink)
+	ON_BN_CLICKED(IDC_ADDSPELL, OnAddspell)
+  	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
 
 //spells (cures) section//
-void CStoreItems::DisplaySpell(int count)
+void CStoreDrinks::DisplaySpell(int count)
 {
   tooltip_data refs;
 
@@ -1504,14 +1640,14 @@ void CStoreItems::DisplaySpell(int count)
   m_curedesc=resolve_tlk_text(m_curedescref);
 }
 
-void CStoreItems::RefreshSpell(int count)
+void CStoreDrinks::RefreshSpell(int count)
 {
   StoreResref(m_spellresref,the_store.cures[count].curename);
   the_store.cures[count].price=m_cureprice;
   updateflags|=4;
 }
 
-void CStoreItems::OnKillfocusSpells() 
+void CStoreDrinks::OnKillfocusSpells() 
 {
   int count;
   CString m_spell;
@@ -1532,7 +1668,7 @@ void CStoreItems::OnKillfocusSpells()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnSelchangeSpells() 
+void CStoreDrinks::OnSelchangeSpells() 
 {
   int count;
 
@@ -1545,14 +1681,27 @@ void CStoreItems::OnSelchangeSpells()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusSpellresref() 
+void CStoreDrinks::OnKillfocusSpellresref() 
 {
   int count;
   loc_entry dummy;
   CString tmpres;
+  int old;
 
   UpdateData(UD_RETRIEVE);
-  if(m_spellresref.IsEmpty()) return; 
+  if(m_spellresref.IsEmpty()) return;
+  for(old=0;old<the_store.curenum;old++)
+  {
+    RetrieveResref(tmpres,the_store.cures[old].curename);
+    if(tmpres==m_spellresref)
+    {
+      m_spell_control.SetCurSel(old);
+//      MessageBox("Spell is already on the list!","Error",MB_ICONSTOP|MB_OK);
+    	UpdateData(UD_DISPLAY);
+      return;
+    }
+  }
+
   count=m_spell_control.GetCurSel();
   if(count<0) return;
   if(!spells.Lookup(m_spellresref, dummy) )
@@ -1565,7 +1714,7 @@ void CStoreItems::OnKillfocusSpellresref()
 
 CString speldesc_columns[]={"DESCRIPTION"};
 
-void CStoreItems::OnKillfocusCuredescref() 
+void CStoreDrinks::OnKillfocusCuredescref() 
 {
   Cspell my_spell;
   loc_entry fileloc;
@@ -1602,13 +1751,13 @@ void CStoreItems::OnKillfocusCuredescref()
     }
     Write2daArrayToFile("SPELDESC", store_spell_desc, speldesc_columns, 1);
     updateflags|=4;
-    RefreshSpeldesc();
+    RefreshDrinks();
   }
 endofquest:
 	UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusCurename() 
+void CStoreDrinks::OnKillfocusCurename() 
 {
   int count;
   CString tmpstr;
@@ -1647,14 +1796,14 @@ void CStoreItems::OnKillfocusCurename()
         Write2daArrayToFile("SPELDESC", store_spell_desc, speldesc_columns, 1);
       }
       updateflags|=4;
-      RefreshSpeldesc();
+      RefreshDrinks();
     }
   }
 endofquest:
 	UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusCureprice() 
+void CStoreDrinks::OnKillfocusCureprice() 
 {
   int count;
 
@@ -1667,47 +1816,33 @@ void CStoreItems::OnKillfocusCureprice()
 	UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnAddspell() 
+void CStoreDrinks::OnAddspell() 
 {
-  int old;
   CString tmpres;
   store_cure *newspells;
 
 	UpdateData(UD_RETRIEVE);
-  if(m_spellresref.IsEmpty())
-  {
-    MessageBox("Empty spell resource.","Warning",MB_OK);
-  	UpdateData(UD_DISPLAY);
-    return;
-  }
-  for(old=0;old<the_store.curenum;old++)
-  {
-    RetrieveResref(tmpres,the_store.cures[old].curename);
-    if(tmpres==m_spellresref)
-    {
-      m_stored_control.SetCurSel(old);
-      MessageBox("Item is already on the list!","Warning",MB_OK);
-    	UpdateData(UD_DISPLAY);
-      return;
-    }
-  }
+  m_spellresref="";
   the_store.curenum++;
   newspells=new store_cure[the_store.curenum];
   if(!newspells)
   {
-    MessageBox("Out of memory","Warning",MB_OK);
+    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
     return;
   }
   memcpy(newspells,the_store.cures,the_store.header.curecount*sizeof(store_cure) );
   delete [] the_store.cures;
   the_store.cures=newspells;
   RefreshSpell(the_store.header.curecount);
-  the_store.header.curecount=the_store.curenum;
   updateflags|=4;
+  UpdateSpellpicker();
+  DisplaySpell(the_store.header.curecount);
+  m_spell_control.SetCurSel(the_store.header.curecount);
+  the_store.header.curecount=the_store.curenum;
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnRemovespell() 
+void CStoreDrinks::OnRemovespell() 
 {
   int x;
   store_cure *newspells;
@@ -1731,7 +1866,7 @@ void CStoreItems::OnRemovespell()
     newspells=new store_cure[the_store.curenum];
     if(!newspells)
     {
-      MessageBox("Out of memory","Warning",MB_OK);
+      MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
       return;
     }
     memcpy(newspells,the_store.cures,x*sizeof(store_cure) );
@@ -1745,7 +1880,7 @@ void CStoreItems::OnRemovespell()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnRemallspell() 
+void CStoreDrinks::OnRemallspell() 
 {
   int i;
 
@@ -1762,7 +1897,7 @@ void CStoreItems::OnRemallspell()
     the_store.cures=new store_cure[the_store.header.curecount];
     if(!the_store.cures)
     {
-      MessageBox("Out of memory","Error",MB_OK);
+      MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
       return;
     }
     for(i=0;i<the_store.header.curecount;i++)
@@ -1776,7 +1911,7 @@ void CStoreItems::OnRemallspell()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::DisplayDrink(int count)
+void CStoreDrinks::DisplayDrink(int count)
 {
   RetrieveResref(m_drinkresref,the_store.drinks[count].drinkscript);
   m_drinknameref=the_store.drinks[count].drinkname;
@@ -1785,7 +1920,7 @@ void CStoreItems::DisplayDrink(int count)
   m_strength=the_store.drinks[count].strength;
 }
 
-void CStoreItems::RefreshDrink(int count)
+void CStoreDrinks::RefreshDrink(int count)
 {
   StoreResref(m_drinkresref,the_store.drinks[count].drinkscript);
   the_store.drinks[count].drinkname=m_drinknameref;
@@ -1793,7 +1928,7 @@ void CStoreItems::RefreshDrink(int count)
   the_store.drinks[count].strength=m_strength;
 }
 
-void CStoreItems::OnKillfocusDrinks() 
+void CStoreDrinks::OnKillfocusDrinks() 
 {
   int count;
   CString m_drink;
@@ -1814,7 +1949,7 @@ void CStoreItems::OnKillfocusDrinks()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnSelchangeDrinks() 
+void CStoreDrinks::OnSelchangeDrinks() 
 {
   int count;
 
@@ -1827,7 +1962,7 @@ void CStoreItems::OnSelchangeDrinks()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusDrinkresref() 
+void CStoreDrinks::OnKillfocusDrinkresref() 
 {
   int count;
 
@@ -1840,7 +1975,7 @@ void CStoreItems::OnKillfocusDrinkresref()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusDrinknameref() 
+void CStoreDrinks::OnKillfocusDrinknameref() 
 {
   int count;
   int old;
@@ -1864,13 +1999,13 @@ void CStoreItems::OnKillfocusDrinknameref()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusDrinkname() 
+void CStoreDrinks::OnKillfocusDrinkname() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusDrinkprice() 
+void CStoreDrinks::OnKillfocusDrinkprice() 
 {
   int count;
 
@@ -1883,13 +2018,13 @@ void CStoreItems::OnKillfocusDrinkprice()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnKillfocusDrinkstrength() 
+void CStoreDrinks::OnKillfocusDrinkstrength() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnAdddrink() 
+void CStoreDrinks::OnAdddrink() 
 {
   store_drink *newdrinks;
 
@@ -1899,7 +2034,7 @@ void CStoreItems::OnAdddrink()
   newdrinks=new store_drink[the_store.drinknum];
   if(!newdrinks)
   {
-    MessageBox("Out of memory","Warning",MB_OK);
+    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
     return;
   }
   memcpy(newdrinks,the_store.drinks,the_store.header.drinkcount*sizeof(store_drink) );
@@ -1912,7 +2047,7 @@ void CStoreItems::OnAdddrink()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnRemovedrink() 
+void CStoreDrinks::OnRemovedrink() 
 {
   int x;
   store_drink *newdrinks;
@@ -1930,7 +2065,7 @@ void CStoreItems::OnRemovedrink()
     newdrinks=new store_drink[the_store.drinknum];
     if(!newdrinks)
     {
-      MessageBox("Out of memory","Warning",MB_OK);
+      MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
       return;
     }
     memcpy(newdrinks,the_store.drinks,x*sizeof(store_drink) );
@@ -1944,7 +2079,7 @@ void CStoreItems::OnRemovedrink()
   UpdateData(UD_DISPLAY);
 }
 
-void CStoreItems::OnRemalldrink() 
+void CStoreDrinks::OnRemalldrink() 
 {
   if(the_store.drinks)
   {
@@ -1954,6 +2089,30 @@ void CStoreItems::OnRemalldrink()
   the_store.header.drinkcount=the_store.drinknum=0;
   updateflags|=8;
   UpdateData(UD_DISPLAY);
+}
+
+void CStoreDrinks::RefreshDrinks()
+{
+  POSITION pos;
+  CString key;
+  tooltip_data value;
+
+  if(!m_spellresref_control) return;
+  m_spellresref_control.ResetContent();
+  pos=store_spell_desc.GetStartPosition();
+  while(pos)
+  {
+    store_spell_desc.GetNextAssoc(pos, key, value);
+    m_spellresref_control.AddString(key);
+  }
+
+  updateflags=-1;
+}
+
+BOOL CStoreDrinks::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1975,7 +2134,7 @@ void CStoreExtra::DoDataExchange(CDataExchange* pDX)
 {
   int i;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CStoreExtra)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
@@ -1996,8 +2155,14 @@ BOOL CStoreExtra::OnInitDialog()
 {
   CButton *cb;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshExtra();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 
   cb=(CButton *) GetDlgItem(IDC_PAGE);
   if(cb) cb->SetCheck(false);
@@ -2005,7 +2170,7 @@ BOOL CStoreExtra::OnInitDialog()
 	return TRUE;
 }
 
-BEGIN_MESSAGE_MAP(CStoreExtra, CDialog)
+BEGIN_MESSAGE_MAP(CStoreExtra, CPropertyPage)
 	//{{AFX_MSG_MAP(CStoreExtra)
 	ON_BN_CLICKED(IDC_PAGE, OnPage)
 	ON_BN_CLICKED(IDC_CLEARALL, OnClearall)
@@ -2038,7 +2203,8 @@ void CStoreExtra::OnKillfocusCapacity()
 
 BOOL CStoreExtra::PreTranslateMessage(MSG* pMsg) 
 {
-	return CDialog::PreTranslateMessage(pMsg);
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2053,6 +2219,7 @@ CStorePropertySheet::CStorePropertySheet(CWnd* pWndParent)
   AddPage(&m_PageGeneral);
   AddPage(&m_PageRental);
   AddPage(&m_PageItems);
+  AddPage(&m_PageDrinks);
   if(iwd2_structures())
   {
     AddPage(&m_PageExtra);
@@ -2070,6 +2237,7 @@ void CStorePropertySheet::RefreshDialog()
   m_PageGeneral.RefreshGeneral();
   m_PageRental.RefreshRental();
   m_PageItems.RefreshItems();
+  m_PageDrinks.RefreshDrinks();
   if(iwd2_structures())
   {
     m_PageExtra.RefreshExtra();

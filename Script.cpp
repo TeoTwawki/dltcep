@@ -922,8 +922,8 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           }
           break;
         case FLG_MTYPE:
-          item=trigger->opcode;
-          if(item<searchdata.itemtype && item>searchdata.itemtype2)
+          item=trigger->opcode&0x3fff;
+          if(item>=searchdata.itemtype && item<=searchdata.itemtype2)
           {
             finddata.itemtype=(short) item;
             finddata.itemtype2=(short) bcnt;

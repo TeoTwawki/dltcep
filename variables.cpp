@@ -300,6 +300,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 1;
   case CHECK_ITEM2:
     if(varname.IsEmpty()) return 0; // may be empty (useitemslot)
+    //fallthrough
   case CHECK_ITEM:
     if(chkflg&NOITEMCH) return 0;
     if(items.Lookup(varname, dummyloc) ) return 0;
@@ -307,11 +308,12 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 1;
   case CHECK_MOS2:
     if(varname.IsEmpty()) return 0; // may be empty (spellres actions are polymorph)
+    //fallthrough
   case CHECK_MOS:
     return 0;
   case CHECK_2DA2:
     if(varname.IsEmpty()) return 0; // may be empty (incrementchapter)
-    break;
+    //fallthrough    
   case CHECK_2DA:
     if(darefs.Lookup(varname, dummyloc) ) return 0;
     log("Missing 2da: '%s' (%s)",varname, tmp);
@@ -328,6 +330,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 1;
   case CHECK_VVC2:
     if(varname.IsEmpty()) return 0; // may be empty (vvc for creature summoning)
+    //fallthrough
   case CHECK_VVC:
     if(chkflg&NORESCHK) return 0;
     if(vvcs.Lookup(varname, dummyloc) ) return 0;
@@ -336,6 +339,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 1;
   case CHECK_SPL2:
     if(varname.IsEmpty()) return 0; // may be empty (spellres actions are polymorph)
+    //fallthrough
   case CHECK_SPL:
     if(chkflg&NOSPLCHK) return 0;
     if(spells.Lookup(varname, dummyloc) ) return 0;
@@ -344,6 +348,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
   case CHECK_BCS2:
     if(varname.IsEmpty()) return 0; // may be empty
     if(varname=="NONE") return 0;   // apparently used this way
+    //fallthrough
   case CHECK_BCS:
     if(chkflg&NOSCRIPT) return 0;
     if(scripts.Lookup(varname, dummyloc)) return 0;
@@ -351,6 +356,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 1;
   case CHECK_DLG2:
     if(varname.IsEmpty()) return 0; // may be empty
+    //fallthrough
   case CHECK_DLG:
     if(chkflg&NODLGCHK) return 0;
     if(dialogs.Lookup(varname, dummyloc)) return 0;

@@ -479,6 +479,13 @@ void CAreaGeneral::OnNight()
   dlg.DoModal();
 }
 
+BOOL CAreaGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaActor dialog
 
@@ -799,6 +806,7 @@ void CAreaActor::OnRemove()
   if(!newactors)
   {
     the_area.header.actorcnt++;
+    MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
     return;
   }
   newdatapointers=new char *[the_area.header.actorcnt];
@@ -806,6 +814,7 @@ void CAreaActor::OnRemove()
   {
     delete [] newactors;
     the_area.header.actorcnt++;
+    MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
     return;
   }
   if(the_area.credatapointers)
@@ -853,7 +862,7 @@ void CAreaActor::OnSetpos()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.actorheaders[m_actornum].posx,
     the_area.actorheaders[m_actornum].posy);
@@ -873,7 +882,7 @@ void CAreaActor::OnSetdest()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.actorheaders[m_actornum].destx,
     the_area.actorheaders[m_actornum].desty);
@@ -1120,7 +1129,7 @@ CAreaTrigger::CAreaTrigger() : CPropertyPage(CAreaTrigger::IDD)
   m_triggernum=-1;
   memset(&triggercopy,0,sizeof(triggercopy));
   vertexcopy=NULL;
-  hbc = 0;
+  hbc = NULL;
 }
 
 CAreaTrigger::~CAreaTrigger()
@@ -1752,7 +1761,8 @@ void CAreaTrigger::OnCopy()
     pos=the_area.vertexheaderlist.FindIndex(m_triggernum);
     vertexsize=the_area.triggerheaders[m_triggernum].vertexcount;
     if(vertexcopy) delete [] vertexcopy;
-    vertexcopy=new area_vertex[vertexsize]; //don't check, we just freed some memory
+    vertexcopy=new area_vertex[vertexsize];
+    if(!vertexcopy) return;
     memcpy(&triggercopy,the_area.triggerheaders+m_triggernum,sizeof(triggercopy) );
     memcpy(vertexcopy,the_area.vertexheaderlist.GetAt(pos),vertexsize*sizeof(area_vertex));
   }
@@ -1913,7 +1923,7 @@ void CAreaTrigger::OnSet()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.triggerheaders[m_triggernum].launchx,
     the_area.triggerheaders[m_triggernum].launchy);
@@ -1938,6 +1948,13 @@ void CAreaTrigger::OnUnknown()
   }
   */
   UpdateData(UD_DISPLAY);
+}
+
+BOOL CAreaTrigger::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2314,7 +2331,7 @@ void CAreaSpawn::OnSet()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.spawnheaders[m_spawnnum].px,
     the_area.spawnheaders[m_spawnnum].py);
@@ -2345,6 +2362,7 @@ void CAreaSpawn::OnUnknown()
 {
 	// TODO: Add your control notification handler code here
 	
+	UpdateData(UD_DISPLAY);	
 }
 
 void CAreaSpawn::OnAddcre() 
@@ -2372,6 +2390,13 @@ void CAreaSpawn::OnDelcre()
   m_crenum=the_area.spawnheaders[m_spawnnum].creaturecnt-1;
   RefreshSpawn();
 	UpdateData(UD_DISPLAY);
+}
+
+BOOL CAreaSpawn::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2641,7 +2666,7 @@ void CAreaEntrance::OnSet()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.entranceheaders[m_entrancenum].px,
     the_area.entranceheaders[m_entrancenum].py);
@@ -2659,6 +2684,14 @@ void CAreaEntrance::OnUnknown()
 {
 	// TODO: Add your control notification handler code here
 	
+	UpdateData(UD_DISPLAY);	
+}
+
+BOOL CAreaEntrance::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3031,7 +3064,7 @@ void CAreaAmbient::OnSet()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.ambientheaders[m_ambientnum].posx,
     the_area.ambientheaders[m_ambientnum].posy);
@@ -3066,6 +3099,7 @@ void CAreaAmbient::OnUnknown()
 {
 	// TODO: Add your control notification handler code here
 	
+	UpdateData(UD_DISPLAY);	
 }
 
 void CAreaAmbient::OnKillfocusAmbinumpicker() 
@@ -3194,27 +3228,6 @@ void CAreaAmbient::OnBrowse()
 	UpdateData(UD_DISPLAY);	
 }
 
-void CAreaAnim::OnTimer(UINT nIDEvent) 
-{
-  int nFrameIndex;
-
-  if(!play || playindex>playmax)
-  {
-    KillTimer(nIDEvent);
-    return;
-  }
-  if(playindex==playmax)
-  {
-    playindex=0;
-    play=false;
-  }
-  nFrameIndex=the_anim.GetFrameIndex(the_area.animheaders[m_animnum].cyclenum, playindex);
-  the_anim.MakeBitmap(nFrameIndex,bgcolor,hbanim,BM_RESIZE,1,1);
-  m_bamframe.SetBitmap(hbanim);
-  playindex++;
-	CPropertyPage::OnTimer(nIDEvent);
-}
-
 void CAreaAmbient::OnPlay() 
 {
   CString tmpstr;
@@ -3223,6 +3236,13 @@ void CAreaAmbient::OnPlay()
 	if(!the_area.ambientheaders[m_ambientnum].ambients[m_wavnum]) return;
   RetrieveResref(tmpstr, the_area.ambientheaders[m_ambientnum].ambients[m_wavnum]);
   play_acm(tmpstr,false, false);
+}
+
+BOOL CAreaAmbient::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3415,7 +3435,7 @@ void CAreaContainer::RefreshContainer()
     m_containernum=m_containerpicker.SetCurSel(m_containernum);
     if(m_containernum>=0)
     {
-      ((CButton *) GetDlgItem(IDC_HIDDEN))->SetCheck(the_area.containerheaders[m_containernum].locked&8);
+      ((CButton *) GetDlgItem(IDC_HIDDEN))->SetCheck(the_area.containerheaders[m_containernum].locked&1);
       ((CButton *) GetDlgItem(IDC_NOPC))->SetCheck(the_area.containerheaders[m_containernum].locked&32);
     }
   }
@@ -3473,27 +3493,39 @@ BEGIN_MESSAGE_MAP(CAreaContainer, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaContainer)
 	ON_CBN_KILLFOCUS(IDC_CONTAINERPICKER, OnKillfocusContainerpicker)
 	ON_CBN_SELCHANGE(IDC_CONTAINERPICKER, OnSelchangeContainerpicker)
-	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_COPY, OnCopy)
 	ON_BN_CLICKED(IDC_PASTE, OnPaste)
-	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_DIFF, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_ITEMRES, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_IDENTIFIED, OnIdentified)
 	ON_BN_CLICKED(IDC_NOSTEAL, OnNosteal)
 	ON_BN_CLICKED(IDC_STOLEN, OnStolen)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_CBN_KILLFOCUS(IDC_ITEMNUMPICKER, OnKillfocusItemnumpicker)
 	ON_CBN_SELCHANGE(IDC_ITEMNUMPICKER, OnSelchangeItemnumpicker)
+	ON_BN_CLICKED(IDC_ADDITEM, OnAdditem)
+	ON_BN_CLICKED(IDC_DELITEM, OnDelitem)
+	ON_CBN_KILLFOCUS(IDC_VERTICES, OnKillfocusVertices)
+	ON_BN_CLICKED(IDC_RECALCBOX, OnRecalcbox)
+	ON_BN_CLICKED(IDC_ADDVERTEX, OnAddvertex)
+	ON_BN_CLICKED(IDC_REMOVEVERTEX, OnRemovevertex)
+	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
+	ON_EN_KILLFOCUS(IDC_TEXT, OnKillfocusText)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_CBN_SELCHANGE(IDC_VERTICES, OnSelchangeVertices)
+	ON_BN_CLICKED(IDC_MODVERTEX, OnModvertex)
+	ON_BN_CLICKED(IDC_HIDDEN, OnHidden)
+	ON_BN_CLICKED(IDC_NOPC, OnNopc)
+	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_DIFF, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_ITEMRES, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_USE1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_USE2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_USE3, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_ADDITEM, OnAdditem)
-	ON_BN_CLICKED(IDC_DELITEM, OnDelitem)
 	ON_EN_KILLFOCUS(IDC_TRAPPED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DETECT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_REMOVAL, DefaultKillfocus)
@@ -3504,27 +3536,16 @@ BEGIN_MESSAGE_MAP(CAreaContainer, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2Y, DefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_VERTICES, OnKillfocusVertices)
-	ON_BN_CLICKED(IDC_RECALCBOX, OnRecalcbox)
-	ON_BN_CLICKED(IDC_ADDVERTEX, OnAddvertex)
-	ON_BN_CLICKED(IDC_REMOVEVERTEX, OnRemovevertex)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN8, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
-	ON_EN_KILLFOCUS(IDC_TEXT, OnKillfocusText)
-	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
-	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN80, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN82, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_VX, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_VY, DefaultKillfocus)
-	ON_CBN_SELCHANGE(IDC_VERTICES, OnSelchangeVertices)
-	ON_BN_CLICKED(IDC_MODVERTEX, OnModvertex)
 	ON_EN_KILLFOCUS(IDC_KEY, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_LOCKED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DETECTED, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_HIDDEN, OnHidden)
-	ON_BN_CLICKED(IDC_NOPC, OnNopc)
+	ON_BN_CLICKED(IDC_SET, OnSet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3568,133 +3589,7 @@ void CAreaContainer::DefaultKillfocus()
   UpdateData(UD_RETRIEVE);	
   UpdateData(UD_DISPLAY);	
 }
-/*
-void CAreaContainer::OnKillfocusPosy() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
 
-void CAreaContainer::OnKillfocusType() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusKey() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusLocked() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusDiff() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusTrapped() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusDetected() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusDetect() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusRemoval() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusTposx() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusTposy() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusScript() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusScriptname() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusUnknown80() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusUnknown82() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusPos1x() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusPos1y() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusPos2x() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusPos2y() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusVx() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CAreaContainer::OnKillfocusVy() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-*/
 void CAreaContainer::OnHidden() 
 {
 	the_area.containerheaders[m_containernum].locked^=1;
@@ -4201,6 +4096,13 @@ void CAreaContainer::OnBrowse3()
   UpdateData(UD_DISPLAY);	
 }
 
+BOOL CAreaContainer::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaVariable dialog
 
@@ -4209,6 +4111,7 @@ CAreaVariable::CAreaVariable() : CPropertyPage(CAreaVariable::IDD)
 	//{{AFX_DATA_INIT(CAreaVariable)
 	//}}AFX_DATA_INIT
   m_variablenum=-1;
+  m_notenum=-1;
   memset(&variablecopy,0,sizeof(variablecopy));
   memset(&notecopy,0,sizeof(notecopy));
 }
@@ -4261,7 +4164,7 @@ void CAreaVariable::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_VALUE, the_area.variableheaders[m_variablenum].value);
     DDX_Text(pDX, IDC_UNKNOWN20, the_area.variableheaders[m_variablenum].unknown20);
     DDX_Text(pDX, IDC_UNKNOWN24, the_area.variableheaders[m_variablenum].unknown24);
-  }
+  }  
   ////other side
   cb=GetDlgItem(IDC_MAXNOTE);
   flg=m_notenum>=0;
@@ -4696,7 +4599,7 @@ void CAreaVariable::OnSet()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.mapnoteheaders[m_notenum].px,
     the_area.mapnoteheaders[m_notenum].py);
@@ -4708,6 +4611,13 @@ void CAreaVariable::OnSet()
   }
   RefreshVariable();
   UpdateData(UD_DISPLAY);
+}
+
+BOOL CAreaVariable::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -4722,7 +4632,7 @@ CAreaDoor::CAreaDoor()	: CPropertyPage(CAreaDoor::IDD)
 	//}}AFX_DATA_INIT
   m_doornum=-1;
   memset(&doorcopy,0,sizeof(doorcopy));
-  hbd=0;
+  hbd=NULL;
 }
 
 CAreaDoor::~CAreaDoor()
@@ -5158,6 +5068,26 @@ void CAreaDoor::OnSelchangeVertices()
     m_vy=poi[vertexnum].point.y;
   }
 	UpdateData(UD_DISPLAY);
+}
+
+void CAreaContainer::OnSet() 
+{
+  CImageView dlg;
+  CPoint point;
+
+  if(SetupSelectPoint()) return;
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
+  dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
+    the_area.containerheaders[m_containernum].posx,
+    the_area.containerheaders[m_containernum].posy);
+  if(dlg.DoModal()==IDOK)
+  {
+    point=dlg.GetPoint(0);
+    the_area.containerheaders[m_containernum].posx=(short) point.x;
+    the_area.containerheaders[m_containernum].posy=(short) point.y;
+  }
+  RefreshContainer();
+  UpdateData(UD_DISPLAY);
 }
 
 void CAreaDoor::OnKillfocusShortref() 
@@ -5860,7 +5790,7 @@ void CAreaDoor::OnSet()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.doorheaders[m_doornum].launchx,
     the_area.doorheaders[m_doornum].launchy);
@@ -5881,6 +5811,13 @@ void CAreaDoor::OnUnknown()
 	UpdateData(UD_DISPLAY);	
 }
 
+BOOL CAreaDoor::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaAnim dialog
 
@@ -5893,8 +5830,8 @@ CAreaAnim::CAreaAnim()	: CPropertyPage(CAreaAnim::IDD)
   memset(&animcopy,0,sizeof(animcopy));
   play=false;
   bgcolor=RGB(32,32,32);
-  hbanim = 0;
-  hbma = 0;
+  hbanim = NULL;
+  hbma = NULL;
 }
 
 CAreaAnim::~CAreaAnim()
@@ -6084,6 +6021,27 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CAreaAnim message handlers
+
+void CAreaAnim::OnTimer(UINT nIDEvent) 
+{
+  int nFrameIndex;
+
+  if(!play || playindex>playmax)
+  {
+    KillTimer(nIDEvent);
+    return;
+  }
+  if(playindex==playmax)
+  {
+    playindex=0;
+    play=false;
+  }
+  nFrameIndex=the_anim.GetFrameIndex(the_area.animheaders[m_animnum].cyclenum, playindex);
+  the_anim.MakeBitmap(nFrameIndex,bgcolor,hbanim,BM_RESIZE,1,1);
+  m_bamframe.SetBitmap(hbanim);
+  playindex++;
+	CPropertyPage::OnTimer(nIDEvent);
+}
 
 void CAreaAnim::OnKillfocusAnimpicker() 
 {
@@ -6366,7 +6324,7 @@ void CAreaAnim::OnFit()
   CPoint point;
 
   if(SetupSelectPoint()) return;
-  dlg.InitView(IW_ENABLEBUTTON|IW_SETVERTEX|IW_PLACEIMAGE|IW_MATCH);
+  dlg.InitView(IW_ENABLEBUTTON|IW_PLACEIMAGE|IW_MATCH);
   dlg.SetupAnimationPlacement(&the_anim,
     the_area.animheaders[m_animnum].posx,
     the_area.animheaders[m_animnum].posy);
@@ -6380,6 +6338,13 @@ void CAreaAnim::OnFit()
   UpdateData(UD_DISPLAY);
 }
 
+BOOL CAreaAnim::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaMap dialog
 
@@ -6388,33 +6353,251 @@ CAreaMap::CAreaMap()	: CPropertyPage(CAreaMap::IDD)
 	//{{AFX_DATA_INIT(CAreaMap)
 	m_maptype = 0;
 	//}}AFX_DATA_INIT
+  bgcolor=RGB(32,32,32);
+  m_set = 0;
+  hbmap = NULL;
+  the_map = NULL;
+  the_palette = NULL;
 }
 
 CAreaMap::~CAreaMap()
 {
-  
+  if(hbmap) DeleteObject(hbmap); 
 }
 
 void CAreaMap::RefreshMap()
 {
 }
 
+BOOL CAreaMap::OnInitDialog() 
+{
+  CRect tmprect;
+
+	CPropertyPage::OnInitDialog();
+	RefreshMap();
+  GetDlgItem(IDC_MAP)->GetWindowRect(tmprect);
+  m_oladjust=tmprect.TopLeft();
+  ScreenToClient(&m_oladjust);
+	return TRUE;
+}
+
+void CAreaMap::ResetCombo()
+{
+  int i,max;
+
+  if(m_maptype==1) max=256;
+  else max=16;
+  m_value_control.ResetContent();
+  for(i=0;i<max;i++)
+  {
+    m_value_control.AddString(GetMapTypeValue(m_maptype,i));
+  }
+}
+
 void CAreaMap::DoDataExchange(CDataExchange* pDX)
 {
+  CString tmpstr;
+
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaMap)
+	DDX_Control(pDX, IDC_VALUE, m_value_control);
+	DDX_Control(pDX, IDC_MAP, m_bitmap);
 	DDX_Radio(pDX, IDC_HEIGHTMAP, m_maptype);
 	//}}AFX_DATA_MAP
+  switch(m_maptype)
+  {
+  case 0:
+    the_map=the_area.heightmap;
+    the_palette=the_area.htpal;
+    break;
+  case 1:
+    the_map=the_area.lightmap;
+    the_palette=the_area.lmpal;
+    break;
+  case 2:
+    the_map=the_area.searchmap;
+    the_palette=the_area.srpal;
+    break;
+  default:
+    the_map=NULL;
+    the_palette=NULL;
+  }
+  if(m_maptype==2)
+  {    
+    tmpstr=GetMapTypeValue(2,m_set);
+  }
+  else
+  {
+    tmpstr.Format("%d",m_set);
+  }
+  if(pDX->m_bSaveAndValidate==UD_DISPLAY) ResetCombo();
+  DDX_Text(pDX, IDC_VALUE, tmpstr);
+  m_set=strtonum(tmpstr);
+
+  if(the_map)
+  {
+    int w, h;
+
+    w=the_area.width/GR_WIDTH;
+    h=the_area.height/GR_HEIGHT;
+    DDX_Text(pDX, IDC_WIDTH,w);
+    DDX_Text(pDX, IDC_HEIGHT,h);
+    if (MakeBitmapExternal(the_map, the_palette, w, h, hbmap))
+    {
+      m_bitmap.SetBitmap(hbmap);
+    }
+  }
+  else m_bitmap.SetBitmap(0);
 }
 
 BEGIN_MESSAGE_MAP(CAreaMap, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaMap)
-		// NOTE: the ClassWizard will add message map macros here
+	ON_BN_CLICKED(IDC_HEIGHTMAP, OnHeightmap)
+	ON_BN_CLICKED(IDC_LIGHTMAP, OnLightmap)
+	ON_BN_CLICKED(IDC_SEARCHMAP, OnSearchmap)
+	ON_CBN_KILLFOCUS(IDC_VALUE, OnDefaultKillfocus)
+	ON_BN_CLICKED(IDC_CLEAR, OnClear)
+	ON_BN_CLICKED(IDC_SET, OnSet)
+	ON_BN_CLICKED(IDC_INIT, OnInit)
+	ON_BN_CLICKED(IDC_MAP, OnMap)
+	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CAreaMap message handlers
+
+void CAreaMap::OnHeightmap() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnLightmap() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnSearchmap() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnDefaultKillfocus() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::Allocatemap()
+{
+  int size=(the_area.width/GR_WIDTH)*(the_area.height/GR_HEIGHT);
+  the_map=new BYTE[size];
+  switch(m_maptype)
+  {
+  case 0:
+    the_area.heightmap = the_map;
+    break;
+  case 1:
+    the_area.lightmap = the_map;
+    break;
+  case 2:
+    the_area.searchmap = the_map;
+    break;
+  }
+  the_area.changedmap[m_maptype]=TRUE;
+}
+
+void CAreaMap::OnClear() 
+{
+  UpdateData(UD_RETRIEVE);
+	if(!the_map) Allocatemap();
+  memset(the_map,0,(the_area.width/GR_WIDTH)*(the_area.height/GR_HEIGHT) );
+  the_area.changedmap[m_maptype]=true;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnSet() 
+{
+  UpdateData(UD_RETRIEVE);
+	if(!the_map) Allocatemap();
+  if(m_maptype!=1)
+  {
+    if(m_set>15) m_set=15;
+  }
+	memset(the_map,m_set,(the_area.width/GR_WIDTH)*(the_area.height/GR_HEIGHT) );
+	UpdateData(UD_DISPLAY);
+}
+
+static COLORREF srpalette[16]={0,RGB(0,0,128), RGB(0,128,0), RGB(0,128,128),
+RGB(128,0,0),RGB(128,0,128),RGB(128,128,0), RGB(192,192,192),
+RGB(128,128,128),RGB(0,0,255),RGB(0,255,0),RGB(0,255,255),
+RGB(255,0,0),RGB(255,0,255),RGB(255,255,0), RGB(255,255,255)
+};
+
+void CAreaMap::OnInit() 
+{
+  int i;
+
+	UpdateData(UD_RETRIEVE);
+  switch(m_maptype)
+  {
+  case 0:
+    for(i=0;i<16;i++)
+    {
+      the_palette[i]=RGB(i*15, i*15, i*15);
+    }
+    break;
+  case 1:
+    for(i=0;i<256;i++)
+    {
+      the_palette[255-i]=RGB(i, i, i);
+    }
+    break;
+  case 2:
+    memcpy(the_palette, srpalette, sizeof(srpalette) );
+    break;
+  }
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnMap() 
+{
+	if(!the_map) return;
+  m_set=the_map[(the_area.width/GR_WIDTH)*m_mousepoint.y+m_mousepoint.x];
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnEdit() 
+{
+  CImageView dlg;
+  CPoint point;
+
+  if(SetupSelectPoint()) return;
+  dlg.m_value=m_set;
+  dlg.SetMapType(m_maptype, the_map);
+
+  dlg.InitView(IW_ENABLEBUTTON|IW_EDITMAP|IW_SHOWGRID);
+  dlg.DoModal();
+  m_set=dlg.m_value;
+  UpdateData(UD_DISPLAY);
+}
+
+BOOL CAreaMap::PreTranslateMessage(MSG* pMsg) 
+{
+	if(pMsg->hwnd==m_bitmap.m_hWnd) 
+  {
+    if(pMsg->message==WM_MOUSEMOVE)
+    {
+      m_mousepoint=pMsg->pt;
+      ScreenToClient(&m_mousepoint);
+      m_mousepoint-=m_oladjust;
+    }
+  }
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CAreaPropertySheet

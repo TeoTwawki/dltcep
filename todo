@@ -7,8 +7,8 @@
 6. check if doors are deleted correctly from wed
 7. finish tile editor
 8. add overlay manipulation
-9. wallgroup/lightmap/heightmap/searchmap
+9. wallgroup editor
 10. don't overwrite scripts/dialogs using weidu
 11. MDI ???
-12. new string button (set strref to -1)
-13. avatar preview (creature editor)
+12. avatar preview (creature editor)
+13. input focus never gets lost when clicking on SAVE in a tabbed window???

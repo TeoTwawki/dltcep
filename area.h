@@ -49,6 +49,10 @@ public:
   unsigned char *searchmap;
   unsigned char *lightmap;
   unsigned char *heightmap;
+  bool changedmap[3];
+  COLORREF lmpal[256];
+  COLORREF srpal[16];
+  COLORREF htpal[16];
 
   //.area
   int revision;
@@ -93,16 +97,23 @@ public:
   void new_area();
   int WriteAreaToFile(int fh, int calculate);
   int WriteWedToFile(int fh, int night);
+  int WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize);
   int ReadActorData();
   int ReadAreaFromFile(int fh, long ml);
   int getfoti(int overlay);
   int getotic(int overlay);
-  int ReadMap(const char *Suffix, unsigned char *Storage);
+  int ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palette, int size);
   int ReadWedFromFile(int fh, long ml);
   int CheckDestination(int fh, long ml, CString entryname);
   int FillDestination(int fh, long ml, CComboBox *cb);
   CString RetrieveMosRef(int fh);
-  bool WedChanged() { return wedchanged; }
+  bool WedChanged()
+  {
+    int i;
+
+    for(i=0;i<3;i++) if(changedmap[i]) return true;
+    return wedchanged;
+  }
   bool WedAvailable() { return wedavailable; }
   void RecalcBox(int pos, wed_polygon *header, area_vertex *vertices, int door);
   int VertexOrder(area_vertex *wedvertex, int count);
@@ -110,6 +121,24 @@ public:
   int ConsolidateVertices();
   int ConsolidateDoortiles();
 
+  inline void KillMaps()
+  {
+    if(searchmap)
+    {
+      delete [] searchmap;
+      searchmap=NULL;
+    }
+    if(lightmap)
+    {
+      delete [] lightmap;
+      lightmap=NULL;
+    }
+    if(heightmap)
+    {
+      delete [] heightmap;
+      heightmap=NULL;
+    }
+  }
   inline void KillOverlays()
   {
     if(overlayheaders)

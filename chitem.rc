@@ -62,21 +62,28 @@ BEGIN
                     IDC_STATIC,9,36,164,8
 END
 
-IDD_IMAGEVIEW DIALOG DISCARDABLE  160, 0, 99, 82
-STYLE DS_ABSALIGN | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | 
-    WS_CAPTION
+IDD_IMAGEVIEW DIALOG DISCARDABLE  160, 0, 122, 82
+STYLE DS_ABSALIGN | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "View image..."
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "Back",IDCANCEL,29,36,50,14
     CONTROL         "",IDC_BITMAP,"Static",SS_BITMAP | SS_NOTIFY,7,19,15,13
-    SCROLLBAR       IDC_HORIZONTAL,7,7,85,11,SBS_LEFTALIGN
-    SCROLLBAR       IDC_VERTICAL,82,7,10,68,SBS_BOTTOMALIGN | SBS_VERT
+    SCROLLBAR       IDC_HORIZONTAL,7,7,108,11,SBS_LEFTALIGN
+    SCROLLBAR       IDC_VERTICAL,105,7,10,68,SBS_BOTTOMALIGN | SBS_VERT
     PUSHBUTTON      "Set",IDOK,29,20,50,14,NOT WS_VISIBLE
     CONTROL         "Spin1",IDC_SPINY,"msctls_updown32",UDS_ARROWKEYS | NOT 
                     WS_VISIBLE,7,35,13,17
     CONTROL         "Spin2",IDC_SPINX,"msctls_updown32",UDS_ARROWKEYS | 
                     UDS_HORZ | NOT WS_VISIBLE,7,54,19,11
+    CONTROL         "Show all",IDC_SHOWALL,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,23,54,43,10
+    COMBOBOX        IDC_VALUE,7,68,69,171,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Show grid",IDC_SHOWGRID,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,33,63,47,10
+    CONTROL         "Floodfill",IDC_FILL,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,76,51,39,10
 END
 
 IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 71
@@ -832,7 +839,7 @@ END
 
 IDD_STOREITEMS DIALOG DISCARDABLE  0, 0, 360, 199
 STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
-CAPTION "Items, cures and drinks"
+CAPTION "Items"
 FONT 8, "MS Sans Serif"
 BEGIN
     COMBOBOX        IDC_ALLOWEDITEMS,7,17,76,156,CBS_DROPDOWN | WS_VSCROLL | 
@@ -863,40 +870,12 @@ BEGIN
                     WS_TABSTOP,215,81,36,10
     EDITTEXT        IDC_UNKNOWN,265,69,34,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Order Store",IDC_ORDER,305,69,47,14
-    COMBOBOX        IDC_SPELLS,7,95,178,156,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
-    PUSHBUTTON      "Remove all",IDC_REMALLSPELL,193,95,47,14
-    PUSHBUTTON      "Remove Spell",IDC_REMOVESPELL,250,95,47,14
-    PUSHBUTTON      "Add Spell",IDC_ADDSPELL,305,95,47,14
-    COMBOBOX        IDC_SPELLRESREF,7,121,52,117,CBS_DROPDOWN | CBS_SORT | 
-                    CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_CUREDESCREF,61,121,42,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CURENAME,105,121,192,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CUREPRICE,305,121,42,14,ES_AUTOHSCROLL | ES_NUMBER
-    COMBOBOX        IDC_DRINKS,7,147,188,137,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
-    PUSHBUTTON      "Remove all",IDC_REMALLDRINK,202,147,47,14
-    PUSHBUTTON      "Remove Drink",IDC_REMOVEDRINK,253,147,47,14
-    PUSHBUTTON      "Add Drink",IDC_ADDDRINK,304,147,47,14
-    EDITTEXT        IDC_DRINKRESREF,7,173,42,14,ES_UPPERCASE | 
-                    ES_AUTOHSCROLL
-    EDITTEXT        IDC_DRINKNAMEREF,59,173,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DRINKNAME,105,173,147,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DRINKPRICE,259,173,40,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_DRINKSTRENGTH,316,173,34,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_STRREF,7,104,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "New string",IDC_NEW,62,104,50,14
+    EDITTEXT        IDC_SCRIPT,7,124,346,68,ES_MULTILINE | ES_AUTOHSCROLL | 
+                    WS_VSCROLL
     LTEXT           "Allowed Items",IDC_STATIC,7,6,44,8
     LTEXT           "Stored Items",IDC_STATIC,7,33,40,8
-    LTEXT           "Available Spells",IDC_STATIC,7,85,50,8
-    LTEXT           "Available Drinks",IDC_STATIC,7,137,52,8
-    LTEXT           "Resource ?",IDC_STATIC,7,163,38,8
-    LTEXT           "Strength",IDC_STATIC,316,163,28,8
-    LTEXT           "Price",IDC_STATIC,259,163,17,8
-    LTEXT           "Drink name (reference && tlk entry)",IDC_STATIC,59,163,
-                    106,8
-    LTEXT           "Spell",IDC_STATIC,7,111,16,8
-    LTEXT           "Price",IDC_STATIC,305,111,17,8
-    LTEXT           "Cure name (reference && tlk entry)",IDC_STATIC,61,111,
-                    104,8
     LTEXT           "Stock",IDC_STATIC,54,59,20,8
     LTEXT           "Unlimited",IDC_STATIC,85,59,30,8
     LTEXT           "Charges",IDC_STATIC,117,59,27,8
@@ -904,6 +883,7 @@ BEGIN
     LTEXT           "Unknown",IDC_STATIC,265,59,32,8
     LTEXT           "Itemtype",IDC_STATIC,85,6,28,8
     LTEXT           "Itemname",IDC_STATIC,7,58,32,8
+    LTEXT           "Item Trigger (PST)",IDC_STATIC,7,94,58,8
 END
 
 IDD_EFFEDIT DIALOG DISCARDABLE  0, 0, 410, 300
@@ -1189,7 +1169,7 @@ BEGIN
     LTEXT           "IWD2 unknowns",IDC_STATIC,25,19,54,8
 END
 
-IDD_STOREEXTRA DIALOG DISCARDABLE  0, 0, 370, 199
+IDD_STOREEXTRA DIALOG DISCARDABLE  0, 0, 360, 199
 STYLE WS_CHILD | WS_CAPTION
 CAPTION "Extras"
 FONT 8, "MS Sans Serif"
@@ -1754,6 +1734,8 @@ BEGIN
     LTEXT           "0x1A",IDC_STATIC,279,57,17,8
     LTEXT           "0x24",IDC_STATIC,361,57,16,8
     LTEXT           "0x1",IDC_STATIC,361,31,12,8
+    PUSHBUTTON      "Next",IDC_NEXT,134,14,23,14
+    PUSHBUTTON      "Prev.",IDC_PREV,162,14,23,14
 END
 
 IDD_SPELLEDIT DIALOGEX 0, 0, 410, 250
@@ -2885,8 +2867,8 @@ BEGIN
     COMBOBOX        IDC_CONTAINERPICKER,7,16,116,167,CBS_DROPDOWN | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_POSX,7,40,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POSY,36,40,24,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_TYPE,65,40,89,142,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+    EDITTEXT        IDC_POSY,34,40,24,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_TYPE,61,40,89,142,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
                     WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_LOCKED,7,66,24,14,ES_AUTOHSCROLL
     CONTROL         "Locked",IDC_HIDDEN,"Button",BS_AUTOCHECKBOX | 
@@ -2945,7 +2927,7 @@ BEGIN
     PUSHBUTTON      "Edit unknowns",IDC_UNKNOWN,351,170,62,14
     LTEXT           "/ 0",IDC_MAXCONTAINER,128,18,17,8
     LTEXT           "Position",IDC_STATIC,7,30,26,8
-    LTEXT           "Type",IDC_STATIC,65,30,17,8
+    LTEXT           "Type",IDC_STATIC,61,30,17,8
     GROUPBOX        "Items",IDC_STATIC,190,7,155,93,BS_FLAT
     LTEXT           "Container name",IDC_STATIC,7,6,50,8
     LTEXT           "Lock strength",IDC_STATIC,137,108,44,8
@@ -2972,6 +2954,7 @@ BEGIN
     LTEXT           "0x82",IDC_STATIC,39,134,16,8
     LTEXT           "Scripting name ?",IDC_STATIC,65,134,54,8
     GROUPBOX        "Vertices",IDC_STATIC,190,95,155,77,BS_FLAT
+    PUSHBUTTON      "Set",IDC_SET,153,40,34,14
 END
 
 IDD_AREADOOR DIALOG DISCARDABLE  0, 0, 420, 199
@@ -3031,16 +3014,16 @@ BEGIN
     EDITTEXT        IDC_SOUND1,96,178,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,138,178,28,14
     PUSHBUTTON      "Play Sound",IDC_PLAY,167,178,41,14
-    EDITTEXT        IDC_U54,193,16,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DIFF,234,16,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U54,329,178,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIFF,237,16,28,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_KEY,284,16,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE3,329,16,28,14
     EDITTEXT        IDC_DETECT,193,43,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_REMOVAL,234,43,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_REMOVAL,237,43,28,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_SCRIPT,284,43,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE5,329,44,28,14
     EDITTEXT        IDC_TRAPPED,193,70,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DETECTED,234,70,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DETECTED,237,70,28,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_DIALOG,284,70,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE4,329,70,28,14
     CONTROL         "Open",IDC_OPEN,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
@@ -3060,7 +3043,7 @@ BEGIN
     EDITTEXT        IDC_SOUND2,210,178,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE2,255,178,28,14
     PUSHBUTTON      "Play Sound",IDC_PLAYSOUND,283,178,41,14
-    EDITTEXT        IDC_LOCKED,332,178,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOCKED,193,16,28,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Add door",IDC_ADD,361,8,52,14
     PUSHBUTTON      "Remove door",IDC_REMOVE,361,29,52,14
     PUSHBUTTON      "Copy door",IDC_COPY,361,50,52,14
@@ -3082,26 +3065,26 @@ BEGIN
     LTEXT           "Closing sound",IDC_STATIC,210,166,45,8
     LTEXT           "Impeded blocks",IDC_STATIC,254,95,51,8
     LTEXT           "/ 0",IDC_BLOCKNUM,334,108,20,8
-    LTEXT           "0x54",IDC_STATIC,193,7,16,8
+    LTEXT           "Discovery",IDC_STATIC,193,6,32,8
     LTEXT           "Cursor index",IDC_STATIC,10,166,40,8
-    LTEXT           "Detection",IDC_STATIC,193,33,32,8
-    LTEXT           "Removal",IDC_STATIC,234,33,29,8
+    LTEXT           "Trap detection && removal",IDC_STATIC,193,33,80,8
     LTEXT           "Trapped",IDC_STATIC,193,60,28,8
-    LTEXT           "Detected",IDC_STATIC,234,60,30,8
+    LTEXT           "Detected",IDC_STATIC,237,60,30,8
     LTEXT           "Launch point",IDC_STATIC,95,33,42,8
     LTEXT           "Key",IDC_STATIC,284,6,13,8
     LTEXT           "Dialog",IDC_STATIC,284,60,21,8
     LTEXT           "Script",IDC_STATIC,284,33,19,8
-    LTEXT           "%",IDC_STATIC,222,46,8,8
-    LTEXT           "%",IDC_STATIC,266,46,8,8
-    LTEXT           "0x88",IDC_STATIC,332,169,16,8
-    LTEXT           "%",IDC_STATIC,266,19,8,8
-    LTEXT           "Lock difficulty",IDC_STATIC,234,6,44,8
+    LTEXT           "%",IDC_STATIC,226,46,8,8
+    LTEXT           "%",IDC_STATIC,269,46,8,8
+    LTEXT           "0x54",IDC_STATIC,332,166,16,8
+    LTEXT           "%",IDC_STATIC,269,19,8,8
+    LTEXT           "Lock difficulty",IDC_STATIC,237,6,44,8
     LTEXT           "Open fail ref.",IDC_STATIC,7,117,41,8
     LTEXT           "Region link",IDC_STATIC,7,91,36,8
     LTEXT           "Name in dialog (ref. && string)",IDC_STATIC,7,65,88,8
     LTEXT           "Open fail text",IDC_STATIC,7,142,42,8
     PUSHBUTTON      "Set",IDC_SET,155,43,34,14
+    LTEXT           "%",IDC_STATIC,226,19,8,8
 END
 
 IDD_AREAVARIABLE DIALOG DISCARDABLE  0, 0, 420, 199
@@ -4550,13 +4533,61 @@ STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Maps"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "Light map",IDC_LIGHTMAP,"Button",BS_AUTORADIOBUTTON,345,
-                    36,54,10
-    CONTROL         "Search map",IDC_SEARCHMAP,"Button",BS_AUTORADIOBUTTON,
-                    345,51,54,10
     CONTROL         "Height map",IDC_HEIGHTMAP,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,345,21,54,10
-    GROUPBOX        "Choose map type",IDC_STATIC,337,7,76,60
+                    WS_GROUP | WS_TABSTOP,345,15,54,10
+    CONTROL         "Light map",IDC_LIGHTMAP,"Button",BS_AUTORADIOBUTTON,345,
+                    30,54,10
+    CONTROL         "Search map",IDC_SEARCHMAP,"Button",BS_AUTORADIOBUTTON,
+                    345,45,54,10
+    PUSHBUTTON      "Clear map",IDC_CLEAR,337,95,52,14,WS_GROUP
+    PUSHBUTTON      "Set all pixels to",IDC_SET,337,114,52,14
+    GROUPBOX        "Choose map type",IDC_STATIC,337,1,76,60
+    CONTROL         "",IDC_MAP,"Static",SS_BITMAP | SS_NOTIFY,7,1,15,13
+    PUSHBUTTON      "Create palette",IDC_INIT,337,152,52,14
+    PUSHBUTTON      "Edit map",IDC_EDIT,337,173,52,14
+    EDITTEXT        IDC_HEIGHT,369,73,20,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_WIDTH,337,73,20,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Map dimensions",IDC_STATIC,337,62,52,8
+    LTEXT           "x",IDC_STATIC,361,77,8,8
+    COMBOBOX        IDC_VALUE,337,133,76,112,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+END
+
+IDD_STOREDRINKS DIALOG DISCARDABLE  0, 0, 360, 199
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Cures and drinks"
+FONT 8, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_SPELLS,7,17,178,156,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "Remove all",IDC_REMALLSPELL,193,17,47,14
+    PUSHBUTTON      "Remove Spell",IDC_REMOVESPELL,250,17,47,14
+    PUSHBUTTON      "Add Spell",IDC_ADDSPELL,305,17,47,14
+    COMBOBOX        IDC_SPELLRESREF,7,43,52,117,CBS_DROPDOWN | CBS_SORT | 
+                    CBS_UPPERCASE | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CUREDESCREF,61,43,42,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CURENAME,105,43,192,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CUREPRICE,305,43,42,14,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_DRINKS,7,97,188,137,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "Remove all",IDC_REMALLDRINK,202,97,47,14
+    PUSHBUTTON      "Remove Drink",IDC_REMOVEDRINK,253,97,47,14
+    PUSHBUTTON      "Add Drink",IDC_ADDDRINK,304,97,47,14
+    EDITTEXT        IDC_DRINKRESREF,7,123,42,14,ES_UPPERCASE | 
+                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_DRINKNAMEREF,59,123,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DRINKNAME,105,123,147,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DRINKPRICE,259,123,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_DRINKSTRENGTH,316,123,34,14,ES_AUTOHSCROLL
+    LTEXT           "Available Spells",-1,7,7,50,8
+    LTEXT           "Available Drinks",-1,7,87,52,8
+    LTEXT           "Resource ?",-1,7,113,38,8
+    LTEXT           "Strength",-1,316,113,28,8
+    LTEXT           "Price",-1,259,113,17,8
+    LTEXT           "Drink name (reference && tlk entry)",-1,59,113,106,8
+    LTEXT           "Spell",-1,7,33,16,8
+    LTEXT           "Price",-1,305,33,17,8
+    LTEXT           "Cure name (reference && tlk entry)",-1,61,33,104,8
 END
 
 
@@ -4579,7 +4610,7 @@ BEGIN
     IDD_IMAGEVIEW, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 92
+        RIGHTMARGIN, 115
         TOPMARGIN, 7
         BOTTOMMARGIN, 75
     END
@@ -4763,7 +4794,7 @@ BEGIN
     IDD_STOREEXTRA, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 363
+        RIGHTMARGIN, 353
         TOPMARGIN, 7
         BOTTOMMARGIN, 192
     END
@@ -5276,7 +5307,15 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 413
-        TOPMARGIN, 7
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 192
+    END
+
+    IDD_STOREDRINKS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 353
+        TOPMARGIN, 6
         BOTTOMMARGIN, 192
     END
 END
@@ -5328,8 +5367,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,0,0,12
- PRODUCTVERSION 6,0,0,12
+ FILEVERSION 6,0,1,0
+ PRODUCTVERSION 6,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5347,14 +5386,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "TeamBG (www.teambg.com)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 0, 0, 12\0"
+            VALUE "FileVersion", "6, 0, 1, 0\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2003 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 0, 0, 12\0"
+            VALUE "ProductVersion", "6, 0, 1, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6468,7 +6507,7 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_PLT                 "PLT (bitmap without palette ?)"
+    IDS_PLT                 "paperdoll"
     IDS_BIF                 "Specify the bif you want to search in. This field is optional."
     IDS_FILEMASK            "This could be a fragment of the resource name."
     IDS_FILEEXT             "Choose the filetype, this field is optional just like the others."

@@ -65,9 +65,7 @@ Cgame::~Cgame()
 int Cgame::insert_npc_header(int pos)
 {
   gam_npc *newnpcs;
-  gam_bg_npc *newextensions1;
-  gam_pst_npc *newextensions2;
-  gam_iwd_npc *newextensions3;
+  gam_npc_extension *newextensions;
   charpoi *newstructs;
 
   if(pos>header.npccount) pos=header.npccount;
@@ -80,36 +78,13 @@ int Cgame::insert_npc_header(int pos)
   memcpy(newnpcs+pos+1,npcs+pos, (npccount-pos)*sizeof(gam_npc) );
   memcpy(newstructs,npcstructs,pos*sizeof(charpoi) );
   memcpy(newstructs+pos+1,npcstructs+pos, (npccount-pos)*sizeof(charpoi) );
-  switch(revision)
-  {
-  case 11: case 20:
-    newextensions1=new gam_bg_npc[npccount+1];
-    if(!newextensions1) return -3;
-    memcpy(newextensions1,npcextensions,pos*sizeof(gam_bg_npc) );
-    memcpy(newextensions1+pos+1,npcextensions+pos, (npccount-pos)*sizeof(gam_bg_npc) );
-    delete [] npcextensions;
-    memset(newextensions1+pos,0,sizeof(gam_bg_npc) );
-    npcextensions=(char **) newextensions1;
-    break;
-  case 12:
-    newextensions2=new gam_pst_npc[npccount+1];
-    if(!newextensions2) return -3;
-    memcpy(newextensions2,npcextensions,pos*sizeof(gam_pst_npc) );
-    memcpy(newextensions2+pos+1,npcextensions+pos, (npccount-pos)*sizeof(gam_pst_npc) );
-    delete [] npcextensions;
-    memset(newextensions2+pos,0,sizeof(gam_pst_npc) );
-    npcextensions=(char **) newextensions2;
-    break;
-  case 22:
-    newextensions3=new gam_iwd_npc[npccount+1];
-    if(!newextensions3) return -3;
-    memcpy(newextensions3,npcextensions,pos*sizeof(gam_iwd_npc) );
-    memcpy(newextensions3+pos+1,npcextensions+pos, (npccount-pos)*sizeof(gam_iwd_npc) );
-    delete [] npcextensions;
-    memset(newextensions3+pos,0,sizeof(gam_iwd_npc) );
-    npcextensions=(char **) newextensions3;
-    break;
-  }
+  newextensions = new gam_npc_extension[npccount+1];
+  if(!newextensions) return -3;
+  memcpy(newextensions,npcextensions,pos*sizeof(gam_npc_extension) );
+  memcpy(newextensions+pos+1, npcextensions+pos,(npccount-pos)*sizeof(gam_npc_extension) );
+  memset(newextensions+pos,0,sizeof(gam_npc_extension) );
+  delete [] npcextensions;
+  npcextensions = newextensions;
   delete [] npcs;
   memset(newnpcs+pos,0,sizeof(gam_npc));
   npcs=newnpcs;
@@ -279,7 +254,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     {
       return -2;
     }
-    if(write(fhandle,npcextensions[i],mysize)!=mysize)
+    if(write(fhandle,npcextensions+i,mysize)!=mysize)
     {
       return -2;
     }
@@ -290,7 +265,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     {
       return -2;
     }
-    if(write(fhandle,pcextensions[i],mysize)!=mysize)
+    if(write(fhandle,pcextensions+i,mysize)!=mysize)
     {
       return -2;
     }
@@ -389,22 +364,11 @@ endofquest:
   return flg;
 }
 
-int Cgame::ReadExtension(char *&pointer,int &fullsize)
+int Cgame::ReadExtension(char *pointer,int &fullsize, int mysize)
 {
-  int size;
-
-  switch(revision)
-  {
-  case 12: size=sizeof(gam_pst_npc); break;
-  case 11: case 20: size=sizeof(gam_bg_npc); break;
-  case 22: size=sizeof(gam_iwd_npc); break;
-  }
-  if(pointer) delete [] pointer;
-  pointer=new char[size];
-  if(!pointer) return -3;
-  if(!size) return 0;
-  if(read(fhandle,pointer,size)!=size) return -2;
-  fullsize+=size;
+  if(!mysize) return 0;
+  if(read(fhandle,pointer,mysize)!=mysize) return -2;
+  fullsize+=mysize;
   return 0;
 }
 
@@ -412,7 +376,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
 {
   int flg, ret;
   int esize;
-  int fullsize;
+  int fullsize, mysize;
   int i;
 
   ret=0;
@@ -438,9 +402,17 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       {
         return -2;
       }
-      else revision=22;      
+      else
+      {
+        revision=22;      
+        mysize=sizeof(gam_iwd_npc);
+      }
     }
-    else revision=20;
+    else
+    {
+      revision=20;
+      mysize=sizeof(gam_bg_npc);
+    }
   }    
   else
   { //this is a hack
@@ -452,10 +424,12 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       esize=sizeof(header)-(header.curarea-header.filetype);
       memcpy(header.curarea,pstheader.curarea,esize);
       revision=12;
+      mysize=sizeof(gam_pst_npc);
     }
     else
     {
       revision=11;
+      mysize=sizeof(gam_bg_npc);
     }
   }
   //read non-party npcs
@@ -487,12 +461,12 @@ int Cgame::ReadGameFromFile(int fh, long ml)
   if(npccount!=npcextensioncount)
   {
     KillNPCExtensions();
-    npcextensions=new char *[npccount];
+    npcextensions=new gam_npc_extension[npccount];
     if(!npcextensions)
     {
       return -3;
     }
-    memset(npcextensions,0,npccount*sizeof(char *) );
+    memset(npcextensions,0,npccount*sizeof(gam_npc_extension) );
     npcextensioncount=npccount;
   }
 
@@ -504,7 +478,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       return -2;
     }
     fullsize+=esize;
-    flg=ReadExtension(npcextensions[i],fullsize);
+    flg=ReadExtension((char *) (npcextensions+i),fullsize, mysize);
     if(flg<0) return flg;
     flg=ReadCreData(npcs[i].creoffset, npcs[i].cresize,npcstructs[i],fullsize);
     if(flg<0) return flg;
@@ -539,12 +513,12 @@ int Cgame::ReadGameFromFile(int fh, long ml)
   if(pccount!=pcextensioncount)
   {
     KillPCExtensions();
-    pcextensions=new char *[pccount];
+    pcextensions=new gam_npc_extension[pccount];
     if(!pcextensions)
     {
       return -3;
     }
-    memset(pcextensions,0,pccount*sizeof(char *) );
+    memset(pcextensions,0,pccount*sizeof(gam_npc_extension) );
     pcextensioncount=pccount;
   }
 
@@ -556,7 +530,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       return -2;
     }
     fullsize+=esize;
-    flg=ReadExtension(pcextensions[i],fullsize);
+    flg=ReadExtension((char *) (pcextensions+i),fullsize, mysize);
     if(flg<0) return flg;
     flg=ReadCreData(pcs[i].creoffset, pcs[i].cresize,pcstructs[i],fullsize);
     if(flg<0) return flg;

@@ -54,8 +54,8 @@ Now, the format diverges a little between BG2 and PT. In BG2, the next fields in
 Offset Size (data type) Description
 0x0054 4 (dword) Reputation
 0x0058 8 (resref) Current area
-0x0060 4 (dword) Offset to Unknown
-0x0064 4 (dword) count of Unknown
+0x0060 4 (dword) Control flags (enables subwindows on main screen)
+0x0064 4 (dword) Unknown
 0x0068 4 (dword) Offset of familiars
 0x006c 4 (dword) Offset to Unknown
 0x0070 4 (dword) Count of Unknown

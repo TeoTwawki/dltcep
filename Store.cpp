@@ -213,7 +213,7 @@ int Cstore::ReadStoreFromFile(int fh, int ml)
     //allocating the bigger structure always, so switching between them
     //is no problem, only reading/writing needs to be done one by one
     entries=new store_item_entry11[header.itemcount];
-    if(!entries) return -2;
+    if(!entries) return -3;
     memset(entries,0,header.itemcount*sizeof(store_item_entry11));
   }
   entrynum=header.itemcount;

@@ -88,7 +88,7 @@ void CSpellEdit::OnLoad()
   		itemname=pickerdlg.m_picked;
       break;
     default:
-      MessageBox("Cannot read spell!","Error",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Cannot read spell!","Error",MB_ICONSTOP|MB_OK);
       NewSpell();
       break;
     }
@@ -117,7 +117,7 @@ restart:
     fhandle=open(filepath, O_RDONLY|O_BINARY);
     if(!fhandle)
     {
-      MessageBox("Cannot open file!","Error",MB_OK);
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
@@ -140,7 +140,7 @@ restart:
       itemname.MakeUpper();
       break;
     default:
-      MessageBox("Cannot read spell!","Error",MB_OK);
+      MessageBox("Cannot read spell!","Error",MB_ICONSTOP|MB_OK);
       NewSpell();
       break;
     }
@@ -219,7 +219,7 @@ gotname:
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
-      MessageBox("Can't write file!","Error",MB_OK);
+      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
     res=the_spell.WriteSpellToFile(fhandle,0);
@@ -230,13 +230,13 @@ gotname:
       itemname=newname;
       break; //saved successfully
     case -2:
-      MessageBox("Error while writing file!","Error",MB_OK);
+      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
       break;
     case -3:
-      MessageBox("Internal Error (feature block counter incorrect)!","Error",MB_OK);
+      MessageBox("Internal Error (feature block counter incorrect)!","Error",MB_ICONSTOP|MB_OK);
       break;
     default:
-      MessageBox("Unhandled error!","Error",MB_OK);
+      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK);
     }
   }
   SetWindowText("Edit spell: "+itemname);

@@ -29,6 +29,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaGeneral)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -162,6 +164,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaTrigger)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -243,6 +247,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaSpawn)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -298,6 +304,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaEntrance)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -354,6 +362,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaAmbient)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -438,6 +448,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaContainer)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -479,6 +491,7 @@ protected:
 	afx_msg void OnModvertex();
 	afx_msg void OnHidden();
 	afx_msg void OnNopc();
+	afx_msg void OnSet();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -511,6 +524,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaVariable)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -586,6 +601,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaDoor)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -680,6 +697,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaAnim)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -737,23 +756,45 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAreaMap)
 	enum { IDD = IDD_AREAMAP };
+	CComboBox	m_value_control;
+	CStatic	m_bitmap;
 	int		m_maptype;
 	//}}AFX_DATA
-
+  int m_set;
+  bool m_showall;
+  CPoint m_mousepoint;
+  CPoint m_oladjust;
+  HBITMAP hbmap;
+  LPBYTE the_map;
+  COLORREF *the_palette;
+  COLORREF bgcolor;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaMap)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  void Allocatemap();
+  void ResetCombo();
 
 	// Generated message map functions
 	//{{AFX_MSG(CAreaMap)
-		// NOTE: the ClassWizard will add member functions here
+	afx_msg void OnHeightmap();
+	afx_msg void OnLightmap();
+	afx_msg void OnSearchmap();
+	afx_msg void OnDefaultKillfocus();
+	afx_msg void OnClear();
+	afx_msg void OnSet();
+	afx_msg void OnInit();
+	afx_msg void OnMap();
+	virtual BOOL OnInitDialog();
+	afx_msg void OnEdit();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

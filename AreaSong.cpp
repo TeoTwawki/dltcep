@@ -262,3 +262,10 @@ void CAreaSong::OnMuslose()
 {
   Musiclist(the_area.songheader.songs[4]);
 }
+
+BOOL CAreaSong::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CDialog::PreTranslateMessage(pMsg);
+}

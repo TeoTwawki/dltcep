@@ -161,7 +161,7 @@ public:
 	  int nMode, int nWidth, int nHeight); //creates a bitmap returns it in hbitmap
   int GetFrameCount();
   int GetCycleCount();
-  void DetachFrames();
+  int DetachFrameData(int nFrameWanted);
   CPoint GetFrameSize(int nFrameWanted);
   LPBYTE GetFrameData(int nFrameWanted);
   int SetFrameData(int nFrameWanted, LPBYTE pFrameData, const CPoint &cpFrameSize);
@@ -194,6 +194,11 @@ public:
   int SwapFrames(int a, int b); //swaps frames in lookup table
   int Reallocate(int x, int y);
 
+  inline int GetTransparentIndex()
+  {
+    return m_header.chTransparentIndex;
+  }
+
   inline void SetCompress(bool flg)
   {
     m_bCompressed=flg;
@@ -213,12 +218,12 @@ public:
   }
   inline BOOL HasPalette()
   {
-    return m_bGotPalette;
+    return !!m_palettesize;
   }
   inline void InitPalette()
   {
-    m_bGotPalette=true;
-    memset(&palette,0,sizeof(palette) );
+    m_palettesize=256*sizeof(COLORREF);
+    memset(&m_palette,0,sizeof(m_palette) );
   }
 
   inline int GetDataSize()
@@ -272,9 +277,10 @@ public:
 
   CString m_name;
   //these are public for easier access
-  palettetype palette;
-  INF_BAM_HEADER header;
-  plt_header pltheader;
+  palettetype m_palette;
+  int m_palettesize;
+  INF_BAM_HEADER m_header;
+  plt_header m_pltheader;
   short *m_pFrameLookup;     //frame lookup tables (made them global for convenience)
 
   BOOL m_bCompressed; //save as (leave it public for simplicity)
@@ -295,7 +301,6 @@ private:
   int m_nCycles;
   int m_nFrameLookupSize;      //size of the frame lookup table (counter)
   INF_BAMC_HEADER c_header;
-  bool m_bGotPalette;
 
   BYTE *m_pData;               //uncompressed/raw bam data
   DWORD m_nDataSize;           //uncompressed/raw bam data size (sizeof m_pData)

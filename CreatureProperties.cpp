@@ -48,7 +48,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   int value;
   CString tmpstr;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureGeneral)
 	DDX_Text(pDX, IDC_LONGNAME, m_longname);
 	DDX_Check(pDX, IDC_LONGNAMETAG, m_longnametag);
@@ -236,7 +236,7 @@ BOOL CCreatureGeneral::OnInitDialog()
 {
   CComboBox *cb;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
   RefreshGeneral();
   
 	cb=(CComboBox *) GetDlgItem(IDC_STATEFLAGS);
@@ -618,7 +618,7 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
   int ret;
   int pst;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureIcons)
 	DDX_Control(pDX, IDC_LARGEPORTRAITICON, m_largeportrait);
 	DDX_Control(pDX, IDC_SMALLPORTRAITICON, m_smallportrait);
@@ -1012,7 +1012,7 @@ void CCreatureIcons::OnTimer(UINT nIDEvent)
   the_bam.MakeBitmap(nFrameIndex,bgcolor,hb,BM_RESIZE,1,1);
   m_largeportrait.SetBitmap(hb);
   playindex++;
-	CDialog::OnTimer(nIDEvent);
+	CPropertyPage::OnTimer(nIDEvent);
 }
 
 void CCreatureIcons::OnPlay() 
@@ -1039,7 +1039,7 @@ CCreatureSkills::~CCreatureSkills()
 
 void CCreatureSkills::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
   if(the_creature.revision==12) m_pst="Unused prof.";
   else m_pst="Detect illusions";
 	//{{AFX_DATA_MAP(CCreatureSkills)
@@ -1285,7 +1285,7 @@ void CCreatureResist::DoDataExchange(CDataExchange* pDX)
 {
   int tmp;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureResist)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
@@ -1556,7 +1556,7 @@ BOOL CCreatureStrings::OnInitDialog()
   CString tmpstr;
   int i;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
   RefreshStrings();	
 
   m_slotpicker_control.ResetContent();
@@ -1576,7 +1576,7 @@ BOOL CCreatureStrings::OnInitDialog()
 
 void CCreatureStrings::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureStrings)
 	DDX_Control(pDX, IDC_BUDDY, m_buddycontrol);
 	DDX_Control(pDX, IDC_SLOTSPIN, m_spincontrol);
@@ -1770,7 +1770,7 @@ void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
 {
   int i;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureUnknown)
 	//}}AFX_DATA_MAP
   DDX_Text(pDX,IDC_LARGE, the_creature.header.unused[0]);
@@ -1822,7 +1822,7 @@ void CCreatureUnknown::RefreshUnknown()
 BOOL CCreatureUnknown::OnInitDialog() 
 {
   RefreshUnknown();
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
   
 	return TRUE;
 }
@@ -2204,7 +2204,7 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
   int flg, flg2;
   int i,j;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureItem)
 	DDX_Control(pDX, IDC_BOOKPICKER, m_bookpicker);
 	DDX_Control(pDX, IDC_SPELLPICKER, m_spellpicker);
@@ -3235,7 +3235,7 @@ static int radioids2[4]={IDC_V10,IDC_V20};
 
 void CCreatureEffect::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureEffect)
 	DDX_Control(pDX, IDC_SLOTPICKER, m_slotpicker_control);
 	//}}AFX_DATA_MAP
@@ -3291,12 +3291,12 @@ void CCreatureEffect::RefreshEffect()
 
 BOOL CCreatureEffect::OnInitDialog() 
 {
-	CDialog::OnInitDialog();	
+	CPropertyPage::OnInitDialog();	
 	RefreshEffect();
 	return TRUE;
 }
 
-BEGIN_MESSAGE_MAP(CCreatureEffect, CDialog)
+BEGIN_MESSAGE_MAP(CCreatureEffect, CPropertyPage)
 	//{{AFX_MSG_MAP(CCreatureEffect)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_DELETE, OnDelete)

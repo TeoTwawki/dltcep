@@ -292,3 +292,10 @@ void CAreaInt::OnClear()
   RefreshInt();
 	UpdateData(UD_DISPLAY);
 }
+
+BOOL CAreaInt::PreTranslateMessage(MSG* pMsg) 
+{
+	// TODO: Add your specialized code here and/or call the base class
+	
+	return CDialog::PreTranslateMessage(pMsg);
+}

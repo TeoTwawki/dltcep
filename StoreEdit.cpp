@@ -150,14 +150,14 @@ void CStoreEdit::OnLoad()
     switch(res)
     {
     case -3:
-      MessageBox("Out of memory","Error",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
     case 0:
   		itemname=pickerdlg.m_picked;
       break;
     default:
-      MessageBox("Cannot read store!","Error",MB_OK);
+      MessageBox("Cannot read store!","Error",MB_ICONSTOP|MB_OK);
       NewStore();
       break;
     }
@@ -185,7 +185,7 @@ restart:
     fhandle=open(filepath, O_RDONLY|O_BINARY);
     if(!fhandle)
     {
-      MessageBox("Cannot open file!","Error",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
@@ -203,7 +203,7 @@ restart:
       itemname.MakeUpper();
       break;
     default:
-      MessageBox("Cannot read store!","Error",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Cannot read store!","Error",MB_ICONSTOP|MB_OK);
       NewStore();
       break;
     }
@@ -279,7 +279,7 @@ gotname:
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
-      MessageBox("Can't write file!","Error",MB_OK);
+      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
     res=the_store.WriteStoreToFile(fhandle,0);
@@ -290,10 +290,10 @@ gotname:
       itemname=newname;
       break; //saved successfully
     case -2:
-      MessageBox("Error while writing file!","Error",MB_OK);
+      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
       break;
     default:
-      MessageBox("Unhandled error!","Error",MB_OK);
+      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK);
     }
   }
   SetWindowText("Edit store: "+itemname);

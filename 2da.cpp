@@ -1379,7 +1379,7 @@ endofcase:
           switch(ret)
           {
           case -3:
-            MessageBox(0,"Out of memory","Warning",MB_ICONWARNING|MB_OK);
+            MessageBox(0,"Out of memory","Error",MB_ICONSTOP|MB_OK);
             break;
           case 0:
             break;
@@ -1676,6 +1676,14 @@ int compile_trigger(CString line, trigger &trigger)
       break;
     case SPT_INTEGER2:
       ret=lookup_id(compiler_data.parameters[j].idsfile, args[j], trigger.bytes[2]);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      break;
+    case SPT_INTEGER3:
+      ret=lookup_id(compiler_data.parameters[j].idsfile, args[j], trigger.bytes[3]);
       if(ret<0)
       {
         delete [] args;
@@ -2695,7 +2703,8 @@ void Cids::AddRow(int row, CString label, CString def)
   POSITION pos;
   CString *add;
 
-  add=new CString[2]; //we let it crash here *shrug*
+  add=new CString[2];
+  if(!add) return;
   add[0]=label;
   add[1]=def;
   pos=data->FindIndex(row);
@@ -2776,7 +2785,12 @@ int Cids::ReadIDSFromFile(int fhandle, int length)
       ret|=1;
       continue;
     }
-    add=new CString[2]; //we let it crash here
+    add=new CString[2]; 
+    if(!add)
+    {
+      fclose(fpoi);
+      return -3;
+    }
     add[0]=ref.Left(pos);
     if(ref.FindOneOf(" ()")==-1)
     {
@@ -2853,7 +2867,8 @@ void Cmus::AddRow(int row, CString arg1, CString arg2, CString arg3)
   POSITION pos;
   CString *add;
 
-  add=new CString[MUSCOLUMN]; //won't check
+  add=new CString[MUSCOLUMN];
+  if(!add) return;
   add[0]=arg1;
   add[1]=arg2;
   add[2]=arg3;
@@ -2943,7 +2958,12 @@ int Cmus::ReadMusFromFile(int fhandle, int length)
     ref.MakeUpper();
     ref.TrimLeft();
     ref.TrimRight();
-    add=new CString[MUSCOLUMN]; //won't check
+    add=new CString[MUSCOLUMN];
+    if(!add)
+    {
+      fclose(fpoi);
+      return -3;
+    }
     pos1=ref.FindOneOf(" \t");
     if(pos1<1)
     {

@@ -32,7 +32,9 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CSpellGeneral)
+	public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -115,6 +117,8 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CSpellDescription)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -166,6 +170,8 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CSpellEquip)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -222,6 +228,8 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CSpellExtended)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -232,10 +240,12 @@ protected:
   void DoDataExchangeExtended(CDataExchange* pDX);
   void EnableWindow_ExtEffect(bool value);
   void EnableWindow_Extended(bool value);
+	afx_msg void OnDefaultKillfocus();
 
 	//{{AFX_MSG(CSpellExtended)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnKillfocusExtheadnum();
+	afx_msg void OnKillfocusExteffnum();
 	afx_msg void OnExtpaste();
 	afx_msg void OnExteffadd();
 	afx_msg void OnExteffcopy();
@@ -244,30 +254,12 @@ protected:
 	afx_msg void OnExtcopy();
 	afx_msg void OnExtadd();
 	afx_msg void OnExtremove();
-	afx_msg void OnKillfocusExttype();
-	afx_msg void OnKillfocusLoc();
-	afx_msg void OnKillfocusTarget();
-	afx_msg void OnKillfocusRange();
-	afx_msg void OnKillfocusProjframe();
-	afx_msg void OnKillfocusSpeed();
 	afx_msg void OnSelchangeExtheadnum();
-	afx_msg void OnKillfocusRoll();
-	afx_msg void OnKillfocusDamagetype();
-	afx_msg void OnKillfocusDie();
-	afx_msg void OnKillfocusAdd();
-	afx_msg void OnKillfocusTargetnum();
-	afx_msg void OnKillfocusExtuseicon();
-	afx_msg void OnKillfocusProjid();
-	afx_msg void OnKillfocusUnknown16();
-	afx_msg void OnKillfocusUnknown1a();
-	afx_msg void OnKillfocusUnknown22();
-	afx_msg void OnKillfocusUnknown24();
 	afx_msg void OnOrder();
-	afx_msg void OnKillfocusLevel();
 	afx_msg void OnUseicon();
-	afx_msg void OnKillfocusUnknown01();
-	afx_msg void OnKillfocusExteffnum();
 	afx_msg void OnEdit();
+	afx_msg void OnNext();
+	afx_msg void OnPrev();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -295,7 +287,9 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CSpellExtra)
+	public:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -336,6 +330,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSpellTool)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL

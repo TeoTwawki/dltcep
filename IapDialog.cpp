@@ -28,6 +28,8 @@ CIapDialog::CIapDialog(CWnd* pParent /*=NULL*/)
 
 void CIapDialog::DoDataExchange(CDataExchange* pDX)
 {
+  int tmp;
+
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CIapDialog)
 	DDX_Control(pDX, IDC_LAUNCH, m_launch_control);
@@ -38,8 +40,10 @@ void CIapDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_CBString(pDX, IDC_OTHER, m_newother);
 	DDX_CBString(pDX, IDC_TBG, m_newtbg);
 	//}}AFX_DATA_MAP
-  DDX_Text(pDX, IDC_TBGMAX, the_iap.iapheader.tbgcount);
-  DDX_Text(pDX, IDC_OTHERMAX, the_iap.iapheader.othercount);
+  tmp=m_tbgpicker.GetCount();
+  DDX_Text(pDX, IDC_TBGMAX, tmp);
+  tmp=m_otherpicker.GetCount();
+  DDX_Text(pDX, IDC_OTHERMAX, tmp);
 }
 
 BEGIN_MESSAGE_MAP(CIapDialog, CDialog)
@@ -351,6 +355,7 @@ void CIapDialog::OnOpenother()
       AddOther();
     }
   }
+  RefreshDialog();
 }
 
 void CIapDialog::OnOpentbg() 
@@ -370,6 +375,7 @@ void CIapDialog::OnOpentbg()
       AddTbg();
     }
   }
+  RefreshDialog();
 }
 
 void CIapDialog::OnDblclkOther() 
