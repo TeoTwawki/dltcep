@@ -368,6 +368,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_CREATEMIRROR, OnCreatemirror)
 	ON_COMMAND(ID_TOOLS_DROPALLBUTLAST, OnDropallbutlast)
 	ON_COMMAND(ID_REDUCEORIENTATION, OnReduceorientation)
+	ON_COMMAND(ID_MERGEBAM, OnMergebam)
 	ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
@@ -392,7 +393,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
-	ON_COMMAND(ID_MERGEBAM, OnMergebam)
+	ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -528,6 +529,7 @@ void CBamEdit::AddonBam(Cbam &addon)
       the_bam.AddFrameToCycle(nNewCycle, j, nAddIndex+nStartFrame, 1);
     }
   }
+  RefreshDialog();
 }
 
 void CBamEdit::AddinBam(Cbam &addin)
@@ -1313,7 +1315,15 @@ restart:
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
-    res=tmpbam.ReadBmpFromFile(fhandle,-1);
+    if(filepath.Right(4)!=".plt")
+    {
+      res=tmpbam.ReadBmpFromFile(fhandle,-1);
+    }
+    else
+    {
+      res=tmpbam.ReadPltFromFile(fhandle,-1);      
+    }
+
     close(fhandle);
     switch(res)
     {
@@ -1687,6 +1697,28 @@ void CBamEdit::OnAlign()
 	for(nFrameWanted=1;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
   {
 	  the_bam.SetFramePos(nFrameWanted,point.x,point.y);
+  }
+  UpdateData(UD_DISPLAY);
+}
+
+
+void CBamEdit::OnCycleAlignframes() 
+{
+  CPoint point;
+  int nCycle;
+  CPoint CycleData;
+  int i;
+
+  nCycle=m_cyclenum_control.GetCurSel();
+  if(nCycle<0) return;
+  CycleData=the_bam.GetCycleData(nCycle);
+  if(CycleData.y<2) return;
+  //collecting the frames to be flipped, we must flip a frame only once
+  //this is why we collect them into a set first
+  point=the_bam.GetFramePos(the_bam.m_pFrameLookup[CycleData.x]);
+	for(i=1;i<CycleData.y;i++)
+  {
+    the_bam.SetFramePos(the_bam.m_pFrameLookup[CycleData.x+i],point.x,point.y);
   }
   UpdateData(UD_DISPLAY);
 }

@@ -95,10 +95,10 @@ FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "",IDC_VERSION,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2002-2004 Avenger",IDC_STATIC,40,23,119,8
+    LTEXT           "Copyright (C) 2002-2005 Avenger",IDC_STATIC,40,23,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
-    LTEXT           "See us on: http://www.teambg.net",IDC_STATIC,40,36,111,
-                    8
+    LTEXT           "Source: http://gemrb.sourceforge.net",IDC_STATIC,40,36,
+                    119,8
     LTEXT           "DLTC home: http://www.dragonlancetc.com",IDC_STATIC,40,
                     49,142,8
 END
@@ -3357,7 +3357,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit game:"
 MENU IDR_GAME
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     COMBOBOX        IDC_NPCPICKER,11,13,145,230,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
@@ -3386,15 +3386,15 @@ BEGIN
     COMBOBOX        IDC_FAMILIARPICKER,166,91,61,161,CBS_DROPDOWN | 
                     WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_FAMILIAR,233,91,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
-    COMBOBOX        IDC_JOURNALPICKER,166,117,61,120,CBS_DROPDOWN | 
+    COMBOBOX        IDC_JOURNALPICKER,166,124,61,120,CBS_DROPDOWN | 
                     WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_STRREF,242,117,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CHAPTER,166,141,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_SECTION,205,141,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TIME,242,141,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TEXT,166,159,117,14,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "Add entry",IDC_ADDJOURNAL,166,176,50,14
-    PUSHBUTTON      "Remove entry",IDC_DELJOURNAL,233,176,50,14
+    EDITTEXT        IDC_STRREF,242,124,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CHAPTER,166,148,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SECTION,205,148,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TIME,242,148,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT,166,166,117,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Add entry",IDC_ADDJOURNAL,166,183,50,14
+    PUSHBUTTON      "Remove entry",IDC_DELJOURNAL,233,183,50,14
     EDITTEXT        IDC_PARTYSIZE,297,13,48,14,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "Clear Party",IDC_PARTY,360,13,38,14
     COMBOBOX        IDC_CREATURENUM,297,37,58,96,CBS_DROPDOWNLIST | 
@@ -3427,12 +3427,12 @@ BEGIN
     LTEXT           "Start area",IDC_STATIC,297,63,32,8
     LTEXT           "Gametime",IDC_STATIC,297,96,32,8
     LTEXT           "Party gold",IDC_STATIC,350,96,32,8
-    GROUPBOX        "Journal",IDC_STATIC,162,106,129,88,BS_FLAT
+    GROUPBOX        "Journal",IDC_STATIC,162,106,129,97,BS_FLAT
     LTEXT           "Original",IDC_MODIFIED,164,13,50,11,0,WS_EX_STATICEDGE
     LTEXT           "Orientation",IDC_STATIC,109,53,35,8
-    LTEXT           "Chapter",IDC_STATIC,166,132,26,8
-    LTEXT           "Time",IDC_STATIC,242,132,16,8
-    LTEXT           "Section",IDC_STATIC,205,132,25,8
+    LTEXT           "Chapter",IDC_STATIC,166,139,26,8
+    LTEXT           "Time",IDC_STATIC,242,139,16,8
+    LTEXT           "Section",IDC_STATIC,205,139,25,8
     LTEXT           "Current party",IDC_STATIC,297,3,41,8
     LTEXT           "Game revision: ",IDC_REVISION,172,206,83,8
     EDITTEXT        IDC_SCREEN,295,134,24,14,ES_AUTOHSCROLL
@@ -3440,6 +3440,7 @@ BEGIN
     PUSHBUTTON      "Stats",IDC_EDITLINK,360,55,38,14
     PUSHBUTTON      "Stats",IDC_EDITLINK2,232,62,56,14
     PUSHBUTTON      "Edit NPC",IDC_EDIT2,186,62,38,14
+    LTEXT           "StrRef",IDC_STATIC,242,115,21,8
 END
 
 IDD_MAPEDIT DIALOG DISCARDABLE  0, 0, 410, 250
@@ -3890,8 +3891,8 @@ BEGIN
                     WS_TABSTOP,13,137,65,10
     CONTROL         "Doesn't cover",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,93,60,60,10
-    CONTROL         "10",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,93,
-                    71,24,10
+    CONTROL         "Draw all cycles",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,71,63,10
     CONTROL         "Use palette BMP",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,93,82,69,10
     CONTROL         "Mirrored",IDC_FLAG12,"Button",BS_AUTOCHECKBOX | 
@@ -4343,7 +4344,7 @@ BEGIN
     PUSHBUTTON      "Readd BIF",IDC_READD,133,155,50,14
 END
 
-IDD_WEDTILE DIALOG DISCARDABLE  0, 0, 286, 202
+IDD_WEDTILE DIALOG DISCARDABLE  0, 0, 286, 199
 STYLE DS_ABSALIGN | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Edit tiles & overlays"
 FONT 8, "MS Sans Serif"
@@ -4354,14 +4355,14 @@ BEGIN
                     WS_TABSTOP
     EDITTEXT        IDC_TILEIDX,114,124,47,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_ALT,167,124,47,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_FLAGS,7,157,47,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_UNKNOWN,71,157,47,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FLAGS,7,158,47,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UNKNOWN,71,158,47,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Add alternate",IDC_ADDALT,221,38,58,14
     PUSHBUTTON      "Drop alternate",IDC_REMOVE,221,58,58,14
     PUSHBUTTON      "Fix overlays",IDC_FIXALTER,221,78,58,14
     PUSHBUTTON      "Fix green water",IDC_GREENWATER,221,118,58,14
-    PUSHBUTTON      "Save tileset",IDC_SAVE,71,181,58,14
-    PUSHBUTTON      "Back",IDOK,156,181,58,14
+    PUSHBUTTON      "Save tileset",IDC_SAVE,7,178,58,14
+    PUSHBUTTON      "Back",IDOK,155,178,58,14
     LTEXT           "Select tile",IDC_STATIC,7,7,32,8
     LTEXT           "Unknown flags",IDC_STATIC,71,146,48,8
     LTEXT           "Overlay bits",IDC_STATIC,7,146,38,8
@@ -4372,12 +4373,13 @@ BEGIN
     PUSHBUTTON      "Replace tiles",IDC_LOAD,221,138,58,14
     PUSHBUTTON      "Replace alt. tiles",IDC_LOAD2,221,158,58,14
     CONTROL         "Draw open",IDC_OPEN,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,156,150,58,14
+                    BS_PUSHLIKE | WS_TABSTOP,76,178,58,14
     CONTROL         "Preview",IDC_PREVIEW,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,221,178,58,14
+                    BS_PUSHLIKE | WS_TABSTOP,155,158,58,14
     CONTROL         "Overlaid tiles",IDC_OVERLAY,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | WS_TABSTOP,221,18,58,14
     PUSHBUTTON      "Unused overlays",IDC_DROP,221,98,58,14
+    PUSHBUTTON      "External tiles",IDC_LOAD3,221,178,58,14,NOT WS_VISIBLE
 END
 
 IDD_SPELLTOOL DIALOG DISCARDABLE  0, 0, 400, 199
@@ -4507,7 +4509,7 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN5,227,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN6,261,189,25,14,ES_AUTOHSCROLL
     LTEXT           "Knob position              Jump width && count    Unknowns",
-                    IDC_UNKNOWN,90,177,175,8
+                    IDC_UNKNOWN,90,178,175,8
     EDITTEXT        IDC_UNKNOWN7,295,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN8,329,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_BAM3,90,161,63,14,ES_AUTOHSCROLL
@@ -4520,8 +4522,8 @@ BEGIN
                     IDC_EDITMOS1,90,122,168,8
     LTEXT           "Mos3                                                                  Cursor",
                     IDC_EDITMOS2,90,150,170,8
-    LTEXT           "Font bam                                       Length",
-                    IDC_EDITMOS3,90,177,130,8
+    LTEXT           "Font bam                                       Length    Position",
+                    IDC_EDITMOS3,90,178,163,8
     LTEXT           "Font BAM                                                          Initials font BAM",
                     IDC_TEXTAREA1,90,122,199,8
     EDITTEXT        IDC_UNKNOWN9,363,189,25,14,ES_AUTOHSCROLL
@@ -5472,7 +5474,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 279
         TOPMARGIN, 7
-        BOTTOMMARGIN, 195
+        BOTTOMMARGIN, 192
     END
 
     IDD_SPELLTOOL, DIALOG
@@ -5595,8 +5597,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,4,0,0
- PRODUCTVERSION 6,4,0,0
+ FILEVERSION 6,4,0,2
+ PRODUCTVERSION 6,4,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5612,16 +5614,16 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
-            VALUE "CompanyName", "GemRB (gemrb.sourceforge.net)\0"
+            VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 4, 0, 0\0"
+            VALUE "FileVersion", "6, 4, 0, 2\0"
             VALUE "InternalName", "dltcep\0"
-            VALUE "LegalCopyright", "Copyright (C) 2002-2004 Avenger\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002-2005 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 4, 0, 0\0"
+            VALUE "ProductVersion", "6, 4, 0, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -5831,6 +5833,7 @@ BEGIN
         MENUITEM "Shift cycle &forward",        ID_SHIFT_FORWARD
         MENUITEM "Shift cycle &backward",       ID_SHIFT_BACKWARD
         MENUITEM "&Flip frames in cycle",       ID_FLIPCYCLE
+        MENUITEM "A&lign frames",               ID_CYCLE_ALIGNFRAMES
     END
     POPUP "&Palette"
     BEGIN

@@ -1010,7 +1010,7 @@ int Cbam::ReadPltFromFile(int fhandle, int ml)
   {
     return -1;
   }
-  if(dwSize!=m_pltheader.dwWidth*m_pltheader.dwHeight)
+  if(dwSize!=m_pltheader.dwWidth*m_pltheader.dwHeight*2)
   {
     return -2;
   }

@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "WedTile.h"
@@ -93,12 +95,13 @@ BEGIN_MESSAGE_MAP(CWedTile, CDialog)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOAD2, OnLoad2)
+	ON_BN_CLICKED(IDC_LOAD3, OnLoad3)
 	ON_BN_CLICKED(IDC_OPEN, OnOpen)
 	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
+	ON_BN_CLICKED(IDC_DROP, OnDrop)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN, DefaultKillfocus)
 	ON_LBN_DBLCLK(IDC_BLOCKPICKER, OnRemove)
-	ON_BN_CLICKED(IDC_DROP, OnDrop)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, OnTile)
 END_MESSAGE_MAP()
@@ -277,6 +280,8 @@ BOOL CWedTile::OnInitDialog()
     cw=GetDlgItem(IDC_LOAD2);
     cw->EnableWindow(true);
     cw->SetWindowText("Set door (bmp)");
+    cw=GetDlgItem(IDC_LOAD3);
+    cw->ShowWindow(true);
   }
 
   m_preview.InitView(IW_SHOWGRID|IW_OVERLAY|IW_MARKTILE, &the_mos); //initview must be before create
@@ -565,29 +570,115 @@ void CWedTile::OnLoad2()
   if(m_pdooridx)
   {
     qsort(m_pdooridx, m_maxtile, sizeof(short), shortsortb);
-    LoadTileSetAt(m_tilenum, 2);
+    LoadTileSetAt(m_tilenum, 3);
     return;
   }
   firsttile=m_ptileheader[m_tilenum].alternate;
   LoadTileSetAt(firsttile,0);
 }
 
-void CWedTile::LoadTileSetAt(int firsttile, int random)
+void CWedTile::OnLoad3()
 {
   Cmos tmpmos;
-  DWORD nFrameWanted;
+  CString filepath;
+  int fhandle;
+  int res;
+  int bmportis;
+  
+  qsort(m_pdooridx, m_maxtile, sizeof(short), shortsortb);
+  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
+  if(readonly) res|=OFN_READONLY;  
+  bmportis=3;
+  CFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, ImageFilter(0x032) );
+
+restart:  
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    fhandle=open(filepath, O_RDONLY|O_BINARY);
+    if(!fhandle)
+    {
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      goto restart;
+    }
+    readonly=m_getfiledlg.GetReadOnlyPref();
+    if(bmportis==3)
+    {
+      res=tmpmos.ReadBmpFromFile(fhandle,-1);
+    }
+    else
+    {
+      res=tmpmos.ReadTisFromFile(fhandle,-1,true);
+    }
+    close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+    switch(res)
+    {
+    case 0:
+      InsertTiles(tmpmos,0,1);
+      break;
+    default:
+      MessageBox("Cannot read bitmap!","Error",MB_ICONSTOP|MB_OK);
+      break;
+    }
+  }
+  RefreshTile();
+  UpdateData(UD_DISPLAY);	
+}
+
+void CWedTile::InsertTiles(Cmos &tmpmos, int firsttile, int door)
+{
   DWORD i;
+  DWORD nFrameWanted;  
+
+  for(i=0;i<tmpmos.tisheader.numtiles;i++)
+  {
+    if(i>=m_maxtile)
+    {
+      MessageBox("Couldn't load the whole tileset.","Tile editor",MB_ICONWARNING|MB_OK);
+      RefreshTile();
+      UpdateData(UD_DISPLAY);	
+      return;
+    }
+    if(door)
+    {
+      nFrameWanted=m_ptileheader[m_pdooridx[i]].alternate;
+      if(nFrameWanted==(DWORD) -1)
+      {
+        nFrameWanted=the_mos.AddTileCopy(m_pdooridx[i]);
+        m_ptileheader[m_pdooridx[i]].alternate=(short) nFrameWanted;
+      }
+    }
+    else
+    {
+      nFrameWanted=firsttile+i;
+    }
+    if(the_mos.tisheader.numtiles<=nFrameWanted)
+    {
+      MessageBox("Couldn't load the whole tileset.","Tile editor",MB_ICONWARNING|MB_OK);
+      return;
+    }
+    the_mos.SetFrameData(nFrameWanted, tmpmos.GetFrameData(i));
+  }
+}
+
+//flags = 1   door  (alternate)
+//flags = 2   bmp   (tis)
+
+void CWedTile::LoadTileSetAt(int firsttile, int flags)
+{
+  Cmos tmpmos;
 
   if(firsttile<0)
   {
     MessageBox("Select a position first.","Tile editor",MB_ICONWARNING|MB_OK);
     return;
   }
-  if(random==2) pickerdlg.m_restype=REF_BMP;
+  if(flags&2) pickerdlg.m_restype=REF_BMP;
   else pickerdlg.m_restype=REF_TIS;
   if(pickerdlg.DoModal()==IDOK)
   {
-    if(random==2)
+    if(flags&2)
     {
       if(read_bmp(pickerdlg.m_picked, &tmpmos, false)) return;
     }
@@ -595,35 +686,7 @@ void CWedTile::LoadTileSetAt(int firsttile, int random)
     {
       if(read_tis(pickerdlg.m_picked, &tmpmos, false)) return;
     }
-    for(i=0;i<tmpmos.tisheader.numtiles;i++)
-    {
-      if(i>=m_maxtile)
-      {
-        MessageBox("Couldn't load the whole tileset.","Tile editor",MB_ICONWARNING|MB_OK);
-        RefreshTile();
-        UpdateData(UD_DISPLAY);	
-        return;
-      }
-      if(random)
-      {
-        nFrameWanted=m_ptileheader[m_pdooridx[i]].alternate;
-        if(nFrameWanted==(DWORD) -1)
-        {
-          nFrameWanted=the_mos.AddTileCopy(m_pdooridx[i]);
-          m_ptileheader[m_pdooridx[i]].alternate=(short) nFrameWanted;
-        }
-      }
-      else
-      {
-        nFrameWanted=firsttile+i;
-      }
-      if(the_mos.tisheader.numtiles<=nFrameWanted)
-      {
-        MessageBox("Couldn't load the whole tileset.","Tile editor",MB_ICONWARNING|MB_OK);
-        return;
-      }
-      the_mos.SetFrameData(nFrameWanted, tmpmos.GetFrameData(i));
-    }
+    InsertTiles(tmpmos,firsttile,flags&1);
   }
   RefreshTile();
   UpdateData(UD_DISPLAY);	

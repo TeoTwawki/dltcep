@@ -446,10 +446,16 @@ Known values :
     * Bit 1 : Turns on (value 0) the shades (i.e. smoke of fire)  or turns off (value 1)
     * Bit 2 : If set to 1 then the whole animation is shaded (harder to notice) during night and normal during day.
     * Bit 3 : If set to 1 then animation is stopped on frame specified in offset 0x0032. If set to 0 then the animation is played normally. 
-    * Bit 4 : unknown
+    * Bit 4 : Synchronised draw
     * Bit 5 : unknown
     * Bit 6 : unknown
     * Bit 7 : unknown
+Bit 8
+Bit 9 play all frames ?
+bit 10
+bit 11
+bit 12
+bit 13
 
 0x0038 4 (dword) Unknown, I haven't noticed any effect on game.
 0x003c 16 (bytes) Unknown, unused

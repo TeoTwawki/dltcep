@@ -14,4 +14,7 @@
 14. copy/paste chu 
 15. iwd2 creature save/items/spells
 16. add vertex checker for areas (wed/are)
-17. add journal entry (crash)
+17. edit creature in gam, add item, close and save, edit again
+18. edit dialog/dialogf/both option (keep both in memory)
+if opening both, but not the same #of resrefs, then ask for sync
+19. save/load polygons

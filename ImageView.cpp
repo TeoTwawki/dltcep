@@ -801,6 +801,7 @@ BOOL CImageView::OnInitDialog()
       return TRUE;
       break;
     }
+    m_sourcepoint=0;
   }
   else
   {
@@ -1278,7 +1279,7 @@ BOOL CImageView::PreTranslateMessage(MSG* pMsg)
     else if(pMsg->message==WM_LBUTTONUP)
     {
       m_confirmed=m_mousepoint;
-      if(m_map && (m_enablebutton&IW_EDITMAP) )
+      if(m_map && (m_enablebutton&IW_EDITMAP) && (m_sourcepoint.x || m_sourcepoint.y) )
       {
         DrawLine(m_sourcepoint, GetPoint(GP_BLOCK), (unsigned char) m_value);
       }

@@ -238,11 +238,14 @@ typedef struct//3
   char mos2[8];
   char mos3[8];
   char cursor[8]; //cursor bam
-  char unknown1[12];
+  long unknown1;
+  short xpos;
+  short ypos;
+  long unknown2;
   char font[8]; //font bam
-  char unknown2[34];
+  char unknown3[34];
   short length;
-  long unknown3;
+  long unknown4;
 } chui_editbox;
 
 typedef struct//5
@@ -1645,7 +1648,8 @@ typedef struct {
   long familiaroffset;
   long unknownoffset;
   long unknowncount;
-  char unknown74[64];
+  long realtime;
+  char unknown78[60];
 } gam_header;
 
 typedef struct {
@@ -1694,7 +1698,9 @@ typedef struct {
   char curarea[8];
   short xpos, ypos;
   short vrectx, vrecty;
-  char unknown28[116];
+  short unknown28;
+  short happiness;
+  char unknown2c[112];
   char resrefs[3][8];
   char unknownb4[12];
 } gam_npc;
@@ -1809,7 +1815,7 @@ typedef struct {
   unsigned char chapter;
   unsigned char unknown09;
   unsigned char section;
-  unsigned char unknown0b;
+  unsigned char user; //1f means user entry
 } gam_journal;
 
 typedef struct {

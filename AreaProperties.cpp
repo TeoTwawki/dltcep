@@ -416,6 +416,7 @@ retry:
 void CAreaGeneral::OnV10() 
 {
 	the_area.revision=10;
+  
   UpdateData(UD_DISPLAY);
 }
 
@@ -6276,8 +6277,18 @@ void CAreaMap::OnPalette()
 
 void CAreaMap::OnMap() 
 {
-	if(!the_map) return;
-  m_set=the_map[(the_area.m_width/GR_WIDTH)*m_mousepoint.y+m_mousepoint.x];
+  CImageView dlg;
+  CPoint point;
+
+  if(SetupSelectPoint(0)) return;
+  dlg.m_value=m_set;
+  dlg.SetMapType(m_maptype, the_map);
+
+  dlg.InitView(IW_ENABLEBUTTON|IW_EDITMAP|IW_SHOWGRID|IW_ENABLEFILL|IW_SHOWALL, &the_mos);
+  dlg.m_clipx=m_mousepoint.x*GR_WIDTH/the_mos.mosheader.dwBlockSize-dlg.m_maxextentx/2;
+  dlg.m_clipy=m_mousepoint.y*GR_HEIGHT/the_mos.mosheader.dwBlockSize-dlg.m_maxextenty/2;
+  dlg.DoModal();
+  m_set=dlg.m_value;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6368,11 +6379,18 @@ BOOL CAreaMap::PreTranslateMessage(MSG* pMsg)
 {
 	if(pMsg->hwnd==m_bitmap.m_hWnd) 
   {
-    if(pMsg->message==WM_MOUSEMOVE)
+    switch(pMsg->message)
     {
+    case WM_RBUTTONDOWN:
+      if(!the_map) break;
+      m_set=the_map[(the_area.m_width/GR_WIDTH)*m_mousepoint.y+m_mousepoint.x];
+      UpdateData(UD_DISPLAY);
+      break;
+    case WM_MOUSEMOVE:
       m_mousepoint=pMsg->pt;
       ScreenToClient(&m_mousepoint);
       m_mousepoint-=m_oladjust;
+      break;
     }
   }
 	return CPropertyPage::PreTranslateMessage(pMsg);

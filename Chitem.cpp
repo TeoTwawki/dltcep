@@ -5481,8 +5481,8 @@ void MakeGradientBitmap(HBITMAP &hb, int GradientIndex)
 
 CString searchmap[16]={
   "0 - Solid obstacle", "1 - Sand","2 - Wood 2", "3 - Wood 3", "4 - Stone 1",
-  "5 - Soft surface","6 - Dirt","7 - Stone 2","8 - Light obstacle","9 - Wood 1",
-  "10 - Side wall",  "11- Snow","12- Water","13- Roof","14- Exit", "15- Grass"
+  "5 - Soft surface","6 - Shallow water","7 - Stone 2","8 - Light obstacle","9 - Wood 1",
+  "10 - Side wall",  "11- Snow","12- Deep water","13- Roof","14- Exit", "15- Grass"
 };
 
 CString GetMapTypeValue(int maptype, int value)

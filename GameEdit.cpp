@@ -898,6 +898,7 @@ void CGameEdit::OnDelnpc()
   the_game.header.npccount=the_game.npccount;
   the_game.npcstructcount=the_game.npccount;
   the_game.npcextensioncount=the_game.npccount;
+  if(pos==the_game.npccount) pos--;
   m_npcpicker.SetCurSel(pos);
   RefreshDialog();
 }
@@ -940,14 +941,19 @@ void CGameEdit::OnDelvar()
   pos=GetActualPosition(m_variablepicker);
   if(pos<0 || pos>=the_game.header.variablecount) return;  
 
-  newvars=new gam_variable[the_game.variablecount-1];
-  if(!newvars) return;
+  newvars=new gam_variable[the_game.variablecount--];
+  if(!newvars)
+  {
+    the_game.variablecount++;
+    return;
+  }
   memcpy(newvars,the_game.variables,pos*sizeof(gam_variable) );
-  memcpy(newvars+pos,the_game.variables+pos+1, (the_game.variablecount-pos-1)*sizeof(gam_variable) );
+  memcpy(newvars+pos,the_game.variables+pos+1, (the_game.variablecount-pos)*sizeof(gam_variable) );
   delete [] the_game.variables;
   the_game.variables=newvars;
-  the_game.variablecount--;
   the_game.header.variablecount=the_game.variablecount;
+  if(pos==the_game.variablecount) pos--;
+  m_variablepicker.SetCurSel(pos);
   RefreshDialog();
 }
 
@@ -998,14 +1004,19 @@ void CGameEdit::OnDelvar2()
 
 	pos=GetActualPosition(m_dvarpicker);
   if(pos<0 || pos>the_game.header.dvarcount) return;  
-  newvars=new gam_variable[the_game.deathvariablecount-1];
-  if(!newvars) return;
+  newvars=new gam_variable[the_game.deathvariablecount--];
+  if(!newvars)
+  {
+    the_game.deathvariablecount++;
+    return;
+  }
   memcpy(newvars,the_game.deathvariables,pos*sizeof(gam_variable) );
-  memcpy(newvars+pos,the_game.deathvariables+pos+1, (the_game.deathvariablecount-pos-1)*sizeof(gam_variable) );
+  memcpy(newvars+pos,the_game.deathvariables+pos+1, (the_game.deathvariablecount-pos)*sizeof(gam_variable) );
   delete [] the_game.deathvariables;
-  the_game.deathvariables=newvars;
-  the_game.deathvariablecount--;
+  the_game.deathvariables=newvars;  
   the_game.header.dvarcount=the_game.deathvariablecount;
+  if(pos==the_game.deathvariablecount) pos--;
+  m_dvarpicker.SetCurSel(pos);
   RefreshDialog();
 }
 
@@ -1087,11 +1098,14 @@ void CGameEdit::OnAddjournal()
   newjournals=new gam_journal[the_game.header.journalcount+1];
   if(!newjournals) return;
   memcpy(newjournals,the_game.journals,pos*sizeof(gam_journal) );
-  memcpy(newjournals+pos+1,the_game.journals+pos, (the_game.journalcount-pos-1)*sizeof(gam_journal) );
+  memcpy(newjournals+pos+1,the_game.journals+pos, (the_game.journalcount-pos)*sizeof(gam_journal) );
   delete [] the_game.journals;
   memset(newjournals+pos,0,sizeof(gam_journal));
-  newjournals[pos].unknown09=0xff; //these appear to be set to 0xff
-  newjournals[pos].unknown0b=0xff;
+  if(the_game.revision==20)
+  {
+    newjournals[pos].unknown09=0xff; //these appear to be set to 0xff
+    newjournals[pos].user=0xff; //user notes set this to 1f
+  }
   the_game.journals=newjournals;
   the_game.journalcount++;
   the_game.header.journalcount=the_game.journalcount;
@@ -1106,14 +1120,18 @@ void CGameEdit::OnDeljournal()
 
 	pos=GetActualPosition(m_journalpicker);
   if(pos<0 || pos>the_game.header.journalcount) return;  
-  newjournals=new gam_journal[the_game.journalcount-1];
-  if(!newjournals) return;
+  newjournals=new gam_journal[the_game.journalcount--];
+  if(!newjournals)
+  {
+    the_game.journalcount++;
+    return;
+  }
   memcpy(newjournals,the_game.journals,pos*sizeof(gam_journal) );
   memcpy(newjournals+pos,the_game.journals+pos+1, (the_game.journalcount-pos)*sizeof(gam_journal) );
   delete [] the_game.journals;
   the_game.journals=newjournals;
-  the_game.journalcount--;
   the_game.header.journalcount=the_game.journalcount;
+  if(pos==the_game.journalcount) pos--;
   m_journalpicker.SetCurSel(pos);
   RefreshDialog();
 }

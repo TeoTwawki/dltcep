@@ -1556,6 +1556,7 @@
 #define IDC_STEPS                       2296
 #define IDC_RECHARGES                   2302
 #define IDC_BLEND                       2305
+#define IDC_LOAD3                       2306
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1751,6 +1752,7 @@
 #define ID_OPTIONS_TREEEDIT             33023
 #define ID_FILE_EXPORTUSINGSHORTHAND    33024
 #define ID_FILE_IMPORTSHORTHAND         33025
+#define ID_CYCLE_ALIGNFRAMES            33026
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1758,8 +1760,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33026
-#define _APS_NEXT_CONTROL_VALUE         2306
+#define _APS_NEXT_COMMAND_VALUE         33027
+#define _APS_NEXT_CONTROL_VALUE         2307
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

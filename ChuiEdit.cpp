@@ -64,7 +64,7 @@ IDC_SLIDERFRAME1, IDC_SLIDERFRAME2, IDC_UNKNOWN,
 
 static int editboxids[]={IDC_BAM, IDC_BAM2, IDC_BAM3, IDC_BAM4, IDC_BAM5,
 IDC_BROWSE2,IDC_BROWSE3,IDC_BROWSE4,IDC_BROWSE5,IDC_BROWSE6,
-IDC_EDITMOS1,IDC_EDITMOS2,IDC_EDITMOS3,IDC_UNKNOWN4,
+IDC_EDITMOS1,IDC_EDITMOS2,IDC_EDITMOS3,IDC_UNKNOWN4, IDC_UNKNOWN5, IDC_UNKNOWN6,
 0};
 
 static int textboxids[]={IDC_BAM, IDC_BAM2,IDC_BROWSE2, IDC_BROWSE3, IDC_TEXTAREA1,
@@ -213,6 +213,8 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     StoreResref(tmpstr,cc->font);
 
     DDX_Text(pDX, IDC_UNKNOWN4, cc->length);
+    DDX_Text(pDX, IDC_UNKNOWN5, cc->xpos);
+    DDX_Text(pDX, IDC_UNKNOWN6, cc->ypos);
     }
     break;
   case CC_TEXT:
