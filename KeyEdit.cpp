@@ -4,8 +4,10 @@
 #include "stdafx.h"
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <direct.h>
 
 #include "chitem.h"
+#include "chitemDlg.h"
 #include "options.h"
 #include "KeyEdit.h"
 
@@ -60,6 +62,10 @@ BEGIN_MESSAGE_MAP(CKeyEdit, CDialog)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_READD, OnReadd)
+	ON_COMMAND(ID_RELOAD, OnReload)
+	ON_COMMAND(ID_TOOLS_EXPLODE, OnToolsExplode)
+	ON_COMMAND(ID_TOOLS_IMPLODE, OnToolsImplode)
+	ON_COMMAND(ID_CHECK, OnCheck)
 	//}}AFX_MSG_MAP
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_FILELIST, OnCustomdrawFilelist)  
 END_MESSAGE_MAP()
@@ -452,10 +458,214 @@ endofquest:
   return ret;
 }
 
-///############## UNFINISHED!!!!!
-int CKeyEdit::WriteBiff(int /*fhandle*/, int /*bifidx*/)
+void CKeyEdit::AddResource(int type, int bifidx, int locidx, CString ref)
 {
-  return -1;
+  CString ext;
+  loc_entry fileloc;
+
+  ext=objexts[type];
+  fileloc.bifname=bifs[bifidx].bifname;
+  fileloc.index=locidx;
+  fileloc.size=-1;
+  fileloc.bifindex=(unsigned short) bifidx;
+  fileloc.cdloc=0;
+  fileloc.resref=ref+ext;
+  resources[type]->SetAt(ref,fileloc);
+  key_headerinfo.numref++;
+}
+
+int CKeyEdit::write_biff(int fhandle, int bifidx, CString folder)
+{
+  _finddata_t fdata;
+  CString key, tmp, bifname;
+  bif_header header;
+  bif_entry bifentry;
+  tis_entry tisentry;
+  tis_header tisheader;
+  loc_entry loc;
+  int i;
+  int finput, dirhandle;
+  int size;
+
+  bifentry.unused=0;
+  tisentry.unused=0;
+
+  bifname=bifs[bifidx].bifname+"@";
+  bifname.Replace("\\","_");
+  bifname.Replace("/","_");
+  bifname.Replace(".bif@","");
+  folder += "\\" + bifname;
+  
+  memcpy(header.signature,"BIFF",4);
+  memcpy(header.version,"V1  ",4);
+  header.file_offset = sizeof(header);  
+  header.file_entries = 0;
+  header.tile_entries = 0;
+
+  //getting the entry counts
+  dirhandle=_findfirst(folder+"\\*.*",&fdata);
+  if(dirhandle<1)
+  {
+    return -1;
+  }
+  do
+  {
+    if(fdata.attrib&_A_SUBDIR) continue;
+    tmp=fdata.name;
+    i=tmp.Find('.');
+    if(i>8) continue;   //skipping invalid resrefs
+    key=tmp.Left(i);
+    i=determinemenu(tmp);
+    if(!i) continue;
+    if(objrefs[i]==REF_TIS) header.tile_entries++;
+    else header.file_entries++;
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+  write(fhandle,&header,sizeof(header));
+  bifentry.offset=header.file_offset + header.file_entries * sizeof(bif_entry) + 
+    header.tile_entries * sizeof(tis_entry);
+  header.file_entries=0;
+  header.tile_entries=0;
+
+  //getting the bif entries
+  dirhandle=_findfirst(folder+"\\*.*",&fdata);
+  if(dirhandle<1)
+  {
+    return -1;
+  }
+  do
+  {
+    if(fdata.attrib&_A_SUBDIR) continue;
+    tmp=fdata.name;
+    i=tmp.Find('.');
+    if(i>8) continue;   //skipping invalid resrefs
+    key=tmp.Left(i);
+    i=determinemenu(tmp);
+    if(!i) continue;
+    if(objrefs[i]==REF_TIS) continue;
+
+    bifentry.restype=objrefs[i];
+    bifentry.res_loc=header.file_entries++;
+    if(header.file_entries&TIS_IDX_MASK)
+    {
+      tmp.Format("Too many files in biff: %s", bifname);
+      MessageBox(tmp,"Key editor",MB_OK);
+      _findclose(fhandle);
+      return -1;
+    }
+    finput=open(folder+"\\"+tmp,O_RDONLY|O_BINARY);
+    if(finput>0)
+    {
+      AddResource(i, bifidx, bifentry.res_loc, key);
+      bifentry.size=filelength(finput);
+      close(finput);
+      write(fhandle, &bifentry, sizeof(bif_entry));
+      bifentry.offset+=bifentry.size;
+    }
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+
+  tisentry.offset=bifentry.offset;
+  //getting the tis entries
+  dirhandle=_findfirst(folder+"\\*.*",&fdata);
+  if(dirhandle<1)
+  {
+    return -1;
+  }
+  do
+  {
+    if(fdata.attrib&_A_SUBDIR) continue;
+    tmp=fdata.name;
+    i=tmp.Find('.');
+    if(i>8) continue;   //skipping invalid resrefs
+    key=tmp.Left(i);
+    i=determinemenu(tmp);
+    if(!i) continue;
+    if(objrefs[i]!=REF_TIS) continue;
+
+    tisentry.restype=objrefs[i];
+    header.tile_entries++; //we need to increase it first, then shift left by 14
+    if(header.tile_entries>63)
+    {
+      tmp.Format("Too many tilesets in biff: %s", bifname);
+      MessageBox(tmp,"Key editor",MB_OK);
+      _findclose(fhandle);
+      return -1;
+    }
+    tisentry.res_loc=header.tile_entries<<14;
+    finput=open(folder+"\\"+tmp,O_RDONLY|O_BINARY);
+    if(finput>0)
+    {
+      AddResource(i, bifidx, tisentry.res_loc, key);
+      read(finput,&tisheader, sizeof(tisheader));
+      tisentry.numtiles=tisheader.numtiles;
+      tisentry.size=filelength(finput);
+      close(finput);
+      write(fhandle, &tisentry, sizeof(tis_entry));
+      tisentry.offset+=tisentry.size;
+    }
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+
+  //write the normal files
+  dirhandle=_findfirst(folder+"\\*.*",&fdata);
+  if(dirhandle<1)
+  {
+    return -1;
+  }
+  do
+  {
+    if(fdata.attrib&_A_SUBDIR) continue;
+    tmp=fdata.name;
+    i=tmp.Find('.');
+    if(i>8) continue;   //skipping invalid resrefs
+    key=tmp.Left(i);
+    i=determinemenu(tmp);
+    if(!i) continue;
+    if(objrefs[i]==REF_TIS) continue;
+    finput=open(folder+"\\"+tmp,O_RDONLY|O_BINARY);
+    if(finput>0)
+    {
+      size=filelength(finput);
+      copy_file(finput,fhandle,size,0);
+      close(finput);
+    }
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+
+  //write the tileset files
+  dirhandle=_findfirst(folder+"\\*.*",&fdata);
+  if(dirhandle<1)
+  {
+    return -1;
+  }
+  do
+  {
+    if(fdata.attrib&_A_SUBDIR) continue;
+    tmp=fdata.name;
+    i=tmp.Find('.');
+    if(i>8) continue;   //skipping invalid resrefs
+    key=tmp.Left(i);
+    i=determinemenu(tmp);
+    if(!i) continue;
+    if(objrefs[i]!=REF_TIS) continue;
+    finput=open(folder+"\\"+tmp,O_RDONLY|O_BINARY);
+    if(finput>0)
+    {
+      lseek(finput,sizeof(tis_header),SEEK_SET);
+      size=filelength(finput)-sizeof(tis_header);
+      copy_file(finput,fhandle,size,0);
+      close(finput);
+    }
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+
+  return 0;
 }
 
 int CKeyEdit::has_change(int /*bifidx*/)
@@ -471,6 +681,7 @@ void CKeyEdit::OnOK()
   int ret;
 
 	// here we make the scheduled changes on bifs
+  ret=0;
 	for(i=0;i<key_headerinfo.numbif;i++)
   {
     if(has_change(i))
@@ -482,14 +693,17 @@ void CKeyEdit::OnOK()
       fhandle=open(newname,O_RDWR|O_BINARY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
       if(fhandle>0)
       {
-        ret=WriteBiff(fhandle,i);
+//        ret=WriteBiff(fhandle,i);
         close(fhandle);
       }
+      else ret=-2;
     }
-    else ret=-2;
+    
     //handle return value
     if(ret)
     {
+
+      ret=0;
     }
   }
 
@@ -919,3 +1133,342 @@ void CKeyEdit::OnReadd()
   RefreshDialog();
 }
 
+
+void CKeyEdit::OnReload() 
+{
+  EndDialog(ID_RELOAD);
+}
+
+void CKeyEdit::do_copy_file(CString dest, CString key, CString ext, loc_entry fileloc)
+{
+  CString filename, tmp;
+  int fhandle, finput;
+  int decrypt;
+  int oflg;
+  long size;
+
+  if(editflg&IGNOREOVERRIDE) oflg=LF_IGNOREOVERRIDE;
+  else oflg=0;
+  finput=locate_file(fileloc, oflg); //don't ignore override
+  if(finput<1)
+  {
+    return;
+  }
+  if(fileloc.bifindex==0xffff)
+  {
+    if(editflg&IGNOREOVERRIDE)
+    {
+      close(finput);
+      return;
+    }
+    tmp="override";
+  }
+  else
+  {
+    tmp=bifs[fileloc.bifindex].bifname+"@";
+    tmp.Replace("\\","_");
+    tmp.Replace("/","_");
+    tmp.Replace(".bif@","");
+  }
+
+  filename=dest+"\\"+tmp+"\\"+key+ext;
+  oflg=O_BINARY|O_RDWR|O_TRUNC|O_CREAT|O_SEQUENTIAL;
+  errno=0;
+  fhandle=open(filename,oflg,S_IWRITE|S_IREAD);
+  if(fhandle<1)
+  {
+    MessageBox("Can't create file: "+filename,"Error",MB_ICONSTOP|MB_OK);
+    close(finput);
+    return; //error
+  }
+  if(ext==".tis")
+  {
+    if(!write_tis_header(fhandle, fileloc))
+    {
+      MessageBox("Write error.","Error",MB_ICONSTOP|MB_OK);
+      return;
+    }
+  }
+  if(ext==".2da" || ext==".ids") decrypt=1;
+  else decrypt=0;
+  size=fileloc.size;
+  if(size==-1)
+  {
+    size=filelength(finput);
+  }
+  switch(copy_file(finput, fhandle, size, decrypt))
+  {
+  case 0:
+    break;
+  case -3:
+    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
+    break;
+  case -2:
+    MessageBox("Read error.","Error",MB_ICONSTOP|MB_OK);
+    break;
+  case -1:
+    MessageBox("Write error.","Error",MB_ICONSTOP|MB_OK);
+    break;
+  case -4:
+    MessageBox("Incorrect file size.","Error",MB_ICONSTOP|MB_OK);
+    break;
+  default:
+    MessageBox("Internal error.","Error",MB_ICONSTOP|MB_OK);
+    break;
+  }
+  close(finput);
+  close(fhandle);
+}
+
+int CKeyEdit::extract_files(CString dest, CString extension, CStringMapLocEntry &refs)
+{
+  loc_entry fileloc;
+	POSITION pos;
+  CString key;
+  int i=0;
+
+  pos=refs.GetStartPosition();
+  while(pos)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->set_progress(i++); 
+    refs.GetNextAssoc(pos,key,fileloc);
+    do_copy_file(dest, key, extension, fileloc);
+  }
+  return 0;
+}
+
+void CKeyEdit::OnToolsExplode() 
+{
+  CString tmp;
+  folderbrowse_t fb;
+  int i;
+  int res;
+
+  fb.initial=bgfolder;
+  int len = fb.initial.GetLength()-1;
+  if((len>0) && (fb.initial.GetAt(len)=='\\') )
+  {
+    fb.initial=fb.initial.Left(len);
+  }
+  fb.title="Select folder for the unpacked game data";
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+  fb.initial+="\\"+setupname;
+  if(mkdir(fb.initial) )
+  {
+    tmp.Format("Make sure the folder %s doesn't exist!", fb.initial);
+    MessageBox(tmp,"Key editor",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+  for(i=0;i<key_headerinfo.numbif;i++)
+  {
+    tmp=bifs[i].bifname+"@";
+    tmp.Replace("\\","_");
+    tmp.Replace("/","_");
+    tmp.Replace(".bif@","");
+    mkdir(fb.initial+"\\"+tmp);
+  }
+  if(!(editflg&IGNOREOVERRIDE))
+  {
+    mkdir(fb.initial+"\\override");
+  }
+  for(i=1;i<=NUM_OBJTYPE;i++)
+  {    
+    tmp.Format("Extracting files... (%s)", objexts[i]);
+    ((CChitemDlg *) AfxGetMainWnd())->start_progress(resources[i]->GetCount(), tmp);
+    res=extract_files(fb.initial, objexts[i], *resources[i])|res;  //1
+    if(res==-1) break;
+  }
+  ((CChitemDlg *) AfxGetMainWnd())->end_progress();
+}
+
+void CKeyEdit::cleanup()
+{
+  int i;
+
+  for(i=1;i<=NUM_OBJTYPE;i++)
+  {
+    resources[i]->RemoveAll(true);  //keep hash value
+    duplicates[i]->RemoveAll();
+  }
+
+  key_headerinfo.numbif=0;
+  key_headerinfo.numref=0;
+  
+  if(bifs)
+  {
+    delete [] bifs;
+    bifs=NULL;
+  }
+
+}
+
+void CKeyEdit::get_bifs(CString folder)
+{
+  _finddata_t fdata;
+  CString filename;
+  int fhandle;
+
+  filename=folder+"\\*.*";
+  //scanning override dir for loose items
+  fhandle=_findfirst(filename,&fdata);
+  if(fhandle<1)
+  {
+    return;
+  }
+  do
+  {
+    if(!(fdata.attrib&_A_SUBDIR)) continue;
+    if(fdata.name[0]=='.') continue;   //skipping special dirs
+    if(stricmp(fdata.name,"override")) //counting not override
+    {
+      key_headerinfo.numbif++;
+    }
+  }
+  while(!_findnext(fhandle, &fdata));
+  _findclose(fhandle);
+
+  fhandle=_findfirst(filename,&fdata);
+  if(fhandle<1)
+  {//this shouldn't happen
+    key_headerinfo.numbif=0;
+    return;
+  }
+  bifs = new membif_entry[key_headerinfo.numbif];
+  int count = 0;
+  do
+  {
+    if(!(fdata.attrib&_A_SUBDIR)) continue;
+    if(fdata.name[0]=='.') continue;   
+    if(stricmp(fdata.name,"override")) 
+    {
+      if(count >= key_headerinfo.numbif)
+      {
+        key_headerinfo.numbif=0;
+        delete [] bifs;
+        bifs = NULL;
+        break; //end with error
+      }
+      filename = fdata.name;
+      filename.Replace("_","\\");
+      bifs[count].location=1;
+      bifs[count].biflen=0;  //will grow with data stuffed in
+      bifs[count].bifname=filename+".bif";
+      count++;
+    }
+  }
+  while(!_findnext(fhandle, &fdata));
+  _findclose(fhandle);  
+}
+
+void CKeyEdit::write_chitin(int fhandle)
+{
+  int i;
+  keybif_entry tmp;
+  key_entry tmp2;
+  loc_entry loc;
+  POSITION pos;
+  CString key;
+
+  key_headerinfo.offbif=sizeof(key_headerinfo);
+  tmp.offbif = key_headerinfo.offbif + key_headerinfo.numbif * sizeof(keybif_entry);
+  write(fhandle, &key_headerinfo, sizeof(key_headerinfo));
+  for(i=0;i<key_headerinfo.numbif;i++)
+  {
+    tmp.biflen=bifs[i].biflen;
+    tmp.location=1;
+    tmp.namelen=(short) (bifs[i].bifname.GetLength()+1); //string length + zero terminator
+    write(fhandle, &tmp, sizeof(keybif_entry));
+    tmp.offbif+=tmp.namelen;
+  }
+  key_headerinfo.offref=tmp.offbif;
+  for(i=0;i<key_headerinfo.numbif;i++)
+  {
+    write(fhandle, bifs[i].bifname, bifs[i].bifname.GetLength()+1); //zero terminator
+  }
+  //fix the offset
+  lseek(fhandle,0,SEEK_SET);
+  write(fhandle, &key_headerinfo, sizeof(key_headerinfo));
+  lseek(fhandle,key_headerinfo.offref,SEEK_SET);
+
+  for(i=1;i<=NUM_OBJTYPE;i++)
+  {
+    pos=resources[i]->GetStartPosition();
+    while(pos)
+    {
+      resources[i]->GetNextAssoc(pos, key, loc);      
+      strncpy(tmp2.filename,key,8);
+      tmp2.restype = objrefs[i];      
+      tmp2.residx = (loc.index  &0xfffff) | (loc.bifindex<<20);
+      write(fhandle, &tmp2, sizeof(tmp2) );
+    }
+  }
+}
+
+void CKeyEdit::OnToolsImplode() 
+{
+  folderbrowse_t fb;
+  int fhandle, bifhandle;
+  CString filename;
+  int i;
+
+  fb.initial=bgfolder;
+  int len = fb.initial.GetLength()-1;
+  if((len>0) && (fb.initial.GetAt(len)=='\\') )
+  {
+    fb.initial=fb.initial.Left(len);
+  }
+  fb.title="Select the folder of game data to pack";
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+  if(!dir_exists(fb.initial+"\\override"))
+  {
+    MessageBox("At least an empty override folder must exist in the selected folder.","Key editor", MB_OK);
+    return;
+  }
+  fhandle = open(fb.initial+"\\chitin.key", O_RDWR|O_BINARY|O_EXCL|O_CREAT, S_IREAD|S_IWRITE);
+  if(fhandle>0)
+  {
+    cleanup();
+    get_bifs(fb.initial);
+    if(key_headerinfo.numbif<1)
+    {
+      MessageBox("No directories of bifs!","Key editor",MB_OK);
+      OnReload(); //reloading all crap
+      return;
+    }
+    ((CChitemDlg *) AfxGetMainWnd())->start_progress(key_headerinfo.numbif, "Packing files...");
+
+    for(i=0;i<key_headerinfo.numbif;i++)
+    {
+      ((CChitemDlg *) AfxGetMainWnd())->set_progress(i);
+      filename=fb.initial+"\\"+bifs[i].bifname;
+      assure_dir_exists(filename.Left(filename.ReverseFind('\\')) );
+      bifhandle=open(filename,O_RDWR|O_BINARY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+      if(write_biff(bifhandle, i,fb.initial))
+      {
+        MessageBox("Can't create biff!","Key editor",MB_OK);
+        close(bifhandle);
+        close(fhandle);
+        OnCancel();
+        return;
+      }
+      bifs[i].biflen=filelength(bifhandle);
+      close(bifhandle);
+    }
+    ((CChitemDlg *) AfxGetMainWnd())->end_progress();
+    write_chitin(fhandle);
+    close(fhandle);
+    MessageBox("Chitin and biffs are created!","Key editor",MB_OK);
+    OnCancel(); //we just now screwed the chitin internal structure, better to quit
+    return;
+  }
+  else
+  {
+    MessageBox("The target file already exists, cannot create!","Key editor",MB_OK);
+  }
+}
+
+void CKeyEdit::OnCheck() 
+{
+	// TODO: Add your command handler code here
+	
+}

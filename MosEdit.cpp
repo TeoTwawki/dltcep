@@ -129,6 +129,7 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
+	ON_COMMAND(ID_TOOLS_GUESSDIMENSIONS, OnToolsGuessdimensions)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, OnTile)
 END_MESSAGE_MAP()
@@ -657,4 +658,74 @@ void CMosEdit::OnOK()
 void CMosEdit::OnMinimap() 
 {
   CreateMinimap(GetSafeHwnd());
+}
+
+unsigned int CMosEdit::TileDiff(unsigned int upper, unsigned int lower)
+{
+  unsigned int i;
+  unsigned int diff=0;
+  BYTE *a, *b;
+  unsigned long *pa, *pb;
+
+  pa=the_mos.GetFramePalette(upper);
+  pb=the_mos.GetFramePalette(lower);
+  a=the_mos.GetFrameBuffer(upper)+63*64; //lower line of upper tile
+  b=the_mos.GetFrameBuffer(lower);       //upper line of lower tile
+  for(i=0;i<64;i++)
+  {
+    diff+=ChiSquare((BYTE *) &pa[a[i]], (BYTE *) &pb[b[i]]);
+  }
+  return diff;
+}
+
+unsigned int CMosEdit::RowDiff(unsigned int increment)
+{
+  unsigned int i,j,k;
+  unsigned __int64 diff=0;
+
+  j=0;
+  for(i=0;i+increment*2<the_mos.tisheader.numtiles;i+=increment)
+  {
+    for(k=0;k<increment;k++)
+    {
+      diff+=TileDiff(i+k,i+increment+k);
+      j++;
+      if(j>100) goto done; //we got enough samples
+    }
+  }
+  if(!j) return 65535;
+done:
+  return (unsigned int) (diff/j);
+}
+
+void CMosEdit::OnToolsGuessdimensions() 
+{
+	if(!tis_or_mos)
+  {
+    return;
+  }
+	if(the_mos.mosheader.wColumn!=1)
+  {
+    return;
+  }
+  unsigned long i;
+  unsigned long best=0;
+  unsigned int diff;
+  unsigned int mindiff=655350;
+
+  for(i=1;(i<65535) && (i<the_mos.tisheader.numtiles/2);i++)
+  {    
+    diff=RowDiff(i);
+    if(mindiff>diff)
+    {
+      mindiff=diff;
+      best=i;
+    }
+  }
+  if(best)
+  {
+    the_mos.mosheader.wColumn=(unsigned short) best;
+    UpdateData(UD_DISPLAY);
+    OnKillfocusWidth();
+  }
 }

@@ -58,6 +58,7 @@ void CAreaEdit::NewArea()
   {
     MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
   }
+  the_area.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CAreaEdit, CDialog)
@@ -143,7 +144,6 @@ restart:
       MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
-    the_area.m_night=false;
     readonly=m_getfiledlg.GetReadOnlyPref();
     the_mos.new_mos();
     res=the_area.ReadAreaFromFile(fhandle,-1);
@@ -472,7 +472,7 @@ void CAreaEdit::OnToolsMirrorareavertically()
   }
 
   //make sure the tis is loaded
-  SetupSelectPoint();
+  if(SetupSelectPoint(0)) return;
   for(nFrameWanted=0;nFrameWanted<the_mos.tisheader.numtiles;nFrameWanted++)
   {
     the_mos.FlipTile(nFrameWanted);
@@ -562,13 +562,26 @@ void CAreaEdit::OnCancel()
 
 	if(the_area.wedchanged && (itemname!="new area"))
   {
-    tmpstr.Format("Changes have been made to the wed and/or tileset (%s).\n"
+    tmpstr.Format("Changes have been made to the wed, tileset\n"
+      "and/or an auxiliary map (%s).\n"
       "Do you want to quit without save?\n",itemname);
     if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
     {
       return;
     }
+    goto endofquest;
   }
+  if(the_area.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the area.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+    goto endofquest;
+  }
+endofquest:
 	CDialog::OnCancel();
 }
 

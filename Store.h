@@ -14,6 +14,11 @@
 
 class Cstore  
 {
+private:
+  int fhandle;
+  int startpoint;
+  int maxlen;
+
 public:
   int revision;
   store_header header;
@@ -28,9 +33,7 @@ public:
   int drinknum;
   int itemtypenum;
   int curenum;
-  int fhandle;
-  int startpoint;
-  int maxlen;
+  bool m_changed;
   
   Cstore();
   virtual ~Cstore();

@@ -85,9 +85,6 @@ protected:
 	afx_msg void OnKillfocusStrref();
 	afx_msg void OnAddjournal();
 	afx_msg void OnDeljournal();
-	afx_msg void OnKillfocusStartarea();
-	afx_msg void OnKillfocusGametime();
-	afx_msg void OnKillfocusGold();
 	afx_msg void OnJoinable();
 	afx_msg void OnParty();
 	afx_msg void OnVariables();
@@ -104,10 +101,11 @@ protected:
 	afx_msg void OnEdit();
 	afx_msg void OnKillfocusCreaturenum();
 	afx_msg void OnSave();
-	afx_msg void OnKillfocusScreen();
 	afx_msg void OnEditlink();
 	afx_msg void OnEdit2();
 	afx_msg void OnEditlink2();
+	afx_msg void OnGeneral();
+	afx_msg void OnKillfocusScreen();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

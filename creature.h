@@ -22,6 +22,12 @@ typedef struct
 
 class Ccreature  
 {
+private:
+  int fhandle;
+  int startpoint;
+  int maxlen;
+  int fullsize;
+
 public:
   int ischr;
   int revision;
@@ -47,10 +53,6 @@ public:
   int memocount;
   int effectcount;
   int itemcount;
-  int fhandle;
-  int fullsize;
-  int startpoint;
-  int maxlen;
   int m_changed;
   int m_savechanges;
 
@@ -131,9 +133,9 @@ private:
   int adjust_actpoint(long offset);
   int handle_iwd2_spells(int position, long offset, long count);
   int handle_iwd2();
-  int write_iwd2_spells(int fhandle);
-  int calculate_iwd2_spells(int position, long &offset, long &maxcount, int &fullsize);
-  int calculate_iwd2(int &fullsize);
+  int write_iwd2_spells();
+  int calculate_iwd2_spells(int position, long &offset, long &maxcount);
+  int calculate_iwd2();
   inline long myseek(long pos)
   {
     return lseek(fhandle, pos+startpoint,SEEK_SET)-startpoint;

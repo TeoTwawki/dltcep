@@ -120,7 +120,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   }
   if(revision==22)
   {
-    if(calculate_iwd2(fullsize)) return -1;
+    if(calculate_iwd2()) return -1;
   }
   else
   {
@@ -217,7 +217,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
 
   if(revision==22)
   {
-    write_iwd2_spells(fhandle);
+    write_iwd2_spells();
   }
   else
   {
@@ -450,7 +450,7 @@ int Ccreature::handle_iwd2_spells(int position, long offset, long count)
   return flg;
 }
 
-int Ccreature::write_iwd2_spells(int fhandle)
+int Ccreature::write_iwd2_spells()
 {
   int position, esize;
 
@@ -469,7 +469,7 @@ int Ccreature::write_iwd2_spells(int fhandle)
   return 0;
 }
 
-int Ccreature::calculate_iwd2_spells(int position, long &offset, long &maxcount, int &fullsize)
+int Ccreature::calculate_iwd2_spells(int position, long &offset, long &maxcount)
 {
   int count, esize;
 
@@ -530,7 +530,7 @@ int Ccreature::handle_iwd2()
   return flg;
 }
 
-int Ccreature::calculate_iwd2(int &fullsize)
+int Ccreature::calculate_iwd2()
 {
   int flg, ret;
   int i,j,k;
@@ -541,7 +541,7 @@ int Ccreature::calculate_iwd2(int &fullsize)
   {
     for(j=0;j<9;j++)
     {
-      ret=calculate_iwd2_spells(k++,iwd2header.spelloffs[i][j],iwd2header.spellcnt[i][j],fullsize);
+      ret=calculate_iwd2_spells(k++,iwd2header.spelloffs[i][j],iwd2header.spellcnt[i][j]);
       if(ret<0)
       {
         return ret;
@@ -551,17 +551,17 @@ int Ccreature::calculate_iwd2(int &fullsize)
   }
   for(j=0;j<9;j++)
   {
-    ret=calculate_iwd2_spells(k++,iwd2header.domainoffs[j],iwd2header.domaincnt[j],fullsize);
+    ret=calculate_iwd2_spells(k++,iwd2header.domainoffs[j],iwd2header.domaincnt[j]);
     if(ret<0) return ret;
     flg|=ret;
   }
-  ret=calculate_iwd2_spells(k++,iwd2header.innateoffs,iwd2header.innatecnt,fullsize);
+  ret=calculate_iwd2_spells(k++,iwd2header.innateoffs,iwd2header.innatecnt);
   if(ret<0) return ret;
   flg|=ret;
-  ret=calculate_iwd2_spells(k++,iwd2header.songoffs,iwd2header.songcnt,fullsize);
+  ret=calculate_iwd2_spells(k++,iwd2header.songoffs,iwd2header.songcnt);
   if(ret<0) return ret;
   flg|=ret;
-  ret=calculate_iwd2_spells(k++,iwd2header.shapeoffs,iwd2header.shapecnt,fullsize);
+  ret=calculate_iwd2_spells(k++,iwd2header.shapeoffs,iwd2header.shapecnt);
   if(ret<0) return ret;
   flg|=ret;  
   return flg;

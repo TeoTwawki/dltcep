@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.5b"
+#define PRG_VERSION "6.6"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -270,6 +270,14 @@ void CChitemDlg::start_progress(int max, CString title)
     }
   }
   if(m_progressdlg) m_progressdlg->SetRange(max,title);
+}
+
+void CChitemDlg::change_progress_title(CString title)
+{
+  if(m_progressdlg)
+  {
+    m_progressdlg->SetWindowText(title);
+  }
 }
 
 void CChitemDlg::set_progress(int actual)
@@ -3594,10 +3602,15 @@ void CChitemDlg::OnEditItem()
 void CChitemDlg::OnEditKey() 
 {
 	CKeyEdit dlg;
+  int ret;
 	
-  dlg.DoModal();
-  OnRescan();  //reload chitin & override
-  OnRescan2();
+  do
+  {
+    ret=dlg.DoModal();
+    OnRescan();  //reload chitin & override
+    OnRescan2();
+  }
+  while(ret==ID_RELOAD);
 }
 
 void CChitemDlg::OnEditVvc() 

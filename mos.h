@@ -75,6 +75,7 @@ public:
 };
 
 typedef CMap<COLORREF, COLORREF&, int, int&> CPaletteMap;
+typedef CList<INF_MOS_FRAMEDATA *, INF_MOS_FRAMEDATA *> CFrameList;
 
 class Cmos  
 {
@@ -92,13 +93,16 @@ public:
   DWORD *m_pOffsets;
   int m_overlay;
   int m_overlaytile;
-  Cmos *m_friend;
+  Cmos *m_friend[10];
   bool m_changed;
   bool m_drawclosed;
   int m_pixelwidth, m_pixelheight;
 
+  INF_MOS_FRAMEDATA *GetFrameData(DWORD nFrameWanted);
   bool MosChanged() { return m_changed; }
-  void SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices, Cmos *overlaymos=NULL);
+  void FreeOverlay();
+  void SetTiles(wed_tilemap *tileheaders, short *tileindices);
+  void SetOverlay(int overlay, Cmos *overlaymos);
   int ResolveFrameNumber(int framenumber);
   void new_mos();
   void DropUnusedPalette();
@@ -147,11 +151,19 @@ public:
   } 
   inline void KillFrameData()
   {
-    if(m_pFrameData)
+    POSITION pos=m_pFrameData.GetHeadPosition();
+    while(pos)
     {
-      delete [] m_pFrameData;
-      m_pFrameData=NULL;
+      INF_MOS_FRAMEDATA *p=m_pFrameData.GetNext(pos);
+      if(p) delete p;
     }
+    m_pFrameData.RemoveAll();
+    if(m_pFrameDataPointer)
+    {
+      free(m_pFrameDataPointer);
+      m_pFrameDataPointer=NULL;
+    }
+    tisheader.numtiles=0;
   }
   inline void KillOffsets()
   {
@@ -163,11 +175,6 @@ public:
   }
   inline COLORREF *GetDIB() { return m_pclrDIBits; }
   inline int GetDIBsize() { return m_DIBsize; }
-  inline INF_MOS_FRAMEDATA *GetFrameData(DWORD nFrameWanted)
-  {
-    if(nFrameWanted>=tisheader.numtiles) return NULL;
-    return m_pFrameData+nFrameWanted;
-  }
 
 private:
 	COLORREF *m_pclrDIBits;  
@@ -176,9 +183,11 @@ private:
   DWORD m_nDataSize;           //uncompressed/raw mos data size (sizeof m_pData)
   DWORD fullsize;
   int m_nResX, m_nResY;
-  INF_MOS_FRAMEDATA *m_pFrameData;       //pointer array for individual frames
+  INF_MOS_FRAMEDATA **m_pFrameDataPointer;  //pointer array for individual frames
+  CFrameList m_pFrameData;
   int m_DIBsize;
 
+  bool CreateFrames();
   int ExplodeMosData();
   int ImplodeMosData();
   int ReducePalette(int fhandle, bmp_header &sHeader, LPBYTE pcBuffer,
@@ -187,8 +196,7 @@ private:
     DWORD height, DWORD scanline, DWORD nFrameCol,
     DWORD cols, DWORD rows);
   int GetFrameData(DWORD *prFrameBuffer, LPBYTE pRawData, DWORD height,
-    DWORD scanline, DWORD nFrameCol, 
-    DWORD cols, DWORD rows);
+    DWORD scanline, DWORD nFrameCol, DWORD cols, DWORD rows);
 };
 
 #endif // !defined(AFX_MOS_H__143AC7EF_EC59_436A_8AA9_E17B960DBE01__INCLUDED_)

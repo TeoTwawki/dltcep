@@ -50,6 +50,7 @@ public:
   unsigned char *lightmap;
   unsigned char *heightmap;
   bool changedmap[3];
+  bool m_changed;
   COLORREF lmpal[256];
   COLORREF srpal[16];
   COLORREF htpal[16];

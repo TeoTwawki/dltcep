@@ -50,6 +50,7 @@ protected:
   Carea my_area;
   Cbam my_bam;
   Cmos my_mos;
+  Cchui my_chui;
 
   void FillList(int restype, CListBox &list);
   void Preview(CString &key, loc_entry &fileloc, int restype);

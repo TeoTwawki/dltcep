@@ -369,6 +369,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_DROPALLBUTLAST, OnDropallbutlast)
 	ON_COMMAND(ID_REDUCEORIENTATION, OnReduceorientation)
 	ON_COMMAND(ID_MERGEBAM, OnMergebam)
+	ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
 	ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
@@ -393,7 +394,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
-	ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
+	ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1141,6 +1142,7 @@ void CBamEdit::OnDelframe()
   int nIndex, nCycle;
 
   nIndex=m_cycleframe_control.GetCurSel();
+  if(nIndex<0) return;
   nCycle=m_cyclenum_control.GetCurSel();
   if(the_bam.RemoveFrameFromCycle(nCycle,nIndex,1))
   {
@@ -1150,6 +1152,24 @@ void CBamEdit::OnDelframe()
   if(m_cycleframe_control.SetCurSel(nIndex)<0)
   {
     m_cycleframe_control.SetCurSel(nIndex-1);
+  }
+}
+
+void CBamEdit::OnCycleDropframe10() 
+{
+  int nIndex, nCycle;
+
+  nIndex=m_cycleframe_control.GetCurSel();
+  if(nIndex<0) return;
+  nCycle=m_cyclenum_control.GetCurSel();
+  if(the_bam.RemoveFrameFromCycle(nCycle,nIndex,10))
+  {
+    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
+  }
+  RefreshDialog();
+  if(m_cycleframe_control.SetCurSel(nIndex)<0)
+  {
+    m_cycleframe_control.SetCurSel(nIndex-10);
   }
 }
 

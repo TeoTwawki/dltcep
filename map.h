@@ -13,9 +13,9 @@ class Cmap
 {
 private:
   int fhandle;
+  long startpoint;
   long maxlen;
   long fullsize;
-  long startpoint;
 
 public:
   map_mainheader mainheader;

@@ -64,6 +64,7 @@ void CStoreEdit::NewStore()
   the_store.header.drinkoffset=sizeof(store_header);
   the_store.header.offset=sizeof(store_header);
   the_store.header.pitemoffset=sizeof(store_header);
+  the_store.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CStoreEdit, CDialog)
@@ -74,12 +75,12 @@ BEGIN_MESSAGE_MAP(CStoreEdit, CDialog)
 	ON_BN_CLICKED(IDC_NEW, OnNew)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -322,6 +323,22 @@ void CStoreEdit::PostNcDestroy()
     m_pModelessPropSheet=NULL;
   }	
 	CDialog::PostNcDestroy();
+}
+
+void CStoreEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_store.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the store.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
 }
 
 BOOL CStoreEdit::PreTranslateMessage(MSG* pMsg) 

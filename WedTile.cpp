@@ -111,7 +111,7 @@ END_MESSAGE_MAP()
 
 void CWedTile::RefreshTile()
 {
-  CString tmpstr;
+  CString tmpstr, tiles;
   int i,j;
   int mx,my;
 
@@ -125,7 +125,20 @@ void CWedTile::RefreshTile()
     tmpstr.Format("Edit tiles & overlays (%s)",m_tisname);  
     break;
   default:
-    tmpstr.Format("Edit tiles & overlays (%s+%s)",m_tisname, the_mos.m_friend->m_name);
+    j=0;
+    for(i=0;i<10;i++)
+    {
+      if(the_mos.m_friend[i] && (the_mos.m_overlay&j) )
+      {
+        if(tiles.GetLength())
+        {
+          tiles+=", ";
+        }
+        tiles+=the_mos.m_friend[the_mos.m_overlay]->m_name;
+      }
+      j<<=1;
+    }
+    tmpstr.Format("Edit tiles & overlays (%s+%s)",m_tisname, tiles);
     break;
   }
   if(the_mos.MosChanged()) tmpstr+=" *";
@@ -236,7 +249,7 @@ void CWedTile::RefreshDialog()
   m_preview.ShowWindow(m_graphics);
 }
 
-int buttonidx[]={IDC_SAVE,IDC_TILE, IDC_ADDALT, IDC_FIXALTER, IDC_GREENWATER, 
+int buttonidx[]={IDC_SAVE, IDC_ADDALT, IDC_FIXALTER, IDC_GREENWATER, 
 IDC_LOAD, IDC_LOAD2, IDC_REMOVE, IDC_PREVIEW, IDC_OPEN,
 0};
 

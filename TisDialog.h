@@ -28,7 +28,7 @@ public:
   DWORD m_minx, m_miny;
   DWORD m_maxx, m_maxy;
   int m_tis_or_mos;
-  int m_overlaynum;
+  //int m_overlaynum;
   wed_tilemap *m_tileheaders;
   short *m_tileindices;
 

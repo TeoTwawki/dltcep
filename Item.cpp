@@ -107,6 +107,7 @@ int Citem::WriteItemToFile(int fhandle, int calculate)
   {
     return -2;
   }
+  m_changed=false;
   return 0;
 }
 
@@ -172,6 +173,7 @@ int Citem::ReadItemFromFile(int fh, long ml)
   int fbc;
   int i;
 
+  m_changed=false;
   if(fh<1) return -1;
   fhandle=fh; //for safe string reads
   if(ml==-1) maxlen=filelength(fhandle);

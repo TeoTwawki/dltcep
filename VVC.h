@@ -13,6 +13,7 @@ class CVVC
 {
 public:
   vvc_header header;
+  bool m_changed;
 
 	CVVC();
 	virtual ~CVVC();

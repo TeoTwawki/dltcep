@@ -201,7 +201,7 @@ BOOL CPolygon::OnInitDialog()
   CRect rect;
 
 	CDialog::OnInitDialog();
-  if( SetupSelectPoint() )
+  if( SetupSelectPoint(0) )
   {
     OnCancel();
     return FALSE;

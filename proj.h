@@ -17,6 +17,7 @@ public:
   proj_header header;
   proj_extension extension;
   int hasextension;
+  bool m_changed;
 
 	Cproj();
 	virtual ~Cproj();

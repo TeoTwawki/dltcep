@@ -53,6 +53,8 @@ protected:
 
   int Savemos(Cmos &my_mos, int save);
   void RefreshDialog();
+  unsigned int TileDiff(unsigned int upper, unsigned int lower);
+  unsigned int RowDiff(unsigned int increment);
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -76,6 +78,7 @@ protected:
 	virtual void OnOK();
 	afx_msg void OnMinimap();
 	afx_msg void OnLoadBmp();
+	afx_msg void OnToolsGuessdimensions();
 	//}}AFX_MSG
   afx_msg void OnTile();
 	DECLARE_MESSAGE_MAP()

@@ -108,7 +108,11 @@ void CImageView::PutPixel(CPoint point, unsigned char color)
 
   if(m_maptype==MT_EXPLORED)
   {
-    w=the_area.m_width/32+1;
+    w=the_area.m_width/32;
+    if(!pst_compatible_var())
+    {
+      w++;
+    }
   }
   else
   {
@@ -131,8 +135,13 @@ int CImageView::GetPixel(CPoint point)
 
   if(m_maptype==MT_EXPLORED)
   {
-    w=the_area.m_width/32+1;
-    h=the_area.m_height/32+1;
+    w=the_area.m_width/32;
+    h=the_area.m_height/32;
+    if(!pst_compatible_var())
+    {
+      w++;
+      h++;
+    }
   }
   else
   {
@@ -244,8 +253,8 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int fram
     if(m_clipy>tmpw) m_clipy-=tmpw;
     else m_clipy=0;
   }
-  m_mousepoint.x=orgx;//-m_clipx*m_mos->mosheader.dwBlockSize;
-  m_mousepoint.y=orgy;//-m_clipy*m_mos->mosheader.dwBlockSize;
+  m_mousepoint.x=orgx;
+  m_mousepoint.y=orgy;
   m_confirmed=m_mousepoint;
   m_oladjust=point;
 }
@@ -571,8 +580,16 @@ void CImageView::DrawGrid()
     {
       xs=32;
       ys=32; //x and y sizes
-      sx=-16; //x and y starting points for grids
-      sy=-16;
+      if(pst_compatible_var())
+      {
+        sx=0;
+        sy=0;
+      }
+      else
+      {
+        sx=-16; //x and y starting points for grids
+        sy=-16;
+      }
     }
     else
     {
@@ -623,7 +640,7 @@ void CImageView::DrawGrid()
     {
       px=(int) (m_clipx*m_mos->mosheader.dwBlockSize)/xs;
       py=(int) (m_clipy*m_mos->mosheader.dwBlockSize+j-sy)/ys;
-      if(m_maptype==MT_EXPLORED)
+      if((m_maptype==MT_EXPLORED) && !pst_compatible_var())
       {
         p=py*(the_area.m_width/xs+1)+px;
       }
@@ -637,9 +654,9 @@ void CImageView::DrawGrid()
         {
           if(m_max==255) tmpstr.Format("%02x",m_map[p]);
           else tmpstr.Format("%d",m_map[p]);
-          int tx=i+2-(sx/2);
+          int tx=i+(xs-10)/2;
           if(tx<0) tx=0;
-          int ty=j-(sy/2);
+          int ty=j+(ys-12)/2;
           if(ty<0) ty=0;
           dcBmp.TextOut(tx,ty,tmpstr);
         }
@@ -678,8 +695,16 @@ CPoint CImageView::GetPoint(int frame)
   switch(frame)
   {
   case GP_EXPLORED:
-    ret.x=(m_confirmed.x+16)/32;
-    ret.y=(m_confirmed.y+16)/32;
+    if(pst_compatible_var())
+    {
+      ret.x=m_confirmed.x/32;
+      ret.y=m_confirmed.y/32;
+    }
+    else
+    {
+      ret.x=(m_confirmed.x+16)/32;
+      ret.y=(m_confirmed.y+16)/32;
+    }
     break;
   case GP_BLOCK:
     ret.x=m_confirmed.x/GR_WIDTH;

@@ -66,6 +66,7 @@ protected:
 	afx_msg void OnRemovecfb();
 	afx_msg void OnSavecfb();
 	afx_msg void OnToolsLookupstrref();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

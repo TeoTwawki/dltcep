@@ -93,10 +93,12 @@ protected:
   inline void Togglebit(int value)
   {
     the_item.header.itmattr^=value;  
+    the_item.m_changed=true;
   }
   inline void Setbit(int value)
   {
-    the_item.header.itmattr|=value;  
+    the_item.header.itmattr|=value;
+    the_item.m_changed=true;
   }
 	// Generated message map functions
 	//{{AFX_MSG(CItemIcons)
@@ -244,6 +246,7 @@ protected:
     the_item.header.kits2=bytes[5];
     the_item.header.kits3=bytes[6];
     the_item.header.kits4=bytes[7];
+    the_item.m_changed=true;
   }
 
 	// Generated message map functions

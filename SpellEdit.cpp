@@ -60,12 +60,12 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_COMMAND(ID_ADDCFB, OnAddcfb)
 	ON_COMMAND(ID_REMOVECFB, OnRemovecfb)
 	ON_COMMAND(ID_SAVECFB, OnSavecfb)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -416,6 +416,22 @@ void CSpellEdit::PostNcDestroy()
     m_pModelessPropSheet=NULL;
   }	
 	CDialog::PostNcDestroy();
+}
+
+void CSpellEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_spell.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the spell.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
 }
 
 BOOL CSpellEdit::PreTranslateMessage(MSG* pMsg) 

@@ -43,12 +43,14 @@ int *headercontrols[16]={bamcolorids, smokeboxids,0,0,0,shadowids, lightspotids,
 
 void CProjEdit::DoDataExchange(CDataExchange* pDX)
 {
+  proj_header tmp;
   CButton *cb;
   CWnd *cw;
   CString tmpstr;
   int i,j,k;
   int flg;
 
+  memcpy(&tmp,&the_projectile.header,sizeof(proj_header));
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CProjEdit)
 	DDX_Control(pDX, IDC_MPSMOKE, m_mpsmoke);
@@ -185,6 +187,10 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
     }
     j<<=1;
   }
+  if(memcmp(&tmp,&the_projectile.header,sizeof(proj_header)))
+  {
+    the_projectile.m_changed=true;
+  }
 }
 
 BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
@@ -246,6 +252,7 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
 	ON_BN_CLICKED(IDC_BROWSE7, OnBrowse7)
 	ON_BN_CLICKED(IDC_BROWSE8, OnBrowse8)
+	ON_BN_CLICKED(IDC_BROWSE13, OnBrowse9)
 	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPEED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
@@ -287,7 +294,6 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_BN_CLICKED(IDC_BROWSE13, OnBrowse9)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -301,6 +307,7 @@ void CProjEdit::NewProjectile()
   the_projectile.extension.radius=256;
   the_projectile.extension.delay=100;
   the_projectile.extension.duration=1;
+  the_projectile.m_changed=false;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -933,6 +940,22 @@ void CProjEdit::PostNcDestroy()
 	CDialog::PostNcDestroy();
 }
 
+void CProjEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_projectile.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the projectile.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
+}
+
 BOOL CProjEdit::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
@@ -961,6 +984,7 @@ static int *extensioncontrols[16]={0,0,0,0,0, fragmentids, 0,0,
 
 void CProjExt::DoDataExchange(CDataExchange* pDX)
 {
+  proj_extension tmp;
   CComboBox *cb2;
   CButton *cb;
   CWnd *cw;
@@ -968,6 +992,7 @@ void CProjExt::DoDataExchange(CDataExchange* pDX)
   int i,j,k;
   int flg;
 
+  memcpy(&tmp,&the_projectile.extension,sizeof(proj_extension));
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CProjExt)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
@@ -1058,6 +1083,10 @@ void CProjExt::DoDataExchange(CDataExchange* pDX)
       }
     }
   }
+  if(memcmp(&tmp,&the_projectile.extension,sizeof(proj_extension)))
+  {
+    the_projectile.m_changed=true;
+  }
 }
 
 BOOL CProjExt::OnInitDialog() 
@@ -1069,7 +1098,7 @@ BOOL CProjExt::OnInitDialog()
   int i;
 
 	CDialog::OnInitDialog();
-	
+  
   cb1=(CComboBox *) GetDlgItem(IDC_CONESIZE);
   for(i=0;i<256;i+=16)
   {
@@ -1124,6 +1153,14 @@ BOOL CProjExt::OnInitDialog()
   }
   cb1=(CComboBox *) GetDlgItem(IDC_EXPLOSION);
   FillCombo("FIREBALL",cb1,2);
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
+  }
 
 	UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -1310,4 +1347,10 @@ void CProjExt::OnBrowse2()
     the_projectile.extension.expclr=(unsigned char) colordlg.m_picked;
     UpdateData(UD_DISPLAY);
   }	
+}
+
+BOOL CProjExt::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

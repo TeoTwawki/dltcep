@@ -46,7 +46,7 @@ void progressbar::SetRange(int range, CString title)
 {
   m_range=range;
   m_progress_control.SetRange32(0,m_range);
-  if(m_range<PROGRESS_GRANULARITY_SM)
+  if(m_range<PROGRESS_GRANULARITY_SM*5)
   {
     m_gran=1;
   }

@@ -45,10 +45,12 @@ static int flagboxids[16]={
 
 void CStoreGeneral::DoDataExchange(CDataExchange* pDX)
 {
+  store_header tmp;
   CString tmpstr;
   int i,j;
   CButton *box;
 
+  memcpy(&tmp,&the_store.header,sizeof(store_header));
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CStoreGeneral)
 	DDX_Control(pDX, IDC_STORETYPE, m_storetype_control);
@@ -101,6 +103,10 @@ void CStoreGeneral::DoDataExchange(CDataExchange* pDX)
       j<<=1;
     }
   }
+  if(memcmp(&tmp,&the_store.header,sizeof(store_header)))
+  {
+    the_store.m_changed=true;
+  }
 }
 
 BOOL CStoreGeneral::OnInitDialog() 
@@ -145,6 +151,8 @@ void CStoreGeneral::RefreshGeneral()
   case 90:
     id=2;
     break;
+  default:
+    id=3;
   }
   for(i=0;i<3;i++)
   {
@@ -1010,6 +1018,7 @@ void CStoreItems::OnAdditem()
   the_store.itemtypes=newitemtypes;
   the_store.header.pitemcount=the_store.itemtypenum;
   RefreshItems();
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1043,6 +1052,7 @@ void CStoreItems::OnRemoveitem()
   the_store.itemtypes=newitemtypes;
   the_store.header.pitemcount=the_store.itemtypenum;
   RefreshItems();
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1072,6 +1082,7 @@ void CStoreItems::OnRemallitem()
     the_store.header.pitemcount=the_store.itemtypenum=itemnum;
   }
   updateflags|=1;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1330,6 +1341,7 @@ void CStoreItems::OnAdditem2()
   DisplayEntry(old);
   m_stored_control.SetCurSel(old);
   the_store.header.itemcount=the_store.entrynum;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1377,6 +1389,7 @@ void CStoreItems::OnRemallitem2()
   }
   the_store.header.itemcount=the_store.entrynum=0;
   updateflags|=2;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1426,6 +1439,7 @@ void CStoreItems::OnOrder()
 {
 	qsort(the_store.entries,the_store.entrynum,sizeof(store_item_entry11), order_store_items);
   updateflags|=2;
+  the_store.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -1849,6 +1863,7 @@ void CStoreDrinks::OnAddspell()
   DisplaySpell(the_store.header.curecount);
   m_spell_control.SetCurSel(the_store.header.curecount);
   the_store.header.curecount=the_store.curenum;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1887,6 +1902,7 @@ void CStoreDrinks::OnRemovespell()
   the_store.cures=newspells;
   the_store.header.curecount=the_store.curenum;
   updateflags|=4;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1918,6 +1934,7 @@ void CStoreDrinks::OnRemallspell()
     the_store.curenum=the_store.header.curecount;
   }
   updateflags|=4;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2054,6 +2071,7 @@ void CStoreDrinks::OnAdddrink()
   RefreshDrink(the_store.header.drinkcount);
   the_store.header.drinkcount=the_store.drinknum;
   updateflags|=8;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2086,6 +2104,7 @@ void CStoreDrinks::OnRemovedrink()
   the_store.drinks=newdrinks;
   the_store.header.drinkcount=the_store.drinknum;
   updateflags|=8;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2098,6 +2117,7 @@ void CStoreDrinks::OnRemalldrink()
   }
   the_store.header.drinkcount=the_store.drinknum=0;
   updateflags|=8;
+  the_store.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 

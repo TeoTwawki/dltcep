@@ -49,6 +49,7 @@ int Cproj::WriteProjectileToFile(int fhandle, int calculate)
   {	
   	return -2; // short file, invalid item
   }
+  m_changed=false;
   return 0;
 }
 
@@ -56,6 +57,7 @@ int Cproj::ReadProjectileFromFile(int fhandle, long maxlen)
 {
   int fullsize;
 
+  m_changed=false;
   if(maxlen==-1) maxlen=filelength(fhandle);
   if(maxlen<1) return -1; //short file, invalid item
   if(read(fhandle,&header,sizeof(proj_header) )!=sizeof(proj_header) )

@@ -11,6 +11,12 @@
 
 class Cchui  
 {
+private:
+  int fhandle;
+  int startpoint;
+  int maxlen;
+  int fullsize;
+
 public:
   chui_header header;
   chui_window *windows;
@@ -18,17 +24,14 @@ public:
   chui_control_common *controls;
   BYTE **extensions;
   int windowcnt, controlcnt;
-  int fhandle;
-  int fullsize;
-  int startpoint;
-  int maxlen;
   int revision;
+  bool m_changed;
 
 	Cchui();
 	virtual ~Cchui();
   int ReadChuiFromFile(int fhandle, long maxlen);
   int WriteChuiToFile(int fhandle, int calculate);
-
+  CString RetrieveMosRef(int fh);
   inline void KillWindows()
   {
     if(windows)

@@ -13,6 +13,11 @@
 
 class Cdialog  
 {
+private:
+  int fhandle;
+  int startpoint;
+  int maxlen;
+
 public:
   dlg_header header;
   long statecount;
@@ -25,9 +30,6 @@ public:
   CString *trtriggers;
   long actioncount;
   CString *actions;
-  int fhandle;
-  int startpoint;
-  int maxlen;
   int changed;
 
 	Cdialog();

@@ -43,6 +43,7 @@ public:
   void rescan_dialog(bool flg);
   void set_progress(int actual);
   void start_progress(int max, CString title);
+  void change_progress_title(CString title);
   void end_progress();
   void start_panic();
   void end_panic();

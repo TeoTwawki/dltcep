@@ -424,7 +424,9 @@ Attention !: The values of this offset are written in big endian style.
 0x0258 8 (resref) creature script ("race" script?)
 0x0260 8 (resref) creature script ("general" script?)
 0x0268 8 (resref) creature script ("default" script?)
-0x0270 52 (bytes) Unknown
+0x0270 44 (bytes) Unknown
+0x029c 4 (dword) XP as mage
+0x02a0 4 (dword) XP as thief
 0x02a4 2x10 (word*2) Internal variables
 0x02b8 4 (dword) Unknown
 0x02bc 32 (char array) Monstrous Compendium Entry

@@ -22,6 +22,7 @@ public:
   gam_familiar familiar;
   char familiardata[324]; //not parsed yet
   int revision;
+  bool m_changed;
 
   int variablecount, deathvariablecount;
   int pccount, npccount;

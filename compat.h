@@ -89,6 +89,7 @@ protected:
 	afx_msg void OnDialog();
 	afx_msg void OnTob();
 	afx_msg void OnDltc();
+	afx_msg void OnNew();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

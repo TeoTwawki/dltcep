@@ -218,7 +218,7 @@ void CFileExtract::OnOK()
   res=0;
   for(i=1;i<=NUM_OBJTYPE;i++)
   {
-    res=extract_files(objrefs[i],objexts[i], *resources[i])|res;  //1
+    res=extract_files(objrefs[i], objexts[i], *resources[i])|res;  //1
     if(res==-1) break;
   }
   if(m_num_extract) tmpstr.Format("Extracted %d file(s)",m_num_extract);

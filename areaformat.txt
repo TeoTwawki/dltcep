@@ -127,10 +127,15 @@ V2.0 File header (Same as V1.0 but 16 bytes longer)
 
 V1.0 Actors
 Offset Size (data type) Description
-0x0000 32 (char array) Name of this actor (for editors purposes only)
+0x0000 32 (char array) Name of this actor (may override scripting name)
 0x0020 4 (point) Current position of this actor within the area.
 0x0024 4 (point) Current destination of this actor within the area.
-0x0028 4 (dword) Unknown, it was supposed to be visible flag , but when I have checked it didn't work
+0x0028 4 (dword) Field availability flags
+    * bit 0 - actor is not loaded (not embedded in are)
+    * bit 1 - ?
+    * bit 2 - ?
+    * bit 3 - override scriptname with label
+
 0x002c 4 (dword) Unknown (usually 0), unused (no effects in game) ?
 0x0030 4 (dword) Unknown (actor type?) No apparent effect in game.
 0x0034 4 (dword) It's the orientation of the actor (values between 0-15 , 0 for the NPC looking south and clockwise as the scriptcompiler.doc tell us)

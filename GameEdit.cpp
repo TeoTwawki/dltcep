@@ -9,6 +9,7 @@
 #include "chitemDlg.h"
 #include "GameEdit.h"
 #include "CreatureEdit.h"
+#include "GameGeneral.h"
 #include "GameStatistics.h"
 
 #ifdef _DEBUG
@@ -65,13 +66,6 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION, m_revision);
 	//}}AFX_DATA_MAP
   DDX_Text(pDX, IDC_PARTYSIZE, the_game.header.pccount);
-
-  DDX_Text(pDX, IDC_GAMETIME, the_game.header.gametime);
-  DDX_Text(pDX, IDC_GOLD, the_game.header.gold);
-
-  RetrieveResref(tmpstr,the_game.header.mainarea);
-  DDX_Text(pDX, IDC_STARTAREA, tmpstr);
-  StoreResref(tmpstr,the_game.header.mainarea);
 
   if(the_game.header.npccount)
   {
@@ -449,9 +443,6 @@ BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
 	ON_BN_CLICKED(IDC_ADDJOURNAL, OnAddjournal)
 	ON_BN_CLICKED(IDC_DELJOURNAL, OnDeljournal)
-	ON_EN_KILLFOCUS(IDC_STARTAREA, OnKillfocusStartarea)
-	ON_EN_KILLFOCUS(IDC_GAMETIME, OnKillfocusGametime)
-	ON_EN_KILLFOCUS(IDC_GOLD, OnKillfocusGold)
 	ON_BN_CLICKED(IDC_JOINABLE, OnJoinable)
 	ON_BN_CLICKED(IDC_PARTY, OnParty)
 	ON_BN_CLICKED(IDC_VARIABLES, OnVariables)
@@ -468,15 +459,16 @@ BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_CBN_KILLFOCUS(IDC_CREATURENUM, OnKillfocusCreaturenum)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
-	ON_EN_KILLFOCUS(IDC_SCREEN, OnKillfocusScreen)
 	ON_BN_CLICKED(IDC_EDITLINK, OnEditlink)
 	ON_BN_CLICKED(IDC_EDIT2, OnEdit2)
+	ON_BN_CLICKED(IDC_EDITLINK2, OnEditlink2)
+	ON_BN_CLICKED(IDC_GENERAL, OnGeneral)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_BN_CLICKED(IDC_EDITLINK2, OnEditlink2)
+	ON_EN_KILLFOCUS(IDC_SCREEN, OnKillfocusScreen)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1135,7 +1127,7 @@ void CGameEdit::OnDeljournal()
   m_journalpicker.SetCurSel(pos);
   RefreshDialog();
 }
-
+/*
 void CGameEdit::OnKillfocusStartarea() 
 {
 	UpdateData(UD_RETRIEVE);
@@ -1153,7 +1145,7 @@ void CGameEdit::OnKillfocusGold()
 	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);
 }
-
+*/
 void CGameEdit::OnJoinable() 
 {
 	the_game.KillNPCs();
@@ -1209,4 +1201,11 @@ BOOL CGameEdit::PreTranslateMessage(MSG* pMsg)
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CGameEdit::OnGeneral() 
+{
+	CGameGeneral dlg;
+
+  dlg.DoModal();	
 }

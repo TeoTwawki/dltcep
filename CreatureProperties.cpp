@@ -2289,6 +2289,8 @@ CString CCreatureItem::ResolveSpellName(CString key)
 
 void CCreatureItem::DoDataExchange(CDataExchange* pDX)
 {
+  creature_item *tmpitems;
+  creature_itemslots tmpslots;
   int fc;
   CString tmpstr;
   CButton *cb;
@@ -2296,6 +2298,9 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
   int flg, flg2;
   int i,j;
 
+  tmpitems =new creature_item[the_creature.itemcount];
+  memcpy(tmpitems,the_creature.items,sizeof(creature_item) * the_creature.itemcount );
+  memcpy(tmpslots,the_creature.itemslots, sizeof(tmpslots));
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureItem)
 	DDX_Control(pDX, IDC_BOOKPICKER, m_bookpicker);
@@ -2471,6 +2476,15 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
   {
     GetDlgItem(bookboxids[i])->EnableWindow(flg);
   }
+  if(memcmp(tmpitems,the_creature.items,sizeof(creature_item) * the_creature.itemcount))
+  {
+    the_creature.m_changed=true;
+  }
+  if(memcmp(tmpslots,the_creature.itemslots, sizeof(tmpslots) ))
+  {
+    the_creature.m_changed=true;
+  }
+  delete [] tmpitems;
 }
 
 void CCreatureItem::RefreshItem()
@@ -2833,6 +2847,7 @@ void CCreatureItem::OnClearall()
 	the_creature.KillItems();
 	memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );
   *(int *) (the_creature.itemslots+the_creature.slotcount)=1000;
+  the_creature.m_changed=true;
   RefreshItem();
   UpdateData(UD_DISPLAY);
 }
@@ -2862,6 +2877,7 @@ void CCreatureItem::OnClear()
     the_creature.selects[i+7].spelltype=1;
   }
   the_creature.selects[7+9].spelltype=2;
+  the_creature.m_changed=true;
   RefreshItem();
 	UpdateData(UD_DISPLAY);
 }
@@ -3587,6 +3603,7 @@ void CCreatureEffect::OnPaste()
     ConvertToV10Eff((creature_effect *) the_effect.header.signature, the_creature.oldeffects+effectcount);
   }
 	RefreshEffect();
+  the_creature.m_changed=true;
 }
 
 void CCreatureEffect::OnV10() 

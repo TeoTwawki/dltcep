@@ -66,6 +66,7 @@ void CItemEdit::NewItem()
   the_item.header.extheadoffs=sizeof(item_header);  
   the_item.header.featureoffs=sizeof(item_header);
 	the_item.header.itmattr=ATTR_COPYABLE|ATTR_MOVABLE|ATTR_DISPLAY; //these bits are usually set
+  the_item.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CItemEdit, CDialog)
@@ -77,12 +78,12 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -343,8 +344,25 @@ void CItemEdit::PostNcDestroy()
 	CDialog::PostNcDestroy();
 }
 
+void CItemEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_item.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the item.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
+}
+
 BOOL CItemEdit::PreTranslateMessage(MSG* pMsg)
 {
   m_tooltip.RelayEvent(pMsg);
   return CDialog::PreTranslateMessage(pMsg);
 }
+

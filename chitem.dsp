@@ -229,6 +229,10 @@ SOURCE=.\GameEdit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GameGeneral.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\GameStatistics.cpp
 # End Source File
 # Begin Source File
@@ -587,6 +591,10 @@ SOURCE=.\game.h
 # Begin Source File
 
 SOURCE=.\GameEdit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\GameGeneral.h
 # End Source File
 # Begin Source File
 

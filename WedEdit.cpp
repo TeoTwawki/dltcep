@@ -505,7 +505,7 @@ void CWedEdit::OnSelchangeDoorpolypicker()
 
 void CWedEdit::OnEdittile2() 
 {
-  Cmos overlay;
+//  Cmos overlay;
   CWedTile dlg;
   CString tisname;
   int x,y;
@@ -519,7 +519,7 @@ void CWedEdit::OnEdittile2()
   RetrieveResref(tisname, the_area.weddoorheaders[m_doornum].doorid);
   dlg.m_tisname=tisname;
 
-  if(SetupSelectPoint(-1)) return;
+  if(SetupSelectPoint(0)) return;
 
   dlg.DoModal();
   if(the_mos.MosChanged()) the_area.wedchanged=true;
@@ -667,7 +667,7 @@ void CWedEdit::OnSelection()
 	CImageView dlg;
   int first;
   
-  if(SetupSelectPoint())
+  if(SetupSelectPoint(0))
   {
     return;
   }
@@ -877,7 +877,7 @@ void CWedEdit::OnSelection2()
 {
 	CImageView dlg;
   
-  if(SetupSelectPoint())
+  if(SetupSelectPoint(0))
   {
     return;
   }
@@ -1046,7 +1046,7 @@ void CWedEdit::OnTransparent()
   polygon = (area_vertex *) the_area.wedvertexheaderlist.GetAt(pos);
   size = the_area.wallpolygonheaders[m_wallgroupnum].countvertex;
   if(size<3 || !polygon) return;
-  if(SetupSelectPoint()) return;
+  if(SetupSelectPoint(0)) return;
   for(y=0;y<the_area.overlayheaders[0].height;y++)
   {
     for(x=0;x<the_area.overlayheaders[0].width;x++)
@@ -1100,7 +1100,7 @@ void CWedEdit::OnClear()
   polygon = (area_vertex *) the_area.wedvertexheaderlist.GetAt(pos);
   size = the_area.wallpolygonheaders[m_wallgroupnum].countvertex;
   if(size<3 || !polygon) return;
-  if(SetupSelectPoint()) return;
+  if(SetupSelectPoint(0)) return;
   for(y=0;y<the_area.overlayheaders[0].height;y++)
   {
     for(x=0;x<the_area.overlayheaders[0].width;x++)
@@ -1161,7 +1161,6 @@ void CWedEdit::OnCleanup()
 // edit tileset (extract door tiles)
 void CWedEdit::OnEdit() 
 {
-  Cmos overlay;
   CString tmpstr;
 	CTisDialog dlg;
   int baseoverlay;
@@ -1172,13 +1171,19 @@ void CWedEdit::OnEdit()
   RetrieveResref(tmpstr, the_area.overlayheaders[baseoverlay].tis);
   dlg.setrange(tmpstr, the_area.overlayheaders[baseoverlay].width,
     the_area.overlayheaders[baseoverlay].height, 3);
-  dlg.m_overlaynum=m_overlaynum;
+//  dlg.m_overlaynum=m_overlaynum;
   dlg.m_tileheaders=the_area.overlaytileheaders+the_area.getotc(baseoverlay);
   dlg.m_tileindices=the_area.overlaytileindices+the_area.getfoti(baseoverlay);
-  if(baseoverlay!=m_overlaynum)
+  if(SetupSelectPoint(baseoverlay)) return;
+  if(!m_whole)
   {
-    RetrieveResref(tmpstr, the_area.overlayheaders[m_overlaynum].tis);
-    read_tis(tmpstr, &overlay, false);
+    for(baseoverlay=0;baseoverlay<10;baseoverlay++)
+    {
+      if(baseoverlay!=m_overlaynum)
+      {
+        the_mos.SetOverlay(baseoverlay,NULL);
+      }
+    }
   }
   dlg.DoModal();
   UpdateData(UD_DISPLAY);
@@ -1385,7 +1390,18 @@ void CWedEdit::OnEdittile()
   {
     baseoverlay=0;
   }
-  if(SetupSelectPoint(baseoverlay, &overlay)) return;
+//  if(SetupSelectPoint(baseoverlay, &overlay)) return;
+  if(SetupSelectPoint(0)) return;
+  if(!m_whole)
+  {
+    for(baseoverlay=0;baseoverlay<10;baseoverlay++)
+    {
+      if(baseoverlay!=m_overlaynum)
+      {
+        the_mos.SetOverlay(baseoverlay,NULL);
+      }
+    }
+  }
   dlg.DoModal();
   if(the_mos.MosChanged()) the_area.wedchanged=true;
   RefreshWed();

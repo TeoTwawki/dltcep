@@ -1469,13 +1469,19 @@ int Cbam::RemoveFrameFromCycle(int nCycle, int nCyclePos, int nRepeat)
 
   CycleData=GetCycleData(nCycle);
   if(CycleData.x<0) return -1;
+  if(m_nFrameLookupSize<nRepeat) nRepeat=m_nFrameLookupSize;
+  if(m_pCycles[nCycle].wFrameIndexCount<nCyclePos+nRepeat)
+  {
+    nRepeat=m_pCycles[nCycle].wFrameIndexCount-nCyclePos;
+  }
+  if(nRepeat<1) return -1;
+  //
   newFrameLookup=new short [m_nFrameLookupSize-=nRepeat];
   if(!newFrameLookup)
   {
     m_nFrameLookupSize+=nRepeat;
     return -3;
   }
-  if(m_pCycles[nCycle].wFrameIndexCount<nCyclePos+nRepeat) return -1; //can't remove so much
   //
   nCyclePos+=CycleData.x;
   memcpy(newFrameLookup,m_pFrameLookup,sizeof(short)*nCyclePos);

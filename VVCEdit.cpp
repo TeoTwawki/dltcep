@@ -50,8 +50,10 @@ void CVVCEdit::checkflags(int *boxids, int value)
 
 void CVVCEdit::DoDataExchange(CDataExchange* pDX)
 {
+  vvc_header tmp;
   CString tmpstr;
 
+  memcpy(&tmp,&the_videocell.header,sizeof(vvc_header));
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CVVCEdit)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
@@ -188,8 +190,24 @@ void CVVCEdit::DoDataExchange(CDataExchange* pDX)
   the_videocell.header.unknown74=strtonum(tmpstr);
 
   tmpstr.Format("0x%0x",the_videocell.header.unknown88);
-  DDX_Text(pDX, IDC_UNKNOWN78, tmpstr);
+  DDX_Text(pDX, IDC_UNKNOWN88, tmpstr);
   the_videocell.header.unknown88=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown8c);
+  DDX_Text(pDX, IDC_UNKNOWN8C, tmpstr);
+  the_videocell.header.unknown8c=strtonum(tmpstr);
+
+  DDX_Text(pDX, IDC_UNKNOWN90, the_videocell.header.unknown90);
+
+  RetrieveResref(tmpstr,the_videocell.header.unknown94);
+  DDX_Text(pDX, IDC_UNKNOWN94, tmpstr);
+	DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr,the_videocell.header.unknown94);
+
+  if(memcmp(&tmp,&the_videocell.header,sizeof(vvc_header)))
+  {
+    the_videocell.m_changed=true;
+  }
 }
 
 void CVVCEdit::NewVVC()
@@ -199,6 +217,7 @@ void CVVCEdit::NewVVC()
   the_videocell.header.framerate=15; //default value
   the_videocell.header.duration=-1;  //usually set to -1
   the_videocell.header.unknown38=1;  //usually set to 1
+  the_videocell.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
@@ -229,6 +248,8 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_U3, OnU3)
 	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
 	ON_BN_CLICKED(IDC_MIRROR2, OnMirror2)
+	ON_BN_CLICKED(IDC_BLEND, OnBlend)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN90, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG2, DefaultKillfocus)
@@ -257,7 +278,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_ZCO, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN14, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN74, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN78, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN88, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN64, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN58, DefaultKillfocus)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
@@ -266,7 +287,8 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN40, OnKillfocusSequencing)
-	ON_BN_CLICKED(IDC_BLEND, OnBlend)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN94, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN8C, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -674,8 +696,30 @@ void CVVCEdit::OnUnknown()
 	MessageBox("Not implemented yet.","Unknown editor",MB_OK);
 }
 
+void CVVCEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_videocell.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the videocell.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
+}
+
 BOOL CVVCEdit::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CVVCEdit::OnDefaultKillfocus() 
+{
+	// TODO: Add your control notification handler code here
+	
 }

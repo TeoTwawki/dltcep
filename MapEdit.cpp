@@ -1436,7 +1436,7 @@ void CMapLink::RefreshLink()
     m_maxdir.Format("South (%d)",cnt=the_map.areas[m_map][m_area].southcnt);
     m_first=the_map.areas[m_map][m_area].southidx;
     break;
-  case 3:
+  default: //3
     m_maxdir.Format("East (%d)",cnt=the_map.areas[m_map][m_area].eastcnt);
     m_first=the_map.areas[m_map][m_area].eastidx;
     break;
@@ -1716,7 +1716,7 @@ void CMapLink::OnAdd()
     pos=the_map.areas[m_map][m_area].southidx+the_map.areas[m_map][m_area].southcnt;
     the_map.areas[m_map][m_area].southcnt++;
     break;
-  case 3:
+  default: //3
     pos=the_map.areas[m_map][m_area].eastidx+the_map.areas[m_map][m_area].eastcnt;
     the_map.areas[m_map][m_area].eastcnt++;
     break;

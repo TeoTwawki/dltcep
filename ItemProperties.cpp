@@ -60,10 +60,10 @@ static CString ClassUsabilityBits[58]=
   "Mage/Thief","Solamnic Knight","Ranger","Thief",
   "Elf","Dwarf","Half-Elf","Kender",
   "Human","Gnome","Monk","Druid","Minotaur",
-  "","","","","","","","",
-  "","","","","Handler","","","",
-  "Diviner","Enchanter","Evoker","Illusionist","Necromancer","Transmuter","Baseclass","",
-  "","","","","","","Abjurer","Conjurer"
+  "0x01000000","0x02000000","0x04000000","0x08000000","0x10000000","0x20000000","0x40000000","0x80000000",
+  "0x00010000","0x00020000","0x00040000","0x00080000","Handler","0x00200000","0x00400000","0x00800000",
+  "Diviner","Enchanter","Evoker","Illusionist","Necromancer","Transmuter","Baseclass","0x00008000",
+  "0x00000001","0x00000002","0x00000004","0x00000008","0x00000010","0x00000020","Abjurer","Conjurer"
 };
 
 //gets the starting feature block counter for this extended header
@@ -150,8 +150,10 @@ CItemGeneral::~CItemGeneral()
 
 void CItemGeneral::DoDataExchange(CDataExchange* pDX)
 {
+  item_header tmp;
   CString tmpstr;  
 
+  memcpy(&tmp,&the_item.header,sizeof(item_header));
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CItemGeneral)
 	DDX_Control(pDX, IDC_PROFICIENCY, m_proficiencypicker_control);
@@ -206,6 +208,10 @@ void CItemGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_COLOR, tmpstr);
   the_item.pstheader.colour=(short) strtonum(tmpstr);
   DDX_Control(pDX, IDC_ITMCOLOR, m_itmcolor);
+  if(memcmp(&tmp,&the_item.header,sizeof(item_header)))
+  {
+    the_item.m_changed=true;
+  }
 }
 
 BOOL CItemGeneral::OnInitDialog() 
@@ -259,6 +265,8 @@ void CItemGeneral::RefreshGeneral()
   case REV_IWD2:
     id=2;
     break;
+  default:
+    return;
   }
   for(i=0;radioids[i];i++)
   {
@@ -2264,7 +2272,12 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
   	  the_item.extheaders[extheadnum].missile[1]=0;
   	  the_item.extheaders[extheadnum].missile[2]=0;
       break;
-    case A_PROJ: case A_BOW: //bows crash if animation is set
+    case A_PROJ://projectiles don't crash, they are different in bg1 and bg2
+      the_item.extheaders[extheadnum].location=1;
+      the_item.extheaders[extheadnum].target_num=0;
+      the_item.extheaders[extheadnum].target_type=1;
+      break;
+    case A_BOW: //bows crash if animation is set
       the_item.extheaders[extheadnum].location=1;
       the_item.extheaders[extheadnum].target_num=0;
       the_item.extheaders[extheadnum].target_type=1;
@@ -2736,7 +2749,7 @@ void CItemExtended::OnSelchangeMelee()
 
   UpdateData(UD_RETRIEVE);
   pick=m_melee_control.GetCurSel();
-  if(pick>=0 && pick<NUM_ANIMTYPES-1) //last value is 'unknown'
+  if((pick>=0) && (pick<NUM_ANIMTYPES-1) ) //last value is 'unknown'
   {
     memcpy(the_item.extheaders[extheadnum].animation,animtypes[pick],3*sizeof(short));
   }
@@ -2818,6 +2831,7 @@ void CItemExtended::OnExtremove()
   the_item.extheadcount=the_item.header.extheadcount;
   the_item.extheaders=new_extheaders;
   RefreshExtended();
+  the_item.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2921,6 +2935,7 @@ void CItemExtended::OnExtadd()
   the_item.extheadcount=the_item.header.extheadcount;
   the_item.extheaders=new_extheaders;
   RefreshExtended();
+  the_item.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2963,6 +2978,7 @@ void CItemExtended::OnExtpaste()
       memcpy(&the_item.featblocks[fbc], featblks, featblkcnt*sizeof(feat_block) );
     }
     RefreshExtended();
+    the_item.m_changed=true;
     UpdateData(UD_DISPLAY);
   }
 }
@@ -2979,6 +2995,7 @@ void CItemExtended::OnExteffremove()
   }
   if(exteffnum==the_item.extheaders[extheadnum].fbcount) exteffnum--;
   RefreshExtended();
+  the_item.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -3041,6 +3058,7 @@ void CItemExtended::OnExteffadd()
   //this is the cummulative feature block count
   the_item.featblkcount++;
   RefreshExtended();
+  the_item.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -3065,6 +3083,7 @@ void CItemExtended::OnExteffpaste()
   fbc=GetFBC(extheadnum)+exteffnum;
   memcpy(&the_item.featblocks[fbc],&featcopy, sizeof(feat_block) );
   RefreshExtended();
+  the_item.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 

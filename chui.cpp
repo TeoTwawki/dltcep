@@ -204,3 +204,45 @@ int Cchui::ReadChuiFromFile(int fh, long ml)
   }
   return ret;
 }
+
+CString Cchui::RetrieveMosRef(int fh)
+{
+  CString tmpstr;
+  int flg;
+  int required;
+  chui_window tmpwin;
+
+  if(fh<1) return "";
+  fhandle=fh;
+  startpoint=tell(fhandle);
+  required=sizeof(header);
+  if(read(fh,&header, required)!=required )
+  {	
+    close(fh);
+  	return ""; // short file, invalid item
+  }
+  if(memcmp(header.filetype,"CHUIV1  ",8) )
+  {
+    close(fh);
+    return "";
+  }
+  if(header.windowcnt<1)
+  {
+    close(fh);
+    return "";
+  }
+  flg=adjust_actpoint(header.windowoffs);
+  if(flg<0)
+  {
+    close(fh);
+    return "";
+  }
+  if(read(fh, &tmpwin, sizeof(tmpwin))!=sizeof(tmpwin))
+  {
+    close(fh);
+    return "";
+  }
+  close(fh);
+  RetrieveResref(tmpstr,tmpwin.mos);
+  return tmpstr;
+}

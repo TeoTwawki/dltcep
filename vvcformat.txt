@@ -104,3 +104,5 @@ Offset Size (data type) Description
 
 
 Additional comments:
+0x0090 4 cycle number of 3rd bam sequence
+0x0094 8 resref sound resource

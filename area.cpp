@@ -83,6 +83,7 @@ Carea::Carea()
   wedvertexcount=0;
 
   revision=10;
+  m_changed=false;
   wedchanged=true;
   wedavailable=true;
   changedmap[0]=changedmap[1]=changedmap[2]=true;
@@ -129,7 +130,7 @@ void Carea::new_area()
   wedchanged=true;
   wedavailable=true;
   changedmap[0]=changedmap[1]=changedmap[2]=true;
-  the_mos.SetOverlay(0,NULL,NULL); //clearing up the associated tileset
+  the_mos.FreeOverlay(); //clearing up the associated tileset
 }
 
 int Carea::adjust_actpointa(long offset)
@@ -1003,6 +1004,7 @@ int Carea::WriteAreaToFile(int fh, int calculate)
     }
     delete[] pstmapnoteheaders;
     pstmapnoteheaders=NULL;
+    m_changed=false;
   }
   else
   {
@@ -1012,6 +1014,7 @@ int Carea::WriteAreaToFile(int fh, int calculate)
       ret=-2;
       goto endofquest;
     }
+    m_changed=false;
   }
   
 endofquest:
@@ -1452,7 +1455,6 @@ int Carea::ReadWedFromFile(int fh, long ml)
   int pos;
   int i;
 
-  ret=0;
   fhandlew=fh;
   if(ml==-1) maxlenw=filelength(fhandlew);
   else maxlenw=ml;
@@ -1508,6 +1510,7 @@ int Carea::ReadWedFromFile(int fh, long ml)
   ReadMap("HT", heightmap, htpal, sizeof(htpal) );
   wedchanged=false;
   for(ret=0;ret<3;ret++) changedmap[ret]=false;
+  ret=0;
 
   fullsizew+=esize;
   //precalculating the size of the overlaytilemap
@@ -1865,6 +1868,7 @@ int Carea::ReadAreaFromFile(int fh, long ml)
   wedchanged=false;
   m_night=false;
   for(ret=0;ret<3;ret++) changedmap[ret]=false;
+  m_changed=false;
   if(overlaycount)
   {
     overlayheaders[0].height=9999;

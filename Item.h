@@ -17,6 +17,11 @@
 
 class Citem  
 {
+private:
+  int fhandle;
+  int startpoint;
+  int maxlen;
+
 public:
   int revision;
 	item_header header;
@@ -26,9 +31,7 @@ public:
   int featblkcount;
   ext_header *extheaders;
   feat_block *featblocks;
-  int fhandle;
-  int startpoint;
-  int maxlen;
+  bool m_changed;
 
 	Citem();
 	virtual ~Citem();

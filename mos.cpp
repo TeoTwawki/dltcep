@@ -291,7 +291,7 @@ Cmos::Cmos()
   memset(&c_header,0,sizeof(INF_MOSC_HEADER) );
   memcpy(&mosheader,"MOS V1  ",8);
   memcpy(&c_header,"MOSCV1  ",8);
-  m_pFrameData=NULL;
+  m_pFrameDataPointer=NULL;
   m_pOffsets=NULL;
   m_pclrDIBits=NULL;
   m_DIBsize=0;
@@ -300,6 +300,7 @@ Cmos::Cmos()
   m_drawclosed=0;
   m_tileheaders=NULL;
   m_tileindices=NULL;
+  memset(m_friend,0,sizeof(m_friend));
 }
 
 Cmos::~Cmos()
@@ -323,7 +324,7 @@ void Cmos::new_mos()
   memset(&c_header,0,sizeof(INF_MOSC_HEADER) );
   memcpy(&mosheader,"MOS V1  ",8);
   memcpy(&c_header,"MOSCV1  ",8);
-  m_overlay=0;
+  FreeOverlay();
   m_drawclosed=0;
   m_tileheaders=NULL;
   m_tileindices=NULL;
@@ -347,20 +348,36 @@ int Cmos::GetFrameCount()
   return tisheader.numtiles;
 }
 
-void Cmos::SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices, Cmos *overlaymos)
+void Cmos::FreeOverlay()
+{
+  int i;
+
+  for(i=0;i<10;i++)
+  {
+    if(m_friend[i]) delete m_friend[i];
+    m_friend[i]=NULL;
+  }
+  m_overlay=0;
+  m_tileheaders=NULL;
+  m_tileindices=NULL;
+}
+
+void Cmos::SetTiles(wed_tilemap *tileheaders, short *tileindices)
+{
+  m_tileheaders=tileheaders;
+  m_tileindices=tileindices;
+}
+
+void Cmos::SetOverlay(int overlay, Cmos *overlaymos)
 {
   if(overlay>0 && overlay<10)
   {
-    m_overlay=1<<overlay;
-    m_friend=overlaymos;
+    if(overlaymos) m_overlay|=1<<overlay;
+    else m_overlay&=~(1<<overlay);
+    if(m_friend[overlay]) delete m_friend[overlay];
+    m_friend[overlay]=overlaymos;
   }
-  else
-  {
-    m_overlay=overlay;
-    m_friend=NULL;
-  }
-  m_tileheaders=tileheaders;
-  m_tileindices=tileindices;
+  else delete overlaymos;
 }
 
 int Cmos::ResolveFrameNumber(int framenumber)
@@ -373,7 +390,7 @@ int Cmos::ResolveFrameNumber(int framenumber)
     if(m_overlay)
     {
       idx=m_tileheaders[framenumber].alternate;
-      m_overlaytile=0;
+      m_overlaytile=m_overlay;
       return idx;
     }
     idx=m_tileheaders[framenumber].firsttileprimary;
@@ -391,28 +408,43 @@ int Cmos::ResolveFrameNumber(int framenumber)
   return idx;
 }
 
+INF_MOS_FRAMEDATA *Cmos::GetFrameData(DWORD nFrameWanted)
+{
+  if(nFrameWanted>=tisheader.numtiles) return NULL;
+  INF_MOS_FRAMEDATA *p=m_pFrameDataPointer[nFrameWanted];
+  if(!p)
+  {
+    p=m_pFrameData.GetAt(m_pFrameData.FindIndex(nFrameWanted));
+    m_pFrameDataPointer[nFrameWanted]=p;
+  }
+  return p;
+}
+
 CPoint Cmos::GetFrameSize(DWORD nFrameWanted)
 {
-	if (tisheader.numtiles <= nFrameWanted )  //not enough frames
-		return (DWORD) -1;
-  return CPoint(m_pFrameData[nFrameWanted].nWidth,m_pFrameData[nFrameWanted].nHeight);
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p) {
+    return (DWORD) -1;
+  }
+  return CPoint(p->nWidth,p->nHeight);
 }
 
 unsigned char *Cmos::GetFrameBuffer(DWORD nFrameWanted)
 {
-	if (tisheader.numtiles <= nFrameWanted )  //not enough frames
-		return NULL;
-  return m_pFrameData[nFrameWanted].pFrameData;
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p) {
+    return NULL;
+  }
+  return p->pFrameData;
 }
 
 COLORREF Cmos::GetPixelData(int x, int y)
 {
   int nFrameWanted;
-  COLORREF *Palette;
 
   nFrameWanted=ResolveFrameNumber(y/tisheader.pixelsize*mosheader.wColumn+x/tisheader.pixelsize);
-  Palette=GetFramePalette(nFrameWanted);
-  return Palette[m_pFrameData[nFrameWanted].pFrameData[y%tisheader.pixelsize*m_pFrameData[nFrameWanted].nWidth+x%tisheader.pixelsize]];
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  return p->Palette[p->pFrameData[y%tisheader.pixelsize*p->nWidth+x%tisheader.pixelsize]];
 }
 
 int Cmos::TakeOneFrame(DWORD nFrameWanted, COLORREF *prFrameBuffer, int factor)
@@ -434,9 +466,10 @@ int Cmos::TakeOneFrame(DWORD nFrameWanted, COLORREF *prFrameBuffer, int factor)
   sz=nFrameWanted%mosheader.wColumn*tisheader.pixelsize*tisheader.pixelsize/factor;
   rf=tisheader.pixelsize/factor;
 
-  for(y=0;y<m_pFrameData[nFrameWanted].nHeight;y++)
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  for(y=0;y<p->nHeight;y++)
   { 
-    for(x=0;x<m_pFrameData[nFrameWanted].nWidth;x++)
+    for(x=0;x<p->nWidth;x++)
     {
       r=g=b=0;
       oz=sz+x*tisheader.pixelsize/factor;
@@ -455,24 +488,24 @@ int Cmos::TakeOneFrame(DWORD nFrameWanted, COLORREF *prFrameBuffer, int factor)
       prFrameBuffer[point++]=RGB(r/z,g/z,b/z); //average
     }
   }
-  return m_pFrameData[nFrameWanted].TakeWholeBmpData(prFrameBuffer);
+  return p->TakeWholeBmpData(prFrameBuffer);
 }
 
 unsigned long *Cmos::GetFramePalette(DWORD nFrameWanted)
 {
-  if(!m_pFrameData) return NULL;
-
-	if (tisheader.numtiles <= nFrameWanted )  //not enough frames
-		return NULL;
-  return m_pFrameData[nFrameWanted].Palette;
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p)
+  {
+    return NULL;
+  }
+  return p->Palette;
 }
 
 bool Cmos::MakeBitmap(COLORREF clrTrans, Cmos &host, int nMode, int nXpos, int nYpos)
 {
   int nColumn, nRow, nBase, nOffset, nLimit;
   DWORD nFrameWanted;
-
-  if(!m_pFrameData) return false;
+  int ov;
 
   if(!(nMode&BM_OVERLAY)) return false;
   if(nMode&BM_MATCH) clrTrans=(DWORD) -1;
@@ -488,16 +521,23 @@ bool Cmos::MakeBitmap(COLORREF clrTrans, Cmos &host, int nMode, int nXpos, int n
     nOffset=nBase+mosheader.dwBlockSize*nColumn*nYpos;
     for(nXpos=0;nXpos<mosheader.wColumn;nXpos++)
     {
-      m_overlaytile=-1;
+      m_overlaytile=0;
       nFrameWanted=ResolveFrameNumber(nYpos*mosheader.wColumn+nXpos);
-      if(!m_friend) m_overlaytile=-1;
-      if(m_overlaytile!=-1)
+      for(ov=1;ov<10;ov++)
       {
-        m_friend->m_pFrameData[m_overlaytile].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,host.GetDIB(),nOffset, nColumn);
+        if(m_overlaytile&(1<<ov) )
+        {
+          if(m_friend[ov])
+          {
+            INF_MOS_FRAMEDATA *f=m_friend[ov]->GetFrameData(0);
+            f->ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,host.GetDIB(),nOffset, nColumn);
+          }
+        }
       }
-      if(nFrameWanted<tisheader.numtiles)
+      INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+      if(p)
       {        
-        if(!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=-1?TRANSPARENT_GREEN:clrTrans,host.GetDIB(),nOffset, nColumn))
+        if(!p->ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=0?TRANSPARENT_GREEN:clrTrans,host.GetDIB(),nOffset, nColumn))
         {
           return false;
         }
@@ -514,14 +554,13 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
   int nOffset;
   DWORD nFrameWanted;
   bool ret;
+  int ov;
 
   if(hBitmap)
   {
     DeleteObject(hBitmap);
     hBitmap=NULL;
   }
-
-  if(!m_pFrameData) return false;
 
   if(!maxclipx || maxclipx*mosheader.dwBlockSize>(DWORD) mosheader.wWidth+63)
   {
@@ -558,16 +597,23 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
     nOffset=mosheader.dwBlockSize*m_pixelwidth*nYpos;
     for(nXpos=0;(nXpos+clipx<maxclipx) /*&& (nXpos<VIEW_MAXEXTENT)*/;nXpos++)
     {
-      m_overlaytile=-1;
+      m_overlaytile=0;
       nFrameWanted=ResolveFrameNumber((nYpos+clipy)*mosheader.wColumn+nXpos+clipx);
-      if(!m_friend) m_overlaytile=-1;
-      if(m_overlaytile!=-1)
+      for(ov=1;ov<10;ov++)
       {
-        m_friend->m_pFrameData[m_overlaytile].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits,nOffset, m_pixelwidth);
+        if(m_overlaytile&(1<<ov) )
+        {
+          if(m_friend[ov])
+          {
+            INF_MOS_FRAMEDATA *f=m_friend[ov]->GetFrameData(0);
+            f->ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits,nOffset, m_pixelwidth);
+          }
+        }
       }
-      if(nFrameWanted<tisheader.numtiles)
+      INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+      if(p)
       {
-        if (!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=-1?TRANSPARENT_GREEN:clrTrans,m_pclrDIBits,nOffset, m_pixelwidth))
+        if (!p->ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile?TRANSPARENT_GREEN:clrTrans,m_pclrDIBits,nOffset, m_pixelwidth))
         {
           delete [] m_pclrDIBits;
           m_pclrDIBits=NULL;
@@ -591,15 +637,18 @@ int Cmos::MakeTransparent(DWORD nFrameWanted, DWORD redgreenblue, int limit)
   int i;
   int nHits;
 
-  if(tisheader.numtiles <= nFrameWanted ) return -1;
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p)
+  {
+    return -1;
+  }
   nHits=0;
-
   // don't force transparent index to be 0
   for(i=0;i<256;i++)
   {
-    if(ChiSquare((BYTE *) &redgreenblue,(BYTE *) (m_pFrameData[nFrameWanted].Palette+i))<=limit )
+    if(ChiSquare((BYTE *) &redgreenblue,(BYTE *) (p->Palette+i))<=limit )
     {
-      m_pFrameData[nFrameWanted].Palette[i]=TRANSPARENT_GREEN;
+      p->Palette[i]=TRANSPARENT_GREEN;
       nHits++;
     }
   }  
@@ -645,21 +694,22 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
       nFrameWanted=ResolveFrameNumber( (y+clipy)*mosheader.wColumn+x+clipx);
     }
     else nFrameWanted=i;
+    INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
     esize=sizeof(palettetype); //sizeof palettetype
-    if(write(fhandle,m_pFrameData[nFrameWanted].Palette,esize )!=esize)
+    if(write(fhandle,p->Palette,esize )!=esize)
     {
       ret=-2;
       goto endofquest;
     }
     esize=tisheader.pixelsize*tisheader.pixelsize;
-    if(esize!=m_pFrameData[nFrameWanted].nFrameSize)
+    if(esize!=p->nFrameSize)
     {
       //outputting incomplete tiles
       ret=1;
-      for(y=0;y<m_pFrameData[nFrameWanted].nHeight;y++)
+      for(y=0;y<p->nHeight;y++)
       {
-        esize-=write(fhandle,m_pFrameData[nFrameWanted].pFrameData+y*m_pFrameData[nFrameWanted].nWidth,m_pFrameData[nFrameWanted].nWidth);
-        esize-=write(fhandle,zerobuffer,tisheader.pixelsize-m_pFrameData[nFrameWanted].nWidth);
+        esize-=write(fhandle,p->pFrameData+y*p->nWidth,p->nWidth);
+        esize-=write(fhandle,zerobuffer,tisheader.pixelsize-p->nWidth);
       }
       esize-=write(fhandle,zerobuffer,(tisheader.pixelsize-y)*tisheader.pixelsize);
       if(esize)
@@ -671,7 +721,7 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
     else
     {
       //outputting complete tile
-      if(write(fhandle,m_pFrameData[nFrameWanted].pFrameData,esize)!=esize)
+      if(write(fhandle,p->pFrameData,esize)!=esize)
       {
         ret=-2;
         goto endofquest;
@@ -686,22 +736,24 @@ endofquest:
 
 int Cmos::GetImageWidth(int clipx, int maxclipx)
 {
-  if(!m_pFrameData) return -1;
   if(!maxclipx && !clipx)
   {
     return mosheader.wWidth;
   }
-  return (maxclipx-clipx)*mosheader.dwBlockSize+m_pFrameData[maxclipx].nWidth;
+  INF_MOS_FRAMEDATA *p=GetFrameData(maxclipx);
+  if(!p) return -1;
+  return (maxclipx-clipx)*mosheader.dwBlockSize+p->nWidth;
 }
 
 int Cmos::GetImageHeight(int clipy, int maxclipy)
 {
-  if(!m_pFrameData) return -1;
   if(!maxclipy && !clipy)
   {    
     return mosheader.wHeight;    
   }
-  return (maxclipy-clipy)*mosheader.dwBlockSize+m_pFrameData[mosheader.wColumn*maxclipy].nHeight;
+  INF_MOS_FRAMEDATA *p=GetFrameData(mosheader.wColumn*maxclipy);
+  if(!p) return -1;
+  return (maxclipy-clipy)*mosheader.dwBlockSize+p->nHeight;
 }
 
 int Cmos::CollectFrameData(int fhandle, DWORD *prFrameBuffer, LPBYTE pcBuffer, DWORD height,
@@ -792,7 +844,8 @@ int Cmos::ReducePalette(int fhandle, bmp_header &sHeader, LPBYTE pcBuffer,
     ((CChitemDlg *) AfxGetMainWnd())->set_progress(nFrameWanted); 
     //collect a frame's data in prFrameBuffer
     //cols is the pixel number of the frame
-    cols=m_pFrameData[nFrameWanted].nWidth;
+    INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+    cols=p->nWidth;
     nFrameRow=tisheader.pixelsize*(nFrameWanted/mosheader.wColumn);
     nFrameCol=nFrameWanted%mosheader.wColumn*tisheader.pixelsize*rows;
     //cols is the width of the frame, rows is the size of a pixel
@@ -809,7 +862,7 @@ int Cmos::ReducePalette(int fhandle, bmp_header &sHeader, LPBYTE pcBuffer,
     if(ret) goto endofquest;
 
     //generates a palette and palette indices from raw binary data
-    m_nQualityLoss+=m_pFrameData[nFrameWanted].TakeWholeBmpData(prFrameBuffer);
+    m_nQualityLoss+=p->TakeWholeBmpData(prFrameBuffer);
   }
   m_nQualityLoss=m_nQualityLoss/nFrameWanted;
 endofquest:
@@ -817,6 +870,32 @@ endofquest:
   if(pRawData) delete [] pRawData;
   ((CChitemDlg *) AfxGetMainWnd())->end_progress();
   return ret;
+}
+
+bool Cmos::CreateFrames()
+{
+  DWORD y;
+
+  y=tisheader.numtiles;
+  KillFrameData();
+  tisheader.numtiles=y;
+  m_pFrameDataPointer=(INF_MOS_FRAMEDATA **) calloc(tisheader.numtiles, sizeof(INF_MOS_FRAMEDATA *));
+  if(!m_pFrameDataPointer)
+  {
+    return false;
+  }
+  for(y=0;y<tisheader.numtiles;y++)  
+  {
+    INF_MOS_FRAMEDATA *p=new INF_MOS_FRAMEDATA;
+    m_pFrameDataPointer[y]=p;
+    if(!p)
+    {
+      KillFrameData();
+      return false;
+    }
+    m_pFrameData.AddTail(p);
+  }
+  return true;
 }
 
 //reads and converts a bitmap to .tis or .mos format
@@ -901,8 +980,7 @@ int Cmos::ReadBmpFromFile(int fhandle, int ml)
     goto endofquest;
   }
 
-  m_pFrameData=new INF_MOS_FRAMEDATA[tisheader.numtiles];
-  if(!m_pFrameData)
+  if(!CreateFrames())
   {
     ret=-3;
     goto endofquest;
@@ -917,8 +995,9 @@ int Cmos::ReadBmpFromFile(int fhandle, int ml)
   //lets allocate memory for all frames
   for(y=0;y<tisheader.numtiles;y++)
   {
+    INF_MOS_FRAMEDATA *p=GetFrameData(y);
     //if it has a palette then we take it now
-    if(sHeader.bits==8) m_pFrameData[y].TakePaletteData((LPBYTE) &sPalette);
+    if(sHeader.bits==8) p->TakePaletteData((LPBYTE) &sPalette);
     //calculate the size of this frame
     if(!((y+1)%mosheader.wColumn))
     {
@@ -932,7 +1011,7 @@ int Cmos::ReadBmpFromFile(int fhandle, int ml)
       if(!rows) rows=tisheader.pixelsize;
     }
     else rows=tisheader.pixelsize;
-    ret=m_pFrameData[y].TakeMosData(0,cols,rows, false); //setting the size of the frame now
+    ret=p->TakeMosData(0,cols,rows, false); //setting the size of the frame now
     if(ret) goto endofquest; //TakeMosData allocates memory, if it failed we escape
   }
   //now we just have to fill the palettes and bitmap frames
@@ -955,7 +1034,9 @@ int Cmos::ReadBmpFromFile(int fhandle, int ml)
       nSourceOff=0;
       for(x=0;x<mosheader.wColumn;x++)
       {
-        nSourceOff+=m_pFrameData[nFrameWanted++].TakeBmpData(pcBuffer, nFrameRow, nSourceOff);
+        INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+        nSourceOff+=p->TakeBmpData(pcBuffer, nFrameRow, nSourceOff);
+        nFrameWanted++;
       }
     }
     ret=0;
@@ -1007,8 +1088,9 @@ int Cmos::WriteTisToBmpFile(int fhandle, int clipx, int clipy, int maxclipx, int
     for(x=clipx;x<=maxclipx;x++)
     {
       nFrameWanted=ResolveFrameNumber((y/mosheader.dwBlockSize+clipy)*mosheader.wColumn+x);
-      nSourceOff=m_pFrameData[nFrameWanted].nWidth*(y%mosheader.dwBlockSize);
-      nFullLine+=m_pFrameData[nFrameWanted++].ExpandMosLine(pcBuffer+nFullLine,nSourceOff);
+      INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+      nSourceOff=p->nWidth*(y%mosheader.dwBlockSize);
+      nFullLine+=p->ExpandMosLine(pcBuffer+nFullLine,nSourceOff);
     }
     if(write(fhandle,pcBuffer,nScanLine)!=nScanLine)
     {
@@ -1109,12 +1191,11 @@ int Cmos::Allocate(DWORD x, DWORD y)
   tisheader.numtiles=mosheader.wColumn*mosheader.wRow;
   m_nQualityLoss=0;
   //creating the frames
-  m_pFrameData = new INF_MOS_FRAMEDATA[tisheader.numtiles];
-  if(!m_pFrameData)
+  if(!CreateFrames())
   {
-    tisheader.numtiles=0;
     return -3;
   }
+
   for(i=0;i<tisheader.numtiles;i++)
   {
     nWidth=nHeight=tisheader.pixelsize;
@@ -1122,7 +1203,8 @@ int Cmos::Allocate(DWORD x, DWORD y)
     nCol=i%mosheader.wColumn;
     if((nCol==mosheader.wColumn-1) && m_nResX) nWidth=m_nResX;
     if((nRow==mosheader.wRow-1) && m_nResY) nHeight=m_nResY;
-    ret=m_pFrameData[i].TakeMosData(0,nWidth,nHeight,false);
+    INF_MOS_FRAMEDATA *p=GetFrameData(i);
+    ret=p->TakeMosData(0,nWidth,nHeight,false);
     if(ret) return ret;
   }
   return 0;
@@ -1138,7 +1220,6 @@ int Cmos::ReadTisFromFile(int fhandle, int ml, int header)
   if(header)
   {
     read(fhandle,&tisheader,sizeof(tis_header) );
-//    ml-=sizeof(tis_header);
     mosheader.wRow=(WORD) tisheader.numtiles;
     mosheader.wColumn=1;
     mosheader.wHeight=(WORD) (tisheader.pixelsize*tisheader.numtiles);
@@ -1149,21 +1230,24 @@ int Cmos::ReadTisFromFile(int fhandle, int ml, int header)
   m_pclrDIBits=new COLORREF[tisheader.pixelsize*tisheader.pixelsize];
   if(!m_pclrDIBits) return -3;
 
-  m_pFrameData=new INF_MOS_FRAMEDATA[tisheader.numtiles];
-  if(!m_pFrameData) return -3;
+  if(!CreateFrames())
+  {
+    return -3;
+  }
 
   for(i=0;i<tisheader.numtiles;i++)
   {
-    if(read(fhandle, m_pFrameData[i].Palette,sizeof(palettetype) )!=sizeof(palettetype) )
+    INF_MOS_FRAMEDATA *p=m_pFrameDataPointer[i];
+    if(read(fhandle, p->Palette,sizeof(palettetype) )!=sizeof(palettetype) )
     {
       return -2;
     }
     esize=tisheader.pixelsize*tisheader.pixelsize;
-    m_pFrameData[i].pFrameData=new BYTE[esize];
-    if(!m_pFrameData[i].pFrameData) return -3; //out of memory
-    m_pFrameData[i].nFrameSize=esize;
-    m_pFrameData[i].nHeight=m_pFrameData[i].nWidth=tisheader.pixelsize;
-    if(read(fhandle, m_pFrameData[i].pFrameData, esize)!=esize)
+    p->pFrameData=new BYTE[esize];
+    if(!p->pFrameData) return -3; //out of memory
+    p->nFrameSize=esize;
+    p->nHeight=p->nWidth=tisheader.pixelsize;
+    if(read(fhandle, p->pFrameData, esize)!=esize)
     {
       return -2;
     }
@@ -1221,7 +1305,7 @@ int Cmos::ReadMosFromFile(int fhandle, int ml)
     return -2;//cannot read compressed data
   }
   
-  if(c_header.nExpandSize>10000000) //don't handle bams larger than 10M
+  if(c_header.nExpandSize>25000000) //don't handle mos larger than 25M
   {
     delete [] pCData;
     return -2; //illegal data
@@ -1296,7 +1380,8 @@ int Cmos::ImplodeMosData()
   fullsize=sizeof(INF_MOS_HEADER);
   for(i=0;i<nCount;i++)
   {
-    memcpy(m_pData+fullsize,&m_pFrameData[i].Palette,sizeof(palettetype) );
+    INF_MOS_FRAMEDATA *p=GetFrameData(i);
+    memcpy(m_pData+fullsize,p->Palette,sizeof(palettetype) );
     fullsize+=sizeof(palettetype);
   }
   
@@ -1305,8 +1390,9 @@ int Cmos::ImplodeMosData()
   fullsize+=esize;
   for(i=0;i<nCount;i++)
   {
-    esize=m_pFrameData[i].nFrameSize;
-    memcpy(m_pData+fullsize,m_pFrameData[i].pFrameData,esize);
+    INF_MOS_FRAMEDATA *p=GetFrameData(i);
+    esize=p->nFrameSize;
+    memcpy(m_pData+fullsize,p->pFrameData,esize);
     fullsize+=esize;
   }
   //now nActPos should equal m_nDataSize
@@ -1372,8 +1458,11 @@ int Cmos::ExplodeMosData()
 
   if(ietmebug) tisheader.numtiles=(mosheader.wColumn-1)*mosheader.wRow;
   else tisheader.numtiles=mosheader.wColumn*mosheader.wRow;
-  m_pFrameData=new INF_MOS_FRAMEDATA[tisheader.numtiles];
-  if(!m_pFrameData) return -3;
+  if(!CreateFrames())
+  {
+    return -3;
+  }
+
   nCount=0;
   for(i=0;i<mosheader.wRow;i++)
   {
@@ -1383,7 +1472,8 @@ int Cmos::ExplodeMosData()
       if( (j!=mosheader.wColumn-1) || !ietmebug)
       {
         if(fullsize+sizeof(palettetype)>m_nDataSize) return -2;
-        m_pFrameData[nCount++].TakePaletteData(m_pData+fullsize);
+        INF_MOS_FRAMEDATA *p=m_pFrameDataPointer[nCount++];
+        p->TakePaletteData(m_pData+fullsize);
       }
       fullsize+=sizeof(palettetype);
     }
@@ -1425,7 +1515,8 @@ int Cmos::ExplodeMosData()
       if(nWidth) //ietmebug
       {
         if(nFrameSize!=m_pOffsets[nCount]) return -2;
-        ret=m_pFrameData[nCount].TakeMosData(m_pData+fullsize+nFrameSize, nWidth, nHeight,false);
+        INF_MOS_FRAMEDATA *p=m_pFrameDataPointer[nCount];
+        ret=p->TakeMosData(m_pData+fullsize+nFrameSize, nWidth, nHeight,false);
         if(ret)
         {
           new_mos(); //delete the crippled data
@@ -1448,13 +1539,14 @@ int Cmos::ExplodeMosData()
 
 void Cmos::DropUnusedPalette()
 {
-  DWORD nFrame;
+  DWORD nFrameWanted;
 
   //do the pixel change
-  for(nFrame=0;nFrame<tisheader.numtiles;nFrame++)
+  for(nFrameWanted=0;nFrameWanted<tisheader.numtiles;nFrameWanted++)
   {
-    m_pFrameData[nFrame].MarkPixels();
-    m_pFrameData[nFrame].OrderPalette();
+    INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+    p->MarkPixels();
+    p->OrderPalette();
   }
 }
 
@@ -1464,40 +1556,38 @@ DWORD Cmos::GetColor(DWORD x, DWORD y)
 
   if(x>=mosheader.wWidth || y>=mosheader.wHeight) return 0;
   nFrameWanted=(x/mosheader.dwBlockSize)+(y/mosheader.dwBlockSize)*mosheader.wColumn;
-  return m_pFrameData[nFrameWanted].GetColor(x%mosheader.dwBlockSize,y%mosheader.dwBlockSize);
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p)
+  {
+    return 0;
+  }
+  return p->GetColor(x%mosheader.dwBlockSize,y%mosheader.dwBlockSize);
 }
 
 int Cmos::FlipTile(DWORD nFrameWanted)
 {
-  if(nFrameWanted>=tisheader.numtiles) return -1;
-  m_pFrameData[nFrameWanted].FlipTile();
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p)
+  {
+    return -1;
+  }
+  p->FlipTile();
   return 0;
 }
 
 //this doesn't adjust alternate tiles bigger than the removed one
-int Cmos::RemoveTile(DWORD tile)
-{
-  INF_MOS_FRAMEDATA *newframedata;
-  DWORD i;
-
-  if(tile>=tisheader.numtiles) return -1;
-  newframedata=new INF_MOS_FRAMEDATA[--tisheader.numtiles];
-  if(!newframedata)
+int Cmos::RemoveTile(DWORD nFrameWanted)
+{  
+  POSITION pos=m_pFrameData.FindIndex(nFrameWanted);
+  INF_MOS_FRAMEDATA *p=m_pFrameData.GetAt(pos);
+  delete p;
+  m_pFrameData.RemoveAt(pos);
+  if(m_pFrameDataPointer)
   {
-    tisheader.numtiles++;
-    return -3;
+    free(m_pFrameDataPointer);
   }
-  
-  memcpy(newframedata,m_pFrameData,tile*sizeof(INF_MOS_FRAMEDATA));
-  memcpy(newframedata+tile,m_pFrameData+tile+1,(tisheader.numtiles-tile)*sizeof(INF_MOS_FRAMEDATA));
-  delete m_pFrameData[tile].pFrameData;  //delete the removed frame
-  //detach pixel pointers so they don't get freed!
-  for(i=0;i<=tisheader.numtiles;i++)
-  {
-    m_pFrameData[i].pFrameData=NULL;
-  }  
-  delete [] m_pFrameData;
-  m_pFrameData=newframedata;
+  tisheader.numtiles--;
+  m_pFrameDataPointer=(INF_MOS_FRAMEDATA **) calloc(tisheader.numtiles, sizeof(INF_MOS_FRAMEDATA *));
   return 0;
 }
 
@@ -1505,77 +1595,87 @@ int Cmos::RemoveTile(DWORD tile)
 //the tile comes from another tileset
 int Cmos::SetFrameData(DWORD nFrameWanted, INF_MOS_FRAMEDATA *oldframe)
 {
-  if(nFrameWanted>=tisheader.numtiles) return -1;
   if(oldframe==NULL) return -1;
-  m_pFrameData[nFrameWanted].TakePaletteData((LPBYTE) oldframe->Palette);
-  m_pFrameData[nFrameWanted].TakeMosData(oldframe->pFrameData,oldframe->nWidth,oldframe->nHeight,false);
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
+  if(!p)
+  {
+    return -1;
+  }
+  p->TakePaletteData((LPBYTE) oldframe->Palette);
+  p->TakeMosData(oldframe->pFrameData,oldframe->nWidth,oldframe->nHeight,false);
   m_changed=true;
   return 0;
 }
 
-int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, int flags)
+int Cmos::AddTileCopy(DWORD nFrameWanted, unsigned char *optionalpixels, int flags)
 {
-  INF_MOS_FRAMEDATA *newframedata;
-  DWORD i;
   int ret;
 
   if(tisheader.numtiles>=32767) return -1;
-  if(original>=tisheader.numtiles) return -1;
+  if(nFrameWanted>=tisheader.numtiles) return -1;
   ret=tisheader.numtiles;
-  newframedata=new INF_MOS_FRAMEDATA[tisheader.numtiles+1];
-  if(!newframedata)
-  {
-    return -3;
-  }
-  memcpy(newframedata,m_pFrameData,tisheader.numtiles*sizeof(INF_MOS_FRAMEDATA));
-  newframedata[tisheader.numtiles].TakePaletteData((unsigned char *) newframedata[original].Palette);
+  INF_MOS_FRAMEDATA *p=new INF_MOS_FRAMEDATA;
+  if(!p) return -3;
+  m_pFrameData.AddTail(p);
+  INF_MOS_FRAMEDATA *o=GetFrameData(nFrameWanted);
+  p->TakePaletteData((unsigned char *) o->Palette);
   if(optionalpixels || (flags&2) )
   {
-    newframedata[tisheader.numtiles].TakeMosData(optionalpixels,
-      newframedata[original].nWidth,newframedata[original].nHeight, flags&1);
+    p->TakeMosData(optionalpixels, o->nWidth,o->nHeight, flags&1);
   }
   else
   {
-    newframedata[tisheader.numtiles].TakeMosData(newframedata[original].pFrameData,
-      newframedata[original].nWidth,newframedata[original].nHeight,false);
+    p->TakeMosData(o->pFrameData, o->nWidth,o->nHeight,false);
   }
   //create transparent green color on 0. palette entry
   if(flags&2)
   {
-    newframedata[tisheader.numtiles].Palette[255]=newframedata[tisheader.numtiles].Palette[0];
-    newframedata[tisheader.numtiles].Palette[0]=TRANSPARENT_GREEN;
+    p->Palette[255]=p->Palette[0];
+    p->Palette[0]=TRANSPARENT_GREEN;
   }
-  else newframedata[tisheader.numtiles].AllocateTransparency();
-  //detach pixel pointers so they don't get freed!
-  for(i=0;i<tisheader.numtiles;i++)
-  {
-    m_pFrameData[i].pFrameData=NULL;
-  }
+  else p->AllocateTransparency();
   tisheader.numtiles++;
-  delete [] m_pFrameData;
-  m_pFrameData=newframedata;  
+  if(m_pFrameDataPointer)
+  {
+    free(m_pFrameDataPointer);
+  }
+  m_pFrameDataPointer=(INF_MOS_FRAMEDATA **) calloc(tisheader.numtiles, sizeof(INF_MOS_FRAMEDATA *));
+  if(m_pFrameDataPointer)
+  {
+    //setting already known pointers
+    m_pFrameDataPointer[nFrameWanted]=o;
+    m_pFrameDataPointer[ret]=p;
+  }
+  else
+  {
+    return -3;
+  }
   m_changed=true;
   return ret;
 }
 
-int Cmos::SaturateTransparency(DWORD tile, bool createcopy, bool deepen)
+int Cmos::SaturateTransparency(DWORD nFrameWanted, bool createcopy, bool deepen)
 {
   int ret;
   unsigned char *backup;
 
-  if(tile>=tisheader.numtiles) return -1;
+  if(nFrameWanted>=tisheader.numtiles) return -1;
+  INF_MOS_FRAMEDATA *p=GetFrameData(nFrameWanted);
   if(createcopy)
   {
-    backup = new unsigned char[m_pFrameData[tile].nFrameSize];
-    if(!backup) return -3;
-    memcpy(backup, m_pFrameData[tile].pFrameData,m_pFrameData[tile].nFrameSize);
+    backup = new unsigned char[p->nFrameSize];
+    if(!backup)
+    {
+      return -3;
+    }
+    memcpy(backup, p->pFrameData,p->nFrameSize);
   }
   else backup=NULL;
-  ret=m_pFrameData[tile].SaturateTransparency();
+  ret=p->SaturateTransparency();
   if(ret>0)
   {
     m_changed=true;
-    ret=AddTileCopy(tile, backup, deepen);
+    ret=AddTileCopy(nFrameWanted, backup, deepen);
   }
   else ret=-1;
   if(backup) delete [] backup;

@@ -130,6 +130,7 @@ protected:
 	afx_msg void OnReduceorientation();
 	afx_msg void OnMergebam();
 	afx_msg void OnCycleAlignframes();
+	afx_msg void OnCycleDropframe10();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

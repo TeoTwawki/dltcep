@@ -200,7 +200,7 @@ BOOL CWedPolygon::OnInitDialog()
 
 	CDialog::OnInitDialog();
 
-  if( SetupSelectPoint() )
+  if( SetupSelectPoint(0) )
   {
     OnCancel();
     return FALSE;

@@ -6,13 +6,8 @@
 #include "dl1quant.h"
 #include "options.h"
 
-/* using 4-val error diffusion dither (Floyd-Steinberg) */
-
-#define DITHER_MAX  20
-
 static BYTE palette[3][256];
 static CUBE *rgb_table[6];
-//ebbe nem kell a squares, a squares-t egyszer kell eloallitani
 static CLOSEST_INFO c_info;
 static int tot_colors, pal_index;
 static FCUBE *heap;
@@ -26,9 +21,7 @@ int dl1quant(BYTE *inbuf, BYTE *outbuf, CPoint dimension, palettetype &userpal)
   int qualityloss;
   int ret;
 
-  // ez 3 vagy 4, inkabb byte/pixel
-  // a kod mindig atpakolja 3-byte-osra, ha az octree is igy tudna, akkor
-  // lehetne ezzel jatszani
+  // 3 or 4 bytes/pixel
   bitspp=4; 
   
   if (dl1_build_table(inbuf, pixels) )
@@ -120,7 +113,6 @@ static int dl1_build_table(BYTE *image, unsigned long pixels)
   dl_image = NULL;
   
   memset(&c_info,0,sizeof(c_info));
-  //ez egy szimpla memsettel is menne
   memset(palette,0,sizeof(palette));
   rgb_table[0] = new CUBE[1];
   rgb_table[1] = new CUBE[8];
@@ -360,7 +352,8 @@ static int dl1_quantize_image(BYTE *out, int width, int height)
         (i & 0x0001) << 3);
       //this is slower but better quality
 //      lookup[i] = (BYTE) dl1_bestcolor(tmp_r, tmp_g, tmp_b);
-      //start (this is faster but slightly worse quality
+      //this is faster but slightly worse quality
+      /*begin*/
 		  c_info.red   = (BYTE) (tmp_r + 4);
 			c_info.green = (BYTE) (tmp_g + 4);
 			c_info.blue  = (BYTE) (tmp_b + 4);
@@ -407,28 +400,6 @@ static int dl1_quantize_image_dither(BYTE *in, BYTE *out, int width, int height)
   long offset;
   short *lookup = NULL;
   int r_err, g_err, b_err; // used in dither1
-
-// used in dither4
-//  long two_val;
-//  long odd_scanline = 0;
-//  long err_len = (width + 2) * 3;
-  
-//  int *erowerr = NULL;
-//  int *orowerr = NULL;
-//  int *thisrowerr = NULL;
-//  int *nextrowerr = NULL;
-  
-//  erowerr = new int[err_len];
-//  orowerr = new int[err_len];
-  
-//  if(erowerr == NULL || orowerr == NULL )
-//  {
-//    ret=-3;
-//    goto endofquest;
-//  }
-  
-//  memset(erowerr,0,sizeof(int)*err_len);
-//  memset(orowerr,0,sizeof(int)*err_len);
   
   lookup = new short[32768];
   if (lookup == NULL)    
@@ -464,96 +435,9 @@ static int dl1_quantize_image_dither(BYTE *in, BYTE *out, int width, int height)
     }
 	}
 
-/* dither 4  
-  for (i = 0 ; i < height; i++)
-  {
-    if (odd_scanline)
-    {
-      in  += (width - 1) * bitspp;
-      out += (width - 1);
-      thisrowerr = orowerr + 3;
-      nextrowerr = erowerr + width * 3;
-    }
-    else
-    {
-      thisrowerr = erowerr + 3;
-      nextrowerr = orowerr + width * 3;
-    }
-    
-    nextrowerr[0] = nextrowerr[1] = nextrowerr[2] = 0;
-    
-    for (j = 0; j < width; j++)
-    {
-      
-      r_pix = range[((thisrowerr[0] + 8) >> 4) + in[0]];
-      g_pix = range[((thisrowerr[1] + 8) >> 4) + in[1]];
-      b_pix = range[((thisrowerr[2] + 8) >> 4) + in[2]];
-      
-      offset = (r_pix&248) << 7 | (g_pix&248) << 2 | b_pix >> 3;
-      if (lookup[offset] < 0)
-      {
-        lookup[offset] = (BYTE) dl1_bestcolor(r_pix, g_pix, b_pix);
-      }
-      *out = (BYTE)lookup[offset];
-      r_pix = dith_max[r_pix - palette[0][lookup[offset]]];
-      g_pix = dith_max[g_pix - palette[1][lookup[offset]]];
-      b_pix = dith_max[b_pix - palette[2][lookup[offset]]];
-      
-      two_val = r_pix <<1;
-      nextrowerr[0-3]  = r_pix;
-      r_pix += two_val;
-      nextrowerr[0+3] += r_pix;
-      r_pix += two_val;
-      nextrowerr[0  ] += r_pix;
-      r_pix += two_val;
-      thisrowerr[0+3] += r_pix;
-
-      two_val = g_pix <<1;
-      nextrowerr[1-3]  = g_pix;
-      g_pix += two_val;
-      nextrowerr[1+3] += g_pix;
-      g_pix += two_val;
-      nextrowerr[1  ] += g_pix;
-      g_pix += two_val;
-      thisrowerr[1+3] += g_pix;
-
-      two_val = b_pix <<1;
-      nextrowerr[2-3]  = b_pix;
-      b_pix += two_val;
-      nextrowerr[2+3] += b_pix;
-      b_pix += two_val;
-      nextrowerr[2  ] += b_pix;
-      b_pix += two_val;
-      thisrowerr[2+3] += b_pix;
-      
-      thisrowerr += 3;
-      nextrowerr -= 3;
-      if(odd_scanline)
-      {
-        in  -= bitspp;
-        out --;
-      }
-      else
-      {
-        in  += bitspp;
-        out ++;
-      }
-    }
-    
-    if(odd_scanline)
-    {
-      in  += (width + 1) * bitspp;
-      out += (width + 1);
-    }
-    odd_scanline = !odd_scanline;
-  }
-*/
   ret=0;
 endofquest:    
   if(lookup) delete [] lookup;
-//dither4
-//  if(erowerr) delete [] erowerr;
-//  if(orowerr) delete [] orowerr;
   
   return ret;
 }

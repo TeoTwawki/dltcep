@@ -242,6 +242,7 @@
 #define IDR_WEDMENU                     220
 #define IDS_CENTER                      221
 #define IDD_POLYGON                     221
+#define IDR_CHITIN                      221
 #define IDS_CLEANUP                     222
 #define IDD_TEXTVIEW                    222
 #define IDS_TRANSPARENT                 223
@@ -249,6 +250,7 @@
 #define IDS_FRAME2                      224
 #define IDD_GAMESTATS                   224
 #define IDS_ADDFRAME                    225
+#define IDD_GAMEGENERAL                 225
 #define IDS_SETFRAME                    226
 #define IDS_DELFRAME                    227
 #define IDS_CENTERFRAME                 228
@@ -481,7 +483,6 @@
 #define IDC_EFFNUM                      1183
 #define IDC_ADD3                        1184
 #define IDC_HEADNUM                     1185
-#define IDC_ADD4                        1185
 #define IDC_CHARGES                     1186
 #define IDC_ROLL2                       1187
 #define IDC_STRBONUS                    1188
@@ -576,7 +577,7 @@
 #define IDC_UNKNOWN4C                   1279
 #define IDC_UNKNOWN74                   1280
 #define IDC_2DACHANGE                   1281
-#define IDC_UNKNOWN78                   1282
+#define IDC_UNKNOWN88                   1282
 #define IDC_SPELLREF                    1283
 #define IDC_CREREF                      1284
 #define IDC_STOREREF                    1285
@@ -1025,8 +1026,6 @@
 #define IDC_UNKNOWN9C                   1732
 #define IDC_UNKNOWNA0                   1733
 #define IDC_UNKNOWNA2                   1734
-#define IDC_UNKNOWNA8                   1735
-#define IDC_UNKNOWNAA                   1736
 #define IDC_UNKNOWNAC                   1737
 #define IDC_DEFAULT                     1738
 #define IDC_DROPFRAME                   1739
@@ -1306,7 +1305,9 @@
 #define IDC_PASTE                       2015
 #define IDC_UNKNOWN90                   2016
 #define IDC_COPY2                       2017
+#define IDC_UNKNOWN94                   2017
 #define IDC_LASTSAVED                   2018
+#define IDC_UNKNOWN8C                   2018
 #define IDC_PASTE2                      2019
 #define IDC_WEATHER                     2020
 #define IDC_FOREST                      2021
@@ -1391,9 +1392,7 @@
 #define IDC_FRAME2                      2100
 #define IDC_SET                         2101
 #define IDC_FIND                        2102
-#define IDC_SET2                        2102
 #define IDC_NEWRESOURCE                 2103
-#define IDC_SET3                        2103
 #define IDC_FIRST                       2104
 #define IDC_SCREEN                      2105
 #define IDC_OVERLAYPICKER               2106
@@ -1402,10 +1401,12 @@
 #define IDC_WALLGROUPNUM                2109
 #define IDC_TILESET                     2110
 #define IDC_DOORPOLYNUM                 2111
+#define IDC_SET2                        2112
 #define IDC_CLOSED                      2113
 #define IDC_EDITMOS2                    2114
 #define IDC_EDITMOS3                    2115
 #define IDC_WALLGROUPPICKER             2116
+#define IDC_SET3                        2117
 #define IDC_DOORPOLYPICKER              2118
 #define IDC_EDITDOORPOLY                2119
 #define IDC_EDITWALLPOLY                2120
@@ -1424,7 +1425,6 @@
 #define IDC_MAXX                        2133
 #define IDC_MAXY                        2134
 #define IDC_LABEL2                      2135
-#define IDC_TILE                        2136
 #define IDC_ADDALT                      2137
 #define IDC_WINDOWPICKER                2139
 #define IDC_PROBLEM                     2140
@@ -1501,7 +1501,6 @@
 #define IDC_WINCNT                      2210
 #define IDC_PWIDTH                      2211
 #define IDC_PHEIGHT                     2212
-#define IDC_CLEANUP                     2212
 #define IDC_FIT                         2213
 #define IDC_LAUNCH                      2214
 #define IDC_SPINY                       2215
@@ -1515,7 +1514,6 @@
 #define IDC_CENTER                      2223
 #define IDC_EDITTILE                    2224
 #define IDC_BLOCKPICKER                 2225
-#define IDC_EDITTILE2                   2225
 #define IDC_INIT                        2226
 #define IDC_SHOWALL                     2227
 #define IDC_SHOWGRID                    2228
@@ -1541,24 +1539,26 @@
 #define IDC_MIRROR2                     2252
 #define IDC_INSERT                      2253
 #define IDC_EDITPOLYGON                 2254
-#define IDC_MOVE                        2254
-#define IDC_UNDO                        2270
-#define IDC_SPECIAL                     2275
-#define IDC_SWAP                        2276
-#define IDC_TORMENT                     2279
-#define IDC_MPVXP                       2283
-#define IDC_MPVNAME                     2284
-#define IDC_KILLXP                      2286
-#define IDC_KILLNUM                     2287
-#define IDC_KILLXP2                     2288
-#define IDC_KILLNUM2                    2289
-#define IDC_FEETCIRCLE                  2289
-#define IDC_IDSSPECIES                  2293
-#define IDC_STEPS                       2296
-#define IDC_RECHARGES                   2302
-#define IDC_BLEND                       2305
-#define IDC_LOAD3                       2306
-#define IDC_NIGHTMAP                    2311
+#define IDC_MOVE                        2255
+#define IDC_KILLXP                      2256
+#define IDC_KILLNUM                     2257
+#define IDC_KILLXP2                     2258
+#define IDC_KILLNUM2                    2259
+#define IDC_UNDO                        2260
+#define IDC_IDSSPECIES                  2261
+#define IDC_STEPS                       2262
+#define IDC_RECHARGES                   2263
+#define IDC_BLEND                       2264
+#define IDC_SPECIAL                     2265
+#define IDC_SWAP                        2266
+#define IDC_TORMENT                     2267
+#define IDC_MPVXP                       2268
+#define IDC_MPVNAME                     2269
+#define IDC_FEETCIRCLE                  2270
+#define IDC_LOAD3                       2271
+#define IDC_NIGHTMAP                    2272
+#define IDC_EDITTILE2                   2273
+#define IDC_CLEANUP                     2274
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1646,7 +1646,6 @@
 #define ID_EXPORT_WEIDU                 32871
 #define ID_EXPORT_TBG                   32872
 #define ID_IMPORT_WEIDU                 32873
-#define ID_IMPORT_TBG                   32874
 #define ID_FILE_SAVEAS                  32876
 #define ID_FILE_LOAD                    32877
 #define ID_EDIT_2DA                     32878
@@ -1756,6 +1755,11 @@
 #define ID_FILE_IMPORTSHORTHAND         33025
 #define ID_CYCLE_ALIGNFRAMES            33026
 #define ID_USEDIALOGF                   33027
+#define ID_CYCLE_DROPFRAME10            33028
+#define ID_TOOLS_GUESSDIMENSIONS        33029
+#define ID_TOOLS_EXPLODE                33030
+#define ID_TOOLS_IMPLODE                33031
+#define ID_RELOAD                       33032
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1763,8 +1767,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33028
-#define _APS_NEXT_CONTROL_VALUE         2312
+#define _APS_NEXT_COMMAND_VALUE         33033
+#define _APS_NEXT_CONTROL_VALUE         2318
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

@@ -334,23 +334,23 @@ void CScriptEdit::OnLoad()
         MessageBox("Cannot open file!","Error",MB_OK);
         res=-1;
       }
-    }
-    if(!res) 
-    {//fhandle will always get initialized if res was 0
-      res=filelength(fhandle);
-      if(res>=0)
-      {
-        pos=m_text.GetBufferSetLength(res);
-        if(pos)
+      if(!res) 
+      {//fhandle will always get initialized if res was 0
+        res=filelength(fhandle);
+        if(res>=0)
         {
-          if(read(fhandle,pos,res)!=res) res=-1;
-          else res=0;
+          pos=m_text.GetBufferSetLength(res);
+          if(pos)
+          {
+            if(read(fhandle,pos,res)!=res) res=-1;
+            else res=0;
+          }
+          else res=-1;
+          m_text.ReleaseBuffer();
+          m_text_control.SetWindowText(m_text);
         }
-        else res=-1;
-        m_text.ReleaseBuffer();
-        m_text_control.SetWindowText(m_text);
+        close(fhandle);
       }
-      close(fhandle);
     }
     switch(res)
     {

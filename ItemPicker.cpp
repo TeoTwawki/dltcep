@@ -122,18 +122,27 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
     break;
   case REF_ARE:
   case REF_MOS:
+  case REF_CHU:
     if(editflg&PREVIEW)
     {
       m_preview.ShowWindow(false);
       return;
     }
     m_preview.SetWindowText(key);
-    if(restype==REF_ARE)
+    switch(restype)
     {
+    case REF_CHU:
+      fhandle=locate_file(fileloc, 0);
+      tmpstr=my_chui.RetrieveMosRef(fhandle);
+      break;
+    case REF_ARE:
       fhandle=locate_file(fileloc, 0);
       tmpstr=my_area.RetrieveMosRef(fhandle);
+      break;
+    default:
+      tmpstr=key;
     }
-    else tmpstr=key;
+
     if(read_mos(tmpstr,&my_mos,true))
     {
       my_mos.new_mos();
@@ -249,6 +258,7 @@ BOOL CItemPicker::OnInitDialog()
   case REF_ITM:
   case REF_SPL:
   case REF_MOS:
+  case REF_CHU:
     GetDlgItem(IDC_PREVIEW)->ShowWindow(true);
     m_preview.Create(IDD_IMAGEVIEW,this);
     GetWindowRect(rect);

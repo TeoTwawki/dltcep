@@ -33,11 +33,13 @@ int CVVC::WriteVVCToFile(int fhandle)
   {
     return -2;
   }
+  m_changed=false;
   return 0;
 }
 
 int CVVC::ReadVVCFromFile(int fhandle, long maxlen)
 {
+  m_changed=false;
   if(maxlen==-1) maxlen=filelength(fhandle);
   if(maxlen!=sizeof(vvc_header) )
   {

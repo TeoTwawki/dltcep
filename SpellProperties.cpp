@@ -127,9 +127,10 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
   CButton *checkbox;
   CComboBox *cb;
   CPoint newtopleft;
-  creature_header tmpheader;
+  spell_header tmpheader;
   int value;
 
+  memcpy(&tmpheader,&the_spell.header,sizeof(spell_header));
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSpellGeneral)
 	DDX_Control(pDX, IDC_INVICON1, m_bookicon_control);
@@ -329,7 +330,8 @@ void CSpellGeneral::RefreshGeneral()
   case 1:
     id=0;
     break;
-  case 20:
+  //case 20:
+  default:
     id=1;
     break;
   }
@@ -1387,6 +1389,7 @@ void CSpellExtended::OnOrder()
 {
   qsort(the_spell.extheaders, the_spell.extheadcount, sizeof(spl_ext_header), CompareExtension);
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1462,6 +1465,7 @@ void CSpellExtended::OnExtremove()
   the_spell.extheadcount=the_spell.header.extheadcount;
   the_spell.extheaders=new_extheaders;
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1512,6 +1516,7 @@ void CSpellExtended::OnExtadd()
   the_spell.extheadcount=the_spell.header.extheadcount;
   the_spell.extheaders=new_extheaders;
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1554,6 +1559,7 @@ void CSpellExtended::OnExtpaste()
     memcpy(&the_spell.featblocks[fbc], featblks, featblkcnt*sizeof(feat_block) );
   }
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1568,6 +1574,7 @@ void CSpellExtended::OnExteffremove()
     the_spell.extheaders[extheadnum].fbcount--;  
   }
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1625,6 +1632,7 @@ void CSpellExtended::OnExteffadd()
   //this is the cummulative feature block count
   the_spell.featblkcount++;
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1647,6 +1655,7 @@ void CSpellExtended::OnExteffpaste()
   fbc=GetFBC(extheadnum)+m_exteffnum;
   memcpy(&the_spell.featblocks[fbc],&featcopy, sizeof(feat_block) );
   RefreshExtended();
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1751,7 +1760,7 @@ void CSpellTool::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_RANGE, m_range);
 	DDV_MinMaxInt(pDX, m_range, 0, 1000);
 	DDX_Text(pDX, IDC_DURATION, m_duration);
-	DDV_MinMaxInt(pDX, m_duration, 0, 1000);
+	DDV_MinMaxInt(pDX, m_duration, 0, 10000);
 	DDX_Text(pDX, IDC_DURATIONINC, m_durationinc);
 	DDV_MinMaxInt(pDX, m_durationinc, 0, 1000);
 	DDX_Text(pDX, IDC_LEVELINC, m_levelinc);
@@ -1856,6 +1865,7 @@ void CSpellTool::OnDolevels()
     if(i) the_spell.extheaders[i].level=(unsigned short) (m_level*i+m_levelinc);
     else the_spell.extheaders[i].level=1;
   }	
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1878,7 +1888,9 @@ void CSpellTool::OnDoranges()
       level=i; //spell's own level
     }
     the_spell.extheaders[i].range=(unsigned short) (m_range*level+m_rangeinc);
-  }	
+  }
+  the_spell.m_changed=true;
+  UpdateData(UD_DISPLAY);
 }
 
 void CSpellTool::OnDodurations() 
@@ -1911,6 +1923,7 @@ void CSpellTool::OnDodurations()
       }
     }
   }
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1952,6 +1965,7 @@ void CSpellTool::OnDodamages()
       }
     }
   }	
+  the_spell.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 

@@ -47,10 +47,15 @@ protected:
   void Clicked(int mask); //clicked on a checkbox
   void AdjustBifindex(int index, int value);
   int WriteChitin(int fhandle);
-  int WriteBiff(int fhandle, int bifindex);
+  void CKeyEdit::AddResource(int type, int bifidx, int locidx, CString ref);
+  int write_biff(int fhandle, int bifindex, CString folder);
   void refresh_list(int list_deleted);
   int has_change(int bifidx);
-
+  void do_copy_file(CString dest, CString key, CString ext, loc_entry fileloc);
+  int extract_files(CString dest, CString extension, CStringMapLocEntry &refs);
+  void cleanup();
+  void get_bifs(CString folder);
+  void write_chitin(int fhandle);
 	// Generated message map functions
 	//{{AFX_MSG(CKeyEdit)
 	afx_msg void OnSelchangeBiflist();
@@ -70,6 +75,10 @@ protected:
 	afx_msg void OnFlag7();
 	afx_msg void OnFlag8();
 	afx_msg void OnReadd();
+	afx_msg void OnReload();
+	afx_msg void OnToolsExplode();
+	afx_msg void OnToolsImplode();
+	afx_msg void OnCheck();
 	//}}AFX_MSG
   afx_msg void OnCustomdrawFilelist ( NMHDR* pNMHDR, LRESULT* pResult );  
 	DECLARE_MESSAGE_MAP()

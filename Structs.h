@@ -1161,7 +1161,10 @@ typedef struct
   char sound1[8];
   char sound2[8];
   long unknown88;
-  char unused[352];
+  long unknown8c;
+  long unknown90;
+  char unknown94[8];
+  char unused[336];
 } vvc_header;
 
 // *.are
@@ -1299,7 +1302,7 @@ typedef struct {
   short unknown36;
   long unknown38; //time to appear ?
   long unknown3c;
-  long schedule;
+  unsigned long schedule;
   long talknum;
   char dialog[8];
   char scroverride[8];
@@ -1353,7 +1356,7 @@ typedef struct {
   short unknown82;
   short max;
   short min; // ?
-  long schedule;
+  unsigned long schedule;
   short percent1;
   short percent2;
   char unused[56];
@@ -1416,7 +1419,7 @@ typedef struct {
   short ambientnum2; // ????
   long silence;
   long soundnum; // ??
-  long schedule;
+  unsigned long schedule;
   long flags;
   long unknown90;
   char unused[60];
@@ -1460,8 +1463,7 @@ typedef struct {
   short locp1x, locp1y;   //open location 1
   short locp2x, locp2y;   //open location 2
   long strref;            //check this for missing strings STRREF!!!
-  char regionlink[16];
-  char unknowna8[8];
+  char regionlink[24];
   long nameref;           //check this for missing strings  STRREF!!!
   char dlgref[8];
   char unknownc0[8];
@@ -1470,7 +1472,7 @@ typedef struct {
 typedef struct {
   char animname[32];
   short posx, posy;
-  long schedule;
+  unsigned long schedule;
   char bam[8];
   short cyclenum;
   short framenum;
@@ -1629,8 +1631,8 @@ typedef struct {
   short formation;
   short formations[5];
   long gold;
-  short unknown1c;
-  short unknown1e;
+  short weather1;
+  short weather2;
   long pcoffset;
   long pccount;
   long unknown1offset;
@@ -1868,7 +1870,7 @@ typedef struct {
   long link;          //link to another 'map_area'
   char entryname[32]; //an entrypoint (entrance in .are file)
   long distancescale;
-  long flags;
+  long flags; //entry direction (empty entryname is allowed?)
   char encounters[5][8]; //encounter areas
   long chance; //encounter chance
   char unused58[128];

@@ -63,6 +63,7 @@ protected:
 	afx_msg void OnSave();
 	afx_msg void OnFileTbg();
 	afx_msg void OnToolsLookupstrref();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

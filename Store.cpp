@@ -130,6 +130,7 @@ int Cstore::WriteStoreToFile(int fhandle, int calculate)
       return -2;
     }
   }
+  m_changed=false;
   return 0;
 }
 
@@ -154,6 +155,7 @@ int Cstore::ReadStoreFromFile(int fh, int ml)
   int esize;
   int fullsize;
 
+  m_changed=false;
   if(fh<1) return -1;
   fhandle=fh;
   if(ml==-1) maxlen=filelength(fhandle);

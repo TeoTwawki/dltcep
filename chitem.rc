@@ -680,8 +680,8 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN64,347,137,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN70,241,165,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN74,294,165,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_UNKNOWN78,347,165,40,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Edit Unknowns",IDC_UNKNOWN,337,192,50,14
+    EDITTEXT        IDC_UNKNOWN88,347,165,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Edit Unknowns",IDC_UNKNOWN,343,194,50,14
     DEFPUSHBUTTON   "Load VVC",IDC_LOAD,8,218,50,14
     PUSHBUTTON      "Load external VVC",IDC_LOADEX,71,218,64,14
     PUSHBUTTON      "Save VVC As...",IDC_SAVEAS,148,218,54,14
@@ -717,7 +717,7 @@ BEGIN
     LTEXT           "0x64",IDC_STATIC,347,126,16,8
     LTEXT           "Sequence flags",IDC_STATIC,42,98,50,8
     GROUPBOX        "Transparency flags",IDC_STATIC,111,3,125,86,BS_FLAT
-    GROUPBOX        "Sequence flags",IDC_STATIC,111,84,63,127,BS_FLAT
+    GROUPBOX        "Sequence flags",IDC_STATIC,111,84,63,79,BS_FLAT
     LTEXT           "0x14",IDC_STATIC,294,14,16,8
     LTEXT           "0x74",IDC_STATIC,294,154,16,8
     LTEXT           "0x88",IDC_STATIC,347,154,16,8
@@ -725,7 +725,7 @@ BEGIN
                     182,97,33,10
     CONTROL         "Relative",IDC_POS2,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,182,111,42,10
-    GROUPBOX        "Position flags",IDC_STATIC,173,84,63,127,BS_FLAT
+    GROUPBOX        "Position flags",IDC_STATIC,173,84,63,79,BS_FLAT
     CONTROL         "Use BAM",IDC_USEBAM,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,122,139,46,10
     CONTROL         "SEQ2",IDC_U2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,122,
@@ -738,6 +738,12 @@ BEGIN
                     WS_TABSTOP,122,54,40,10
     CONTROL         "Darken",IDC_BLEND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     182,15,39,10
+    EDITTEXT        IDC_UNKNOWN90,122,193,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UNKNOWN94,294,193,40,14,ES_AUTOHSCROLL
+    LTEXT           "0x8c",IDC_STATIC,241,182,16,8
+    LTEXT           "0x94",IDC_STATIC,294,182,16,8
+    LTEXT           "3. seq.",IDC_STATIC,122,183,22,8
+    EDITTEXT        IDC_UNKNOWN8C,241,193,40,14,ES_AUTOHSCROLL
 END
 
 IDD_CFB DIALOGEX 0, 0, 324, 236
@@ -817,13 +823,13 @@ BEGIN
     EDITTEXT        IDC_CAPACITY,215,68,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_IDPRICE,215,86,40,14,ES_AUTOHSCROLL
     CONTROL         "Bit 8",IDC_UNKNOWN2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,267,53,30,10,WS_EX_RIGHT
-    CONTROL         "Bit 9",IDC_FENCED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    267,71,30,10,WS_EX_RIGHT
-    CONTROL         "Bit 10",IDC_UNKNOWN3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,263,89,34,10,WS_EX_RIGHT
+                    WS_TABSTOP,279,53,30,10,WS_EX_RIGHT
+    CONTROL         "Quality 1",IDC_FENCED,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,266,71,43,10,WS_EX_RIGHT
+    CONTROL         "Quality 2",IDC_UNKNOWN3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,266,89,43,10,WS_EX_RIGHT
     CONTROL         "Bit 11",IDC_UNKNOWN4,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,263,107,34,10,WS_EX_RIGHT
+                    WS_TABSTOP,275,107,34,10,WS_EX_RIGHT
     CONTROL         "Fence",IDC_UNKNOWN5,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,317,53,36,10,WS_EX_RIGHT
     CONTROL         "Bit 13",IDC_UNKNOWN6,"Button",BS_AUTOCHECKBOX | 
@@ -1108,10 +1114,10 @@ END
 IDD_COMPAT DIALOGEX 0, 0, 322, 269
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Compatibility options"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,252,247,64,14
-    PUSHBUTTON      "Save && Back",IDC_SAVE,7,248,64,14
+    PUSHBUTTON      "&Save && Back",IDC_SAVE,7,248,64,14
     DEFPUSHBUTTON   "&P",IDC_OPENFILE,292,51,16,16,BS_BITMAP
     EDITTEXT        IDC_FILENAME,13,51,269,16,ES_AUTOHSCROLL | ES_READONLY,
                     WS_EX_ACCEPTFILES,0x809103eb
@@ -1137,8 +1143,8 @@ BEGIN
                     169,10
     CONTROL         "BG1 style area header (direction exits)",IDC_BG1AREA,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,145,135,10
-    PUSHBUTTON      "Add setup",IDC_ADD,252,213,64,14
-    PUSHBUTTON      "Remove Setup",IDC_REMOVE,252,230,64,14
+    PUSHBUTTON      "&Add setup",IDC_ADD,252,217,64,14
+    PUSHBUTTON      "&Remove setup",IDC_REMOVE,252,232,64,14
     COMBOBOX        IDC_LOGTYPE,260,128,48,62,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     CONTROL         "Tooltips",IDC_TOOLTIP,"Button",BS_AUTOCHECKBOX | 
@@ -1146,7 +1152,7 @@ BEGIN
     CONTROL         "Progressbar",IDC_PROGRESS,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,260,164,53,10
     GROUPBOX        "Global preferences",IDC_STATIC,245,105,71,92,BS_FLAT
-    PUSHBUTTON      "Set Check Options",IDC_OPTIONS,161,213,64,14
+    PUSHBUTTON      "Set &check options",IDC_OPTIONS,161,213,64,14
     CONTROL         "Read only",IDC_READONLY,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,260,182,48,10
     LTEXT           "Log type",IDC_STATIC,260,118,28,8
@@ -1158,14 +1164,15 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,193,89,10
     CONTROL         "Has XPVAR.2DA",IDC_XPLIST,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,205,71,10
-    PUSHBUTTON      "Set WeiDU Options",IDC_OPTIONS2,161,247,64,14
-    PUSHBUTTON      "Set Edit Options",IDC_OPTIONS1,161,230,64,14
+    PUSHBUTTON      "Set &WeiDU options",IDC_OPTIONS2,161,247,64,14
+    PUSHBUTTON      "Set &edit options",IDC_OPTIONS1,161,230,64,14
     CONTROL         "Edit both tlk's",IDC_DIALOG,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,109,58,10
     CONTROL         "DLTC specific",IDC_DLTC,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,217,61,10
     CONTROL         "TOB specific",IDC_TOB,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,229,57,10
+    PUSHBUTTON      "&New setup",IDC_NEW,252,202,64,14
 END
 
 IDD_ITEMEXTRA DIALOG DISCARDABLE  0, 0, 400, 199
@@ -2377,9 +2384,9 @@ BEGIN
     DEFPUSHBUTTON   "Load Creature",IDC_LOAD,7,229,50,14
     PUSHBUTTON      "Load external creature",IDC_LOADEX,67,229,76,14
     PUSHBUTTON      "Save Creature As...",IDC_SAVEAS,153,229,66,14
-    PUSHBUTTON      "Exit",IDCANCEL,353,229,50,14
     PUSHBUTTON      "New Creature",IDC_NEW,229,229,50,14
     PUSHBUTTON      "Check Creature",IDC_CHECK,289,229,54,14
+    PUSHBUTTON      "Exit",IDCANCEL,353,229,50,14
 END
 
 IDD_CREATUREGENERAL DIALOG DISCARDABLE  0, 0, 400, 199
@@ -3347,12 +3354,12 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_BROWSE2,375,126,28,14
 END
 
-IDD_GAMEEDIT DIALOGEX 0, 0, 410, 250
+IDD_GAMEEDIT DIALOGEX 0, 0, 410, 258
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit game:"
 MENU IDR_GAME
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_NPCPICKER,11,13,145,230,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
@@ -3395,20 +3402,17 @@ BEGIN
     COMBOBOX        IDC_CREATURENUM,297,37,58,96,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Edit PC",IDC_EDIT,360,37,38,14
-    EDITTEXT        IDC_STARTAREA,297,74,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,360,73,38,14
-    EDITTEXT        IDC_GAMETIME,297,107,48,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_GOLD,350,107,48,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Clear Joinables",IDC_JOINABLE,346,133,56,14
-    PUSHBUTTON      "Clear Variables",IDC_VARIABLES,346,157,56,14
-    PUSHBUTTON      "Clear Deathvars",IDC_DVAR,346,181,56,14
-    PUSHBUTTON      "Clear Journal",IDC_JOURNAL,346,205,56,14
-    DEFPUSHBUTTON   "Load Game",IDC_LOAD,7,229,50,14
-    PUSHBUTTON      "Load external game",IDC_LOADEX,70,229,76,14
-    PUSHBUTTON      "Save Game As...",IDC_SAVEAS,159,229,66,14
-    PUSHBUTTON      "New Game",IDC_NEW,238,229,46,14
-    PUSHBUTTON      "Check Game",IDC_CHECK,297,229,46,14
-    PUSHBUTTON      "Exit",IDCANCEL,356,229,46,14
+    PUSHBUTTON      "Clear Joinables",IDC_JOINABLE,346,131,56,14
+    PUSHBUTTON      "Clear Variables",IDC_VARIABLES,346,155,56,14
+    PUSHBUTTON      "Clear Deathvars",IDC_DVAR,346,179,56,14
+    PUSHBUTTON      "Clear Journal",IDC_JOURNAL,346,203,56,14
+    DEFPUSHBUTTON   "Load Game",IDC_LOAD,7,237,50,14
+    PUSHBUTTON      "Load external game",IDC_LOADEX,70,237,76,14
+    PUSHBUTTON      "Save Game As...",IDC_SAVEAS,159,237,66,14
+    PUSHBUTTON      "New Game",IDC_NEW,238,237,46,14
+    PUSHBUTTON      "Check Game",IDC_CHECK,297,237,46,14
+    PUSHBUTTON      "Exit",IDCANCEL,356,237,46,14
     GROUPBOX        "NPC",IDC_STATIC,7,3,284,82,BS_FLAT
     LTEXT           "Area",IDC_STATIC,11,27,16,8
     LTEXT           "Xpos",IDC_STATIC,109,27,17,8
@@ -3419,23 +3423,21 @@ BEGIN
     GROUPBOX        "Death variables",IDC_STATIC,7,153,155,74,BS_FLAT
     LTEXT           "Value",IDC_STATIC,11,127,19,8
     LTEXT           "Value",IDC_STATIC,11,196,19,8
-    LTEXT           "Start area",IDC_STATIC,297,63,32,8
-    LTEXT           "Gametime",IDC_STATIC,297,96,32,8
-    LTEXT           "Party gold",IDC_STATIC,350,96,32,8
-    GROUPBOX        "Journal",IDC_STATIC,162,106,129,97,BS_FLAT
+    GROUPBOX        "Journal",IDC_STATIC,162,106,129,94,BS_FLAT
     LTEXT           "Original",IDC_MODIFIED,164,13,50,11,0,WS_EX_STATICEDGE
     LTEXT           "Orientation",IDC_STATIC,109,53,35,8
     LTEXT           "Chapter",IDC_STATIC,166,139,26,8
     LTEXT           "Time",IDC_STATIC,242,139,16,8
     LTEXT           "Section",IDC_STATIC,205,139,25,8
     LTEXT           "Current party",IDC_STATIC,297,3,41,8
-    LTEXT           "Game revision: ",IDC_REVISION,172,206,83,8
-    EDITTEXT        IDC_SCREEN,295,134,24,14,ES_AUTOHSCROLL
-    LTEXT           "Controls on screen",IDC_STATIC,297,123,60,8
+    LTEXT           "Game revision: ",IDC_REVISION,246,203,83,8
     PUSHBUTTON      "Stats",IDC_EDITLINK,360,55,38,14
     PUSHBUTTON      "Stats",IDC_EDITLINK2,232,62,56,14
     PUSHBUTTON      "Edit NPC",IDC_EDIT2,186,62,38,14
     LTEXT           "StrRef",IDC_STATIC,242,115,21,8
+    PUSHBUTTON      "General Data",IDC_GENERAL,346,105,56,14
+    EDITTEXT        IDC_SCREEN,165,214,48,14,ES_AUTOHSCROLL
+    LTEXT           "Controls on screen",IDC_STATIC,165,203,60,8
 END
 
 IDD_MAPEDIT DIALOG DISCARDABLE  0, 0, 410, 250
@@ -3665,29 +3667,34 @@ CAPTION "Edit Tiled Image (MOS or TIS)"
 MENU IDR_TILE
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "x",IDC_STATIC,43,25,8,8
-    LTEXT           "x",IDC_STATIC,116,86,8,8
     PUSHBUTTON      "Load Mos",IDC_LOAD,7,128,44,14
     PUSHBUTTON      "Load External Mos",IDC_LOADEX,72,128,65,14
     PUSHBUTTON      "Save Mos As",IDC_SAVEAS,158,128,53,14
     PUSHBUTTON      "New Mos",IDC_NEW,232,128,44,14
     PUSHBUTTON      "Exit",IDCANCEL,297,128,44,14
-    PUSHBUTTON      "Select Frame",IDC_VIEW,17,43,60,14
     EDITTEXT        IDC_WIDTH,16,23,24,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_HEIGHT,53,23,22,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_FRAME,84,50,68,101,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
-    EDITTEXT        IDC_XSIZE,84,83,30,14,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_YSIZE,121,83,30,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_PWIDTH,82,23,31,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_PHEIGHT,127,23,31,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Select Frame",IDC_VIEW,17,43,60,14
     PUSHBUTTON      "Edit Palette",IDC_PALETTE,17,66,60,14
     PUSHBUTTON      "Trim palettes",IDC_DROP,17,88,60,14
+    COMBOBOX        IDC_FRAME,84,50,76,101,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    EDITTEXT        IDC_XSIZE,84,83,30,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_YSIZE,128,83,30,14,ES_AUTOHSCROLL | ES_READONLY
     EDITTEXT        IDC_LIMIT,199,33,22,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_RED,231,33,22,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_GREEN,261,33,22,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_BLUE,293,33,22,14,ES_AUTOHSCROLL | ES_NUMBER
     PUSHBUTTON      "Make transparent",IDC_TRANSPARENT,257,55,60,14
+    PUSHBUTTON      "Extract tiles",IDC_EXTRACT,185,81,60,14
+    PUSHBUTTON      "Create minimap",IDC_MINIMAP,185,103,60,14
     CONTROL         "Compressed",IDC_COMPRESSED,"Button",BS_AUTOCHECKBOX | 
                     BS_LEFTTEXT | WS_TABSTOP,267,81,55,10
+    PUSHBUTTON      "Set overlay",IDOK,272,103,50,14
+    LTEXT           "x",IDC_STATIC,43,25,8,8
+    LTEXT           "x",IDC_STATIC,118,86,8,8
     LTEXT           "Frame",IDC_STATIC,84,39,20,8
     LTEXT           "Total Image Size",IDC_STATIC,82,9,54,8
     LTEXT           "Red",IDC_STATIC,231,20,14,8
@@ -3696,13 +3703,8 @@ BEGIN
     GROUPBOX        "Transparency control",IDC_STATIC,185,7,137,69,BS_FLAT
     LTEXT           "Frame Size",IDC_STATIC,84,70,36,8
     LTEXT           "Treshold",IDC_STATIC,199,20,28,8
-    PUSHBUTTON      "Extract tiles",IDC_EXTRACT,185,81,60,14
-    EDITTEXT        IDC_PWIDTH,82,23,31,14,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_PHEIGHT,127,23,31,14,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "x",IDC_STATIC,118,25,8,8
     LTEXT           "Frame count",IDC_STATIC,16,9,40,8
-    PUSHBUTTON      "Set overlay",IDOK,272,103,50,14
-    PUSHBUTTON      "Create minimap",IDC_MINIMAP,185,103,60,14
 END
 
 IDD_2DAEDIT DIALOGEX 0, 0, 406, 228
@@ -3743,6 +3745,11 @@ CAPTION "Edit identifiers:"
 MENU IDR_IDS
 FONT 8, "MS Sans Serif"
 BEGIN
+    CHECKBOX        "Hexadecimal",IDC_INT,7,11,57,10
+    CHECKBOX        "Four digits",IDC_FOUR,71,11,48,10
+    PUSHBUTTON      "Remove value",IDC_REMOVE,129,9,50,14
+    PUSHBUTTON      "Add value",IDC_ROW,186,9,50,14
+    PUSHBUTTON      "Order by value",IDC_ORDER,243,9,50,14
     CONTROL         "List1",IDC_IDS,"SysListView32",LVS_REPORT | 
                     LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | 
                     LVS_AUTOARRANGE | LVS_EDITLABELS | LVS_NOSORTHEADER | 
@@ -3750,13 +3757,8 @@ BEGIN
     DEFPUSHBUTTON   "Load IDS",IDC_LOAD,7,184,35,14
     PUSHBUTTON      "Load external IDS",IDC_LOADEX,59,184,62,14
     PUSHBUTTON      "Save IDS As...",IDC_SAVEAS,138,184,52,14
-    PUSHBUTTON      "Exit",IDCANCEL,260,184,34,14
     PUSHBUTTON      "New IDS",IDC_NEW,207,184,34,14
-    CHECKBOX        "Hexadecimal",IDC_INT,7,11,57,10
-    PUSHBUTTON      "Add value",IDC_ROW,186,9,50,14
-    PUSHBUTTON      "Order by value",IDC_ORDER,243,9,50,14
-    PUSHBUTTON      "Remove value",IDC_REMOVE,129,9,50,14
-    CHECKBOX        "Four digits",IDC_FOUR,71,11,48,10
+    PUSHBUTTON      "Exit",IDCANCEL,260,184,34,14
 END
 
 IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 239
@@ -3818,6 +3820,8 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,183,78,10
     CONTROL         "Center on vertex",IDC_CENTER,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,7,199,68,10
+    CONTROL         "Chitin unpacker won't ignore override",IDC_OVERRIDE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,199,133,10
 END
 
 IDD_IAPDIALOG DIALOG DISCARDABLE  0, 0, 310, 181
@@ -4307,10 +4311,11 @@ END
 IDD_KEYEDIT DIALOG DISCARDABLE  0, 0, 284, 245
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Keyfile editor (only browser)"
+MENU IDR_CHITIN
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "Confirm changes",IDOK,203,224,74,14
-    PUSHBUTTON      "Undo Changes",IDCANCEL,7,224,74,14
+    DEFPUSHBUTTON   "&Confirm changes",IDOK,203,224,74,14
+    PUSHBUTTON      "&Undo changes",IDCANCEL,7,224,74,14
     LISTBOX         IDC_BIFLIST,7,24,95,123,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
                     WS_VSCROLL | WS_TABSTOP
     LTEXT           "Bif",IDC_STATIC,7,13,9,8
@@ -4604,7 +4609,7 @@ BEGIN
                     BS_AUTORADIOBUTTON,342,37,63,10
     CONTROL         "Search map",IDC_SEARCHMAP,"Button",BS_AUTORADIOBUTTON,
                     342,48,54,10
-    PUSHBUTTON      "Set to",IDC_SET,297,96,35,14
+    PUSHBUTTON      "Set to",IDC_SET,297,96,35,14,WS_GROUP
     COMBOBOX        IDC_VALUE,337,96,76,112,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     PUSHBUTTON      "Clear",IDC_CLEAR,297,120,35,14,WS_GROUP
@@ -4789,6 +4794,39 @@ BEGIN
     COMBOBOX        IDC_SPELLPICKER,10,94,83,75,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     LTEXT           "Favourite spell",IDC_STATIC,10,83,46,8
+END
+
+IDD_GAMEGENERAL DIALOGEX 0, 0, 246, 150
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTROLPARENT
+CAPTION "Edit general game data"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_STARTAREA,7,25,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_GAMETIME,61,25,48,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GOLD,114,25,48,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Back",IDCANCEL,193,129,46,14
+    LTEXT           "Start area",IDC_STATIC,7,11,32,8
+    LTEXT           "Gametime",IDC_STATIC,61,11,32,8
+    LTEXT           "Party gold",IDC_STATIC,114,11,32,8
+    CONTROL         "Rain",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    45,31,10
+    CONTROL         "Snow",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    61,34,10
+    CONTROL         "3",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,77,
+                    20,10
+    CONTROL         "4",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,93,
+                    20,10
+    CONTROL         "5",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,61,
+                    45,20,10
+    CONTROL         "6",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,61,
+                    61,20,10
+    CONTROL         "7",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,61,
+                    77,20,10
+    CONTROL         "8",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,61,
+                    93,20,10
+    EDITTEXT        IDC_WEATHER,173,25,40,14,ES_AUTOHSCROLL
+    LTEXT           "Weather",IDC_STATIC,173,11,28,8
 END
 
 
@@ -5293,7 +5331,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 403
         TOPMARGIN, 3
-        BOTTOMMARGIN, 243
+        BOTTOMMARGIN, 251
     END
 
     IDD_MAPEDIT, DIALOG
@@ -5551,6 +5589,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 192
     END
+
+    IDD_GAMEGENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 239
+        TOPMARGIN, 3
+        BOTTOMMARGIN, 143
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -5600,8 +5646,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,5,0,2
- PRODUCTVERSION 6,5,0,2
+ FILEVERSION 6,5,0,7
+ PRODUCTVERSION 6,5,0,7
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5619,14 +5665,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 5, 0, 2\0"
+            VALUE "FileVersion", "6, 5, 0, 7\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2005 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 6.5b\0"
-            VALUE "ProductVersion", "6, 5, 0, 2\0"
+            VALUE "ProductName", "DLTC Editor Pro 6.5G\0"
+            VALUE "ProductVersion", "6, 5, 0, 7\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -5830,6 +5876,7 @@ BEGIN
         MENUITEM "&Paste cycle",                ID_CYCLE_PASTECYCLE
         MENUITEM SEPARATOR
         MENUITEM "&Drop frame",                 ID_CYCLE_DROPFRAME
+        MENUITEM "Drop &10 frames",             ID_CYCLE_DROPFRAME10
         MENUITEM "&Set frame",                  ID_CYCLE_SETCYCLE
         MENUITEM "&Add frame",                  ID_EDIT_ADDFRAME
         MENUITEM SEPARATOR
@@ -6289,6 +6336,7 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "&Extract tiles",              ID_TOOLS_EXTRACTTILES
+        MENUITEM "&Guess dimensions",           ID_TOOLS_GUESSDIMENSIONS
     END
 END
 
@@ -6360,6 +6408,23 @@ BEGIN
         MENUITEM "&Drop",                       IDC_REMOVE2
         MENUITEM "&Edit",                       IDC_EDITWALLPOLY
         MENUITEM "&Select",                     IDC_SELECTION2
+    END
+END
+
+IDR_CHITIN MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Reload chitin",              ID_RELOAD
+        MENUITEM "&Save chitin",                IDOK
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDCANCEL
+    END
+    MENUITEM "&Check",                      ID_CHECK
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "&Explode chitin",             ID_TOOLS_EXPLODE
+        MENUITEM "&Implode chitin",             ID_TOOLS_IMPLODE
     END
 END
 

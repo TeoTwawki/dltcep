@@ -25,7 +25,7 @@ CTisDialog::CTisDialog(CWnd* pParent /*=NULL*/)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
   m_graphics=false;
-  m_overlaynum=0;
+//  m_overlaynum=0;
   m_tileheaders=NULL;
   m_tileindices=NULL;
 }
@@ -320,7 +320,8 @@ BOOL CTisDialog::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_MINIMAP), IDS_MINIMAP);
   }
 
-  the_mos.SetOverlay(0,m_tileheaders, m_tileindices);
+//  the_mos.FreeOverlay();
+//  SetupSelectPoint();
   m_preview.InitView(IW_SHOWGRID|IW_MARKTILE, &the_mos); //initview must be before create
   m_preview.Create(IDD_IMAGEVIEW,this);
   GetWindowRect(rect);

@@ -53,6 +53,7 @@ static int attrboxids[8]={
 
 void CAreaGeneral::DoDataExchange(CDataExchange* pDX)
 {
+  area_header tmp;
   CButton *cb, *cb2;
   CString tmpstr, old;
   int i,j;
@@ -69,6 +70,7 @@ void CAreaGeneral::DoDataExchange(CDataExchange* pDX)
   if(tmpstr!=old) the_area.wedchanged=true;
   StoreResref(tmpstr, the_area.header.wed);
 
+  memcpy(&tmp, &the_area.header, sizeof(area_header));
   tmpstr=get_areaflag(the_area.header.areaflags);
   DDX_Text(pDX, IDC_AREATYPE, tmpstr);
   the_area.header.areaflags=strtonum(tmpstr);
@@ -160,6 +162,10 @@ void CAreaGeneral::DoDataExchange(CDataExchange* pDX)
       else cb->SetCheck(false);
       j<<=1;
     }
+  }
+  if(memcmp(&tmp, &the_area.header, sizeof(area_header)))
+  {
+    the_area.m_changed=true;
   }
 }
 
@@ -285,74 +291,96 @@ void CAreaGeneral::DefaultKillfocus()
 void CAreaGeneral::OnOutdoor() 
 {
 	the_area.header.areatype^=1;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnDaynight() 
 {
 	the_area.header.areatype^=2;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnWeather() 
 {
 	the_area.header.areatype^=4;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnCity() 
 {
 	the_area.header.areatype^=8;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnForest() 
 {
 	the_area.header.areatype^=16;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnDungeon() 
 {
 	the_area.header.areatype^=32;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnExtendednight() 
 {
 	the_area.header.areatype^=EXTENDED_NIGHT; //64
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnCanrest() 
 {
 	the_area.header.areatype^=128;
+  the_area.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnSongs() 
 {
 	CAreaSong dlg;
+  area_song tmp;
 	
+  memcpy(&tmp,&the_area.songheader,sizeof(area_song));
   dlg.DoModal();
+  if(memcmp(&tmp,&the_area.songheader,sizeof(area_song)) )
+  {
+    the_area.m_changed=true;
+  }
 }
 
 void CAreaGeneral::OnInt() 
 {
 	CAreaInt dlg;
+  area_int tmp;
 	
+  memcpy(&tmp,&the_area.intheader,sizeof(area_int));
   dlg.DoModal();
+  if(memcmp(&tmp,&the_area.intheader,sizeof(area_int)) )
+  {
+    the_area.m_changed=true;
+  }
 }
 
 void CAreaGeneral::OnSong() 
 {
 	the_area.header.songoffset=!the_area.header.songoffset;
+  the_area.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
 void CAreaGeneral::OnRest() 
 {
-	the_area.header.intoffset=!the_area.header.intoffset;
+  the_area.header.intoffset=!the_area.header.intoffset;
+  the_area.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -376,8 +404,15 @@ void CAreaGeneral::OnExplored()
   int dest, idx;
 
   if(SetupSelectPoint(0)) return;
-  maxx=the_area.m_width/32+1;
-  maxy=the_area.m_height/32+1;
+  maxx=the_area.m_width/32;
+  maxy=the_area.m_height/32;
+//this is not for PST!
+  if(!pst_compatible_var())
+  {
+    maxx++;
+    maxy++;
+  }
+  
   unsigned char *bitmap = new unsigned char[maxx*maxy];
   if(!bitmap)
   {
@@ -868,6 +903,7 @@ void CAreaActor::OnAdd()
   m_actornum=the_area.actorcount; //last element 
   the_area.actorcount=the_area.header.actorcnt;
 
+  the_area.m_changed=true;
   RefreshActor();
 	UpdateData(UD_DISPLAY);
 }
@@ -911,6 +947,8 @@ void CAreaActor::OnRemove()
   the_area.credatapointers=newdatapointers;
   the_area.actorcount=the_area.header.actorcnt;
 	if(m_actornum>=the_area.actorcount) m_actornum--;
+
+  the_area.m_changed=true;
   RefreshActor();
 	UpdateData(UD_DISPLAY);
 }
@@ -929,6 +967,7 @@ void CAreaActor::OnPaste()
   {
     memcpy(the_area.actorheaders+m_actornum,&actorcopy, sizeof(actorcopy) );
   }
+
   RefreshActor();
 	UpdateData(UD_DISPLAY);
 }
@@ -949,6 +988,8 @@ void CAreaActor::OnSetpos()
     the_area.actorheaders[m_actornum].posx=(short) point.x;
     the_area.actorheaders[m_actornum].posy=(short) point.y;
   }
+
+  the_area.m_changed=true;
   RefreshActor();
   UpdateData(UD_DISPLAY);
 }
@@ -969,6 +1010,8 @@ void CAreaActor::OnSetdest()
     the_area.actorheaders[m_actornum].destx=(short) point.x;
     the_area.actorheaders[m_actornum].desty=(short) point.y;
   }
+
+  the_area.m_changed=true;
   RefreshActor();
   UpdateData(UD_DISPLAY);
 }
@@ -1043,6 +1086,7 @@ void CAreaActor::OnFields()
     memcpy(the_area.actorheaders[m_actornum].scrspecific,credata.iwd2scripts[0],8);
     memcpy(the_area.actorheaders[m_actornum].scrarea,credata.iwd2scripts[1],8);
   }
+  the_area.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1203,6 +1247,10 @@ void CAreaActor::OnSchedule()
   dlg.m_default=defschedule;
   if(dlg.DoModal()==IDOK)
   {
+    if(the_area.actorheaders[m_actornum].schedule!=dlg.m_schedule)
+    {
+      the_area.m_changed=true;
+    }
     the_area.actorheaders[m_actornum].schedule=dlg.m_schedule;
     m_schedule_control.SetWindowText(dlg.GetCaption());
     m_timeofday=dlg.GetTimeOfDay();
@@ -2201,6 +2249,10 @@ void CAreaSpawn::OnSchedule()
   dlg.m_default=defschedule;
   if(dlg.DoModal()==IDOK)
   {
+    if(the_area.spawnheaders[m_spawnnum].schedule!=dlg.m_schedule)
+    {
+      the_area.m_changed=true;
+    }
     the_area.spawnheaders[m_spawnnum].schedule=dlg.m_schedule;
     m_schedule_control.SetWindowText(dlg.GetCaption());
     m_timeofday=dlg.GetTimeOfDay();
@@ -3073,6 +3125,10 @@ void CAreaAmbient::OnSchedule()
   dlg.m_default=defschedule;
   if(dlg.DoModal()==IDOK)
   {
+    if(the_area.ambientheaders[m_ambientnum].schedule!=dlg.m_schedule)
+    {
+      the_area.m_changed=true;
+    }
     the_area.ambientheaders[m_ambientnum].schedule=dlg.m_schedule;
     m_schedule_control.SetWindowText(dlg.GetCaption());
     m_timeofday=dlg.GetTimeOfDay();
@@ -6026,6 +6082,10 @@ void CAreaAnim::OnSchedule()
   dlg.m_default=defschedule;
   if(dlg.DoModal()==IDOK)
   {
+    if(the_area.animheaders[m_animnum].schedule!=dlg.m_schedule)
+    {
+      the_area.m_changed=true;
+    }
     the_area.animheaders[m_animnum].schedule=dlg.m_schedule;
     m_schedule_control.SetWindowText(dlg.GetCaption());
     m_timeofday=dlg.GetTimeOfDay();

@@ -712,6 +712,7 @@ int my_system(CString syscommand)
   int apo, space;
   int argc;
 
+  printf("Executing:%s\n",syscommand);
   maxlen=syscommand.GetLength();
   poi=syscommand.GetBuffer(0);
   apo=0;
@@ -768,6 +769,28 @@ bool dir_exists(CString filename)
   return false;
 }
 
+bool assure_dir_exists(CString filename)
+{
+  int len, pos;
+  CString temp;
+
+  pos=1;
+  do
+  {
+    len=temp.Find('\\',pos);
+    if(len<0) temp = filename;
+    else
+    {
+      pos=len+1;
+      temp = filename.Left(len);
+    }
+    mkdir(temp);
+  }
+  while(len>0);
+
+  return dir_exists(filename);
+}
+
 //removes files from a sav and copies it
 int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhandle)
 {
@@ -818,7 +841,7 @@ int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhand
     lseek(finput,saventry.compressed,SEEK_CUR);
     return 2; //no match
   }
-  oflg=saventry.filename.GetLength();
+  oflg=saventry.filename.GetLength()+1;
   //string length
   if(write(fhandle,&oflg,sizeof(oflg) )!=sizeof(oflg) )
   {
@@ -2112,7 +2135,8 @@ int getanimationidx(int animtype)
 unsigned short animtypes[NUM_ANIMTYPES][3]={
   {0,20,80}, {10,25,65}, {60,40,0},
   {0,35,65}, {0,0,100}, {10,70,20},
-  {50,50,0}, {34,33,33},{0,0,0,},{0,0,0},
+  {50,50,0}, {100,0,0}, {34,33,33},
+  {0,0,0},  {0,0,0},
 };
 
 int find_animtype(unsigned short *percents)
@@ -2127,7 +2151,7 @@ int find_animtype(unsigned short *percents)
 }
 
 CString animnames[NUM_ANIMTYPES]={"Dagger","Short Sword","Two-Handed Sword","Halberd",
-"Spear","Staff","Other Melee","Not weapon","Unused","Unknown"};
+"Spear","Staff","Other Melee","Throwing dagger","Not weapon","Unused","Unknown"};
 
 CString format_animtype(int animtype)
 {
@@ -5865,7 +5889,7 @@ int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd)
 
   bi.hwndOwner=hwnd;
   bi.pszDisplayName=NULL;
-  bi.ulFlags=BIF_RETURNONLYFSDIRS|BIF_STATUSTEXT|BIF_DONTGOBELOWDOMAIN;
+  bi.ulFlags=BIF_RETURNONLYFSDIRS|BIF_STATUSTEXT|BIF_DONTGOBELOWDOMAIN|BIF_VALIDATE;
   bi.lpfn=&BFFCallback;
 //  strncpy(path,m_output,MAX_PATH);
   bi.lParam=(LPARAM) pfb;
@@ -6234,13 +6258,13 @@ endofquest:
   return ret;
 }
 
-int SetupSelectPoint(int overlay, Cmos *overlaymos)
+int SetupSelectPoint(int baseoverlay)
 {
   CString tmpstr;
 
   if(the_area.overlayheaders)
   {
-    RetrieveResref(tmpstr, the_area.overlayheaders[0].tis);
+    RetrieveResref(tmpstr, the_area.overlayheaders[baseoverlay].tis);
   }
   else return -1;
   if(read_tis(tmpstr,&the_mos,true))
@@ -6248,7 +6272,28 @@ int SetupSelectPoint(int overlay, Cmos *overlaymos)
     MessageBox(0,"Cannot load TIS.","Warning",MB_ICONEXCLAMATION|MB_OK);
     return -1;
   }
-  the_mos.SetOverlay(overlay, the_area.overlaytileheaders, the_area.overlaytileindices, overlaymos);
+
+  int i=0;
+  if(!baseoverlay) //actually this is a baseoverlay then
+  {
+    the_mos.SetTiles(the_area.overlaytileheaders, the_area.overlaytileindices);
+    
+    for(i=1;i<the_area.overlaycount;i++)
+    {
+      RetrieveResref(tmpstr, the_area.overlayheaders[i].tis);
+      if(tmpstr.GetLength())
+      {
+        Cmos *overlaymos = new Cmos();
+        read_tis(tmpstr, overlaymos, false);
+        the_mos.SetOverlay(i, overlaymos);
+      }
+      else the_mos.SetOverlay(i, NULL);
+    }
+  }
+  while(i<10)
+  {
+    the_mos.SetOverlay(i++, NULL);
+  }
   the_mos.TisToMos(the_area.overlayheaders[0].width,the_area.overlayheaders[0].height);
   
   return 0;

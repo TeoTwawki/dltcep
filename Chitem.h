@@ -158,7 +158,7 @@ extern int act_num_weaprof;
 
 extern int itvs2h[NUM_ITEMTYPE];
 
-#define NUM_ANIMTYPES 10
+#define NUM_ANIMTYPES 11
 
 #define NUM_ANIMIDX  37
 #define NUM_STYPE  6
@@ -800,6 +800,7 @@ bool file_exists(CString filename);
 long file_length(CString filename);
 long file_date(CString filename);
 bool dir_exists(CString filename);
+bool assure_dir_exists(CString filename);
 int my_system(CString syscommand);
 int copy_file(int finput, int fhandle, int size, int decrypt); //copying data from bifs
 int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhandle);
@@ -980,7 +981,7 @@ int CompressCBF(CString infilename);
 
 //graphical, vertex & polygon functions
 void CreateMinimap(HWND hwnd);
-int SetupSelectPoint(int overlay=0, Cmos *overlaymos=NULL);
+int SetupSelectPoint(int baseoverlay);
 int CanMove(CPoint &point, area_vertex *wedvertex, int count);
 void RecalcBox(int count, int idx, POINTS &min, POINTS &max);
 int PolygonInBox(area_vertex *wedvertex, int count, CRect rect);

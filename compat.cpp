@@ -258,6 +258,7 @@ BEGIN_MESSAGE_MAP(Ccompat, CDialog)
 	ON_BN_CLICKED(IDC_DIALOG, OnDialog)
 	ON_BN_CLICKED(IDC_TOB, OnTob)
 	ON_BN_CLICKED(IDC_DLTC, OnDltc)
+	ON_BN_CLICKED(IDC_NEW, OnNew)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -298,6 +299,11 @@ static char BASED_CODE szFilter1[] = "IEEP Effect Description files (*Effects.da
 
 void Ccompat::OnSave() 
 {
+  if(m_setupname=="settings" || m_setupname.IsEmpty())
+  {
+    MessageBox("Please give a name to your setup.");
+    return;
+  }
   theApp.save_settings();
   Ccompat::OnOK();
 }
@@ -405,43 +411,54 @@ static CString deftypes[MAXGAME]={"BG1Effects.dat","BG1Effects.dat",
 "BG2Effects.dat","BG2Effects.dat","BG2Effects.dat",
 "IWD2Effects.dat","IWD2Effects.dat","IWD2Effects.dat","PST_Effects.dat"};
 
+
+void Ccompat::OnNew() 
+{
+	m_setupname="";
+  m_filename="";
+	m_descpath="";
+  descpath="";
+  UpdateData(UD_DISPLAY);
+}
+
 void Ccompat::OnAdd() 
 {
   gameprops gp;
   CString tmp;
   int gt;
 
-  if(m_setupname.IsEmpty()) return;
   m_setupname.TrimLeft();
   m_setupname.TrimRight();
   tmp=m_setupname;
   tmp.MakeLower();
-  if(tmp!="settings")
+  if(descpath.IsEmpty())
   {
-    if(descpath.IsEmpty())
+    gt=m_gametype_control.GetCurSel();
+    if(gt>=0 && gt<MAXGAME)
     {
-      gt=m_gametype_control.GetCurSel();
-      if(gt>=0 && gt<MAXGAME)
+      m_descpath=theApp.m_defpath+"\\"+deftypes[gt];
+      if(file_exists(m_descpath) )
       {
-        tmp=theApp.m_defpath+"\\"+deftypes[gt];
-        if(file_exists(tmp) )
-        {
-          descpath=tmp;
-        }
+        descpath=m_descpath;
       }
     }
+  }
+  if(tmp!="settings" && tmp.GetLength())
+  {
     gp.bgfolder=bgfolder;
     gp.checkopt=chkflg;
     gp.editopt=editflg;
     gp.gameopt=optflg;
     gp.descpath=descpath;
     allgameprops.SetAt(m_setupname,gp);
-  }
-	Refresh();
+    Refresh();
+  }	
+  UpdateData(UD_DISPLAY);
 }
 
 void Ccompat::OnSelchangeGametype() 
 {
+  CString filename;
   int idx;
 
 	idx=m_gametype_control.GetCurSel();
