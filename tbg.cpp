@@ -308,7 +308,7 @@ endofquest:
   return ret;
 }
 
-int Ctbg::read_iap(int fhandle, int maxlen, int onlyopen, CStringList &filelist)
+int Ctbg::read_iap(int fhandle, int onlyopen, CStringList &filelist)
 {
   char *filedata;
   char tmpfilename[MAX_PATH];
@@ -317,33 +317,30 @@ int Ctbg::read_iap(int fhandle, int maxlen, int onlyopen, CStringList &filelist)
   int fhandle2;
   int ret;
   int hasweidu;
+  int maxlen;
 
   hasweidu=1;
-  if(maxlen==-1)
+  maxlen=filelength(fhandle);
+  if(maxlen<sizeof(iapheader) ) return -1; //short file, invalid item
+  if(read(fhandle,&iapheader,sizeof(iapheader) )!=sizeof(iapheader) )
   {
-    maxlen=filelength(fhandle);
-    if(maxlen<sizeof(iapheader) ) return -1; //short file, invalid item
-    if(read(fhandle,&iapheader,sizeof(iapheader) )!=sizeof(iapheader) )
-    {
-      return -2;
-    }
-    if(memcmp(iapheader.signature,"IAP",3) ) return -4; // not iap
-    if(iapheader.totallen!=maxlen) return -1; //iap total length is invalid
-    actfilecount=0;
-    iapfullsize=sizeof(iapheader);
-
-    KillIapFileHeaders();
-    iapfileheaders=new iap_file_header[iapheader.tbgcount+iapheader.othercount];
-    if(!iapfileheaders) return -3;
-    iapfilecount=iapheader.tbgcount+iapheader.othercount;
-    esize=iapfilecount*sizeof(iap_file_header);
-    if(read(fhandle,iapfileheaders,esize)!=esize)
-    {
-      return -2;
-    }
-    iapfullsize+=esize;
-
+    return -2;
   }
+  if(memcmp(iapheader.signature,"IAP",3) ) return -4; // not iap
+  if(iapheader.totallen!=maxlen) return -1; //iap total length is invalid
+  actfilecount=0;
+  iapfullsize=sizeof(iapheader);
+  
+  KillIapFileHeaders();
+  iapfileheaders=new iap_file_header[iapheader.tbgcount+iapheader.othercount];
+  if(!iapfileheaders) return -3;
+  iapfilecount=iapheader.tbgcount+iapheader.othercount;
+  esize=iapfilecount*sizeof(iap_file_header);
+  if(read(fhandle,iapfileheaders,esize)!=esize)
+  {
+    return -2;
+  }
+  iapfullsize+=esize;
   if(onlyopen)
   {
     AllocateHeaders(iapheader.tbgcount,iapheader.othercount);
@@ -1196,7 +1193,7 @@ int Ctbg::ExportFile(int filetype, CString outfilepath)
   count=0;
   for(i=0;i<header.tlkentrycount;i++)
   {
-    m_tbgnames[i]=tlk_entries[tlkentries[i].offset].text;
+    m_tbgnames[i]=tlk_entries[0][tlkentries[i].offset].text;
     tlkentries[i].offset=count;
     count+=m_tbgnames[i].GetLength();
   }
@@ -1285,6 +1282,8 @@ int Ctbg::ImportFile()
     case 3:
       offset=tlkentries[i].pitch;
       break;
+    default:
+      return -2;
     }
     if(offset==-1) continue;
     if(offset>=header.filelength)
@@ -1371,7 +1370,7 @@ int Ctbg::Readtbg(CString filepath, CStringList &filelist)
   if(ret==-4)
   {
     lseek(fhandle,0,SEEK_SET);
-    ret=read_iap(fhandle,-1,0, filelist); //handle it as an IAP (bundled tbg)
+    ret=read_iap(fhandle,0, filelist); //handle it as an IAP (bundled tbg)
   }
   else
   {

@@ -1609,7 +1609,7 @@ int convert_object(CString line, object &ob, int recursion_level)
     {
       //accept Myself without brackets for now
       ret=lookup_id("OBJECT", line, ob.bytes[recursion_level+1]);
-      if(ret==-12) ret=-22;
+      if(ret==CE_INVALID_IDS_SYMBOL) ret=CE_INVALID_OBJECT;
       return ret;
     }
     p2=line.ReverseFind(')');
@@ -1619,8 +1619,8 @@ int convert_object(CString line, object &ob, int recursion_level)
     }
     name=line.Left(p1);
     ret=lookup_id("OBJECT", name, ob.bytes[recursion_level]);
+    if(ret==0 || ret==CE_INVALID_IDS_SYMBOL) return CE_INVALID_OBJECT;//don't accept numbers
     if(ret<0) return ret;
-    if(ret==0) return -10; // don't accept numbers
     return convert_object(line.Mid(p1+1,p2-p1-1), ob, recursion_level+1);
     break;
   }
@@ -1945,7 +1945,7 @@ int compile_action(CString line, action &action, bool inoverride)
         delete [] args;
         return ret;
       }
-      if(action.bytes[0]>=tlk_headerinfo.entrynum)
+      if(action.bytes[0]>=tlk_headerinfo[0].entrynum)
       {
         delete [] args;
         return CE_INVALID_TLK_REFERENCE;
@@ -1968,7 +1968,7 @@ int compile_action(CString line, action &action, bool inoverride)
         delete [] args;
         return ret;
       }
-      if(action.bytes[3]>=tlk_headerinfo.entrynum)
+      if(action.bytes[3]>=tlk_headerinfo[0].entrynum)
       {
         delete [] args;
         return CE_INVALID_TLK_REFERENCE;
@@ -1991,7 +1991,7 @@ int compile_action(CString line, action &action, bool inoverride)
         delete [] args;
         return ret;
       }
-      if(action.bytes[4]>=tlk_headerinfo.entrynum)
+      if(action.bytes[4]>=tlk_headerinfo[0].entrynum)
       {
         delete [] args;
         return CE_INVALID_TLK_REFERENCE;
@@ -2572,6 +2572,7 @@ void C2da::OrderByColumn(int column, int numeric)
       tmppoi2=(CString *) data2->GetPrev(pos2);
       if(numeric)
       {
+        //val is used only when numeric == 1
         if(strtonum(tmppoi2[column])>val) break;
       }
       else

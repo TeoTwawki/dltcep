@@ -7,12 +7,16 @@
 #include "chitemDlg.h"
 #include "compat.h"
 
-int truncate_references(long maxnumber)
+bool truncate_references(long maxnumber, int which)
 {
   tlk_entry *newtlkentries;
   int i;
 
-  if(maxnumber>=tlk_headerinfo.entrynum)
+  if(!tlk_entries[which])
+  {
+    return false;
+  }
+  if(maxnumber>=tlk_headerinfo[which].entrynum)
   {
     return false;
   }
@@ -23,16 +27,29 @@ int truncate_references(long maxnumber)
   }
   for(i=0;i<maxnumber;i++)
   {
-    newtlkentries[i]=tlk_entries[i];
+    newtlkentries[i]=tlk_entries[which][i];
   }
 
-  delete [] tlk_entries;
-  tlk_entries=newtlkentries;
-  tlk_headerinfo.entrynum=maxnumber;
+  delete [] tlk_entries[which];
+  tlk_entries[which]=newtlkentries;
+  tlk_headerinfo[which].entrynum=maxnumber;
   return true;
 }
 
-int CChitemDlg::write_file_progress(CString str)
+CString CChitemDlg::GetTlkFileName(int which)
+{
+  
+  CString tlkfilename;
+
+  if(which==1)
+  {
+    tlkfilename.Format("%sdialogf.tlk",bgfolder);
+  }
+  else tlkfilename.Format("%sdialog.tlk",bgfolder);
+  return tlkfilename;
+}
+
+int CChitemDlg::write_file_progress(int which)
 {
   int ret;
 
@@ -41,7 +58,7 @@ int CChitemDlg::write_file_progress(CString str)
     m_progressdlg=new progressbar;
     if(m_progressdlg) m_progressdlg->Create(IDD_PROGRESS);
   }
-  ret=write_file(str);
+  ret=write_file(GetTlkFileName(which),which);
   if(m_progressdlg)
   {
     m_progressdlg->DestroyWindow();
@@ -51,7 +68,7 @@ int CChitemDlg::write_file_progress(CString str)
   return ret;
 }
 //this one flushes the memory to disk
-int CChitemDlg::write_file(CString str)
+int CChitemDlg::write_file(CString str, int which)
 {
   int fhandle;
   int ret;
@@ -64,7 +81,7 @@ int CChitemDlg::write_file(CString str)
   old=str+".old";
   ret=false;
   backup=false;
-  if(global_changed)
+  if(global_changed[which]==true)
   {
     if(!access(str,0) )
     {
@@ -88,36 +105,36 @@ retry:
     if(fhandle<1) return false;  
     TRY
     {
-      tlkname.Format("Writing dialog%s.tlk",optflg&DIALOGF?"F":"");
-      if(m_progressdlg) m_progressdlg->SetRange(tlk_headerinfo.entrynum*2,tlkname);
-      tlk_headerinfo.start=tlk_headerinfo.entrynum*sizeof(tlk_reference)+sizeof(tlk_headerinfo);
-      if(write(fhandle,&tlk_headerinfo,sizeof(tlk_headerinfo) )!=sizeof(tlk_headerinfo) )
+      tlkname.Format("Writing %s",GetTlkFileName(which));
+      if(m_progressdlg) m_progressdlg->SetRange(tlk_headerinfo[which].entrynum*2,tlkname);
+      tlk_headerinfo[which].start=tlk_headerinfo[which].entrynum*sizeof(tlk_reference)+sizeof(tlk_header);
+      if(write(fhandle,&tlk_headerinfo[which],sizeof(tlk_header) )!=sizeof(tlk_header) )
       {
         AfxThrowUserException();
       }
       offset=0;
-      for(i=0;i<tlk_headerinfo.entrynum;i++)
+      for(i=0;i<tlk_headerinfo[which].entrynum;i++)
       {
         set_progress(i);
         
-        tlk_entries[i].reference.length=tlk_entries[i].text.GetLength();
-        tlk_entries[i].reference.offset=offset;
-        if(write(fhandle,&tlk_entries[i].reference,sizeof(tlk_reference) )!=sizeof(tlk_reference) )
+        tlk_entries[which][i].reference.length=tlk_entries[which][i].text.GetLength();
+        tlk_entries[which][i].reference.offset=offset;
+        if(write(fhandle,&tlk_entries[which][i].reference,sizeof(tlk_reference) )!=sizeof(tlk_reference) )
         {
           AfxThrowUserException();
         }
-        offset+=tlk_entries[i].reference.length;
+        offset+=tlk_entries[which][i].reference.length;
       }
-      for(i=0;i<tlk_headerinfo.entrynum;i++)
+      for(i=0;i<tlk_headerinfo[which].entrynum;i++)
       {
-        set_progress(tlk_headerinfo.entrynum+i);
-        len=tlk_entries[i].text.GetLength();
-        if(write(fhandle,tlk_entries[i].text, len )!=len)
+        set_progress(tlk_headerinfo[which].entrynum+i);
+        len=tlk_entries[which][i].text.GetLength();
+        if(write(fhandle,tlk_entries[which][i].text, len )!=len)
         {
           AfxThrowUserException();
         }
       }
-      global_changed=false;
+      global_changed[which]=false;
       m_event.Empty();
       if(backup) log("Done writing! Old tlk file has been backed up.");  
       else log("Done writing!");  

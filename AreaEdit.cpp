@@ -270,7 +270,7 @@ gotname:
       RetrieveResref(tmpstr,the_area.header.wed);
       if(tmpstr.GetLength()!=6 || tmpstr.Find(" ",0)!=-1 )
       {
-	MessageBox("The WED name must be 6 characters long, preferably the same as the area name.","Warning",MB_OK);
+        MessageBox("The WED name must be 6 characters long, preferably the same as the area name.","Warning",MB_OK);
         res = -2;
         goto endofquest;
       }

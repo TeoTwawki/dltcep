@@ -38,7 +38,8 @@ class CChitemDlg : public CDialog
 public:
   virtual BOOL PreTranslateMessage(MSG* pMsg);
 	CChitemDlg(CWnd* pParent = NULL);	// standard constructor
-  int write_file_progress(CString str);
+  CString GetTlkFileName(int which);
+  int write_file_progress(int which);
   void rescan_dialog(bool flg);
   void set_progress(int actual);
   void start_progress(int max, CString title);
@@ -107,7 +108,8 @@ protected:
   void read_cd_locations();
   int scan_2da();
   int scan_chitin();
-  int scan_dialog(bool refresh=false);
+  int scan_dialog_both(bool refresh=false);
+  int scan_dialog(bool refresh=false, int which=0);
   int generate_acm_list();
   int AddAcm(CString key, loc_entry &fileloc, int dont);
   int CollectAcms();
@@ -216,7 +218,7 @@ protected:
   int check_integers(const int *bytes, int storeflags, int opcode, int trigger, int block);
   int store_variable(CString varname, int storeflags, int opcode, int trigger, int block);
   void RefreshMenu();
-  int write_file(CString str);
+  int write_file(CString str, int which);
   void Compressbif(bool cbf_or_bifc);
   void CompressWav(bool acm_or_wavc);
   void DecompressAcm(bool wavc_or_acm);
@@ -319,6 +321,7 @@ protected:
 	afx_msg void OnTispack();
 	afx_msg void OnHelpReadme();
 	afx_msg void OnSkimsav();
+	afx_msg void OnUsedialogf();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

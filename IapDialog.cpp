@@ -191,7 +191,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     itemname=m_getfiledlg.GetFileTitle(); //itemname moved here because the loader relies on it
     itemname.MakeUpper();
-    res=the_iap.read_iap(fhandle,-1,1,dummy); //only open
+    res=the_iap.read_iap(fhandle,1,dummy); //only open
     close(fhandle);
     switch(res)
     {

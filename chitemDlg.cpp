@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.4b"
+#define PRG_VERSION "6.5a"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -220,6 +220,7 @@ ON_COMMAND(ID_CHECK_PROJECTILE, OnCheckProjectile)
 	ON_COMMAND(ID_COMPRESSCBF, OnCompresscbf)
 	ON_COMMAND(ID_TISPACK, OnTispack)
 	ON_COMMAND(ID_HELP_README, OnHelpReadme)
+	ON_COMMAND(ID_SKIMSAV, OnSkimsav)
 ON_COMMAND(ID_COMPAT, OnCompat)
 ON_COMMAND(ID_SEARCH_ITEM, OnFinditem)
 ON_COMMAND(ID_SEARCH_SPELL, OnFindspell)
@@ -244,7 +245,7 @@ ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
 	ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
 	ON_BN_CLICKED(IDC_CHECKPROJ, OnCheckArea)
-	ON_COMMAND(ID_SKIMSAV, OnSkimsav)
+	ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -311,7 +312,7 @@ void CChitemDlg::end_panic()
 
 void CChitemDlg::rescan_dialog(bool flg)
 {
-  scan_dialog(flg);
+  scan_dialog_both(flg);
   end_progress();
 }
 
@@ -433,7 +434,7 @@ BOOL CChitemDlg::OnInitDialog()
     scan_chitin();
     scan_override();
     scan_2da();
-    scan_dialog();
+    scan_dialog_both();
     load_variables(m_hWnd, 0, 1, variables); //not verbose
     end_progress();
   }
@@ -865,7 +866,25 @@ int CChitemDlg::scan_2da()
   return 0;
 }
 
-int CChitemDlg::scan_dialog(bool refresh)
+void resync()
+{
+}
+
+int CChitemDlg::scan_dialog_both(bool refresh)
+{
+  int ret;
+
+  ret=scan_dialog(refresh,0);
+  if(ret) return ret;
+  if(optflg&BOTHDIALOG) {
+    ret=scan_dialog(refresh,1);
+    if(ret) return ret;
+    resync();
+  }
+  return ret;
+}
+
+int CChitemDlg::scan_dialog(bool refresh, int which)
 {
   CString text;
   char *poi;
@@ -875,59 +894,58 @@ int CChitemDlg::scan_dialog(bool refresh)
   int maxref;
   int i;
 
-  tlkfilename.Format("%sdialog%s.tlk",bgfolder,(optflg&DIALOGF)?"F":"");
   //don't reload the .tlk if it didn't change
-  actpos=file_date(tlkfilename);
-  if(refresh && (actpos==global_date)) return 0;
-  global_changed=false;
-  tlk_headerinfo.entrynum=-1;
-  global_date=actpos;
-  fhandle1=open(tlkfilename,O_RDONLY|O_BINARY);
+  actpos=file_date(GetTlkFileName(which));
+  if(refresh && (actpos==global_date[which])) return 0;
+  global_changed[which]=false;
+  tlk_headerinfo[which].entrynum=-1;
+  global_date[which]=actpos;
+  fhandle1=open(GetTlkFileName(which),O_RDONLY|O_BINARY);
   if(fhandle1<1)
   {
-    MessageBox("No "+tlkfilename+" found, ignoring string references.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("No "+GetTlkFileName(which)+" found, ignoring string references.","Warning",MB_ICONEXCLAMATION|MB_OK);
     return -1;
   }
-  fhandle2=open(tlkfilename, O_RDONLY | O_BINARY);
+  fhandle2=open(GetTlkFileName(which), O_RDONLY | O_BINARY);
   if(fhandle2<1)
   {
-    MessageBox("Cannot open "+tlkfilename+" for the second time (out of resources?)","Error",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Cannot open "+GetTlkFileName(which)+" for the second time (out of resources?)","Error",MB_ICONEXCLAMATION|MB_OK);
     close(fhandle1);
     return -1;
   }
   
-  if(read(fhandle1,&tlk_headerinfo,sizeof(tlk_headerinfo) )!=sizeof(tlk_headerinfo) )
+  if(read(fhandle1,&tlk_headerinfo[which],sizeof(tlk_header) )!=sizeof(tlk_header) )
   {
-    tlk_headerinfo.entrynum=-1;
-    MessageBox(tlkfilename+" is corrupt, ignoring string references.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    tlk_headerinfo[which].entrynum=-1;
+    MessageBox(GetTlkFileName(which)+" is corrupt, ignoring string references.","Warning",MB_ICONEXCLAMATION|MB_OK);
     close(fhandle1);
     close(fhandle2);
     return -1;
   }
-  maxref=tlk_headerinfo.entrynum;
-  if(tlk_entries)
+  maxref=tlk_headerinfo[which].entrynum;
+  if(tlk_entries[which])
   {
-    delete [] tlk_entries;
+    delete [] tlk_entries[which];
   }
-  tlk_entries=new tlk_entry[maxref];
-  if(!tlk_entries)
+  tlk_entries[which]=new tlk_entry[maxref];
+  if(!tlk_entries[which])
   {
-    MessageBox("Not enough memory to load "+tlkfilename,"Error",MB_ICONSTOP|MB_OK);
+    MessageBox("Not enough memory to load "+GetTlkFileName(which),"Error",MB_ICONSTOP|MB_OK);
     close(fhandle1);
     close(fhandle2);
     return -3;
   }
 
   start_progress(maxref,"Reading dialog.tlk");
-  if((unsigned long) tlk_headerinfo.start!=tlk_headerinfo.entrynum*sizeof(tlk_reference)+sizeof(tlk_headerinfo))
+  if((unsigned long) tlk_headerinfo[which].start!=tlk_headerinfo[which].entrynum*sizeof(tlk_reference)+sizeof(tlk_header))
   {
     if(MessageBox("The .tlk file appears to be corrupted, shall I try to fix it?","Warning",MB_ICONQUESTION|MB_YESNO)==IDYES )
     {
-      tlk_headerinfo.start=tlk_headerinfo.entrynum*sizeof(tlk_reference)+sizeof(tlk_headerinfo);
-      global_changed=true;
+      tlk_headerinfo[which].start=tlk_headerinfo[which].entrynum*sizeof(tlk_reference)+sizeof(tlk_header);
+      global_changed[which]=true;
     }
   }
-  lseek(fhandle2,tlk_headerinfo.start,SEEK_SET);
+  lseek(fhandle2,tlk_headerinfo[which].start,SEEK_SET);
   i=0;
   while(maxref--)
   {
@@ -935,23 +953,23 @@ int CChitemDlg::scan_dialog(bool refresh)
     {
       log("Cannot read reference #%d (.tlk is corrupted)",i);
       maxref=0; //bail out gracefully
-      global_changed=false;
+      global_changed[which]=false;
     }
     actpos=tell(fhandle2);
-    if(actpos!=tlk_headerinfo.start+reference.offset)
+    if(actpos!=tlk_headerinfo[which].start+reference.offset)
     {
       if(reference.length)
       {
         log("Incorrect reference #%d (.tlk file is corrupted)",i);
-        reference.offset=actpos-tlk_headerinfo.start;
-        global_changed=false;
+        reference.offset=actpos-tlk_headerinfo[which].start;
+        global_changed[which]=false;
         maxref=0;
       }
     }
     if(reference.length<0)
     {
       log("Incorrect reference length of %d for #%d (.tlk file is corrupted)",reference.length,i);
-      global_changed=false;
+      global_changed[which]=false;
       maxref=0;
     }
     poi=text.GetBuffer(reference.length+1);
@@ -959,8 +977,8 @@ int CChitemDlg::scan_dialog(bool refresh)
     poi[reference.length]=0;
     text.ReleaseBuffer(-1);
     reference.length=text.GetLength(); //recalculate length
-    memcpy(&tlk_entries[i].reference, &reference,sizeof(tlk_reference) );
-    tlk_entries[i].text=text;
+    memcpy(&tlk_entries[which][i].reference, &reference,sizeof(tlk_reference) );
+    tlk_entries[which][i].text=text;
     set_progress(++i);
   }
   close(fhandle1);
@@ -2581,7 +2599,7 @@ void CChitemDlg::OnRescan5()
     return;
   }
   
-  scan_dialog();
+  scan_dialog_both();
   end_progress();
 }
 
@@ -2619,7 +2637,7 @@ void CChitemDlg::OnCompat()
     scan_chitin();
     scan_override();
     scan_2da();
-    scan_dialog();
+    scan_dialog_both();
 
     load_variables(m_hWnd, 0, 1, variables); //not verbose
     UpdateData(UD_DISPLAY);
@@ -2664,13 +2682,21 @@ void CChitemDlg::RefreshMenu()
   //RefreshMenu is called after return from every editor, so it is a good function
   //to hijack for flushing tlk changes. We don't write tlk everytime,
   //because it is just too big
-  if(global_changed)
+  if(global_changed[0]==true)
   {
-    write_file_progress(tlkfilename); //this one writes back the tlk file
+    write_file_progress(0); //this one writes back the tlk file
   }
-  if(global_changed)
+  if(global_changed[0]==true)
   {
-    MessageBox(tlkfilename+" wasn't saved, exit all other programs that might use it, and try again.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox(GetTlkFileName(0)+" wasn't saved, exit all other programs that might use it, and try again.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  }
+  if(global_changed[1]==true)
+  {
+    write_file_progress(1); //this one writes back the tlk file
+  }
+  if(global_changed[1]==true)
+  {
+    MessageBox(GetTlkFileName(1)+" wasn't saved, exit all other programs that might use it, and try again.","Warning",MB_ICONEXCLAMATION|MB_OK);
   }
 }
 
@@ -2678,8 +2704,10 @@ BOOL CChitemDlg::DestroyWindow()
 {
   if(bifs) delete [] bifs;
   bifs=NULL;
-  if(tlk_entries) delete [] tlk_entries;
-  tlk_entries=NULL;
+  if(tlk_entries[0]) delete [] tlk_entries[0];
+  tlk_entries[0]=NULL;
+  if(tlk_entries[1]) delete [] tlk_entries[1];
+  tlk_entries[1]=NULL;
   return CDialog::DestroyWindow();
 }
 /*
@@ -2698,6 +2726,15 @@ void CChitemDlg::OnProgress()
 {
   do_progress=!do_progress;
   RefreshMenu(); 
+}
+
+void CChitemDlg::OnUsedialogf() 
+{
+  if(optflg&BOTHDIALOG)
+  {
+	  whichdialog=!whichdialog;
+  }
+  else whichdialog=0;
 }
 
 void CChitemDlg::OnReadonly() 
@@ -3961,9 +3998,9 @@ void CChitemDlg::CompressWav(bool wavc_or_acm)
         }
         res=ConvertWavAcm(fhandle,-1,foutp, wavc_or_acm);
         fclose(foutp);
+        close(fhandle);
       }
       else res=-1;
-      close(fhandle);
       if(res) MessageBox(CString("Compression failed:")+filepath,"ACM encoder",MB_ICONSTOP|MB_OK);
       else
       {
@@ -4772,4 +4809,3 @@ void CChitemDlg::OnHelpReadme()
   dlg.m_file="readme.txt";
   dlg.DoModal();
 }
-

@@ -155,7 +155,7 @@ public:
   int ReadPltFromFile(int fhandle, int ml);
   int ReadBamFromFile(int fhandle, int maxlen, bool onlyheader);
   int GetTextExtent(CString text); //returns the string width in pixels using this font bam
-  int DrawText(CString text, COLORREF clrTrans, Cmos &host,
+  void DrawText(CString text, COLORREF clrTrans, Cmos &host,
     int nMode, int nXpos, int nYPos, int nWidth);
   int MakeBitmap(int nFrameWanted, COLORREF clrTrans, Cmos &host,
     int nMode, int nXpos, int nYpos);

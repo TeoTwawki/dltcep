@@ -1108,7 +1108,7 @@ END
 IDD_COMPAT DIALOGEX 0, 0, 322, 269
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Compatibility options"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,252,247,64,14
     PUSHBUTTON      "Save && Back",IDC_SAVE,7,248,64,14
@@ -1160,8 +1160,8 @@ BEGIN
                     WS_TABSTOP,13,205,71,10
     PUSHBUTTON      "Set WeiDU Options",IDC_OPTIONS2,161,247,64,14
     PUSHBUTTON      "Set Edit Options",IDC_OPTIONS1,161,230,64,14
-    CONTROL         "Edit DialogF instead",IDC_DIALOG,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,109,79,10
+    CONTROL         "Edit both tlk's",IDC_DIALOG,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,109,58,10
     CONTROL         "DLTC specific",IDC_DLTC,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,217,61,10
     CONTROL         "TOB specific",IDC_TOB,"Button",BS_AUTOCHECKBOX | 
@@ -1867,6 +1867,7 @@ BEGIN
     GROUPBOX        "Area version",IDC_STATIC,276,152,70,40,BS_FLAT
     LTEXT           "IWD2",IDC_STATIC,281,176,20,8
     LTEXT           "Other",IDC_STATIC,283,164,18,8
+    PUSHBUTTON      "Edit explored",IDC_EXPLORED,281,126,60,14
 END
 
 IDD_AREAEDIT DIALOGEX 0, 0, 445, 250
@@ -2265,8 +2266,8 @@ BEGIN
                     120,20,10
     CONTROL         "Deactivated",IDC_TDEACTIVATED,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,287,133,55,10
-    CONTROL         "Used by door",IDC_TDOOR,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,287,146,58,10
+    CONTROL         "Blocked",IDC_TDOOR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,287,146,42,10
     CONTROL         "13",IDC_TUNK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,287,
                     159,24,10
     CONTROL         "14",IDC_TUNK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,287,
@@ -2994,41 +2995,34 @@ BEGIN
     PUSHBUTTON      "Set",IDC_SET,155,43,34,14
     EDITTEXT        IDC_SHORTREF,97,60,40,14,ES_AUTOHSCROLL
     CONTROL         "Tagged",IDC_TAGGED,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFTTEXT | WS_TABSTOP,150,63,41,10
-    EDITTEXT        IDC_LONGNAME,7,77,184,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_AREA,7,100,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_STRREF,7,127,40,14,ES_AUTOHSCROLL
+                    BS_LEFTTEXT | WS_TABSTOP,146,63,41,10
+    EDITTEXT        IDC_LONGNAME,7,77,180,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_STRREF,7,151,40,14,ES_AUTOHSCROLL
     CONTROL         "Open",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    54,93,33,10
+                    98,93,33,10
     CONTROL         "Detectable",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,54,104,51,10
-    CONTROL         "Linked",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    54,115,37,10
-    CONTROL         "Transp.",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,54,128,40,10
-    CONTROL         "12",IDC_FLAG13,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,54,
-                    139,24,10
+                    WS_TABSTOP,148,105,51,10
+    CONTROL         "Linked?",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,98,117,41,10
+    CONTROL         "Transparent",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,52,129,54,10
     CONTROL         "Locked",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    106,93,40,10
-    CONTROL         "4",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,106,
-                    104,20,10
+                    148,93,40,10
+    CONTROL         "5",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    117,20,10
     CONTROL         "Hidden",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    106,115,39,10
-    CONTROL         "Key",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    106,128,28,10
-    CONTROL         "13",IDC_FLAG14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    106,139,24,10
+                    148,117,39,10
+    CONTROL         "Remove key",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,126,129,56,10
     CONTROL         "Reset trap",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,148,93,49,10
+                    WS_TABSTOP,98,105,49,10
     CONTROL         "Internal?",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,148,104,41,10
+                    WS_TABSTOP,52,117,41,10
     CONTROL         "Found it",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,148,115,41,10
+                    WS_TABSTOP,7,129,41,10
     CONTROL         "Slide",IDC_FLAG12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    148,128,31,10
-    CONTROL         "14",IDC_FLAG15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    148,139,24,10
-    EDITTEXT        IDC_INFOSTR,7,151,184,14,ES_AUTOHSCROLL
+                    98,141,31,10
+    EDITTEXT        IDC_INFOSTR,52,151,174,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_CURSORIDX,10,178,40,14,ES_AUTOHSCROLL
     CONTROL         "Spin1",IDC_SPINCURSOR,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
@@ -3091,10 +3085,9 @@ BEGIN
     LTEXT           "0x54",IDC_STATIC,332,166,16,8
     LTEXT           "%",IDC_STATIC,269,19,8,8
     LTEXT           "Lock difficulty",IDC_STATIC,237,6,44,8
-    LTEXT           "Open fail ref.",IDC_STATIC,7,117,41,8
+    LTEXT           "Open fail",IDC_STATIC,7,141,29,8
     LTEXT           "Region link",IDC_STATIC,7,91,36,8
     LTEXT           "Name in dialog (ref. && string)",IDC_STATIC,7,65,88,8
-    LTEXT           "Open fail text",IDC_STATIC,7,142,42,8
     LTEXT           "%",IDC_STATIC,226,19,8,8
     EDITTEXT        IDC_POS1X2,199,100,28,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_POS1Y2,232,100,28,14,ES_AUTOHSCROLL
@@ -3105,6 +3098,8 @@ BEGIN
     PUSHBUTTON      "Set",IDC_SET2,263,100,24,14
     PUSHBUTTON      "Set",IDC_SET3,263,127,24,14
     PUSHBUTTON      "Select door",IDC_SELECTION,231,151,56,14
+    COMBOBOX        IDC_AREA,7,103,87,89,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_AREAVARIABLE DIALOG DISCARDABLE  0, 0, 420, 199
@@ -3764,7 +3759,7 @@ BEGIN
     CHECKBOX        "Four digits",IDC_FOUR,71,11,48,10
 END
 
-IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 221
+IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 239
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Editor options"
 FONT 8, "MS Sans Serif"
@@ -3805,10 +3800,10 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,119,100,10
     CONTROL         "Allow WeiDU strings in script source",IDC_WEIDUSTR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,135,129,10
-    DEFPUSHBUTTON   "Back",IDOK,7,200,50,14
-    PUSHBUTTON      "Select All",IDC_ALLSET,81,200,50,14
-    PUSHBUTTON      "Deselect All",IDC_ALLUNSET,155,200,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,229,200,50,14
+    DEFPUSHBUTTON   "Back",IDOK,7,218,50,14
+    PUSHBUTTON      "Select All",IDC_ALLSET,81,218,50,14
+    PUSHBUTTON      "Deselect All",IDC_ALLUNSET,155,218,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,229,218,50,14
     CONTROL         "Use  Octree reduction (vs. DL1)",IDC_OCTREE,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,151,116,10
     CONTROL         "Dithering (in DL1)",IDC_DITHER,"Button",BS_AUTOCHECKBOX | 
@@ -3819,8 +3814,10 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,167,101,10
     CONTROL         "Use IAP instead of ZIP",IDC_ZIP,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,183,88,10
-    CONTROL         "Larger window",IDC_WINDOWPICKER,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,138,183,62,10
+    CONTROL         "Larger area window",IDC_WINDOWPICKER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,138,183,78,10
+    CONTROL         "Center on vertex",IDC_CENTER,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,199,68,10
 END
 
 IDD_IAPDIALOG DIALOG DISCARDABLE  0, 0, 310, 181
@@ -4207,8 +4204,8 @@ FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Wall",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     14,18,30,10
-    CONTROL         "Disabled",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,14,32,43,10
+    CONTROL         "Semi transparent",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,32,69,10
     CONTROL         "Hovering wall",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,14,46,59,10
     CONTROL         "Cover animations",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
@@ -4226,7 +4223,7 @@ BEGIN
     LISTBOX         IDC_VERTEXPICKER,7,99,97,102,LBS_NOINTEGRALHEIGHT | 
                     LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_POSX,7,217,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POSY,52,217,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POSY,56,217,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MINX,115,101,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MINY,165,101,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MAXX,115,133,40,14,ES_AUTOHSCROLL
@@ -4238,7 +4235,7 @@ BEGIN
     GROUPBOX        "Polygon flags",IDC_STATIC,7,7,210,74,BS_FLAT
     GROUPBOX        "Bounding box",IDC_STATIC,107,76,110,76,BS_FLAT
     LTEXT           "X",IDC_STATIC,7,206,8,8
-    LTEXT           "Y",IDC_STATIC,52,206,8,8
+    LTEXT           "Y",IDC_STATIC,56,206,8,8
     LTEXT           "Min X",IDC_STATIC,115,86,19,8
     LTEXT           "Min Y",IDC_STATIC,165,86,19,8
     LTEXT           "Max X",IDC_STATIC,115,121,21,8
@@ -4256,6 +4253,8 @@ BEGIN
                     UDS_ARROWKEYS | UDS_HORZ,163,157,56,14
     CONTROL         "Move",IDC_MOVE,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
                     WS_TABSTOP,107,238,44,14
+    PUSHBUTTON      "Save",IDC_SAVE,7,238,40,14
+    PUSHBUTTON      "Load",IDC_LOAD,56,238,40,14
 END
 
 IDD_MASSCLEAR DIALOG DISCARDABLE  0, 0, 217, 55
@@ -4667,7 +4666,7 @@ BEGIN
     LISTBOX         IDC_VERTEXPICKER,7,25,97,102,LBS_NOINTEGRALHEIGHT | 
                     LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_POSX,7,143,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POSY,52,143,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POSY,56,143,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MINX,115,27,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MINY,165,27,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MAXX,115,59,40,14,ES_AUTOHSCROLL
@@ -4679,7 +4678,7 @@ BEGIN
     PUSHBUTTON      "Back",IDOK,162,163,58,14
     GROUPBOX        "Bounding box",IDC_STATIC,107,2,110,76,BS_FLAT
     LTEXT           "X",IDC_STATIC,7,132,8,8
-    LTEXT           "Y",IDC_STATIC,52,132,8,8
+    LTEXT           "Y",IDC_STATIC,56,132,8,8
     LTEXT           "Min X",IDC_STATIC,115,12,19,8
     LTEXT           "Min Y",IDC_STATIC,165,12,19,8
     LTEXT           "Max X",IDC_STATIC,115,47,21,8
@@ -4693,6 +4692,8 @@ BEGIN
                     BS_PUSHLIKE | WS_TABSTOP,107,143,44,14
     CONTROL         "Move",IDC_MOVE,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
                     WS_TABSTOP,107,163,44,14
+    PUSHBUTTON      "Save",IDC_SAVE,7,163,40,14
+    PUSHBUTTON      "Load",IDC_LOAD,56,163,40,14
 END
 
 IDD_TEXTVIEW DIALOGEX 0, 0, 463, 325
@@ -5346,7 +5347,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 281
         TOPMARGIN, 7
-        BOTTOMMARGIN, 214
+        BOTTOMMARGIN, 232
     END
 
     IDD_IAPDIALOG, DIALOG
@@ -5597,8 +5598,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,4,0,2
- PRODUCTVERSION 6,4,0,2
+ FILEVERSION 6,5,0,1
+ PRODUCTVERSION 6,5,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5616,14 +5617,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 4, 0, 2\0"
+            VALUE "FileVersion", "6, 5, 0, 1\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2005 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 4, 0, 2\0"
+            VALUE "ProductName", "DLTC Editor Pro 6.5\0"
+            VALUE "ProductVersion", "6, 5, 0, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -5780,6 +5781,7 @@ BEGIN
         END
         MENUITEM "&Progressbar",                ID_PROGRESS, CHECKED
         MENUITEM "&Read only",                  ID_READONLY
+        MENUITEM "Use DialogF",                 ID_USEDIALOGF, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "&Change settings",            ID_COMPAT
         MENUITEM SEPARATOR

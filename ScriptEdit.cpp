@@ -208,10 +208,9 @@ int CScriptEdit::RunWeidu(CString syscommand)
   int res;
 
   //flushing dialog.tlk
-  if(global_changed)
+  if(global_changed[0]==true)
   {
-    tmpstr.Format("%sdialog%s.tlk",bgfolder,(optflg&DIALOGF)?"F":"");
-    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(tmpstr); 
+    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(0); 
   }
   unlink(WEIDU_LOG);
   res=my_system(syscommand);
@@ -296,10 +295,9 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
     MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
     return -1;
   }
-  if(global_changed)
+  if(global_changed[0]==true)
   {
-    tmpstr.Format("%sdialog%s.tlk",bgfolder,(optflg&DIALOGF)?"F":"");
-    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(tmpstr); 
+    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(0); 
   }
   syscommand=AssembleWeiduCommandLine(filepath,weidudecompiled); //export
   res=RunWeidu(syscommand);
@@ -337,8 +335,8 @@ void CScriptEdit::OnLoad()
         res=-1;
       }
     }
-    if(!res)
-    {
+    if(!res) 
+    {//fhandle will always get initialized if res was 0
       res=filelength(fhandle);
       if(res>=0)
       {
@@ -749,7 +747,7 @@ void CScriptEdit::CheckScript(int messages)
     m_errors=new int[1];
     m_errors[0]=m_count;
     m_firsterror=0;
-    m_count=1;
+    endline=m_count=1;
   }
   else
   {
@@ -770,6 +768,7 @@ void CScriptEdit::CheckScript(int messages)
         startline--;
       }
     }
+    num_or=0;
     for(i=startline;i<endline;i++)
     {
       line=GetLine(i);
@@ -807,7 +806,7 @@ void CScriptEdit::CheckScript(int messages)
           {
             if(num_or)
             {
-              m_errors[i]=-42;
+              m_errors[i]=CE_INCOMPLETE_OR;
             }
             triggeroraction=TA_RESPONSE;
             break;
@@ -816,7 +815,7 @@ void CScriptEdit::CheckScript(int messages)
           format_line(tmpstr, num_or?m_indent+2:m_indent);
           if((trigger.opcode&0x1fff)==TR_OR)
           {
-            if(num_or) m_errors[i]=-42;
+            if(num_or) m_errors[i]=CE_INCOMPLETE_OR;
             num_or=trigger.bytes[0];
           }
           else

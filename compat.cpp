@@ -324,7 +324,7 @@ restart:
 
 void Ccompat::OnDialog() 
 {
-	optflg^=DIALOGF;
+	optflg^=BOTHDIALOG;
 	OnAdd();
 }
 

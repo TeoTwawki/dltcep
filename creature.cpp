@@ -156,7 +156,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
     switch(revision)
     {
     case 22:
-      fullsize=sizeof(character_iwd2_header);
+      chrsize=sizeof(character_iwd2_header);
       break;
     case 10:case 11: case 12: case 90:
       chrsize=sizeof(character_header);

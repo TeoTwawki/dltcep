@@ -2850,10 +2850,9 @@ int CDialogEdit::RunWeidu(CString syscommand)
   int res;
 
   //flushing dialog.tlk
-  if(global_changed)
+  if(global_changed[0]==true)
   {
-    tmpstr.Format("%sdialog%s.tlk",bgfolder,(optflg&DIALOGF)?"F":"");
-    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(tmpstr); 
+    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(0); 
   }
   unlink(WEIDU_LOG);
   res=my_system(syscommand);

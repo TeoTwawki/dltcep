@@ -2,8 +2,12 @@
 //
 
 #include "stdafx.h"
+
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "chitem.h"
 #include "WedPolygon.h"
+#include "options.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,10 +48,10 @@ void CWedPolygon::SetPolygon(int type, int number)
     wedpolygon=the_area.wallpolygonheaders+number;
     pos=the_area.wedvertexheaderlist.FindIndex(m_polynum);
   }
-  wedvertex=(area_vertex *) the_area.vertexheaderlist.GetAt(pos);
+  wedvertex=(area_vertex *) the_area.wedvertexheaderlist.GetAt(pos);
 }
 
-void CWedPolygon::RefreshPolygon()
+void CWedPolygon::RefreshPolygon(bool repos)
 {
   CString tmpstr;
   CButton *cb;
@@ -87,8 +91,11 @@ void CWedPolygon::RefreshPolygon()
     DeleteObject(m_preview.m_bm);
     m_preview.m_bm=0;
   }
-  m_preview.m_clipx=wedvertex[m_vertexnum].x/the_mos.mosheader.dwBlockSize-m_preview.m_maxextentx/2;
-  m_preview.m_clipy=wedvertex[m_vertexnum].y/the_mos.mosheader.dwBlockSize-m_preview.m_maxextenty/2;
+  if(repos && m_vertexnum>=0)
+  {
+    m_preview.m_clipx=wedvertex[m_vertexnum].x/the_mos.mosheader.dwBlockSize-m_preview.m_maxextentx/2;
+    m_preview.m_clipy=wedvertex[m_vertexnum].y/the_mos.mosheader.dwBlockSize-m_preview.m_maxextenty/2;
+  }
   if(m_graphics)
   {
     m_preview.m_polygon=wedvertex;
@@ -99,13 +106,28 @@ void CWedPolygon::RefreshPolygon()
   m_preview.ShowWindow(m_graphics);
 }
 
+void CWedPolygon::FixPolygon(CPoint &point)
+{
+  int i;
+
+  if(CanMove(point, wedvertex, wedpolygon->countvertex) )
+  {
+    MessageBox("The polygon would reach over the map boundaries","Area editor",MB_ICONWARNING|MB_OK);
+  }
+  for(i=0;i<wedpolygon->countvertex;i++)
+  {
+    wedvertex[i].x=(unsigned short) (wedvertex[i].x+point.x);
+    wedvertex[i].y=(unsigned short) (wedvertex[i].y+point.y);
+  }
+  the_area.RecalcBox(0,wedpolygon,wedvertex);	
+}
+
 void CWedPolygon::RefreshVertex()
 {
   area_vertex *newvertices;
   CPoint point;
-  int i;
 
-  if(!m_preview) return;
+  if(!m_preview.m_hWnd) return;
   m_changed=1;
   point=m_preview.GetPoint(GP_POINT);
   if(m_insertpoint)
@@ -119,7 +141,7 @@ void CWedPolygon::RefreshVertex()
     }
     memcpy(newvertices, wedvertex, sizeof(area_vertex)*m_vertexnum);
     memcpy(newvertices+m_vertexnum+1, wedvertex+m_vertexnum, sizeof(area_vertex)*(wedpolygon->countvertex-m_vertexnum) );
-    the_area.vertexheaderlist.SetAt(pos,newvertices); //this will also free up the old wedvertex
+    the_area.wedvertexheaderlist.SetAt(pos,newvertices); //this will also free up the old wedvertex
     wedpolygon->countvertex++;
     wedvertex=newvertices;
   }
@@ -130,24 +152,17 @@ void CWedPolygon::RefreshVertex()
     {
       point.x-=wedvertex[m_vertexnum].x;
       point.y-=wedvertex[m_vertexnum].y;
-      if(CanMove(point, wedvertex, wedpolygon->countvertex) )
-      {
-        MessageBox("The polygon would reach over the map boundaries","Area editor",MB_ICONWARNING|MB_OK);
-      }
-      for(i=0;i<wedpolygon->countvertex;i++)
-      {
-        wedvertex[i].x=(unsigned short) (wedvertex[i].x+point.x);
-        wedvertex[i].y=(unsigned short) (wedvertex[i].y+point.y);
-      }
+      FixPolygon(point);
+      RefreshPolygon(!(editflg&CENTER));
       UpdateData(UD_DISPLAY);
-      OnRecalcbox();
       return;
     }
   }
   wedvertex[m_vertexnum].x=(short) point.x;
   wedvertex[m_vertexnum].y=(short) point.y;
+	the_area.RecalcBox(0,wedpolygon,wedvertex);	
+  RefreshPolygon(!(editflg&CENTER));
   UpdateData(UD_DISPLAY);
-  OnRecalcbox();
 }
 
 void CWedPolygon::DoDataExchange(CDataExchange* pDX)
@@ -184,17 +199,13 @@ BOOL CWedPolygon::OnInitDialog()
   CRect rect;
 
 	CDialog::OnInitDialog();
+
   if( SetupSelectPoint() )
   {
+    OnCancel();
     return FALSE;
   }
 
-  m_preview.m_value=-1;
-  m_preview.InitView(IW_SHOWALL|IW_SHOWGRID|IW_SETVERTEX|IW_ENABLEFILL, &the_mos); //initview must be before create
-  m_preview.Create(IDD_IMAGEVIEW,this);
-  GetWindowRect(rect);
-  m_preview.SetWindowPos(0,rect.right,rect.top,0,0,SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
-  RefreshPolygon();
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -203,6 +214,14 @@ BOOL CWedPolygon::OnInitDialog()
     
     m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
   }
+
+  m_preview.m_value=-1;
+  m_preview.InitView(IW_SHOWALL|IW_SHOWGRID|IW_SETVERTEX|IW_ENABLEFILL, &the_mos); //initview must be before create
+  m_preview.Create(IDD_IMAGEVIEW,this);
+  GetWindowRect(rect);
+  m_preview.SetWindowPos(0,rect.right,rect.top,0,0,SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
+
+  RefreshPolygon(true);
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -236,6 +255,8 @@ BEGIN_MESSAGE_MAP(CWedPolygon, CDialog)
 	ON_BN_CLICKED(IDC_INSERT, OnInsert)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_SHIFT, OnDeltaposShift)
 	ON_BN_CLICKED(IDC_MOVE, OnMove)
+	ON_BN_CLICKED(IDC_SAVE, OnSave)
+	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, RefreshVertex)
 END_MESSAGE_MAP()
@@ -346,7 +367,7 @@ void CWedPolygon::OnSelchangeVertexpicker()
 	m_vertexnum=m_vertexpicker.GetCurSel();
   if(m_vertexnum>=0)
   {
-    RefreshPolygon();
+    RefreshPolygon(true);
   }
 	UpdateData(UD_DISPLAY);
 }
@@ -354,21 +375,21 @@ void CWedPolygon::OnSelchangeVertexpicker()
 void CWedPolygon::OnKillfocusPosx() 
 {
   UpdateData(UD_RETRIEVE);
-  RefreshPolygon();
+  RefreshPolygon(true);
 	UpdateData(UD_DISPLAY);
 }
 
 void CWedPolygon::OnKillfocusPosy() 
 {
   UpdateData(UD_RETRIEVE);
-  RefreshPolygon();
+  RefreshPolygon(true);
 	UpdateData(UD_DISPLAY);
 }
 
-void CWedPolygon::OnRecalcbox() 
+void CWedPolygon::OnRecalcbox()
 {
 	the_area.RecalcBox(0,wedpolygon,wedvertex);	
-  RefreshPolygon();
+  RefreshPolygon(true);
   UpdateData(UD_DISPLAY);
 }
 
@@ -384,7 +405,7 @@ void CWedPolygon::OnReverse()
     wedvertex[i]=wedvertex[wedpolygon->countvertex-i-1];
     wedvertex[wedpolygon->countvertex-i-1]=tmp;
   }
-  RefreshPolygon();
+  RefreshPolygon(true);
   UpdateData(UD_DISPLAY);
 }
 
@@ -394,7 +415,7 @@ void CWedPolygon::OnOrder()
   {
     m_changed=1;
   }
-  RefreshPolygon();
+  RefreshPolygon(true);
   UpdateData(UD_DISPLAY);
 }
 
@@ -417,20 +438,20 @@ void CWedPolygon::Shift(int where)
   }
   memcpy(wedvertex,tmp,wedpolygon->countvertex*sizeof(area_vertex) );
   delete [] tmp;
-  RefreshPolygon();
+  RefreshPolygon(true);
   UpdateData(UD_DISPLAY);
 }
 
 void CWedPolygon::OnPreview() 
 {
   m_graphics=!m_graphics;
-  RefreshPolygon();
+  RefreshPolygon(true);
 }
 
 void CWedPolygon::OnOpen() 
 {
   UpdateData(UD_RETRIEVE);
-  RefreshPolygon(); //redraws preview
+  RefreshPolygon(true); //redraws preview
 }
 
 void CWedPolygon::OnDblclkVertexpicker() 
@@ -449,9 +470,9 @@ void CWedPolygon::OnDblclkVertexpicker()
   }
   memcpy(newvertices, wedvertex, sizeof(area_vertex)*m_vertexnum);
   memcpy(newvertices+m_vertexnum, wedvertex+m_vertexnum+1, sizeof(area_vertex)*(wedpolygon->countvertex-m_vertexnum) );
-  the_area.vertexheaderlist.SetAt(pos,newvertices); //this will also free up the old wedvertex
+  the_area.wedvertexheaderlist.SetAt(pos,newvertices); //this will also free up the old wedvertex
   wedvertex=newvertices;
-  RefreshPolygon();
+  RefreshPolygon(true);
 }
 
 void CWedPolygon::OnInsert() 
@@ -481,6 +502,84 @@ void CWedPolygon::OnDeltaposShift(NMHDR* pNMHDR, LRESULT* pResult)
   if(pNMUpDown->iDelta>0) Shift(-1);
   else Shift(1);
 	*pResult = 0;
+}
+
+static char BASED_CODE szFilter[] = "Polygon files (*.ply)|*.ply|All files (*.*)|*.*||";
+
+void CWedPolygon::OnSave() 
+{
+  CString filepath, newname;
+  int res;
+  int fhandle;
+
+  res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CFileDialog m_getfiledlg(FALSE, "ply", makeitemname(".ply",0), res, szFilter);
+
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    filepath.MakeLower();
+    if(filepath.Right(4)!=".ply")
+    {
+      filepath+=".ply";
+    }
+    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+    short tmp = (short) wedpolygon->countvertex;
+    res = WritePolygon(fhandle, &wedvertex, &tmp);
+    close(fhandle);
+  }
+}
+
+void CWedPolygon::OnLoad() 
+{
+  area_vertex *newvertices;
+  CString filepath;
+  int fhandle;
+  int res;
+  
+  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
+  if(readonly) res|=OFN_READONLY;  
+  CFileDialog m_getfiledlg(TRUE, "ply", makeitemname(".ply",0), res, szFilter);
+
+restart:  
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    fhandle=open(filepath, O_RDONLY|O_BINARY);
+    if(!fhandle)
+    {
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      goto restart;
+    }
+    the_area.m_night=false;
+    readonly=m_getfiledlg.GetReadOnlyPref();
+    newvertices=NULL;
+    short tmp;
+    res=ReadPolygon(fhandle, &newvertices, &tmp);
+    wedpolygon->countvertex=tmp;
+    if(newvertices)
+    {
+      if(res)
+      {
+        delete [] newvertices;
+      }
+      else
+      {
+        the_area.wedvertexheaderlist.SetAt(pos,newvertices); //this will also free up the old wedvertex
+        wedvertex=newvertices;
+      }
+    }
+    close(fhandle);    
+  }
+  if(wedpolygon->countvertex)
+  {
+    CPoint point;
+    point.x=0;
+    point.y=0;
+    FixPolygon(point);
+  }
+  RefreshPolygon(true);
+	UpdateData(UD_DISPLAY);
 }
 
 BOOL CWedPolygon::PreTranslateMessage(MSG* pMsg) 

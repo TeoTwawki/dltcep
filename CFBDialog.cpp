@@ -191,6 +191,7 @@ void CCFBDialog::OnOpenfile()
       log("Invalid file.");
       continue;
     }    
+    //featnum is used only when mode&1, in this case it gets initialized
     if(ModifyCFB(mode, featnum, cfb))
     {
       log("No CFB... skipping file");

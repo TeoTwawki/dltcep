@@ -172,18 +172,18 @@ int check_reference(long reference, int loretoid)
   int tmp;
 
   if(chkflg&NOREFCHK) return 0;
-  if(tlk_headerinfo.entrynum<0) return 0;
+  if(tlk_headerinfo[0].entrynum<0) return 0;
   if(!loretoid && (reference==9999999)) return 0; //allow cheesy reference
   if(reference==-1) return 0; //allow this too
-  if(reference>=tlk_headerinfo.entrynum) return 1; //bad ref
+  if(reference>=tlk_headerinfo[0].entrynum) return 1; //bad ref
 
   if(loretoid==2)
   {
-    tmp=tlk_entries[reference].text.Find('\n');
+    tmp=tlk_entries[0][reference].text.Find('\n');
     if(tmp<0 || tmp>50) return 3; // no title, or title is big
   }
   if(chkflg&WARNINGS) return 0;
-  if(tlk_entries[reference].text==DELETED_REFERENCE)
+  if(tlk_entries[0][reference].text==DELETED_REFERENCE)
   {
     return 2; //deleted entry
   }
@@ -362,6 +362,36 @@ int check_wed_reference(CString tmpref, int flg)
   }
   if(weds.Lookup(tmpref, dummy) ) return -2; //wed exists but it shouldn't
   return 0;
+}
+
+int find_regionlink(const char *poi)
+{
+  int i;
+
+  for(i=0;i<the_area.doorcount;i++)
+  {
+    if(!strnicmp(poi,the_area.doorheaders[i].regionlink,16)) return i;
+  }
+  return -1;
+}
+
+int check_triggerref(const char *poi, int open)
+{
+  int i;
+  int f;
+
+  if(!*poi) return 0;
+  for(i=0;i<the_area.triggercount;i++)
+  {
+    if(!strnicmp(poi,the_area.triggerheaders[i].infoname,16))
+    {
+      if(the_area.triggerheaders[i].triggertype!=2) f=2;
+      else f=0;
+      if(!(the_area.triggerheaders[i].infoflags&2048) == !open) f|=1;
+      return -f;
+    }
+  }
+  return -4;
 }
 
 int check_scriptref(const char *poi, bool noneisnull)
@@ -4088,34 +4118,40 @@ int CChitemDlg::check_area_door()
       b1y=the_area.doorheaders[i].op1y;
       b2x=the_area.doorheaders[i].op2x; 
       b2y=the_area.doorheaders[i].op2y;
-      if((b1x>=b2x) || (b1y>=b2y))
+      if(b1x!=-1 || b1y!=-1 || b2x!=-1 || b2y!=-1)
       {
-        ret|=BAD_VERTEX;
-        log("Door #%d (%-.32s [%d.%d]) has invalid open bounding box, possibly damaged polygon.",
-          i+1,doorname,p1x,p1y);
-      }
-      if((b1x+800<b2x) || (b1y+600<b2y))
-      {
-        ret|=BAD_VERTEX;
-        log("Door #%d (%-.32s [%d.%d]) has too large open bounding box, possibly damaged polygon.",
-          i+1,doorname,p1x,p1y);
+        if((b1x>=b2x) || (b1y>=b2y))
+        {
+          ret|=BAD_VERTEX;
+          log("Door #%d (%-.32s [%d.%d]) has invalid open bounding box, possibly damaged polygon.",
+            i+1,doorname,p1x,p1y);
+        }
+        if((b1x+800<b2x) || (b1y+600<b2y))
+        {
+          ret|=BAD_VERTEX;
+          log("Door #%d (%-.32s [%d.%d]) has too large open bounding box, possibly damaged polygon.",
+            i+1,doorname,p1x,p1y);
+        }
       }
 
       b1x=the_area.doorheaders[i].cp1x; //closed door, bounding rect
       b1y=the_area.doorheaders[i].cp1y;
       b2x=the_area.doorheaders[i].cp2x; 
       b2y=the_area.doorheaders[i].cp2y;
-      if((b1x>=b2x) || (b1y>=b2y))
+      if(b1x!=-1 || b1y!=-1 || b2x!=-1 || b2y!=-1)
       {
-        ret|=BAD_VERTEX;
-        log("Door #%d (%-.32s [%d.%d]) has invalid closed bounding box, possibly damaged polygon.",
-          i+1,doorname,p1x,p1y);
-      }
-      if((b1x+800<b2x) || (b1y+600<b2y))
-      {
-        ret|=BAD_VERTEX;
-        log("Door #%d (%-.32s [%d.%d]) has too large closed bounding box, possibly damaged polygon.",
-          i+1,doorname,p1x,p1y);
+        if((b1x>=b2x) || (b1y>=b2y))
+        {
+          ret|=BAD_VERTEX;
+          log("Door #%d (%-.32s [%d.%d]) has invalid closed bounding box, possibly damaged polygon.",
+            i+1,doorname,p1x,p1y);
+        }
+        if((b1x+800<b2x) || (b1y+600<b2y))
+        {
+          ret|=BAD_VERTEX;
+          log("Door #%d (%-.32s [%d.%d]) has too large closed bounding box, possibly damaged polygon.",
+            i+1,doorname,p1x,p1y);
+        }
       }
 
     }
@@ -4155,6 +4191,30 @@ int CChitemDlg::check_area_door()
           the_area.doorheaders[i].nameref,i+1,doorname,p1x,p1y);
         break;
       }
+    }
+
+    switch(check_triggerref(the_area.doorheaders[i].regionlink,the_area.doorheaders[i].flags&1))
+    {
+    case -4:
+      ret|=BAD_RESREF;
+      log("Non existent trigger %-.16s referenced by door #%d (%-.32s [%d.%d])",
+          the_area.doorheaders[i].regionlink,i+1,doorname,p1x,p1y);
+      break;
+    case -3:
+      ret|=BAD_RESREF;
+      log("Referenced trigger %-.16s isn't a travel trigger and its blocked flag is incorrect, door #%d (%-.32s [%d.%d])",
+          the_area.doorheaders[i].regionlink,i+1,doorname,p1x,p1y);
+      break;
+    case -2:
+      ret|=BAD_RESREF;
+      log("Referenced trigger %-.16s isn't a travel trigger, door #%d (%-.32s [%d.%d])",
+          the_area.doorheaders[i].regionlink,i+1,doorname,p1x,p1y);
+      break;
+    case -1:
+      ret|=BAD_RESREF;
+      log("Referenced trigger %-.16s has invalid blocked flag, door #%d (%-.32s [%d.%d])",
+          the_area.doorheaders[i].regionlink,i+1,doorname,p1x,p1y);
+      break;
     }
 
     switch(check_scriptref(the_area.doorheaders[i].openscript,false) )
@@ -4484,6 +4544,14 @@ int CChitemDlg::check_area_trigger()
         {
           ret|=BAD_ATTR;
           log("Can't load area: %s\n",destination);
+        }
+      }
+      if(the_area.triggerheaders[i].infoflags&2048)
+      {
+        if(find_regionlink(the_area.triggerheaders[i].infoname)<0)
+        {
+          ret|=BAD_ATTR;
+          log("Door travel trigger '%.32s' isn't referenced by door.",infoname);
         }
       }
     }

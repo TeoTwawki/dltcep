@@ -209,15 +209,17 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
 {
   CString tmp;
   loc_entry dummyloc;
-  int dummycount;
+  int cnt;
   int i;
+  int sf;
 
+  sf=storeflags&0xff;
   if((trigger&0xff)==SCANNING)
   {
-    if(member_array(storeflags, scanned_types)==-1) return 0;
+    if(member_array(sf, scanned_types)==-1) return 0;
   }
   tmp=resolve_scriptelement(opcode, trigger, block);
-  switch(storeflags)
+  switch(sf)
   {
   case NO_CHECK:
     return 0;
@@ -230,20 +232,20 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 0;
   case CHECK_NUM:
     if(chkflg&NORESCHK) return 0;
-    dummycount=varname.GetLength();
-    if(dummycount&3)
+    cnt=varname.GetLength();
+    if(cnt&3)
     {
       log("Bad spellnumber list, crippled number: '%s' (%s)",varname,tmp);
       return 1; //spell numbers are 4 digits
     }
-    if(dummycount>32 || dummycount<1)
+    if(cnt>32 || cnt<1)
     {
       log("Bad spellnumber list, length: '%s' (%s)",varname,tmp);
       return 1;
     }
-    while(dummycount--)
+    while(cnt--)
     {
-      if(!isdigit(varname.GetAt(dummycount)) )
+      if(!isdigit(varname.GetAt(cnt)) )
       {
         log("Bad spellnumber list, not numeric: '%s' (%s)",varname,tmp);
         return 1;
@@ -362,6 +364,9 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     if(dialogs.Lookup(varname, dummyloc)) return 0;
     log("Missing dialog: '%s' (%s)", varname, tmp);
     return 1;
+  case CHECK_DEAD2:
+    if(storeflags&INANIMATE) return 0;
+    //fallthrough
   case ADD_DEAD2:
     if(varname.IsEmpty()) return 0; // may be empty
     //fallthrough
@@ -476,9 +481,9 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     break;
   case CHECKING:
     if(chkflg&NOVARCHK) return 0;
-    dummycount=0;
-    variables.Lookup(varname,dummycount);
-    switch( dummycount )    
+    cnt=0;
+    variables.Lookup(varname,cnt);
+    switch( cnt )    
     {
     case 0:
       log("Incorrect variable: %s (%s)",varname, tmp);
@@ -503,6 +508,7 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
   int checkflags;
   CString area;
   int opcode;
+  int i;
 
   gret=0;
   if(!the_script.blockcount)
@@ -520,6 +526,8 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
     }
     //triggers using variables
     num_or=0;
+    opcode=0; //initialize opcode to non-TR_FALSE
+    
     if(check_or_scan!=JOURNAL) //triggers don't have journals
     {
       for(tcnt=0;tcnt<bpoi->triggercount; tcnt++)
@@ -549,7 +557,10 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         
         checkflags=handle_trigger(tpoi->opcode);
         // not only death variable but: waypoints, triggers, doors etc
-        //      store_variable(tpoi->trobj.var, CHECK_DEAD2,0,OBJECT|TRIGGER|check_or_scan,bcnt);
+        if(store_variable(tpoi->trobj.var, CHECK_DEAD2|(checkflags&0xffff0000),0,OBJECT|TRIGGER|check_or_scan,bcnt))
+        {
+          log(resolve_scriptelement(opcode, TRIGGER, bcnt));
+        }
         if((checkflags&0xff00)==0xff00)
         {
           if(checkflags&1) area=CString(tpoi->var2)+tpoi->var1;
@@ -559,9 +570,9 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         }
         else
         {
-          ret=store_variable(tpoi->var1, checkflags&255, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
+          ret=store_variable(tpoi->var1, checkflags, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
           gret|=ret;
-          ret=store_variable(tpoi->var2, (checkflags>>8)&255, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
+          ret=store_variable(tpoi->var2, checkflags>>8, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
           gret|=ret;
         }
         if(check_or_scan==CHECKING)
@@ -584,9 +595,10 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         }
       }
     }
+
     for(rcnt=0;rcnt<bpoi->responsecount; rcnt++)
     {
-      rpoi=&bpoi->responses[rcnt];
+      rpoi=&bpoi->responses[rcnt];      
     //if last opcode is False() then we don't care about the empty response
       if(opcode!=TR_FALSE && !rpoi->actioncount && (check_or_scan==CHECKING) )
       {
@@ -599,12 +611,14 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
       {
         apoi=&rpoi->actions[acnt];
         // not only death variable but: waypoints, triggers, doors etc
-        /*
+        
         for(i=0;i<3;i++)
         {
-          store_variable(apoi->obj[i].var, CHECK_DEAD2,i,OBJECT|ACTION|check_or_scan,bcnt);
-        }
-        */
+          if(store_variable(apoi->obj[i].var, CHECK_DEAD2|(0xffff0000&handle_action(apoi->opcode)),i,OBJECT|ACTION|check_or_scan,bcnt))
+          {
+            log("%s in response #%d",resolve_scriptelement(apoi->opcode, ACTION, acnt), rcnt+1);
+          }
+        }        
 
         if(check_or_scan==JOURNAL)
         {
@@ -658,9 +672,9 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         }
         else
         {
-          ret=store_variable(apoi->var1, checkflags&255, apoi->opcode, ACTION|check_or_scan, bcnt);
+          ret=store_variable(apoi->var1, checkflags, apoi->opcode, ACTION|check_or_scan, bcnt);
           gret|=ret;
-          ret=store_variable(apoi->var2, (checkflags>>8)&255, apoi->opcode, ACTION|check_or_scan, bcnt);
+          ret=store_variable(apoi->var2, checkflags>>8, apoi->opcode, ACTION|check_or_scan, bcnt);
           gret|=ret;
         }
         if(check_or_scan==CHECKING)
@@ -700,9 +714,9 @@ int CChitemDlg::check_or_scan_trigger(const trigger *tpoi, int checkflags, int c
   }
   else
   {
-    ret=store_variable(tpoi->var1, checkflags&255, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
+    ret=store_variable(tpoi->var1, checkflags, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
     gret|=ret;
-    ret=store_variable(tpoi->var2, (checkflags>>8)&255, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
+    ret=store_variable(tpoi->var2, checkflags>>8, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
     gret|=ret;
   }
   if(check_or_scan==SCANNING) return gret;
@@ -726,9 +740,9 @@ int CChitemDlg::check_or_scan_action(const action *apoi, int checkflags, int che
   }
   else
   {
-    ret=store_variable(apoi->var1, checkflags&255, apoi->opcode, ACTION|check_or_scan, bcnt);
+    ret=store_variable(apoi->var1, checkflags, apoi->opcode, ACTION|check_or_scan, bcnt);
     gret|=ret;
-    ret=store_variable(apoi->var2, (checkflags>>8)&255, apoi->opcode, ACTION|check_or_scan, bcnt);
+    ret=store_variable(apoi->var2, checkflags>>8, apoi->opcode, ACTION|check_or_scan, bcnt);
     gret|=ret;
   }
   if(check_or_scan==SCANNING) return gret;
@@ -1042,6 +1056,9 @@ int CChitemDlg::check_dialog(int check_or_scan)
       if(lines) delete[] lines;
     }
   }
+  //num_or stores the previous action opcode initializing it to non-special
+  num_or=0; 
+
   for(i=0;i<the_dialog.actioncount;i++)
   {
     lines=explode(the_dialog.actions[i], '\n', linecount);
@@ -1050,6 +1067,7 @@ int CChitemDlg::check_dialog(int check_or_scan)
       log("Out of memory");
       return -1;
     }
+
     for(j=0;j<linecount;j++)
     {
       ret=compile_action(lines[j], action, false);

@@ -30,7 +30,7 @@ static int EditDialogRefs[]=
   IDC_SELECTION, IDC_REMBAF, IDC_CWDBAF, IDC_DECOMPRESS, IDC_DATAFOLDER, //32-512
   IDC_NOCHECK, IDC_STEREO, IDC_SORTEFFECT, IDC_EFFNUMBER, IDC_EATSPACE, //1024-16384
   IDC_WEIDUSTR, IDC_IDUSTR, IDC_PREVIEW, IDC_OCTREE, IDC_DITHER, //32768-0x80000
-  IDC_W98,IDC_WEIDU, IDC_ZIP, IDC_WINDOWPICKER,                  //0x100000-0x800000
+  IDC_W98,IDC_WEIDU, IDC_ZIP, IDC_WINDOWPICKER, IDC_CENTER,      //0x100000-0x1000000
 0};
 
 /////////////////////////////////////////////////////////////////////////////
@@ -373,6 +373,7 @@ BEGIN_MESSAGE_MAP(CEditOpt, CDialog)
 	ON_BN_CLICKED(IDC_WEIDU, OnWeidu)
 	ON_BN_CLICKED(IDC_ZIP, OnZip)
 	ON_BN_CLICKED(IDC_WINDOWPICKER, OnLargeWindow)
+	ON_BN_CLICKED(IDC_CENTER, OnCenter)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -509,6 +510,11 @@ void CEditOpt::OnZip()
 void CEditOpt::OnLargeWindow() 
 {
 	editflg^=LARGEWINDOW;
+}
+
+void CEditOpt::OnCenter() 
+{
+	editflg^=CENTER;
 }
 
 BOOL CEditOpt::PreTranslateMessage(MSG* pMsg) 

@@ -85,9 +85,11 @@ typedef struct {
   long start;
 } tlk_header;
 
+typedef char resref_t[8];
+
 typedef struct {
   unsigned short flags;
-  char soundref[8];
+  resref_t soundref;
   unsigned long pitch;
   unsigned long volume;
   long offset;
@@ -155,7 +157,7 @@ typedef struct {
 } membif_entry;
 
 typedef struct {
-  char filename[8];
+  resref_t filename;
   short restype;
   unsigned long residx;
 } key_entry;
@@ -1710,7 +1712,7 @@ typedef struct {
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
-  long unknown1;
+  long absent;
   long joindate;
   long unknown3;
   long killxp; //this chapter
@@ -1731,7 +1733,7 @@ typedef struct {
   long talkcount; //numtimestalkedto
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
-  long unknown1;
+  long absent;
   long joindate;
   long unknown3;
   long killxp; //this chapter
@@ -1750,7 +1752,7 @@ typedef struct {
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
-  long unknown1;
+  long absent;
   long joindate;
   long unknown3;
   long killxp; //this chapter
@@ -1771,7 +1773,7 @@ typedef struct {
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
-  long unknown1;
+  long absent;
   long joindate;
   long unknown3;
   long killxp; //this chapter

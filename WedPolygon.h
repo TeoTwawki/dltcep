@@ -51,8 +51,9 @@ protected:
   CToolTipCtrl m_tooltip;
   CImageView m_preview;
 
-  void RefreshPolygon();
+  void RefreshPolygon(bool repos);
   void Shift(int where);
+  void FixPolygon(CPoint &point);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedPolygon)
@@ -84,6 +85,8 @@ protected:
 	afx_msg void OnInsert();
 	afx_msg void OnDeltaposShift(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnMove();
+	afx_msg void OnSave();
+	afx_msg void OnLoad();
 	//}}AFX_MSG
   void RefreshVertex(); //do we need afx_msg or not?
 	DECLARE_MESSAGE_MAP()

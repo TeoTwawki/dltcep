@@ -418,6 +418,8 @@ void CFileExtract3::OnOK()
     MessageBox("Cannot read file.","Extract",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
+  fhandle=0;
+
   if(read(finput,header,sizeof(header) )!=sizeof(header) )
   {
     MessageBox("Cannot read file.","Extract",MB_ICONEXCLAMATION|MB_OK);
@@ -441,10 +443,6 @@ void CFileExtract3::OnOK()
     {
       goto endofquest;
     }
-  }
-  else
-  {
-    fhandle=0;
   }
   maxlen=filelength(finput)-sizeof(header);
   if(m_filetype==".*") m_filetype.Empty();

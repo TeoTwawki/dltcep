@@ -71,6 +71,8 @@
 #define RESLOC      0x200000//don't choke on bad bifs
 #define USEIAP      0x400000//use zip compression instead of iap
 #define LARGEWINDOW 0x800000//larger graphical window for areas
+#define CENTER      0x1000000//center vertex
+
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -201,6 +203,7 @@ protected:
 	afx_msg void OnWeidu();
 	afx_msg void OnZip();
 	afx_msg void OnLargeWindow();
+	afx_msg void OnCenter();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -21,7 +21,7 @@
 #define COM_DLTC  256
 #define COM_TOB   512
 
-#define DIALOGF   65536
+#define BOTHDIALOG 0x10000
 
 class Ccompat : public CDialog
 {

@@ -30,20 +30,20 @@ Offset Size (data type) Description
 0x000c 4 (strref) Name
 0x0010 4 (dword) Flags:
 
-    * bit 0: User allowed to buy
-    * bit 1: User allowed to sell
-    * bit 2: User allowed to identify items
-    * bit 3: User allowed to steal
-    * bit 4: User allowed to purchase cures
-    * bit 5: User allowed to donate money
-    * bit 6: User allowed to purchase drinks
-    * bit 7: Unknown
-    * bit 8: Unknown
-    * bit 9: Buy Fenced Goods ?
+    * bit 0 (0x01) : User allowed to buy
+    * bit 1 (0x02) : User allowed to sell
+    * bit 2 (0x04) : User allowed to identify items
+    * bit 3 (0x08) : User allowed to steal
+    * bit 4 (0x10) : User allowed to purchase cures
+    * bit 5 (0x20) : User allowed to donate money
+    * bit 6 (0x40) : User allowed to purchase drinks
+    * bit 7 (0x80) : Unknown
+    * bit 8 (0x100): Unknown
+    * bit 9 (0x200): Buy Fenced Goods ?
 
 0x0014 4 (dword) Store "sell price markup" (percentage of base price store charges for items)
 0x0018 4 (dword) Store "buy price markup" (percentage of base price store is willing to pay)
-0x001c 4 (dword) Price deprecation
+0x001c 4 (dword) Price depreciation
 0x0020 2 (word) Probability to fail to steal
 0x0022 2 (word) Bag capacity
 0x0024 8 (bytes) Dialog resource
@@ -59,12 +59,11 @@ Offset Size (data type) Description
 0x0054 8 (resref) Dialog resource for temple rumours.
 0x005c 4 (dword) Bitmapped flags indicating room types available for rent:
 
-    * bit 0: peasant
-    * bit 1: merchant
-    * bit 2: noble
-    * bit 3: royal
+    * bit 0 (0x01) : peasant
+    * bit 1 (0x02) : merchant
+    * bit 2 (0x04) : noble
+    * bit 3 (0x08) : royal
 
-.
 0x0060 4 (dword) Price of a peasant room.
 0x0064 4 (dword) Price of a merchant room.
 0x0068 4 (dword) Price of a noble room.
@@ -168,7 +167,7 @@ Code Item type
 
     * Torment: Eyeballs
     * Icewind Dale: Keys
-    * Baldur's Gate: unused
+    * Baldur's Gate 2: Container
 
 0x0025
 
@@ -180,6 +179,7 @@ Code Item type
     * Torment: Earrings
     * Icewind Dale: (2 broken swords, including the broken sword of Aihonen)
 
+The following items are Torment/Icewind Dale only:
 0x0027 Torment: Tattoos
 0x0028 Torment: Lenses
 0x0029
@@ -188,6 +188,7 @@ Code Item type
     * Icewind Dale: Bucklers
     * Baldur's Gate: unused
 
+The following items are Icewind Dale (1/2) only:
 0x002a Icewind Dale: "Candle" (i.e. only 1 item)
 0x002b ??? Unknown or unused
 0x002c Icewind Dale: Clubs
@@ -204,4 +205,20 @@ Code Item type
 0x0037 Icewind Dale: "Telescope" (only 1 item)
 0x0038 Icewind Dale: "Bottle of wine" and "Container of Razorvine Extract" (only 2 items)
 0x0039 Icewind Dale: Great swords
-
+0x003a Icewind Dale: Container
+Icewind Dale 2 only items:
+0x003b Fur/pelt
+0x003c Leather armour
+0x003d Studded leather
+0x003e Chain mail
+0x003f Splint mail
+0x0040 Half plate
+0x0041 Full plate
+0x0042 Hide armour
+0x0043 Robe
+0x0044 Unknown
+0x0045 Bastard sword
+0x0046 Scarf
+0x0047 Food
+0x0048 Hat
+0x0049 Gauntlet

@@ -470,6 +470,7 @@ private:
   int ExplodeVertices();
   int ExplodeWedVertices();
   int ExplodeDoorTiles();
+  void ConsolidateItems();
 
   inline long myseeka(long pos)
   {

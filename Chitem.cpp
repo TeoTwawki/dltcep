@@ -126,11 +126,11 @@ CString descpath;
 CString weidupath;
 CString weiduextra;
 CString weidudecompiled;
-CString tlkfilename;
 int logtype;
 int tooltips;
 int do_progress;
 int readonly;
+int whichdialog;
 unsigned long chkflg;
 unsigned long editflg;
 unsigned long optflg;
@@ -183,10 +183,10 @@ CColorPicker colordlg;
 CItemPicker pickerdlg;
 
 //tlk/chitin
-tlk_header tlk_headerinfo;
-tlk_entry *tlk_entries;
-bool global_changed; //tlk_entries have changed (need save)
-int global_date;
+tlk_header tlk_headerinfo[2];
+tlk_entry *tlk_entries[2];
+bool global_changed[2]; //tlk_entries have changed (need save)
+int global_date[2];
 key_header key_headerinfo;
 membif_entry *bifs;
 CString cds[NUM_CD];
@@ -1462,13 +1462,13 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
 int resolve_tbg_entry(long reference, tbg_tlk_reference &ref)
 {
   if(reference<0) return -1;
-  if(reference>=tlk_headerinfo.entrynum) return -2;
+  if(reference>=tlk_headerinfo[0].entrynum) return -2;
   memset(&ref,0,sizeof(tbg_tlk_reference) );
-  ref.flags=tlk_entries[reference].reference.flags;
-  ref.length=tlk_entries[reference].text.GetLength();
-  ref.pitch=tlk_entries[reference].reference.pitch;
-  memcpy(ref.soundref,tlk_entries[reference].reference.soundref,8);
-  ref.volume=tlk_entries[reference].reference.volume;
+  ref.flags=tlk_entries[0][reference].reference.flags;
+  ref.length=tlk_entries[0][reference].text.GetLength();
+  ref.pitch=tlk_entries[0][reference].reference.pitch;
+  memcpy(ref.soundref,tlk_entries[0][reference].reference.soundref,8);
+  ref.volume=tlk_entries[0][reference].reference.volume;
   ref.strrefcount=1;
   ref.offset=reference; //fake number
   return 0;
@@ -1479,8 +1479,8 @@ CString resolve_tlk_text(long reference)
   CString tmp;
   
   if(reference<0) return "<Not Available>";
-  if(reference>=tlk_headerinfo.entrynum) return "<Invalid Reference>";
-  tmp=tlk_entries[reference].text;
+  if(reference>=tlk_headerinfo[whichdialog].entrynum) return "<Invalid Reference>";
+  tmp=tlk_entries[whichdialog][reference].text;
   tmp.Replace("\n","\r\n");
   return tmp;
 }
@@ -1507,15 +1507,15 @@ int store_tlk_data(long reference, CString text, CString sound)
   
   text.Replace("\r\n","\n");
   if(reference<=0) newentry=true;
-  if(reference>=tlk_headerinfo.entrynum) newentry=true;
+  if(reference>=tlk_headerinfo[0].entrynum) newentry=true;
   if(newentry)
   {
     //since we want to avoid to include a new entry at all costs
     //there is a shortcut to reuse existing entries
-    for(i=0;i<tlk_headerinfo.entrynum;i++) 
+    for(i=0;i<tlk_headerinfo[0].entrynum;i++) 
     {
-      RetrieveResref(tmpsound, tlk_entries[i].reference.soundref);
-      if(tlk_entries[i].text==text)
+      RetrieveResref(tmpsound, tlk_entries[0][i].reference.soundref);
+      if(tlk_entries[0][i].text==text)
       { //feature: always update sound for matching strings
         if(tmpsound.IsEmpty())
         {
@@ -1526,9 +1526,9 @@ int store_tlk_data(long reference, CString text, CString sound)
     }
     if(!(editflg&RECYCLE)) //if we recycle string references
     {
-      for(i=0;i<tlk_headerinfo.entrynum;i++)
+      for(i=0;i<tlk_headerinfo[0].entrynum;i++)
       {
-        if(tlk_entries[i].text==DELETED_REFERENCE)
+        if(tlk_entries[0][i].text==DELETED_REFERENCE)
         {
           newentry=false;
           reference=i;
@@ -1540,35 +1540,35 @@ int store_tlk_data(long reference, CString text, CString sound)
   }
   if(newentry)
   {
-    reference=tlk_headerinfo.entrynum++;
-    newtlkentries=new tlk_entry[tlk_headerinfo.entrynum];
+    reference=tlk_headerinfo[0].entrynum++;
+    newtlkentries=new tlk_entry[tlk_headerinfo[0].entrynum];
     if(!newtlkentries)
     {
-      tlk_headerinfo.entrynum--;
+      tlk_headerinfo[0].entrynum--;
       return -3; //failed due to memory 
     }
-    for(i=0;i<tlk_headerinfo.entrynum-1;i++)
+    for(i=0;i<tlk_headerinfo[0].entrynum-1;i++)
     {
-      newtlkentries[i]=tlk_entries[i];
+      newtlkentries[i]=tlk_entries[0][i];
     }
 
-    delete [] tlk_entries;
-    tlk_entries=newtlkentries;
-    tlk_entries[reference].text="";
-    memset(&tlk_entries[reference].reference,0,sizeof(tlk_reference) );
+    delete [] tlk_entries[0];
+    tlk_entries[0]=newtlkentries;
+    tlk_entries[0][reference].text="";
+    memset(&tlk_entries[0][reference].reference,0,sizeof(tlk_reference) );
   }
   if(text.GetLength())
   {
-    tlk_entries[reference].reference.flags|=1;
-    if(text.Find('<')>=0) tlk_entries[reference].reference.flags|=4; //tagged text
-    else tlk_entries[reference].reference.flags&=~4; //non-tagged text
+    tlk_entries[0][reference].reference.flags|=1;
+    if(text.Find('<')>=0) tlk_entries[0][reference].reference.flags|=4; //tagged text
+    else tlk_entries[0][reference].reference.flags&=~4; //non-tagged text
   }
-  else tlk_entries[reference].reference.flags&=~5;
+  else tlk_entries[0][reference].reference.flags&=~5;
   store_tlk_soundref(reference,sound);
-  if(tlk_entries[reference].text!=text)
+  if(tlk_entries[0][reference].text!=text)
   {
-    tlk_entries[reference].text=text;
-    global_changed=true;
+    tlk_entries[0][reference].text=text;
+    global_changed[0]=true;
   }
   return reference;
 }
@@ -1581,20 +1581,20 @@ int store_tlk_text(long reference, CString text)
   
   text.Replace("\r\n","\n");
   if(reference<=0) newentry=true;
-  if(reference>=tlk_headerinfo.entrynum) newentry=true;
+  if(reference>=tlk_headerinfo[0].entrynum) newentry=true;
   if(newentry)
   {
     //since we want to avoid to include a new entry at all costs
     //there is a shortcut to reuse existing entries
-    for(i=0;i<tlk_headerinfo.entrynum;i++) 
+    for(i=0;i<tlk_headerinfo[0].entrynum;i++) 
     {
-      if(tlk_entries[i].text==text) return i;
+      if(tlk_entries[0][i].text==text) return i;
     }    
     if(!(editflg&RECYCLE)) //if we recycle string references
     {
-      for(i=0;i<tlk_headerinfo.entrynum;i++) 
+      for(i=0;i<tlk_headerinfo[0].entrynum;i++) 
       {
-        if(tlk_entries[i].text==DELETED_REFERENCE)
+        if(tlk_entries[0][i].text==DELETED_REFERENCE)
         {
           newentry=false;
           reference=i;
@@ -1605,42 +1605,42 @@ int store_tlk_text(long reference, CString text)
   }
   if(newentry)
   {
-    reference=tlk_headerinfo.entrynum++;
-    newtlkentries=new tlk_entry[tlk_headerinfo.entrynum];
+    reference=tlk_headerinfo[0].entrynum++;
+    newtlkentries=new tlk_entry[tlk_headerinfo[0].entrynum];
     if(!newtlkentries)
     {
-      tlk_headerinfo.entrynum--;
+      tlk_headerinfo[0].entrynum--;
       return -3; //failed due to memory 
     }
-    for(i=0;i<tlk_headerinfo.entrynum-1;i++)
+    for(i=0;i<tlk_headerinfo[0].entrynum-1;i++)
     {
-      newtlkentries[i]=tlk_entries[i];
+      newtlkentries[i]=tlk_entries[0][i];
     }
 
-    delete [] tlk_entries;
-    tlk_entries=newtlkentries;
-    tlk_entries[reference].text="";
-    memset(&tlk_entries[reference].reference,0,sizeof(tlk_reference) );
+    delete [] tlk_entries[0];
+    tlk_entries[0]=newtlkentries;
+    tlk_entries[0][reference].text="";
+    memset(&tlk_entries[0][reference].reference,0,sizeof(tlk_reference) );
   }
   if(text.GetLength())
   {
-    tlk_entries[reference].reference.flags|=1;
-    if(text.Find('<')>=0) tlk_entries[reference].reference.flags|=4; //tagged text
-    else tlk_entries[reference].reference.flags&=~4; //non-tagged text
+    tlk_entries[0][reference].reference.flags|=1;
+    if(text.Find('<')>=0) tlk_entries[0][reference].reference.flags|=4; //tagged text
+    else tlk_entries[0][reference].reference.flags&=~4; //non-tagged text
   }
-  else tlk_entries[reference].reference.flags&=~5;
-  if(tlk_entries[reference].reference.soundref[0])
+  else tlk_entries[0][reference].reference.flags&=~5;
+  if(tlk_entries[0][reference].reference.soundref[0])
   {
-    tlk_entries[reference].reference.flags|=2;
+    tlk_entries[0][reference].reference.flags|=2;
   }
   else
   {
-    tlk_entries[reference].reference.flags&=~2;
+    tlk_entries[0][reference].reference.flags&=~2;
   }
-  if(tlk_entries[reference].text!=text)
+  if(tlk_entries[0][reference].text!=text)
   {
-    tlk_entries[reference].text=text;
-    global_changed=true;
+    tlk_entries[0][reference].text=text;
+    global_changed[0]=true;
   }
   return reference;
 }
@@ -1648,17 +1648,17 @@ int store_tlk_text(long reference, CString text)
 bool resolve_tlk_tag(long reference)
 {
   if(reference<=0) return false;
-  if(reference>=tlk_headerinfo.entrynum) return false;
-  return !!(tlk_entries[reference].reference.flags&4);
+  if(reference>=tlk_headerinfo[0].entrynum) return false;
+  return !!(tlk_entries[0][reference].reference.flags&4);
 }
 
 bool toggle_tlk_tag(long reference)
 {
   if(reference<=0) return false;
-  if(reference>=tlk_headerinfo.entrynum) return false;
-  tlk_entries[reference].reference.flags^=4;
-  global_changed=true;
-  return !!(tlk_entries[reference].reference.flags&4);
+  if(reference>=tlk_headerinfo[0].entrynum) return false;
+  tlk_entries[0][reference].reference.flags^=4;
+  global_changed[0]=true;
+  return !!(tlk_entries[0][reference].reference.flags&4);
 }
 
 CString resolve_tlk_soundref(long reference)
@@ -1666,8 +1666,8 @@ CString resolve_tlk_soundref(long reference)
   CString retval;
 
   if(reference<0) return "";
-  if(reference>=tlk_headerinfo.entrynum) return "";
-  RetrieveResref(retval, tlk_entries[reference].reference.soundref);
+  if(reference>=tlk_headerinfo[0].entrynum) return "";
+  RetrieveResref(retval, tlk_entries[0][reference].reference.soundref);
   return retval;
 }
 
@@ -1679,32 +1679,32 @@ int store_tlk_soundref(long reference, CString sound)
   bool newentry=false;
 
   if(reference<=0) newentry=true;
-  if(reference>=tlk_headerinfo.entrynum) newentry=true;
+  if(reference>=tlk_headerinfo[0].entrynum) newentry=true;
   if(newentry)
   {
-    reference=tlk_headerinfo.entrynum++;
-    newtlkentries=new tlk_entry[tlk_headerinfo.entrynum];
+    reference=tlk_headerinfo[0].entrynum++;
+    newtlkentries=new tlk_entry[tlk_headerinfo[0].entrynum];
     if(!newtlkentries)
     {
-      tlk_headerinfo.entrynum--;
+      tlk_headerinfo[0].entrynum--;
       return -3; //failed due to memory 
     }
-    for(i=0;i<tlk_headerinfo.entrynum-1;i++)
+    for(i=0;i<tlk_headerinfo[0].entrynum-1;i++)
     {
-      newtlkentries[i]=tlk_entries[i];
+      newtlkentries[i]=tlk_entries[0][i];
     }
-    delete [] tlk_entries;
-    tlk_entries=newtlkentries;
-    tlk_entries[reference].text="";
-    memset(&tlk_entries[reference].reference,0,sizeof(tlk_reference) );
+    delete [] tlk_entries[0];
+    tlk_entries[0]=newtlkentries;
+    tlk_entries[0][reference].text="";
+    memset(&tlk_entries[0][reference].reference,0,sizeof(tlk_reference) );
   }
   //don't report a change if there is no change
-  RetrieveResref(tmpsound, tlk_entries[reference].reference.soundref);
+  RetrieveResref(tmpsound, tlk_entries[0][reference].reference.soundref);
   if(sound==tmpsound) return reference;
-  if(sound.IsEmpty()) tlk_entries[reference].reference.flags&=~2;
-  else tlk_entries[reference].reference.flags|=2;
-  StoreResref(sound, tlk_entries[reference].reference.soundref);
-  global_changed=true;
+  if(sound.IsEmpty()) tlk_entries[0][reference].reference.flags&=~2;
+  else tlk_entries[0][reference].reference.flags|=2;
+  StoreResref(sound, tlk_entries[0][reference].reference.soundref);
+  global_changed[0]=true;
   return reference;
 }
 
@@ -1723,6 +1723,21 @@ void RetrieveResref(CString &dlgcontrol, const char *itempoi, int dot)
   dlgcontrol=ref;
 }
 
+//moves a fixed char storage area to a CString (always capitalized)
+void RetrieveResref16(CString &dlgcontrol, const char *itempoi, int dot)
+{
+  char ref[17];
+  int i;
+  
+  for(i=0;itempoi[i] && i<16;i++)
+  {
+    if(dot && itempoi[i]=='.') break;
+    ref[i]=(char) toupper(itempoi[i]);
+  }
+  ref[i]=0;
+  dlgcontrol=ref;
+}
+
 //moves a cstring resref into a fixed char storage area (always capitalized)
 void StoreResref(CString &dlgcontrol, char *itempoi)
 {
@@ -1732,6 +1747,18 @@ void StoreResref(CString &dlgcontrol, char *itempoi)
   poi=dlgcontrol.GetBuffer(8);
   for(i=0;poi[i] && i<8;i++) itempoi[i]=(char) toupper(poi[i]);
   for(;i<8;i++) itempoi[i]=0;
+  dlgcontrol.ReleaseBuffer();
+}
+
+//moves a cstring resref into a fixed char storage area (always capitalized)
+void StoreResref16(CString &dlgcontrol, char *itempoi)
+{
+  char *poi;
+  int i;
+  
+  poi=dlgcontrol.GetBuffer(16);
+  for(i=0;poi[i] && i<16;i++) itempoi[i]=(char) toupper(poi[i]);
+  for(;i<16;i++) itempoi[i]=0;
   dlgcontrol.ReleaseBuffer();
 }
 
@@ -3313,6 +3340,9 @@ CString *explode(const CString &array, char separator, int &count)
 #define MV sf(0,MERGE_VARS)
 #define mv sf(1,MERGE_VARS) //merge vars with :
 #define OO sf(IS_VAR,IS_VAR)
+#define oo sf(IS_VAR,IS_VAR)|INANIMATE
+#define D0 sf(IS_VAR,IS_VAR)|CHECK_DOOR //door
+#define T0 sf(IS_VAR,IS_VAR)|CHECK_TRIGGER //trigger
 #define PO sf(CHECK_SPL, IS_VAR)
 #define pO sf(CHECK_SPL2, IS_VAR)
 #define sD sf(CHECK_SOUND2, CHECK_DSOUND)
@@ -3418,13 +3448,13 @@ int tob_action_flags[MAX_ACTION]={
 //100,  101,  102,  103,  104,  105,  106,  107,  108,  109,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   aO,   VO,  
 //110,  111,  112,  113,  114,  115,  116,  117,  118,  119,  
-    Am,   OO,   OO,   pO,   pO,   VO,   IO,   OO,   OO,   OO,  
+    Am,   OO,   OO,   pO,   pO,   VO,   IO,   OO,   D0,   OO,  
 //120,  121,  122,  123,  124,  125,  126,  127,  128,  129,  
     BO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   mv,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    IO,   mv,   OO,   D0,  D0,   D0,   OO,   OO,   OO,   OO,   //143-145->OO->D0
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3548,13 +3578,13 @@ int iwd2_action_flags[MAX_ACTION]={
 //100,  101,  102,  103,  104,  105,  106,  107,  108,  109,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   VO,  
 //110,  111,  112,  113,  114,  115,  116,  117,  118,  119,  
-    Am,   OO,   OO,   pO,   pO,   VO,   IO,   OO,   OO,   OO,  
+    Am,   OO,   OO,   pO,   pO,   VO,   IO,   OO,   D0,   OO,  
 //120,  121,  122,  123,  124,  125,  126,  127,  128,  129,  
     BO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   mv,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    IO,   mv,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3678,13 +3708,13 @@ int pst_action_flags[MAX_ACTION]={
 //100,  101,  102,  103,  104,  105,  106,  107,  108,  109,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   VO,  
 //110,  111,  112,  113,  114,  115,  116,  117,  118,  119,  
-    AO,   OO,   OO,   OO,   OO,   VO,   IO,   OO,   OO,   OO,  
+    AO,   OO,   OO,   OO,   OO,   VO,   IO,   OO,   D0,   OO,  
 //120,  121,  122,  123,  124,  125,  126,  127,  128,  129,  
     BO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   mv,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    IO,   mv,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   OO,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -5176,12 +5206,12 @@ unsigned long *squares=init_squares();
 // some speed optimisation (using pre-computed squares)
 int ChiSquare(BYTE *a,BYTE *b)
 {
-  int ret;
+  unsigned long ret;
 
   ret=squares[*(a)-*(b)];
   ret+=squares[*(a+1)-*(b+1)];
   ret+=squares[*(a+2)-*(b+2)];
-  return ret;
+  return (int) ret; //hopefully no overflow
 }
 
 int determinemenu(CString commandline)
@@ -5968,7 +5998,14 @@ void CreateMinimap(HWND hwnd)
   }
 endofquest:
   if(truecolor) delete [] truecolor;
-  filepath="override\\"+itemname+".MOS";
+  if(the_area.m_night)
+  {
+    filepath="override\\"+itemname+"N.MOS";
+  }
+  else
+  {
+    filepath="override\\"+itemname+".MOS";
+  }
   UpdateIEResource(itemname,REF_MOS,filepath,filelength(fhandle));
   close(fhandle);
   filepath=bgfolder+filepath;
@@ -6343,6 +6380,52 @@ int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
     vtx1 = &wedvertex[++index];
   }
   return inside_flag;
+}
+
+int WritePolygon(int fhandle, area_vertex **polygon, short *countvertex)
+{
+  if(write(fhandle,"PLY V1.0",8)!=8)
+  {
+    return -1;
+  }
+  if(write(fhandle, countvertex, sizeof(*countvertex) )!=sizeof(*countvertex))
+  {
+    return -1;
+  }
+  int esize=sizeof(area_vertex)*(*countvertex);
+  if(write(fhandle, *polygon, esize )!=esize)
+  {
+    return -1;
+  }
+  return 0;
+}
+
+int ReadPolygon(int fhandle, area_vertex **polygon, short *countvertex)
+{
+  char signature[8];
+
+  if(read(fhandle,signature, sizeof(signature) )!=sizeof(signature))
+  {
+    return -1;
+  }
+  if(memcmp(signature,"PLY V1.0",8))
+  {
+    return -1;
+  }
+  if(read(fhandle,countvertex, sizeof(*countvertex) )!=sizeof(*countvertex) )
+  {
+    return -1;
+  }
+  
+  *polygon = new area_vertex[*countvertex];
+
+  int esize=sizeof(area_vertex)*(*countvertex);
+  if(read(fhandle,*polygon, esize )!=esize)
+  {
+    return -1;
+  }
+
+  return 0;
 }
 
 static area_vertex GetVertex(area_vertex *wedvertex, int count, int which)

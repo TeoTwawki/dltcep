@@ -250,10 +250,10 @@ Offset Size (data type) Description
 0x000c 2 (word) "usage3" -- the third parameter passed when the script function "CreateItem" is called. Presumably like 'usage2'.
 0x000e 4 (dword) Flags:
 
-    * bit 0: identified
-    * bit 1: can't steal
-    * bit 2: "stolen"
-    * bit 3: cannot move
+    * bit 1: identified
+    * bit 2: can't steal
+    * bit 4: "stolen"
+    * bit 8: cannot move
 
 CRE V1.0 Item Slots
 
@@ -709,10 +709,10 @@ Offset Size (data type) Description
 0x000e 2 (word) "usage3" -- the third parameter passed when the script function "CreateItem" is called. Presumably like 'usage2'.
 0x0010 4 (dword) Flags:
 
-    * bit 0: identified
-    * bit 1: can't steal
-    * bit 2: "stolen"
-    * bit 3: cannot move
+    * bit 1: identified
+    * bit 2: can't steal
+    * bit 4: "stolen"
+    * bit 8: cannot move
 
 CRE V9.0 Item Slots
 

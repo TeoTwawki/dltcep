@@ -62,15 +62,17 @@ extern UINT WM_FINDREPLACE;
 #define MT_POLYGON 5
 #define MT_WALLPOLYLIST 6
 #define MT_DOORPOLYLIST 7
-#define MT_REGION 8
-#define MT_CONTAINER 9
-#define MT_DOOR 10
-#define MT_BAM 11
+#define MT_REGION       8
+#define MT_CONTAINER    9
+#define MT_DOOR        10
+#define MT_BAM         11
+#define MT_EXPLORED    12
 
 //getpoint units (for ImageView)
-#define GP_POINT  0
-#define GP_TILE   1
-#define GP_BLOCK  2
+#define GP_POINT     0
+#define GP_TILE      1
+#define GP_BLOCK     2
+#define GP_EXPLORED  3
 
 //bounding box index symbols
 #define BBMINX 0
@@ -458,6 +460,9 @@ extern CString DELETED_REFERENCE;
 #define CHECK_BYTE    0x80000  //only one byte
 #define CHECK_ONLYJ   0x100000
 #define CHECK_JOURNAL 0x110000 //also set strref
+#define INANIMATE     0x200000
+#define CHECK_DOOR    0x600000 //inanimate + door
+#define CHECK_TRIGGER 0xa00000 //inanimate + trigger
 
 #define MERGE_VARS 0xff
 
@@ -610,7 +615,6 @@ extern CIntMapString journals;
 extern unsigned char xorblock[64];
 extern CString setupname;
 extern CString bgfolder;
-extern CString tlkfilename;
 extern CString descpath;
 extern CString weidupath;
 extern CString weiduextra;
@@ -619,6 +623,7 @@ extern int logtype;
 extern int tooltips;
 extern int do_progress;
 extern int readonly;
+extern int whichdialog;
 extern unsigned long chkflg;
 extern unsigned long editflg;
 extern unsigned long optflg;
@@ -667,10 +672,10 @@ extern Cmos the_mos;
 extern Cchui the_chui;
 extern Csrc the_src;
 
-extern tlk_header tlk_headerinfo;
-extern tlk_entry *tlk_entries;
-extern bool global_changed;
-extern int global_date;
+extern tlk_header tlk_headerinfo[2];
+extern tlk_entry *tlk_entries[2];
+extern bool global_changed[2];
+extern int global_date[2];
 extern key_header key_headerinfo;
 extern membif_entry *bifs;
 /*
@@ -817,7 +822,9 @@ CString format_itemtype(unsigned int itemtype);
 short find_itemtype(CString itemtype);
 void Pad(CString &str, int len);
 void StoreResref(CString &dlgcontrol, char *itempoi);
+void StoreResref16(CString &dlgcontrol, char *itempoi);
 void RetrieveResref(CString &dlgcontrol, const char *itempoi, int dot=0);
+void RetrieveResref16(CString &dlgcontrol, const char *itempoi, int dot=0);
 void StoreAnim(CString &dlgcontrol, char *itempoi);
 void RetrieveAnim(CString &dlgcontrol, const char *itempoi);
 void StoreVariable(CString &dlgcontrol, char *itempoi, bool noupper=false);
@@ -979,6 +986,8 @@ void RecalcBox(int count, int idx, POINTS &min, POINTS &max);
 int PolygonInBox(area_vertex *wedvertex, int count, CRect rect);
 int CheckIntervallum(int value, int first, int count);
 int PointInPolygon(area_vertex *wedvertex, int count, CPoint point);
+int ReadPolygon(int fhandle, area_vertex **polygon, short *countvertex);
+int WritePolygon(int fhandle, area_vertex **polygon, short *countvertex);
 int VertexOrder(area_vertex *wedvertex, int count);
 
 //readers & writers (they handle the lookup tables)
@@ -1031,7 +1040,7 @@ int write_wav(CString key, void *memory, long samples_written, int wav_or_acm);
 int check_reference(long reference, int loretoid=0);
 
 /// tlk handler
-int truncate_references(long maxnumber);
+bool truncate_references(long maxnumber, int which);
 CString resolve_tlk_text(long reference);
 int store_tlk_data(long reference, CString text, CString sound);
 BOOL match_tlk_text(long reference, CString text, int ignorecase);

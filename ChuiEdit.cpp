@@ -480,6 +480,7 @@ void CChuiEdit::RefreshDialog()
   }
   else pos=-1;
   
+  first=-1;
   if(pos>=0)
   {
     pos2=m_controlpicker.GetCurSel();
@@ -496,11 +497,14 @@ void CChuiEdit::RefreshDialog()
     pos2=m_controlpicker.SetCurSel(pos2);
     if(pos2>=0)
     {
-      DisplayControls(the_chui.controls[first+pos2].controltype);
-      return;
+      if(first!=-1)
+      {
+        DisplayControls(the_chui.controls[first+pos2].controltype);
+        return;
+      }
     }
   }
-  DisplayControls(-1);
+  DisplayControls(first);
 }
 
 /////////////////////////////////////////////////////////////////////////////

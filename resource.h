@@ -1062,6 +1062,7 @@
 #define IDC_DOORPICKER                  1771
 #define IDC_DELEXP                      1772
 #define IDC_DOORID                      1773
+#define IDC_EXPLORED                    1773
 #define IDC_OPEN                        1774
 #define IDC_U54                         1775
 #define IDC_DIALOGTREE                  1779
@@ -1753,6 +1754,7 @@
 #define ID_FILE_EXPORTUSINGSHORTHAND    33024
 #define ID_FILE_IMPORTSHORTHAND         33025
 #define ID_CYCLE_ALIGNFRAMES            33026
+#define ID_USEDIALOGF                   33027
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1760,8 +1762,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33027
-#define _APS_NEXT_CONTROL_VALUE         2307
+#define _APS_NEXT_COMMAND_VALUE         33028
+#define _APS_NEXT_CONTROL_VALUE         2311
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

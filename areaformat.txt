@@ -85,7 +85,7 @@ In PS:T we may find there some strange values that obviously have different func
 Also here I have noticed some weird values in PS:T - for example in city areas - value 0104 here - I have no idea why it is like this.
 0x004a 2 (word) Rain probability
 0x004c 2 (word) Snow probability
-0x004e 2 (word) Fog probability
+0x004e 2 (word) Fog probability (Non-functional)
 0x0050 2 (word) Lightning probability
 0x0052 2 (word) Unknown, however I noticed that in all games other than BG1/ToTSC this value is always zero. In case of BG1 in the outdoors areas there are numbers other than zero - maybe flags of some sort ? Maybe it is used to control the weather somehow ?
 0x0054 4 (dword) Offset of actors (i.e. creatures and NPCs).
@@ -193,7 +193,7 @@ Offset Size (data type) Description
     * bit 8: Deactivated (for proximity triggers)
     * bit 9: NPC can't pass (for travel triggers)
     * bit 10: Override?
-    * bit 11: Used by Door?
+    * bit 11: Blocked by door
     * bit 12: Unknown
     * bit 13: Unknown
     * bit 14: Unknown
@@ -418,7 +418,9 @@ Usually values 40, 4a, 42, 4001, 4a01, 4201 for normal doors are used .
 0x00b4 4 (strref) Name of this door, if it has one. Name is used if the door initiates dialog with the user.
 0x00b8 8 (resref) Resref of the dialog resource associated with this door, if any. This dialog will be used if the door initiates dialog with the user in its associated script.
 0x00c0 8 (bytes) Unknown
+
 V1.0 Animations
+Section size : 48h bytes.
 Offset Size (data type) Description
 0x0000 32 (char array) A long name for this animation. Used by editors and probably by scripts
 0x0020 4 (point) The point at which the "center" of the animation is to be played -- i.e. each frame in the BAM file has its center placed at this precise coordinate.
@@ -448,17 +450,20 @@ Known values :
     * Bit 3 : If set to 1 then animation is stopped on frame specified in offset 0x0032. If set to 0 then the animation is played normally. 
     * Bit 4 : Synchronised draw
     * Bit 5 : unknown
-    * Bit 6 : unknown
-    * Bit 7 : unknown
-Bit 8
-Bit 9 play all frames ?
-bit 10
-bit 11
-bit 12
-bit 13
+    * Bit 6 : Not covered by wall
+    * Bit 7 : Not visible in fog
+    * Bit 8 : Draw as background, covered by players
+    * Bit 9  : Play all cycles of the bam at once
+    * bit 10 : Recolored by palette
+    * bit 11 : mirrored
+    * bit 12 : don't remove in combat
+    * bit 13 : 
 
 0x0038 4 (dword) Unknown, I haven't noticed any effect on game.
-0x003c 16 (bytes) Unknown, unused
+0x003c 4 (dword) Unknown, unused
+0x0040 8 (resref) Palette
+0x0048 4 (dword) Unknown, unused
+
 V1.0 Automap notes
 
 These are textual notes which either you can add to your map, or which, in Torment, are automatically added to your map. Section size : 34h bytes.

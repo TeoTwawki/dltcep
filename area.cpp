@@ -731,6 +731,38 @@ endofquest:
   return ret;
 }
 
+void Carea::ConsolidateItems()
+{
+  area_item *newitems;
+  int i,cnt,curcnt;
+
+  cnt=0;
+  for(i=0;i<containercount;i++)
+  {
+    cnt+=containerheaders[i].itemcount;
+  }
+  newitems = new area_item[cnt];
+  if(!newitems)
+  {
+    return;
+  }
+  cnt=0;
+  for(i=0;i<containercount;i++)
+  {
+    curcnt=containerheaders[i].itemcount;
+    memcpy(newitems+cnt, itemheaders+containerheaders[i].firstitem, curcnt*sizeof(area_item));
+    containerheaders[i].firstitem=cnt;
+    cnt+=curcnt;
+  }
+  if(the_area.itemheaders)
+  {
+    delete [] the_area.itemheaders;
+  }
+  the_area.itemheaders=newitems;
+  itemcount=cnt;
+  header.itemcnt=(short) cnt;
+}
+
 int Carea::WriteAreaToFile(int fh, int calculate)
 {
   int esize;
@@ -738,6 +770,7 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   int ret;
 
   ImplodeVertices();
+  ConsolidateItems();
   fullsize=sizeof(area_header);
   if(revision==91)
   {
@@ -1390,14 +1423,15 @@ int Carea::ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palett
   resname+=Suffix;
   if(read_bmp(resname, &tmpbam, 0)) return -2;
   if(tmpbam.GetFrameCount()!=1) return -2;
-  if(size<tmpbam.m_palettesize) return -2;
+  //if(size<tmpbam.m_palettesize) return -2;
   if(Storage)
   {
     delete [] Storage;
     Storage=NULL;
   }
   memset(Palette,0,size);
-  memcpy(Palette, tmpbam.m_palette, tmpbam.m_palettesize);  
+  if(size>tmpbam.m_palettesize) size=tmpbam.m_palettesize;
+  memcpy(Palette, tmpbam.m_palette, size);
   mapsize=(m_width/GR_WIDTH)*((m_height+GR_HEIGHT-1)/GR_HEIGHT);
   Storage = new unsigned char[mapsize];
   if(!Storage) return -3;

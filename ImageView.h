@@ -17,7 +17,7 @@
 #define IW_ENABLEBUTTON 1         //enables the 'back' button
 #define IW_SETVERTEX    2         //doesn't remove the window when clicked on it
 #define IW_SHOWGRID     4
-#define IW_PLACEIMAGE   8
+#define IW_PLACEIMAGE   8   
 #define IW_MATCH        16        //match the image
 #define IW_NOREDRAW     32
 #define IW_EDITMAP      64        //edit a map (light/search/height)
@@ -26,6 +26,7 @@
 #define IW_ENABLEFILL   512
 #define IW_GETPOLYGON   1024      //draws all polygons, you are allowed to select one
 #define IW_SHOWALL      2048      //show all button
+#define IW_OKBUTTON     4096
 
 typedef CList<CPoint, CPoint &> CPointList;
 

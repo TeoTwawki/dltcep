@@ -47,7 +47,7 @@ public:
   void new_iap();
   //new feature: modify iap
   //new feature: list of postprocessed files
-  int read_iap(int fhandle, int maxlen, int onlyopen, CStringList &filelist);  
+  int read_iap(int fhandle, int onlyopen, CStringList &filelist);  
   int AddTbgFile(int pos,CString &newname);
   int AddOtherFile(int pos, CString &newname);
   int AllocateHeaders(int tbgnum, int othernum);

@@ -1885,11 +1885,10 @@ int Cbam::GetTextExtent(CString text)
   return nWidth;
 }
 //drawing a text using this bam font over the bitmap
-int Cbam::DrawText(CString text,COLORREF clrTrans, Cmos &host, int nMode,
+void Cbam::DrawText(CString text,COLORREF clrTrans, Cmos &host, int nMode,
                    int nXpos, int nYpos, int nWidth)
 {
   int nFrameWanted;
-  int ret;
   int i;
 
   i=GetTextExtent(text);
@@ -1907,11 +1906,12 @@ int Cbam::DrawText(CString text,COLORREF clrTrans, Cmos &host, int nMode,
   for(i=0;i<text.GetLength();i++)
   {
     nFrameWanted=GetFrameIndex(text.GetAt(i)-1,0);
-    ret=MakeBitmap(nFrameWanted,clrTrans,host,nMode,nXpos,nYpos);
-    if(ret) break;
+    if(MakeBitmap(nFrameWanted,clrTrans,host,nMode,nXpos,nYpos))
+    {
+      break;
+    }
     nXpos+=GetFrameSize(nFrameWanted).x;
   }
-  return ret;
 }
 
 static int colourorder(const void *a, const void *b)
@@ -1988,12 +1988,13 @@ void Cbam::ForcePalette(palettetype &newpalette)
   for(nOrigIndex=0;nOrigIndex<m_palettesize/4;nOrigIndex++)
   {
     if(nOrigIndex==m_header.chTransparentIndex) continue; //don't bother with the transparent index
-    nFoundIndex=-1;
+    nMinDiff=-1;
+    nFoundIndex=0;
     for(nForceIndex=0;nForceIndex<m_palettesize/4;nForceIndex++)
     {
       if(nForceIndex==m_header.chTransparentIndex) continue; //don't bother with the transparent index
       nDiff=ChiSquare((BYTE *) (m_palette+nOrigIndex), (BYTE *) (newpalette+nForceIndex) );
-      if( (nFoundIndex<0) || (nDiff<nMinDiff) )
+      if( (nMinDiff<0) || (nDiff<nMinDiff) )
       {
         nMinDiff=nDiff;
         nFoundIndex=nForceIndex;

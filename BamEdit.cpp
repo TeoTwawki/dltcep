@@ -698,6 +698,7 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
   {
     newname=itemname;
     filepath=makeitemname(".bam",0);
+    bmpsave=false;
     goto gotname;
   }    
   
@@ -1275,6 +1276,7 @@ endofquest:
     break;
   case 0:
     //adding the 1+ frames into the new cycle
+    //nframeindex and nstartframe are initialized when res=0
     if(nFrameIndex-nStartFrame)
     {
       the_bam.AddFrameToCycle(0,1,nStartFrame,nFrameIndex-nStartFrame);

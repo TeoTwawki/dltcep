@@ -50,8 +50,9 @@ protected:
   CToolTipCtrl m_tooltip;
   CImageView m_preview;
 
-  void RefreshPolygon();
+  void RefreshPolygon(bool repos);
   void RefreshVertex();
+  void FixPolygon(CPoint &point);
 
 	// Generated message map functions
 	//{{AFX_MSG(CPolygon)
@@ -69,6 +70,8 @@ protected:
 	afx_msg void OnOpen();
 	afx_msg void OnKillfocusPosx();
 	afx_msg void OnKillfocusPosy();
+	afx_msg void OnSave();
+	afx_msg void OnLoad();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -60,6 +60,7 @@ protected:
 	afx_msg void OnEdit();
 	afx_msg void OnBrowse2();
 	afx_msg void OnNight();
+	afx_msg void OnExplored();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -572,6 +573,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAreaDoor)
 	enum { IDD = IDD_AREADOOR };
+	CComboBox	m_regionpicker;
 	CSpinButtonCtrl	m_spin_control;
 	CComboBox	m_doorpicker;
 	BOOL	m_openclose;
@@ -635,9 +637,6 @@ protected:
 	afx_msg void OnFlag10();
 	afx_msg void OnFlag11();
 	afx_msg void OnFlag12();
-	afx_msg void OnFlag13();
-	afx_msg void OnFlag14();
-	afx_msg void OnFlag15();
 	afx_msg void OnTagged();
 	afx_msg void OnChangeCursoridx();
 	afx_msg void OnSet();
