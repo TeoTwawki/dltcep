@@ -63,6 +63,9 @@ protected:
   void Forcepalette(Cbam &palette);
   void Savebam(Cbam &my_bam, int save);
   int PickBmpFile(Cbam &tmpbam);
+  void LoadBam(Cbam *resource);
+  void LoadBamEx(Cbam *resource);
+  void AddonBam(Cbam &addon);
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -113,6 +116,11 @@ protected:
 	afx_msg void OnAlign();
 	afx_msg void OnCopycycle();
 	afx_msg void OnCyclePastecycle();
+	afx_msg void OnShiftForward();
+	afx_msg void OnShiftBackward();
+	afx_msg void OnFileLoadbmp();
+	afx_msg void OnFileMergebam();
+	afx_msg void OnFileMergeexternalbam();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -249,7 +249,9 @@ Offset Size (data type) Description
 0x000e 4 (dword) Flags:
 
     * bit 0: identified
+    * bit 1: can't steal
     * bit 2: "stolen"
+    * bit 4: cannot move
 
 CRE V1.0 Item Slots
 
@@ -271,12 +273,13 @@ This is an array keeping track of which items are located in each particular loc
     * Quiver 1
     * Quiver 2
     * Quiver 3
-    * ?
+    * Magic weapon
     * Cloak
     * Quick item 1
     * Quick item 2
     * Quick item 3
     * and 16(?) inventory slots. Each entry in here will either be 0xffff, meaning "empty", or it will be an index into the Items table.
+    * Fist
 
 CRE V1.2
 

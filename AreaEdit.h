@@ -24,7 +24,6 @@ public:
 	enum { IDD = IDD_AREAEDIT };
 	//}}AFX_DATA
 
-
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaEdit)
@@ -51,6 +50,10 @@ protected:
 	afx_msg void OnSave();
 	afx_msg void OnFileTbg();
 	afx_msg void OnToolsMirrorareavertically();
+	afx_msg void OnRepairwed();
+	afx_msg void OnRepairwed2();
+	afx_msg void OnToolsLookupstrref();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

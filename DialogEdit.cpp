@@ -9,8 +9,9 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "DialogEdit.h"
-#include "options.h"
 #include "DialogLink.h"
+#include "options.h"
+#include "compat.h"
 #include "WeiduLog.h"
 
 #ifdef _DEBUG
@@ -282,7 +283,21 @@ void CDialogEdit::RefreshDialog(int stateidx, int expandselection)
   HTREEITEM ht;
   int from, count;
 
+  if(the_dialog.header.offstates==0x30) //quasi file version
+  {
+    m_freeze_control.EnableWindow(false);
+    m_version_control.SetCheck(false);
+  }
+  else
+  {
+    m_freeze_control.EnableWindow(true);
+    m_version_control.SetCheck(true);
+  }
   SetWindowText("Edit dialog: "+itemname);
+  if(stateidx==-1)
+  {
+    return;
+  }
   m_currentselection=m_currentselection_new=0;
   m_dialogtree.DeleteAllItems();
   m_treestates.RemoveAll();
@@ -669,16 +684,6 @@ void CDialogEdit::DoDataExchange(CDataExchange* pDX)
   if(tmp!=the_dialog.header.flags)
   {
     the_dialog.changed=1;
-    if(the_dialog.header.offstates==0x30) //quasi file version
-    {
-      m_freeze_control.EnableWindow(false);
-      m_version_control.SetCheck(false);
-    }
-    else
-    {
-      m_freeze_control.EnableWindow(true);
-      m_version_control.SetCheck(true);
-    }
   }
   if(pDX->m_bSaveAndValidate==UD_RETRIEVE)
   {
@@ -762,7 +767,7 @@ void CDialogEdit::OnLoad()
       MessageBox("Dialog loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
       break;
     case 1:
-      if(!old_version_dlg())
+      if(old_version_dlg())
       {
         MessageBox("Old dialog version (freeze flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
       }
@@ -812,7 +817,7 @@ restart:
       MessageBox("Dialog loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
       break;
     case 1:
-      if(!old_version_dlg())
+      if(old_version_dlg())
       {
         MessageBox("Old dialog version (freeze flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);
       }
@@ -934,22 +939,32 @@ void CDialogEdit::OnCheck()
     case STATETR:
       m_currentselection_new=m_treestates.FindStTrigger(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
+      m_activesection = FL_OPTION;
       break;
     case TRANSTR:
       m_currentselection_new=m_transstates.FindTrTrigger(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
+      m_activesection = FL_CONDITION;
       break;
-    case EXTERNAL:
+    case ACTIONBL:
       m_currentselection_new=m_transstates.FindAction(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
+      m_activesection = FL_ACTION;
+      break;
+    case EXTERNAL: 
+      m_currentselection_new=m_transstates.FindAction(node);
+      m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
+      m_activesection = FL_TEXT;
       break;
     case TREESTATE:
       m_currentselection_new=m_treestates.FindElement(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
+      m_activesection = FL_TEXT;
       break;
     case TRANSSTATE:
       m_currentselection_new=m_transstates.FindElement(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
+      m_activesection = FL_TEXT;
       break;
     default:
       break;
@@ -2020,6 +2035,7 @@ void CDialogEdit::OnVersion()
   UpdateData(UD_RETRIEVE);
   if(the_dialog.header.offstates==0x30) the_dialog.header.offstates=0x34;
   else the_dialog.header.offstates=0x30;
+  RefreshDialog(-1);
   UpdateData(UD_DISPLAY);
 }
 
@@ -2445,6 +2461,8 @@ void CDialogEdit::OnAddnode() //adds a new transition
   int ret;
 
   the_dialog.changed=1;
+  m_strref=-1;
+  UpdateData(UD_DISPLAY);
   //adding a transition to the selected state
   if(m_treestates.Lookup(m_currentselection,key) )
   {
@@ -2809,7 +2827,7 @@ int CDialogEdit::RunWeidu(CString syscommand)
   //flushing dialog.tlk
   if(global_changed)
   {
-    tmpstr.Format("%sdialog.tlk",bgfolder);
+    tmpstr.Format("%sdialog%s.tlk",bgfolder,(optflg&DIALOGF)?"F":"");
     ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(tmpstr); 
   }
   unlink(WEIDU_LOG);
@@ -2869,6 +2887,7 @@ restart:
     chdir(bgfolder);
     //this one writes back the tlk file so the import will be consistent
     syscommand=AssembleWeiduCommandLine(filepath,"override");
+    close(fhandle); //close file before calling weidu
   	res=RunWeidu(syscommand);
 
     ((CChitemDlg *) AfxGetMainWnd())->rescan_dialog(true);

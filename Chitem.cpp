@@ -21,6 +21,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+#define BLOCKSIZE  8192
+
 UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
 //globally used constants
@@ -68,7 +70,8 @@ ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,
 
 char BASED_CODE szFilterKey[] = "chitin.key|chitin.key|All files (*.*)|*.*||";
 char BASED_CODE szFilterTbg[] = "Tbg files (*.tbg)|*.tbg|All files (*.*)|*.*||";
-char BASED_CODE szFilterWeidu[] = "WeiDU dialog files (*.d)|*.d|All files (*.*)|*.*||";
+char BASED_CODE szFilterWeidu[] = "Dialog source files (*.d)|*.d|All files (*.*)|*.*||";
+char BASED_CODE szFilterWeiduAll[] = "Source files (*.d;*.baf)|*.d;*.baf|Dialog source files (*.d)|*.d|Script source files (*.baf)|*.baf|All files (*.*)|*.*||";
 char BASED_CODE szFilterBifc[] = "Bifc files (*.bif)|*.bif|All files (*.*)|*.*||";
 char BASED_CODE szFilterBif[] = "Biff files (*.bif)|*.bif|All files (*.*)|*.*||";
 
@@ -1318,6 +1321,13 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
       entryinfo.res_loc=tileinfo.res_loc;
       entryinfo.restype=tileinfo.restype;
       if(tileinfo.restype!=REF_TIS) return -1;       //only tilesets
+      if(!(editflg&RESLOC) ) //don't be so pickish in case of weidu
+      {
+        if((entryinfo.res_loc&TIS_IDX_MASK)!=index<<14)
+        {
+          return -1;
+        }
+      }
       entryinfo.size=tileinfo.numtiles*tileinfo.size;
       entryinfo.unused=(short) tileinfo.size;    //this is a hack (used to be 5120)
     }
@@ -1337,9 +1347,12 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
         return -1;
       }
       if(entryinfo.restype==REF_TIS) return -1;       //no tilesets!
-      if((entryinfo.res_loc&FILE_IDX_MASK)!=fileloc.index)
+      if(!(editflg&RESLOC) ) //don't be so pickish in case of weidu
       {
-        return -1;
+        if((entryinfo.res_loc&FILE_IDX_MASK)!=fileloc.index)
+        {
+          return -1;
+        }
       }
     }
     //resource locator, lowest 14 bits
@@ -2059,31 +2072,31 @@ CString get_spark_colour(int spktype)
   return sparkcolour[spktype];
 }
 
-CString area_types[NUM_ARTYPE]={"-No save/rest","-Tutorial",
+CString area_flags[NUM_ARFLAGS]={"-No save/rest","-Tutorial",
 "-Antimagic area","-Dream"};
-CString area_types_iwd2[NUM_ARTYPE]={"-No save","-No rest",
+CString area_flags_iwd2[NUM_ARFLAGS]={"-No save","-No rest",
 "-Lock battle music","-Unknown"};
 
-CString get_areatype(unsigned long artype)
+CString get_areaflag(unsigned long arflags)
 {
   int i,j;
   CString tmp;
 
-  if(!artype) return "0-Normal";
+  if(!arflags) return "0-Normal";
   j=1;
-  if(artype<9) tmp.Format("%d",artype);
-  else tmp.Format("0x%x",artype);
-  for(i=0;i<NUM_ARTYPE;i++)
+  if(arflags<10 ) tmp.Format("%d",arflags);
+  else tmp.Format("0x%x",arflags);
+  for(i=0;i<NUM_ARFLAGS;i++)
   {
-    if(artype&j)
+    if(arflags&j)
     {
       if(has_xpvar()||pst_compatible_var())
       {
-        tmp+=area_types_iwd2[i];
+        tmp+=area_flags_iwd2[i];
       }
       else
       {
-        tmp+=area_types[i];
+        tmp+=area_flags[i];
       }
     }
     j<<=1;
@@ -2123,9 +2136,9 @@ int find_attacknum(CString anum)
   return strtonum(anum);
 }
 
-short slottypenums[NUM_SLOTTYPE]={0,1,2,3,1000,-24,-23,-22};
-CString slottypes[NUM_SLOTTYPE]={"0-Slot 1","1-Slot 2","2-Slot 3","3-Slot 4",
-"1000-No slot","-24-Quiver 1","-23-Quiver 2","-22-Quiver 3"};
+int slottypenums[NUM_SLOTTYPE]={0,1,2,3,1000,65512,65513,65514};
+CString slottypes[NUM_SLOTTYPE]={"0-Weapon 1","1-Weapon 2","2-Weapon 3","3-Weapon 4",
+"1000-No slot","65512-Quiver 1","65513-Quiver 2","65514-Quiver 3"};
 
 CString get_slottype(int slottype)
 {
@@ -2621,7 +2634,7 @@ CString get_duration_label(int tmtype)
 
 CString efftarget_types[NUM_ETTYPE]={
   "0 None","1 Self","2 Pre-Target","3 Party","4 Global","5 Not in Party",
-  "6 Party?","7 Unknown","8 Except self","9 Original caster",
+  "6 Not Evil","7 Unknown","8 Except self","9 Original caster",
   "10 Unknown","11 Unknown","12 Unknown",
   "13 Unknown",
 };
@@ -3807,7 +3820,66 @@ void UpdateIEResource(CString key, int restype, CString filepath, int size)
   resources[ext]->SetAt(key,fileloc);
 }
 
-///////// Readers /////////////////////
+///////// Readers & writers/////////////////////
+
+int write_area(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  CString filepath, tmpath;
+  int size;
+  int fhandle;
+
+  filepath=bgfolder+"override\\"+key+".ARE";
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_area.WriteAreaToFile(fhandle,0);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && (size>0) )
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    filepath="override\\"+key+".ARE";
+    UpdateIEResource(key,REF_ARE,filepath,size);
+  }
+  return ret;
+}
+
+int write_tis(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  CString filepath, tmpath;
+  int size;
+  int fhandle;
+
+  filepath=bgfolder+"override\\"+key+".TIS";
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_mos.WriteTisToFile(fhandle,0);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && (size>0) )
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    filepath="override\\"+key+".TIS";
+    UpdateIEResource(key,REF_TIS,filepath,size);
+  }
+  return ret;
+}
+
 int read_item(CString key)
 {
   loc_entry fileloc;
@@ -3923,6 +3995,79 @@ int read_store(CString key)
   return ret;
 }
 
+int write_store(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  CString filepath, tmpath;
+  int size;
+  int fhandle;
+
+  filepath=bgfolder+"override\\"+key+".STO";
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_store.WriteStoreToFile(fhandle,0);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    filepath="override\\"+key+".STO";
+    UpdateIEResource(key,REF_SPL,filepath,size);
+  }
+  return ret;
+}
+
+int GetWed(bool night)
+{
+  if(night==the_area.m_night) return 0;
+  if(the_area.WedChanged() )
+  {
+    if(MessageBox(0,"Do you want to discard the changes made on the other WED?","Area editor",MB_YESNO)==IDNO)
+    {
+      return -99;
+    }
+  }
+  the_area.m_night=night;
+  return ReadWed(0);
+}
+
+int ReadWed(int res)
+{
+  CString wed;
+  loc_entry wedfileloc;
+  int fhandle;
+
+  RetrieveResref(wed,the_area.header.wed);
+  if(the_area.m_night) wed+="N";
+  if(weds.Lookup(wed,wedfileloc))
+  {
+    fhandle=locate_file(wedfileloc, 0);
+    if(fhandle<1)
+    {        
+      res=3; //wedfile not available
+    }
+    else
+    {
+      switch(the_area.ReadWedFromFile(fhandle, wedfileloc.size) )
+      {
+      case 0: case 1: case 2: case 3: break;
+      default:
+        res=3;
+      }
+      close(fhandle);
+    }
+  }
+  else res=3;
+  return res;
+}
+
 int read_area(CString key)
 {
   loc_entry fileloc, wedfileloc;
@@ -3939,28 +4084,7 @@ int read_area(CString key)
     close(fhandle);
     if(ret>=0)
     {
-      RetrieveResref(tmp,the_area.header.wed);
-      if(weds.Lookup(tmp,wedfileloc))
-      {
-        fhandle=locate_file(wedfileloc, 0);
-        if(fhandle<1)
-        {        
-          ret=3; //wedfile not available
-        }
-        else
-        {
-          weds.SetAt(tmp,wedfileloc);
-          switch(the_area.ReadWedFromFile(fhandle, wedfileloc.size))
-          {
-            //1 means reordering. 2 means size problems
-          case 0: case 1: case 2: break;
-          default: 
-            ret=3;
-          }
-          close(fhandle);
-        }
-      }
-      else ret=3;
+      ret=ReadWed(ret);
     }
   }
   else return -1;
@@ -4140,6 +4264,35 @@ int read_videocell(CString key)
   return ret;
 }
 
+int write_videocell(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  CString filepath, tmpath;
+  int size;
+  int fhandle;
+
+  filepath=bgfolder+"override\\"+key+".VVC";
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_videocell.WriteVVCToFile(fhandle);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    filepath="override\\"+key+".VVC";
+    UpdateIEResource(key,REF_VVC,filepath,size);
+  }
+  return ret;
+}
+
 int read_2da(CString key)
 {
   loc_entry fileloc;
@@ -4231,6 +4384,35 @@ int read_effect(CString key)
     close(fhandle);
   }
   else return -1;
+  return ret;
+}
+
+int write_effect(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  CString filepath, tmpath;
+  int size;
+  int fhandle;
+
+  filepath=bgfolder+"override\\"+key+".EFF";
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_effect.WriteEffectToFile(fhandle,0);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    filepath="override\\"+key+".EFF";
+    UpdateIEResource(key,REF_EFF,filepath,size);
+  }
   return ret;
 }
 
@@ -4368,6 +4550,33 @@ int read_bmp(CString key,HBITMAP &hb)
   }
   else return -2;
   return 0;
+}
+
+int read_bmp(CString key, Cmos *cb, int lazy)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+
+  if(!cb) cb=&the_mos;
+  if(lazy && (key+".bmp"==cb->m_name) ) return 0;
+  if(bitmaps.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    bitmaps.SetAt(key,fileloc);
+    ret=cb->ReadBmpFromFile(fhandle,-1); //read bmp
+    close(fhandle);
+  }
+  else ret=-2;
+endofquest:
+  if(ret) cb->m_name.Empty();
+  else cb->m_name=key+".bmp";
+  return ret;
 }
 
 int read_mos(CString key, Cmos *cb, int lazy)
@@ -4907,15 +5116,14 @@ CString GetMapTypeValue(int maptype, int value)
 
   switch(maptype)
   {
-  case 0:
-    tmpstr.Format("%d",value);
-    return tmpstr;
-  case 1:
-    tmpstr.Format("%d",value);
-    return tmpstr;
-  default:    
+  case MT_SEARCH:
     return searchmap[value];
+  case MT_BLOCK:
+    if(value) return "1 - Blocked";
+    else return "0 - Unblocked";
   }
+  tmpstr.Format("%d",value);
+  return tmpstr;
 }
 
 int ReadPaletteFromFile(int fhandle, int ml)
@@ -4926,7 +5134,7 @@ int ReadPaletteFromFile(int fhandle, int ml)
   int palettesize;             //size of the palette in file (ncolor * bytesize of color)
   long original;
   int x,y;
-  int nSourceOff;              //the source offset in the original scanline (which we cut up)
+  unsigned int nSourceOff;     //the source offset in the original scanline (which we cut up)
   int ret;
 
   pcBuffer=NULL;
@@ -4939,7 +5147,7 @@ int ReadPaletteFromFile(int fhandle, int ml)
   }
   if((*(unsigned short *) sHeader.signature)!='MB') return -2; //BM
   if(sHeader.bits!=24) return -1;                   //read palette from
-  if(sHeader.fullsize>ml) return -2;
+  if(sHeader.fullsize>(unsigned int) ml) return -2;
   if(sHeader.headersize!=0x28) return -2;
   if(sHeader.planes!=1) return -1;                  //unsupported
   if(sHeader.compression!=BI_RGB) return -1;        //unsupported
@@ -4987,12 +5195,11 @@ endofquest:
 }
 
 //using colors
-int read_bmp(CString key)
+int read_bmp_palette(CString key)
 {
   loc_entry fileloc;
   int ret;
   int fhandle;
-  CString tmp;
   
   if(bitmaps.Lookup(key,fileloc))
   {
@@ -5008,9 +5215,9 @@ int read_bmp(CString key)
 
 void init_colors()
 {
-  if(read_bmp("MPALETTE"))
+  if(read_bmp_palette("MPALETTE"))
   {
-    read_bmp("MPAL256");
+    read_bmp_palette("MPAL256");
   }
 }
 
@@ -5290,11 +5497,15 @@ int WriteTempCreature(char *creature, long esize)
   return ret;
 }
 
-CString imagefilters[4]={
+CString imagefilters[8]={
   "All files (*.*)|*.*||",
   "Image files (*.mos)|*.mos|",
-  "Tile sets (*.tis)|*.tis|",
-  "Bitmaps (*.bmp)|*.bmp|"
+  "Tilesets (*.tis)|*.tis|",
+  "Bitmaps (*.bmp)|*.bmp|",
+/*  "Compressed tilesets (*.tiz)|*.tiz|",*/ "",
+  "Bam files (*.bam)|*.bam|",
+  "Paperdoll files (*.plt)|*.plt|",
+  "",
 };
 
 CString ImageFilter(int mostisbmp)
@@ -5302,9 +5513,9 @@ CString ImageFilter(int mostisbmp)
   CString ret;
   int i;
 
-  for(i=0;i<4;i++)
+  for(i=0;i<7;i++)
   {
-    ret+=imagefilters[mostisbmp&3];
+    ret+=imagefilters[mostisbmp&15];
     if(!mostisbmp) break;
     mostisbmp>>=4;
   }
@@ -5316,15 +5527,16 @@ void CreateMinimap(HWND hwnd)
   COLORREF *truecolor=NULL;
   Cmos minimap;
   CString tmpstr;
+  CString tmpath, filepath;
   int fhandle;
   int x,y;
   int ret;
-  int i;
+  unsigned int i;
   int esize;
   int factor;
 
-  tmpstr=makeitemname(".mos",0);
-  fhandle=open(tmpstr, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  tmpath=bgfolder+"override\\"+itemname+".TMP";
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(fhandle<1)
   {
     MessageBox(hwnd,"Can't write file!","Error",MB_ICONSTOP|MB_OK);
@@ -5342,13 +5554,13 @@ void CreateMinimap(HWND hwnd)
     tmpstr="Creating BG minimap...";
   }
   //bg2 and iwd2 has compressed mos
-  if(bg2_weaprofs() || iwd2_structures())
+  if(no_compress())
   {
-    the_mos.m_bCompressed=true;
+    minimap.m_bCompressed=false;
   }
   else
   {
-    the_mos.m_bCompressed=false;
+    minimap.m_bCompressed=true;
   }
   x=the_mos.mosheader.wColumn*factor;
   y=the_mos.mosheader.wRow*factor;
@@ -5381,9 +5593,15 @@ void CreateMinimap(HWND hwnd)
   }
 endofquest:
   if(truecolor) delete [] truecolor;
+  filepath="override\\"+itemname+".MOS";
+  UpdateIEResource(itemname,REF_MOS,filepath,filelength(fhandle));
   close(fhandle);
+  filepath=bgfolder+filepath;
+  unlink(filepath);
+  rename(tmpath,filepath);
 }
 
+//beware bitspercolor is really in bits, not bytes!!!
 int GetScanLineLength(int width, int bitspercolor)
 {
   int paddedwidth;
@@ -5391,6 +5609,21 @@ int GetScanLineLength(int width, int bitspercolor)
   paddedwidth=(width*bitspercolor+7)/8;
   if(paddedwidth&3) paddedwidth+=4-(paddedwidth&3); // rounding it up to 4 bytes boundary
   return paddedwidth;
+}
+
+int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes)
+{
+  int fullsize;
+  int psize;
+
+  if(bytes==1) psize=256;
+  else psize=0;
+  fullsize=GetScanLineLength(width,8*bytes)*height;
+  bmp_header header={'B','M',fullsize+sizeof(header), 0,
+  sizeof(header)+psize*4, 40, width, height, (short) 1, (short) (8*bytes), 0, fullsize,
+  0xb12, 0xb12,psize,0};
+
+  return write(fhandle,&header,sizeof(header))==sizeof(header);
 }
 
 unsigned long getfreememory()
@@ -5401,6 +5634,326 @@ unsigned long getfreememory()
   return memstat.dwAvailPhys/1024;
 }
 
+struct 
+{
+  char signature[4];
+  char version[4];
+  unsigned long len;
+} bifc_header = {'B','I','F','C','V','1','.','0'};
+
+struct
+{
+  char signature[4];
+  char version[4];
+  unsigned long namelen;
+} cbf_header = {'B','I','F',' ','V','1','.','0'};
+
+int CompressBIFC(CString infilename)
+{
+  DWORD cheader[2]; 
+  BYTE *compressed, *decompressed;
+  CString outfilename;
+  int fhandle, infile;
+  unsigned long len, chunk;
+  int ret;
+  
+  cheader[UNCOMPRESSED]=BLOCKSIZE;
+  infile=open(infilename,O_RDONLY|O_BINARY);
+  if(infile<1)
+  {
+    return -1;
+  }
+  len=filelength(infile);
+  if(len<1)
+  {
+    close(infile);
+    return -1;
+  }
+  bifc_header.len=len;
+  outfilename=infilename;
+  fhandle=open(outfilename+".tmp",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    close(infile);
+    return -2;
+  }
+  compressed=new BYTE[BLOCKSIZE+100];
+  decompressed=new BYTE [cheader[UNCOMPRESSED]];
+  if(!compressed || !decompressed)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  if(write(fhandle, &bifc_header,sizeof(bifc_header))!=sizeof(bifc_header) )
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  do
+  {
+    chunk=len>BLOCKSIZE?BLOCKSIZE:len;
+    len-=chunk;
+    cheader[COMPRESSED]=BLOCKSIZE+100;
+    ret=compress(compressed,cheader+COMPRESSED,decompressed,chunk);
+    if(ret!=Z_OK)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    if(write(fhandle,cheader,sizeof(cheader))!=sizeof(cheader))
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    if(write(fhandle,compressed,cheader[COMPRESSED])!=(int) cheader[COMPRESSED])
+    {
+      ret=-2;
+      goto endofquest;
+    }
+  }
+  while(len);
+endofquest:
+  if(compressed) delete [] compressed;
+  if(decompressed) delete [] decompressed;
+  close(infile);
+  close(fhandle);
+  if(ret)
+  {
+    unlink(outfilename+".tmp");
+  }
+  else
+  {
+    unlink(outfilename);
+    rename(outfilename+".tmp",outfilename);
+  }
+  return ret;
+}
+
+int CompressCBF(CString infilename)
+{
+  DWORD cheader[2]; 
+  BYTE *compressed, *decompressed;
+  CString outfilename;
+  unsigned long len;
+  int fhandle, infile;
+  int ret;
+  
+  infile=open(infilename,O_RDONLY|O_BINARY);
+  if(infile<1)
+  {
+    return -1;
+  }
+  len=filelength(infile);
+  if(len<1)
+  {
+    close(infile);
+    return -1;
+  }
+  outfilename=infilename;
+  cbf_header.namelen=infilename.GetLength();
+  outfilename.MakeLower();
+  outfilename.Replace(".bif",".cbf");
+  fhandle=open(outfilename+".tmp",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    close(infile);
+    return -2;
+  }
+  cheader[COMPRESSED]=len+100;
+  compressed=new BYTE [len+100];
+  cheader[UNCOMPRESSED]=len;
+  decompressed=new BYTE[len];
+  if(!compressed || !decompressed)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  if(write(fhandle,&cbf_header,sizeof(cbf_header) ) !=sizeof(cbf_header) )
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  ret = compress(compressed, cheader+COMPRESSED, decompressed, len);
+  if(ret!=Z_OK)
+  {
+    ret=-1;
+    goto endofquest;
+  }
+  if(write(fhandle,cheader,sizeof(cheader) )!=sizeof(cheader) )
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  if(write(fhandle,compressed,cheader[COMPRESSED])!=(int) cheader[COMPRESSED])
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  ret=0;
+
+endofquest:
+  if(compressed) delete [] compressed;
+  if(decompressed) delete [] decompressed;
+  close(infile);
+  close(fhandle);
+  if(ret)
+  {
+    unlink(outfilename+".tmp");
+  }
+  else
+  {
+    unlink(outfilename);
+    rename(outfilename+".tmp",outfilename);
+  }
+  return ret;
+}
+
+int SetupSelectPoint()
+{
+  CString tmpstr;
+
+  if(the_area.overlayheaders)
+  {
+    RetrieveResref(tmpstr, the_area.overlayheaders[0].tis);
+  }
+  else return -1;
+  if(read_tis(tmpstr,&the_mos,true))
+  {
+    MessageBox(0,"Cannot load TIS.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return -1;
+  }
+  the_mos.SetOverlay(0, the_area.overlaytileheaders, the_area.overlaytileindices);
+  the_mos.TisToMos(the_area.overlayheaders[0].width,the_area.overlayheaders[0].height);
+  
+  return 0;
+}
+
+//////////vertex & polygon functions
+
+int PolygonInBox(area_vertex *wedvertex, int count, CRect rect)
+{
+  int i;
+
+  for(i=0;i<count;i++)
+  {
+    if(wedvertex[i].point.x<rect.left || wedvertex[i].point.x>rect.right)
+    {
+      continue;
+    }
+    if(wedvertex[i].point.y<rect.top || wedvertex[i].point.y>rect.bottom)
+    {
+      continue;
+    }
+    return true;
+  }
+  if(PointInPolygon(wedvertex, count,rect.BottomRight() ) ) return true;
+  if(PointInPolygon(wedvertex, count,rect.TopLeft() ) ) return true;
+  if(PointInPolygon(wedvertex, count,CPoint(rect.right, rect.top) ) ) return true;
+  if(PointInPolygon(wedvertex, count,CPoint(rect.left, rect.bottom) ) ) return true;
+  return false;
+}
+
+int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
+{
+  register int   j, yflag0, yflag1, xflag0 , index;
+  register long ty, tx;
+  bool inside_flag = false;
+  area_vertex * vtx0, * vtx1;
+  
+  index = 0;
+  
+  tx = point.x;
+  ty = point.y;
+  
+  if(count<3)
+  {
+    return false;
+  }
+
+  vtx0 = &wedvertex[count - 1];
+  yflag0 = ( vtx0->point.y >= ty );
+  vtx1 = &wedvertex[index];
+  
+  for (j = count ; j-- ;)
+  {
+    yflag1 = ( vtx1->point.y >= ty );
+    if (yflag0 != yflag1)
+    {
+      xflag0 = ( vtx0->point.x >= tx );
+      if (xflag0 == ( vtx1->point.x >= tx ))
+      {
+        if (xflag0)
+        {
+          inside_flag = !inside_flag;
+        }
+      }
+      else
+      {
+        if (( vtx1->point.x -
+          ( vtx1->point.y - ty ) * ( vtx0->point.x - vtx1->point.x ) /
+          ( vtx0->point.y - vtx1->point.y ) ) >= tx)
+        {
+          inside_flag = !inside_flag;
+        }
+      }
+    }
+    yflag0 = yflag1;
+    vtx0 = vtx1;
+    vtx1 = &wedvertex[++index];
+  }
+  return inside_flag;
+}
+
+//This function orders the vertices of a polygon (without ruining it)
+int VertexOrder(area_vertex *wedvertex, int count)
+//int Carea::VertexOrder(area_vertex *wedvertex, int count)
+{
+  int i;
+  int shift;
+  area_vertex *tmp;
+  area_vertex max;
+
+  max=wedvertex[0];
+  shift=0;
+  for(i=1;i<count;i++)
+  {
+    if(wedvertex[i].point.y>max.point.y)
+    {
+      shift=i;
+      max=wedvertex[i];
+    }
+    else
+    {
+      if(wedvertex[i].point.y==max.point.y)
+      {
+        if(wedvertex[i].point.x>max.point.x)
+        {
+          shift=i;
+          max=wedvertex[i];
+        }
+      }
+    }
+  }
+  if(shift)
+  {
+    tmp=new area_vertex[count];
+    if(!tmp)
+    {
+      return -3;
+    }
+    for(i=0;i<count;i++)
+    {
+      tmp[i]=wedvertex[(i+shift)%count];
+    }
+    memcpy(wedvertex,tmp,count*sizeof(area_vertex) );
+    delete [] tmp;
+    return 1;
+  }
+  return 0;
+}
+
+
+//cstringmap functions
 CStringMapCStringMapInt::~CStringMapCStringMapInt()
 {
   CString key;

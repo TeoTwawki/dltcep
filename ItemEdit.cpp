@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "ItemEdit.h"
+#include "StrRefDlg.h"
 #include "tbg.h"
 
 #ifdef _DEBUG
@@ -75,12 +76,13 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_NEW, OnNew)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -191,7 +193,6 @@ void CItemEdit::SaveItem(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
 
   if(readonly)
@@ -233,6 +234,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
@@ -241,6 +243,8 @@ gotname:
     }
     res=the_item.WriteItemToFile(fhandle,0);
     close(fhandle);
+    */
+    res = write_item(newname);
     switch(res)
     {
     case 0:
@@ -327,6 +331,15 @@ BOOL CItemEdit::OnInitDialog()
 	return TRUE;
 }
 
+void CItemEdit::OnToolsLookupstrref() 
+{
+	CStrRefDlg dlg;
+	
+  dlg.DoModal();
+  m_pModelessPropSheet->RefreshDialog();
+  UpdateData(UD_DISPLAY);
+}
+
 void CItemEdit::PostNcDestroy() 
 {
   if (m_pModelessPropSheet)
@@ -342,4 +355,3 @@ BOOL CItemEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
   return CDialog::PreTranslateMessage(pMsg);
 }
-

@@ -369,6 +369,14 @@ void CPaletteEdit::ExecuteStep(int &fr, int &fg, int &fb, int &ftmp, int functio
   case 19:
     fr-=m_xr; fg-=m_xg; fb-=m_xb;
     break;
+  case 20: //redshift
+    if(fb+fg>fr*1.35)
+    {
+      ftmp=(int) ((fb>fg?fg:fb)/1.5);
+      fb-=ftmp;
+      fg-=ftmp;
+    }
+    break;
   }
   if(fr>255) fr=255;
   else if(fr<0) fr=0;
@@ -378,21 +386,22 @@ void CPaletteEdit::ExecuteStep(int &fr, int &fg, int &fb, int &ftmp, int functio
   else if(fb<0) fb=0;
 }
 
-#define SCRIPT 20
+#define SCRIPT 21
 
-void CPaletteEdit::ExecuteScript(int &fr, int &fg, int &fb, int &ftmp)
+int CPaletteEdit::ExecuteScript(int &fr, int &fg, int &fb, int &ftmp)
 {
   int i;
 
   if(!m_pSteps)
   {
     MessageBox("Sorry... Not implemented.","Warning",MB_OK);
-    return;
+    return -1;
   }
   for(i=0;i<m_nStep;i++)
   {
     ExecuteStep(fr,fg,fb,ftmp,m_pSteps[i]);
   }
+  return 0;
 }
 
 void CPaletteEdit::OnRgb() 
@@ -420,8 +429,17 @@ void CPaletteEdit::OnRgb()
       if(isgray<GREY_TRESHOLD) continue;
     }
     ftmp=0;
-    if(m_function==SCRIPT) ExecuteScript(fr,fg,fb,ftmp);
-    else ExecuteStep(fr,fg,fb,ftmp,m_function);
+    if(m_function==SCRIPT)
+    {
+      if(ExecuteScript(fr,fg,fb,ftmp))
+      {
+        break;
+      }
+    }
+    else
+    {
+      ExecuteStep(fr,fg,fb,ftmp,m_function);
+    }
     *(BYTE *) (palette+from)=(BYTE) fb;
     *((BYTE *) (palette+from)+1)=(BYTE) fg;
     *((BYTE *) (palette+from)+2)=(BYTE) fr;

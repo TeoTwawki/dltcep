@@ -112,10 +112,6 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_CBN_KILLFOCUS(IDC_FRAME, OnKillfocusFrame)
 	ON_CBN_SELCHANGE(IDC_FRAME, OnSelchangeFrame)
 	ON_BN_CLICKED(IDC_COMPRESSED, OnCompressed)
-	ON_EN_KILLFOCUS(IDC_LIMIT, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_RED, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_GREEN, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_BLUE, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_TRANSPARENT, OnTransparent)
 	ON_BN_CLICKED(IDC_PALETTE, OnPalette)
 	ON_BN_CLICKED(IDC_VIEW, OnView)
@@ -126,6 +122,11 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_EN_KILLFOCUS(IDC_PWIDTH, OnKillfocusPwidth)
 	ON_EN_KILLFOCUS(IDC_PHEIGHT, OnKillfocusPheight)
+	ON_BN_CLICKED(IDC_MINIMAP, OnMinimap)
+	ON_EN_KILLFOCUS(IDC_LIMIT, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_RED, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_GREEN, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_BLUE, DefaultKillfocus)
 	ON_COMMAND(ID_TOOLS_EXTRACTTILES, OnExtract)
 	ON_COMMAND(ID_PALETTE_TRIM, OnDrop)
 	ON_COMMAND(ID_PALETTE_EDIT, OnPalette)
@@ -133,7 +134,7 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_BN_CLICKED(IDC_MINIMAP, OnMinimap)
+	ON_COMMAND(ID_FILE_LOADBMP, OnLoadBmp)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -178,8 +179,37 @@ BOOL CMosEdit::OnInitDialog()
     cb->SetWindowText((tis_or_mos&TM_TIS)?"New Tis":"New Mos");
     m_tooltip.AddTool(GetDlgItem(IDC_MINIMAP), IDS_MINIMAP);
     m_tooltip.AddTool(GetDlgItem(IDC_EXTRACT), IDS_TISEXTRACT);
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_OVERLAY);
   }	
 	return TRUE;  
+}
+
+void CMosEdit::OnLoadBmp()
+{
+	int res;
+	
+  pickerdlg.m_restype=REF_BMP;
+  pickerdlg.m_picked=itemname;
+	res=pickerdlg.DoModal();
+	if(res==IDOK)
+	{
+    res=read_bmp(pickerdlg.m_picked, &the_mos);
+    switch(res)
+    {
+    case -1:
+      MessageBox("Image loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 0:
+  		itemname=pickerdlg.m_picked;
+      break;
+    default:
+      MessageBox("Cannot read image!","Error",MB_ICONSTOP|MB_OK);
+      NewMos(tis_or_mos);
+      break;
+    }
+    RefreshDialog();
+  }
 }
 
 void CMosEdit::OnLoad() 
@@ -238,7 +268,7 @@ restart:
     if(!filepath.Right(4).CompareNoCase(".bmp"))
     {
       time(&tm1);
-      res=the_mos.ReadBmpFromFile(fhandle,-1,tis_or_mos&TM_TIS); //read bmp and convert it to tis or mos
+      res=the_mos.ReadBmpFromFile(fhandle,-1); //read bmp 
       if(!res)
       {
         time(&tm2);
@@ -254,11 +284,6 @@ restart:
     close(fhandle);
     switch(res)
     {
-    case -1:
-      MessageBox("Image loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
-      itemname=m_getfiledlg.GetFileTitle();
-      itemname.MakeUpper();
-      break;
     case 1:
       MessageBox("Image loaded, IETME bug fixed.","Warning",MB_ICONWARNING|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
@@ -267,6 +292,14 @@ restart:
     case 0:
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
+      break;
+    case -3:
+      MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
+      NewMos(tis_or_mos);
+      break;
+    case -1:
+      MessageBox("Image is incompatible.","Error",MB_ICONSTOP|MB_OK);
+      NewMos(tis_or_mos);
       break;
     default:
       MessageBox("Cannot read image!","Error",MB_ICONSTOP|MB_OK);
@@ -292,7 +325,7 @@ int CMosEdit::Savemos(Cmos &my_mos, int save)
     return -1;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname("",0), res, ImageFilter(tis_or_mos?0x0312:0x0321));
+  CFileDialog m_getfiledlg(FALSE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname("",0), res, ImageFilter(tis_or_mos?0x03142:0x03421));
 
   if(save)
   {
@@ -334,7 +367,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+    fhandle=open(filepath+".tmp", O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
       MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
@@ -357,9 +390,12 @@ gotname:
     {
     case 1:
       MessageBox("The tileset was padded to a multiplication of 64","Warning",MB_ICONWARNING|MB_OK);
+      res=0;
       //fall thru
     case 0:
       itemname=newname;
+      unlink(filepath);
+      rename(filepath+".tmp",filepath);
       break; //saved successfully
     case -2:
       MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
@@ -509,10 +545,10 @@ void CMosEdit::OnView()
   CImageView dlg;
   CPoint point;
 
-  dlg.InitView(IW_ENABLEBUTTON);
+  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID|IW_MARKTILE, &the_mos);
   if(dlg.DoModal()==IDOK)
   {
-    point=dlg.GetPoint(1);
+    point=dlg.GetPoint(GP_TILE);
     if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
        point.y>=0 && point.y<=the_mos.mosheader.wRow)
     {
@@ -584,8 +620,18 @@ void CMosEdit::OnKillfocusPheight()
 
 void CMosEdit::OnOK() 
 {
+  loc_entry dummy;
+
+  if(tis.Lookup(itemname,dummy) )
+  {
+    if(MessageBox("Tis already exists, you don't have to create it.\nDo you still want to create it?","Tileset editor",MB_YESNO)!=IDYES)
+    {
+      CDialog::OnOK();
+      return; //never reach this point
+    }    
+  }
   //here we save the .tis and optionally create the .mos for the area
-	if(the_mos.mosheader.wColumn*the_mos.mosheader.wRow!=the_mos.tisheader.numtiles)
+	if(the_mos.mosheader.wColumn*the_mos.mosheader.wRow!=(int) the_mos.tisheader.numtiles)
   {
     if(MessageBox("This TIS has incorrect or unset dimensions, or extra door tiles.\nDo you want to still use it?","Tileset editor",MB_YESNO)!=IDYES)
     {

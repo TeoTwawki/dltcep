@@ -82,6 +82,7 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
   case REF_BAM:
   case REF_ITM:
   case REF_SPL:
+    m_preview.InitView(IW_NOREDRAW); //don't add the 'back' button
     if(editflg&PREVIEW)
     {
       m_preview.ShowWindow(false);
@@ -115,7 +116,6 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
         m_preview.m_bm=0;
       }
     }
-    m_preview.InitView(0); //don't add the 'back' button
     m_preview.RedrawContent();
     m_preview.ShowWindow(true);
     break;
@@ -145,7 +145,9 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
         m_preview.m_bm=0;
       }
     }
-    m_preview.InitView(IW_ENABLEBUTTON); //don't add the 'back' button
+    m_preview.m_maxextentx=m_preview.m_maxextenty=8;
+    m_preview.InitView(0, &the_mos);
+//    the_mos.MakeBitmapWhole(GREY,m_preview.m_bm,0,0,m_preview.m_maxextentx,m_preview.m_maxextenty);
     m_preview.RedrawContent();
     m_preview.ShowWindow(true);
     break;
@@ -250,7 +252,7 @@ BOOL CItemPicker::OnInitDialog()
     GetDlgItem(IDC_PREVIEW)->ShowWindow(true);
     m_preview.Create(IDD_IMAGEVIEW,this);
     GetWindowRect(rect);
-    m_preview.SetWindowPos(0,rect.right+rect.Width(),rect.top,0,0,SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
+    m_preview.SetWindowPos(0,rect.right,rect.top,0,0,SWP_NOACTIVATE|SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
     break;
   case REF_WAV:
   case REF_ACM:

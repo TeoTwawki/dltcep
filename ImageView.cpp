@@ -30,8 +30,13 @@ CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pPare
   m_clipy=0;
   m_animbam=NULL;
   m_map=NULL;
+//  m_polycount=0;
   m_palette=NULL;
   m_maxextentx=m_maxextenty=8;//maximum number of tiles fitting on screen
+  m_maxclipx=m_maxclipy=1;
+  m_sourcepoint=0;
+  m_mos=NULL;
+  m_enablebutton=IW_NOREDRAW;
 }
 
 void CImageView::DoDataExchange(CDataExchange* pDX)
@@ -56,11 +61,14 @@ void CImageView::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_FILL, m_fill);
 	//}}AFX_DATA_MAP
   
-  tmpstr=GetMapTypeValue(m_maptype,m_value);
-	DDX_Text(pDX, IDC_VALUE, tmpstr);
-  m_value=strtonum(tmpstr);
+  if(m_max)
+  {
+    tmpstr=GetMapTypeValue(m_maptype,m_value);
+    DDX_Text(pDX, IDC_VALUE, tmpstr);
+    m_value=strtonum(tmpstr);
+    DDV_MinMaxInt(pDX, m_value, 0, m_max);
+  }
 
-	DDV_MinMaxInt(pDX, m_value, 0, m_max);
 	DDX_Scroll(pDX, IDC_HORIZONTAL, m_clipx);
 	DDX_Scroll(pDX, IDC_VERTICAL, m_clipy);
 }
@@ -87,7 +95,13 @@ END_MESSAGE_MAP()
 
 void CImageView::PutPixel(CPoint point, unsigned char color)
 {
-  m_map[point.x+point.y*(the_area.width/GR_WIDTH)]=(unsigned char) color;
+  int pos=point.x+point.y*(the_area.width/GR_WIDTH);
+  if(m_max==1 )
+  {
+    if(m_fill) m_map[pos]=1;
+    else m_map[pos]=!m_map[pos];
+  }
+  else m_map[pos]=(unsigned char) color;
 }
 
 //intentionally int, so we can return -1 when coordinates are out of map
@@ -99,19 +113,34 @@ int CImageView::GetPixel(CPoint point)
   return m_map[point.x+point.y*(the_area.width/GR_WIDTH)];
 }
 
-void CImageView::InitView(int flags)
+void CImageView::InitView(int flags, Cmos *my_mos)
 {
+  m_mos = my_mos;  
   m_oladjust=0;
   m_animbam=NULL;
   m_confirmed=m_mousepoint=0;
   m_clipx=m_minclipx=0;
   m_clipy=m_minclipy=0;
-  m_maxclipx=the_mos.mosheader.wColumn;
-  if(m_maxclipx<0) m_maxclipx=0;
-  m_maxclipy=the_mos.mosheader.wRow;
-  if(m_maxclipy<0) m_maxclipy=0;
+  if(m_mos)
+  {
+    m_maxclipx=m_mos->mosheader.wColumn;
+    m_maxclipy=m_mos->mosheader.wRow;
+    if(m_maxclipx<1) m_maxclipx=1;
+    if(m_maxclipy<1) m_maxclipy=1;
+  }
+  else
+  {
+    m_maxclipx=1;
+    m_maxclipy=1;
+  }
   m_enablebutton=flags;
+  if(flags&IW_GETPOLYGON)
+  {
+    CenterPolygon((CPtrList *) m_map, m_value);
+  }
 }
+
+unsigned long boolean_palette[2]={0,1};
 
 void CImageView::SetMapType(int maptype, LPBYTE map)
 {
@@ -119,18 +148,26 @@ void CImageView::SetMapType(int maptype, LPBYTE map)
   m_map=map;
   switch(maptype)
   {
-  case 0:
+  case MT_HEIGHT:
     m_palette=the_area.htpal;
+    m_max=15;
     break;
-  case 1:
+  case MT_LIGHT:
     m_palette=the_area.lmpal;
+    m_max=255;
     break;
-  case 2:
+  case MT_SEARCH:
     m_palette=the_area.srpal;
+    m_max=15;
     break;
+  case MT_BLOCK:
+    m_palette=boolean_palette;
+    m_max=1;
+    break;
+  case MT_OVERLAY: case MT_POLYGON: case MT_WALLPOLYLIST:
+    m_palette=NULL;
+    m_max=0;
   }
-  if(maptype==1) m_max=255;
-  else m_max=15;
 }
 
 #define TMPX (m_maxextentx/2)
@@ -142,14 +179,14 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy)
   int tmpw;
 
   point=bam->GetFrameSize(0);
-  point.x/=the_mos.mosheader.dwBlockSize;
-  point.y/=the_mos.mosheader.dwBlockSize;
+  point.x/=m_mos->mosheader.dwBlockSize;
+  point.y/=m_mos->mosheader.dwBlockSize;
   tmpw=min(TMPX-point.x,TMPY-point.y);
   if(tmpw<0) tmpw=0;
   m_animbam=bam;
   point=bam->GetFramePos(0);
-  m_clipx=(orgx-point.x)/(signed) the_mos.mosheader.dwBlockSize;
-  m_clipy=(orgy-point.y)/(signed) the_mos.mosheader.dwBlockSize;
+  m_clipx=(orgx-point.x)/(signed) m_mos->mosheader.dwBlockSize;
+  m_clipy=(orgy-point.y)/(signed) m_mos->mosheader.dwBlockSize;
   if(m_clipx>m_maxclipx-m_maxextentx)
   {
     if(m_maxclipx>=m_maxextentx) m_clipx=m_maxclipx-m_maxextentx;
@@ -170,10 +207,226 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy)
     if(m_clipy>tmpw) m_clipy-=tmpw;
     else m_clipy=0;
   }
-  m_mousepoint.x=orgx-m_clipx*the_mos.mosheader.dwBlockSize;
-  m_mousepoint.y=orgy-m_clipy*the_mos.mosheader.dwBlockSize;
+  m_mousepoint.x=orgx-m_clipx*m_mos->mosheader.dwBlockSize;
+  m_mousepoint.y=orgy-m_clipy*m_mos->mosheader.dwBlockSize;
   m_confirmed=m_mousepoint;
   m_oladjust=point;
+}
+
+void CImageView::CenterPolygon(CPtrList *polygons, int idx)
+{
+  POSITION pos;
+  area_vertex *polygon;
+
+  if(m_maptype==MT_DOORPOLYLIST) idx+=the_area.wallpolygoncount;
+  pos=polygons->FindIndex(idx);
+  if(pos)
+  {
+    polygon=(area_vertex *) polygons->GetAt(pos);
+    m_clipx=polygon[0].point.x/the_mos.mosheader.dwBlockSize-m_maxextentx/2;
+    m_clipy=polygon[0].point.y/the_mos.mosheader.dwBlockSize-m_maxextenty/2;
+  }
+}
+
+int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
+{
+  POSITION pos;
+  int count;
+  int idx, max;
+
+  m_value++;
+  if(m_maptype==MT_WALLPOLYLIST)
+  {
+    pos=polygons->FindIndex(m_value);
+    max=the_area.wallpolygoncount;
+  }
+  else
+  {
+    pos=polygons->FindIndex(m_value+the_area.wallpolygoncount);
+    max=the_area.doorpolygoncount;
+  }
+
+  for(idx=m_value;idx<max;idx++)
+  {
+    if(m_maptype==MT_WALLPOLYLIST)
+    {
+      count=the_area.wallpolygonheaders[idx].countvertex;
+    }
+    else
+    {
+      count=the_area.doorpolygonheaders[idx].countvertex;
+    }
+    if(PointInPolygon((area_vertex *) polygons->GetNext(pos), count, point) )
+    {
+      return idx;
+    }
+  }
+  if(m_maptype==MT_WALLPOLYLIST)
+  {
+    pos=polygons->GetHeadPosition();
+  }
+  else
+  {
+    pos=polygons->FindIndex(the_area.wallpolygoncount);
+  }
+  for(idx=0;idx<m_value;idx++)
+  {
+    if(m_maptype==MT_WALLPOLYLIST)
+    {
+      count=the_area.wallpolygonheaders[idx].countvertex;
+    }
+    else
+    {
+      count=the_area.doorpolygonheaders[idx].countvertex;
+    }
+    if(PointInPolygon((area_vertex *) polygons->GetNext(pos), count, point) )
+    {
+      return idx;
+    }
+  }
+  return -1;
+}
+
+void CImageView::DrawPolyPolygon(CPtrList *polygons)
+{
+  POSITION pos;
+  int idx;
+  unsigned int count;
+
+  idx=0;
+  if(m_maptype==MT_WALLPOLYLIST) pos=polygons->GetHeadPosition();
+  else pos = polygons->FindIndex(the_area.wallpolygoncount);
+  while(pos)
+  {
+    if(idx==m_value) m_fill=true;
+    else m_fill=false;
+    //if polygons == the_area.wedvertexheaderlist
+    if(m_maptype==MT_WALLPOLYLIST)
+    {
+      if(idx>=the_area.wallpolygoncount) break;
+      if((unsigned int) the_area.wallpolygonheaders[idx].minx>(m_clipx+m_maxextentx)*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) the_area.wallpolygonheaders[idx].maxx<m_clipx*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) the_area.wallpolygonheaders[idx].miny>(m_clipy+m_maxextenty)*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) the_area.wallpolygonheaders[idx].maxy<m_clipy*m_mos->mosheader.dwBlockSize) goto endofquest;
+      count=the_area.wallpolygonheaders[idx].countvertex;
+    }
+    else
+    {
+      if(idx>=the_area.doorpolygoncount) break;
+      if((unsigned int) the_area.doorpolygonheaders[idx].minx>(m_clipx+m_maxextentx)*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) the_area.doorpolygonheaders[idx].maxx<m_clipx*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) the_area.doorpolygonheaders[idx].miny>(m_clipy+m_maxextenty)*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) the_area.doorpolygonheaders[idx].maxy<m_clipy*m_mos->mosheader.dwBlockSize) goto endofquest;
+      count=the_area.doorpolygonheaders[idx].countvertex; 
+    }
+    if(count>1)
+    {
+      DrawLines((POINTS *) polygons->GetAt(pos), count);
+    }
+endofquest:
+    polygons->GetNext(pos);
+    idx++;
+  }
+}
+
+void CImageView::FixPolygon(POINT *polygon, unsigned int count, int needclose)
+{
+  unsigned int i;
+
+  if(needclose)
+  {
+    polygon[count]=polygon[0];
+    count++;
+  }
+  for(i=0;i<count;i++)
+  {
+    if(polygon[i].x<0)
+    {
+      polygon[i].x=0;
+    }
+    if(polygon[i].y<0)
+    {
+      polygon[i].y=0;
+    }
+    if((unsigned long) polygon[i].x>m_maxextentx*m_mos->mosheader.dwBlockSize)
+    {
+      polygon[i].x=m_maxextentx*m_mos->mosheader.dwBlockSize;
+    }
+    if((unsigned long) polygon[i].y>m_maxextenty*m_mos->mosheader.dwBlockSize)
+    {
+      polygon[i].y=m_maxextenty*m_mos->mosheader.dwBlockSize;
+    }
+  }  
+}
+
+void CImageView::DrawLines(POINTS *polygon, unsigned int count)
+{
+  unsigned int i;
+
+  CDC *pDC = m_bitmap.GetDC();
+  if(!pDC) return;
+	CDC dcBmp;
+  dcBmp.CreateCompatibleDC(pDC);
+  
+  //selecting the bitmap for drawing
+  CBitmap *cbtmp=dcBmp.SelectObject(CBitmap::FromHandle(m_bitmap.GetBitmap()));
+  //setting a green color
+  dcBmp.SetBkMode(1);
+  dcBmp.SetTextColor(RGB(255,255,255) );
+  CPen mypen(0,1,RGB(0,255,0) );
+  CPen pen1(PS_SOLID,1,RGB(0,0,255) );        
+  CPen pen2(PS_SOLID,2,RGB(255,0,0) );
+  CPen *cpentmp=dcBmp.SelectObject(&mypen);
+
+  //draw here
+  if(polygon)
+  {
+    //we close the polygon if needed
+    //this hack exploits that POINTS is the same size as a long
+    int needclose=((long *)polygon)[0]!=((long *)polygon)[count-1];
+    POINT *m_poly = (POINT *) malloc (sizeof(POINT)*(count+needclose) );
+    if(m_poly)
+    {
+      for(i=0;i<count;i++)
+      {
+        m_poly[i].x=polygon[i].x-m_clipx*m_mos->mosheader.dwBlockSize;
+        m_poly[i].y=polygon[i].y-m_clipy*m_mos->mosheader.dwBlockSize;
+      }
+      FixPolygon(m_poly, count, needclose);
+      if(m_fill)
+      {
+        dcBmp.Polygon(m_poly,count); //this closes the polygon on its own
+      }
+      else
+      {
+        dcBmp.Polyline(m_poly,(count+needclose) );
+      }
+      if(count>1)
+      {
+        dcBmp.SelectObject(&pen1);
+        dcBmp.Ellipse(m_poly[0].x-1, m_poly[0].y-1,m_poly[0].x+1, m_poly[0].y+1);
+        dcBmp.MoveTo(m_poly[0]);
+        dcBmp.LineTo(m_poly[1]);
+      }
+      dcBmp.SelectObject(&pen2);
+      if(m_maptype==MT_POLYGON)
+      {
+        dcBmp.Ellipse(m_poly[m_value].x-1, m_poly[m_value].y-1,m_poly[m_value].x+1, m_poly[m_value].y+1);
+      }
+      else
+      {
+        dcBmp.Ellipse(m_poly[0].x-1, m_poly[0].y-1,m_poly[0].x+1, m_poly[0].y+1);
+      }
+      free(m_poly);
+    }
+  }
+
+  //close
+  //restore original settings (this will prevent some leaks)
+  dcBmp.SelectObject(cbtmp);
+  dcBmp.SelectObject(cpentmp);
+  m_bitmap.Invalidate(false);
+  m_bitmap.ReleaseDC(pDC);
 }
 
 void CImageView::DrawGrid()
@@ -185,8 +438,8 @@ void CImageView::DrawGrid()
   if(m_enablebutton&IW_EDITMAP)
   {
     xs=GR_WIDTH; ys=GR_HEIGHT; //x and y sizes
-    sx=m_clipx*the_mos.mosheader.dwBlockSize%xs; //x and y starting points for grids
-    sy=m_clipy*the_mos.mosheader.dwBlockSize%ys;
+    sx=m_clipx*m_mos->mosheader.dwBlockSize%xs; //x and y starting points for grids
+    sy=m_clipy*m_mos->mosheader.dwBlockSize%ys;
   }
   else
   {
@@ -198,12 +451,12 @@ void CImageView::DrawGrid()
   dcBmp.CreateCompatibleDC(pDC);
   
   //selecting the bitmap for drawing
-  CBitmap *tmp=dcBmp.SelectObject(CBitmap::FromHandle(m_bitmap.GetBitmap()));
+  CBitmap *cbtmp=dcBmp.SelectObject(CBitmap::FromHandle(m_bitmap.GetBitmap()));
   //setting a green color
   dcBmp.SetBkMode(1);
   dcBmp.SetTextColor(RGB(255,255,255) );
   CPen mypen(PS_SOLID,1,RGB(0,255,0) );
-  dcBmp.SelectObject(&mypen);
+  CPen *cpentmp=dcBmp.SelectObject(&mypen);
 
   CRect cr;
   CString tmpstr;
@@ -222,14 +475,15 @@ void CImageView::DrawGrid()
     {
       dcBmp.MoveTo(0,j); dcBmp.LineTo(cr.Width(),j);
     }
-    if(m_map)
+    if(m_map && (m_enablebutton&IW_EDITMAP) )
     {
-      int p=(m_clipy*the_mos.mosheader.dwBlockSize+j)/GR_HEIGHT*the_area.width/GR_WIDTH+m_clipx*the_mos.mosheader.dwBlockSize/GR_WIDTH;
+      int p=(m_clipy*m_mos->mosheader.dwBlockSize+j)/GR_HEIGHT*the_area.width/GR_WIDTH+m_clipx*m_mos->mosheader.dwBlockSize/GR_WIDTH;
       for(i=sx;i<cr.Width();i+=xs)
       {
         if(m_showall || (m_map[p]==m_value) )
         {
-          tmpstr.Format("%d",m_map[p]);
+          if(m_max==255) tmpstr.Format("%02x",m_map[p]);
+          else tmpstr.Format("%d",m_map[p]);
           dcBmp.TextOut(i+2,j,tmpstr);
         }
         p++;
@@ -237,7 +491,10 @@ void CImageView::DrawGrid()
     }
   }
  
-  dcBmp.SelectObject(tmp);
+  //restore original settings (this will prevent some leaks)
+  dcBmp.SelectObject(cbtmp);
+  dcBmp.SelectObject(cpentmp);
+  m_bitmap.Invalidate(false);
   m_bitmap.ReleaseDC(pDC);
 }
 
@@ -249,19 +506,19 @@ CPoint CImageView::GetPoint(int frame)
 
   switch(frame)
   {
-  case 2:
-    ret.x=m_confirmed.x+m_clipx*the_mos.mosheader.dwBlockSize;
-    ret.y=m_confirmed.y+m_clipy*the_mos.mosheader.dwBlockSize;
+  case GP_BLOCK:
+    ret.x=m_confirmed.x+m_clipx*m_mos->mosheader.dwBlockSize;
+    ret.y=m_confirmed.y+m_clipy*m_mos->mosheader.dwBlockSize;
     ret.x/=GR_WIDTH;
     ret.y/=GR_HEIGHT;
     break;
-  case 1:
-    ret.x=m_confirmed.x/the_mos.mosheader.dwBlockSize+m_clipx;
-    ret.y=m_confirmed.y/the_mos.mosheader.dwBlockSize+m_clipy;
+  case GP_TILE:
+    ret.x=m_confirmed.x/m_mos->mosheader.dwBlockSize+m_clipx;
+    ret.y=m_confirmed.y/m_mos->mosheader.dwBlockSize+m_clipy;
     break;
-  case 0:
-    ret.x=m_confirmed.x+m_clipx*the_mos.mosheader.dwBlockSize;
-    ret.y=m_confirmed.y+m_clipy*the_mos.mosheader.dwBlockSize;
+  case GP_POINT:
+    ret.x=m_confirmed.x+m_clipx*m_mos->mosheader.dwBlockSize;
+    ret.y=m_confirmed.y+m_clipy*m_mos->mosheader.dwBlockSize;
     break;
   }
   return ret;
@@ -276,28 +533,35 @@ void CImageView::RedrawContent()
   SCROLLINFO theScrollInfo;
   CPoint m_adjust;
 
+  if(m_maxextentx>m_maxclipx) m_maxextentx=m_maxclipx;
+  if(m_maxextenty>m_maxclipy) m_maxextenty=m_maxclipy;
   theScrollInfo.fMask=SIF_PAGE|SIF_POS|SIF_RANGE;
+  theScrollInfo.nPage=(m_maxclipx-m_minclipx+m_maxextentx-1)/m_maxextentx;
+//  if(m_clipx<0) m_clipx=0;
+  theScrollInfo.nPos=m_clipx;
+  theScrollInfo.nMin=m_minclipx;
+  theScrollInfo.nMax=m_maxclipx-m_maxextentx+theScrollInfo.nPage-1;
+  m_horizontal.SetScrollInfo(&theScrollInfo,true);
   if(m_maxclipx-m_minclipx>m_maxextentx)
   {
-    theScrollInfo.nPage=(m_maxclipx-m_minclipx+m_maxextentx-1)/m_maxextentx;
-    theScrollInfo.nPos=m_clipx;
-    theScrollInfo.nMin=m_minclipx;
-    theScrollInfo.nMax=m_maxclipx-m_maxextentx+theScrollInfo.nPage-1;
-    m_horizontal.SetScrollInfo(&theScrollInfo,true);
     adjustx=20;
+    m_horizontal.ShowWindow(true);
   }
   else
-  {
-    m_horizontal.ShowWindow(false);
+  {    
     adjustx=0;
+    m_horizontal.ShowWindow(false);
   }
+
+  theScrollInfo.nPage=(m_maxclipy-m_minclipy+m_maxextenty-1)/m_maxextenty;
+//  if(m_clipy<0) m_clipy=0;
+  theScrollInfo.nPos=m_clipy;
+  theScrollInfo.nMin=m_minclipy;
+  theScrollInfo.nMax=m_maxclipy-m_maxextenty+theScrollInfo.nPage-1;
+  m_vertical.SetScrollInfo(&theScrollInfo,true);
   if(m_maxclipy-m_minclipy>m_maxextenty)
   {
-    theScrollInfo.nPage=(m_maxclipy-m_minclipy+m_maxextenty-1)/m_maxextenty;
-    theScrollInfo.nPos=m_clipy;
-    theScrollInfo.nMin=m_minclipy;
-    theScrollInfo.nMax=m_maxclipy-m_maxextenty+theScrollInfo.nPage-1;
-    m_vertical.SetScrollInfo(&theScrollInfo,true);
+    m_vertical.ShowWindow(true);
     adjusty=20;
   }
   else
@@ -305,36 +569,45 @@ void CImageView::RedrawContent()
     m_vertical.ShowWindow(false);
     adjusty=0;
   }
-  if((m_enablebutton&(IW_ENABLEBUTTON|IW_NOREDRAW) )== IW_ENABLEBUTTON)
+  rect.SetRectEmpty();
+  if(m_mos)
   {
-    maxx=m_minclipx+m_maxextentx;
-    maxy=m_minclipy+m_maxextenty;
-    if(m_maxclipx<maxx) maxx=m_maxclipx;
-    if(m_maxclipy<maxy) maxy=m_maxclipy;
-    the_mos.MakeBitmapWhole(GREY, m_bm, m_minclipx, m_minclipy, maxx, maxy);
+    rect.right=m_maxextentx*m_mos->mosheader.dwBlockSize;
+    rect.bottom=m_maxextenty*m_mos->mosheader.dwBlockSize;
   }
-  m_bitmap.SetBitmap(m_bm);
-  if(m_bm)
+  if(m_enablebutton&IW_NOREDRAW)
   {
-    m_bitmap.GetWindowRect(rect);
+    m_bitmap.SetBitmap(m_bm);
+    if(m_bm)
+    {
+      m_bitmap.GetWindowRect(rect);
+    }
   }
   else
   {
-    rect=0;
+    maxx=m_clipx+m_maxextentx;
+    maxy=m_clipy+m_maxextenty;
+    if(m_maxclipx<maxx) maxx=m_maxclipx;
+    if(m_maxclipy<maxy) maxy=m_maxclipy;
+    m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy);
+    m_bitmap.SetBitmap(m_bm);
   }
   m_button.GetWindowRect(brect);
   m_adjust.x=10;
-  m_adjust.y=adjustx+10;
-  m_oladjust+=m_adjust;
+  m_adjust.y=10;
+  m_oladjust=m_adjust;
   m_bitmap.SetWindowPos(0,m_adjust.x,m_adjust.y,0,0,SWP_NOSIZE|SWP_NOZORDER);
   if(rect.Width()<brect.Width() +20 ) rect.right=brect.Width()+20+rect.left;
-  if(rect.Width()<400 && (m_enablebutton&IW_EDITMAP) )
+  if(rect.Width()<400)
   {
-    rect.right=400+rect.left;
+    if(m_enablebutton&(IW_EDITMAP|IW_SHOWGRID|IW_PLACEIMAGE) )
+    {
+      rect.right=400+rect.left;
+    }
   }
   SetWindowPos(0, 0,0, rect.Width()+adjusty+20, rect.Height()+adjustx+80,SWP_NOACTIVATE|SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOMOVE);
-  m_horizontal.SetWindowPos(0,0,0,rect.Width(),15,SWP_NOMOVE|SWP_NOZORDER);
-  m_vertical.SetWindowPos(0,rect.Width()+10,adjustx+10,15,rect.Height(),SWP_NOZORDER);
+  m_horizontal.SetWindowPos(0,m_adjust.x,rect.Height()+m_adjust.y,rect.Width(),15,SWP_NOZORDER);
+  m_vertical.SetWindowPos(0,rect.Width()+m_adjust.x,m_adjust.y,15,rect.Height(),SWP_NOZORDER);
   if(m_enablebutton&IW_PLACEIMAGE)
   {
     adjusty=(rect.Width()-brect.Width())/3;
@@ -351,20 +624,27 @@ void CImageView::RedrawContent()
   {
     m_button.SetWindowPos(0, (rect.Width()-brect.Width())/2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
   }
-  m_value_control.ShowWindow(!!(m_enablebutton&IW_EDITMAP));
-  m_showall_control.ShowWindow(!!(m_enablebutton&IW_EDITMAP));
-  m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_EDITMAP));
-  m_fill_control.ShowWindow(!!(m_enablebutton&IW_EDITMAP));
+  if(m_max>1)
+  {
+    m_showall_control.ShowWindow(!!(m_enablebutton&IW_EDITMAP));
+  }
+  
+  m_value_control.ShowWindow(!!(m_enablebutton&(IW_EDITMAP|IW_GETPOLYGON) ));
+  m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_SHOWGRID));
+  m_fill_control.ShowWindow(!!(m_enablebutton&IW_ENABLEFILL));
+  m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
+  m_showgrid_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+70,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
   if(m_enablebutton&IW_EDITMAP)
   {
-    m_value_control.SetWindowPos(0,(rect.Width()-brect.Width())/4-20,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
     m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_showgrid_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+70,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+  }
+  if(m_enablebutton&(IW_EDITMAP|IW_GETPOLYGON) )
+  {
+    m_value_control.SetWindowPos(0,(rect.Width()-brect.Width())/4-20,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
   }
   m_button.ShowWindow(!!(m_enablebutton&IW_ENABLEBUTTON));
   m_setbutton.ShowWindow(!!(m_enablebutton&IW_PLACEIMAGE));
-  if(m_enablebutton&IW_ENABLEBUTTON)
+  if(!(m_enablebutton&IW_NOREDRAW))
   {
     RefreshDialog(); //need a redraw for selection of the bottom right side of the tis
   }
@@ -374,6 +654,11 @@ BOOL CImageView::OnInitDialog()
 {
   int i;
 
+  if(!m_mos)
+  {
+    //we need this because itempicker creates this object dynamically
+    m_mos=&the_mos; 
+  }
 	CDialog::OnInitDialog();
   RedrawContent();
   for(i=0;i<=m_max;i++)
@@ -384,9 +669,20 @@ BOOL CImageView::OnInitDialog()
   {
     switch(m_maptype)
     {
-    case 0: SetWindowText("Edit heightmap"); break;
-    case 1: SetWindowText("Edit lightmap"); break;
-    default: SetWindowText("Edit searchmap"); break;
+    case MT_HEIGHT: SetWindowText("Edit heightmap"); break;
+    case MT_LIGHT: SetWindowText("Edit lightmap"); break;
+    case MT_SEARCH: SetWindowText("Edit searchmap"); break;
+    case MT_BLOCK: SetWindowText("Edit impeded blocks"); break;
+    default:
+      return TRUE;
+      break;
+    }
+  }
+  else
+  {
+    if(m_enablebutton&IW_OVERLAY)
+    {
+      SetWindowText("Edit overlay");
     }
   }
 	return TRUE;  
@@ -483,37 +779,73 @@ void CImageView::DrawLine(CPoint source, CPoint destination, unsigned char color
 void CImageView::OnBitmap() 
 {
   m_confirmed=m_mousepoint;
-  if(m_enablebutton&(IW_SETVERTEX|IW_PLACEIMAGE|IW_EDITMAP))
+  if( m_map && (m_enablebutton&IW_GETPOLYGON))
   {
-    if(m_enablebutton&IW_SETVERTEX)
-    {
-    }
-    if(m_enablebutton&IW_PLACEIMAGE)
-    {
-      m_spinx.SetPos(m_confirmed.x);
-      m_spiny.SetPos(m_confirmed.y);
-    }
-    if(m_map && (m_enablebutton&IW_EDITMAP) )
-    {
-      CPoint point;
+    CPoint point;
+    int pos;
 
-      point=GetPoint(2); //getting map point
-      if(m_fill)
-      {
-        the_area.WriteMap("TMP",m_map,m_palette,m_max+1);
-        FloodFill(point, (unsigned char) m_value);
-        m_fill=FALSE;
-      }
-      else
-      {
-        PutPixel(point, (unsigned char) m_value);
-      }
-      the_area.changedmap[m_maptype]=true;
+    point=GetPoint(GP_POINT);
+    pos=FindPolygon((CPtrList *) m_map, point);
+    if(pos!=-1)
+    {
+      m_value=pos;
+      CenterPolygon((CPtrList *) m_map, pos);
+      RedrawContent(); //refreshes scrollbars
     }
+    return;
+  }
+
+  if( m_map && (m_enablebutton&IW_OVERLAY))
+  {
+    CPoint point;
+    int pos;
+    
+    point=GetPoint(GP_TILE);
+    pos=point.y*m_mos->mosheader.wColumn+point.x;
+    ///TODO set overlay
+    ((wed_tilemap *) m_map)[pos].flags^=1<<m_mos->m_overlay;
     RefreshDialog();
     return;
   }
-  OnOK();	
+  if(m_enablebutton&IW_SETVERTEX)
+  {
+    if(GetParent())
+    {
+      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0);
+    }
+    return;
+  }
+  if(m_map && (m_enablebutton&IW_EDITMAP) )
+  {
+    CPoint point;
+    
+    point=GetPoint(GP_BLOCK); //getting map point
+    if(m_fill)
+    {
+      the_area.WriteMap("TMP",m_map,m_palette,m_max+1);
+      FloodFill(point, (unsigned char) m_value);
+      m_fill=FALSE;
+    }
+    else
+    {
+      PutPixel(point, (unsigned char) m_value);
+    }
+    if(m_maptype!=MT_BLOCK) //don't handle impeded blocks (they are stored in are)
+    {
+      the_area.changedmap[m_maptype]=true;
+    }      
+    RefreshDialog();
+    return;
+  }
+  if(m_enablebutton&IW_PLACEIMAGE)
+  {
+    m_spinx.SetPos(m_confirmed.x);
+    m_spiny.SetPos(m_confirmed.y);
+  }
+  if(m_enablebutton&IW_MARKTILE)
+  {
+    OnOK();	
+  }
 }
 
 void CImageView::OnMouseMove(UINT nFlags, CPoint point) 
@@ -538,8 +870,14 @@ void CImageView::RefreshDialog()
   maxy=m_clipy+m_maxextenty;
   if(m_maxclipx<maxx) maxx=m_maxclipx;
   if(m_maxclipy<maxy) maxy=m_maxclipy;
-  the_mos.MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy);
-  if(m_enablebutton&IW_PLACEIMAGE)
+  m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy);
+  if(m_enablebutton&IW_MARKTILE)
+  {
+    point=GetPoint(GP_TILE);
+    tmpstr.Format("Select tile... (%d,%d)",point.x,point.y);
+    SetWindowText(tmpstr);
+  }
+  else if(m_enablebutton&IW_PLACEIMAGE)
   {
     if(m_enablebutton&IW_MATCH) nReplaced=BM_OVERLAY|BM_MATCH;
     else nReplaced=BM_OVERLAY;
@@ -549,17 +887,32 @@ void CImageView::RefreshDialog()
     tmpbm=m_bitmap.GetBitmap();
     if(tmpbm) ::DeleteObject(tmpbm);
 
-    point=GetPoint(0);
+    point=GetPoint(GP_POINT);
     if(m_enablebutton&IW_MATCH) tmpstr.Format("Place animation... (%d,%d) Match:%d",point.x,point.y,nReplaced);
     else tmpstr.Format("Select point... (%d,%d)",point.x,point.y);
     SetWindowText(tmpstr);
   }
   m_bitmap.SetBitmap(m_bm);
+  if(m_enablebutton&IW_SETVERTEX)
+  {
+    point=GetPoint(GP_POINT);
+    tmpstr.Format("Select point... (%d,%d)",point.x,point.y);
+    SetWindowText(tmpstr);
+    if(m_max)
+    {
+      DrawLines((POINTS *) m_map, m_max);
+    }
+  }
+  else if(m_enablebutton&IW_GETPOLYGON)
+  {
+    point=GetPoint(GP_POINT);
+    tmpstr.Format("Select polygon... (%d,%d)",point.x,point.y);
+    SetWindowText(tmpstr);
+    DrawPolyPolygon((CPtrList *) m_map);
+  }
   if(m_enablebutton&IW_SHOWGRID)
   {
     DrawGrid();
-    //actually this invalidate call is intended for NOT W98 machines
-    if(editflg&W98) Invalidate(true);
   }
   
   UpdateData(UD_DISPLAY); //remove this only when checked all calls to RefreshDialog
@@ -684,13 +1037,6 @@ void CImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 }
 
 //draws the vertices
-void CImageView::DrawLines()
-{
-  CDC *cb=m_bitmap.GetDC();
-//  cb->Polygon(points,count);
-  m_bitmap.ReleaseDC(cb);
-}
-
 void CImageView::OnKillfocusValue() 
 {
 	UpdateData(UD_RETRIEVE);
@@ -757,16 +1103,18 @@ BOOL CImageView::PreTranslateMessage(MSG* pMsg)
     else if(pMsg->message==WM_LBUTTONUP)
     {
       m_confirmed=m_mousepoint;
-      DrawLine(m_sourcepoint, GetPoint(2), (unsigned char) m_value);
+      if(m_map && (m_enablebutton&IW_EDITMAP) )
+      {
+        DrawLine(m_sourcepoint, GetPoint(GP_BLOCK), (unsigned char) m_value);
+      }
     }
     else if(pMsg->message==WM_LBUTTONDOWN)
     {
-      m_confirmed=m_mousepoint;
-      m_sourcepoint=GetPoint(2);
-    }
-    else if(pMsg->message==WM_RBUTTONDOWN)
-    {
-
+      if(m_map && (m_enablebutton&IW_EDITMAP) )
+      {
+        m_confirmed=m_mousepoint;
+        m_sourcepoint=GetPoint(GP_BLOCK);
+      }
     }
   }
 	return CDialog::PreTranslateMessage(pMsg);

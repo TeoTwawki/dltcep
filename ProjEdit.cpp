@@ -159,10 +159,13 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
   }
 
   j=1;
-  for(i=0;i<3;i++)
+  for(i=0;i<5;i++)
   {
     cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
-    cb->SetCheck(!!(the_projectile.header.sparks&j));
+    if(cb)
+    {
+      cb->SetCheck(!!(the_projectile.header.sparks&j));
+    }
     j<<=1;
   }
 
@@ -239,6 +242,10 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_EN_SETFOCUS(IDC_U14, OnSetfocusU14)
 	ON_EN_SETFOCUS(IDC_U15, OnSetfocusU15)
 	ON_EN_SETFOCUS(IDC_U16, OnSetfocusU16)
+	ON_EN_SETFOCUS(IDC_U17, OnSetfocusU17)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_BROWSE7, OnBrowse7)
+	ON_BN_CLICKED(IDC_BROWSE8, OnBrowse8)
 	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPEED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
@@ -280,7 +287,7 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_EN_SETFOCUS(IDC_U17, OnSetfocusU17)
+	ON_BN_CLICKED(IDC_BROWSE13, OnBrowse9)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -562,6 +569,18 @@ void CProjEdit::OnFlag3()
 	the_projectile.header.sparks^=4;
 	UpdateData(UD_DISPLAY);
 }
+/*
+void CProjEdit::OnFlag4() 
+{
+	the_projectile.header.sparks^=8;
+	UpdateData(UD_DISPLAY);
+}
+*/
+void CProjEdit::OnFlag5() 
+{
+	the_projectile.header.sparks^=16;
+	UpdateData(UD_DISPLAY);
+}
 
 void CProjEdit::OnBrowse1() 
 {
@@ -649,6 +668,40 @@ void CProjEdit::OnBrowse6()
   if(pickerdlg.DoModal()==IDOK)
   {
     StoreResref(pickerdlg.m_picked,the_projectile.header.bmp);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+
+void CProjEdit::OnBrowse7() 
+{
+  pickerdlg.m_restype=REF_BAM;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.header.trailbam[0]);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_projectile.header.trailbam[0]);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CProjEdit::OnBrowse8() 
+{
+  pickerdlg.m_restype=REF_BAM;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.header.trailbam[1]);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_projectile.header.trailbam[1]);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CProjEdit::OnBrowse9() 
+{
+  pickerdlg.m_restype=REF_BAM;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.header.trailbam[2]);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_projectile.header.trailbam[2]);
   }
 	UpdateData(UD_DISPLAY);	
 }

@@ -9,6 +9,7 @@
 #include "chitemDlg.h"
 #include "EffEdit.h"
 #include "2da.h"
+#include "2daEdit.h"
 #include "tbg.h"
 #include "options.h"
 
@@ -40,6 +41,8 @@ CEffEdit::CEffEdit(CWnd* pParent /*=NULL*/)
 	m_text2 = _T("");
 	//}}AFX_DATA_INIT
   m_par_type=0;
+  the_ids.new_ids();
+  m_idsname="";
 }
 
 void CEffEdit::DoDataExchange(CDataExchange* pDX)
@@ -478,6 +481,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
 	ON_COMMAND(ID_TOOLS_DURATION, OnToolsDuration)
+	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
 	ON_CBN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EFFTARGET, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
@@ -510,7 +514,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_CBN_KILLFOCUS(IDC_EFFOPCODE2, OnKillfocusEffopcode)
 	ON_CBN_SELCHANGE(IDC_EFFOPCODE2, OnSelchangeEffopcode)
-	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
+	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -604,7 +608,7 @@ void CEffEdit::SaveEff(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
+//  int fhandle;
   int res;
 
   if(readonly)
@@ -645,6 +649,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
@@ -653,6 +658,8 @@ gotname:
     }
     res=the_effect.WriteEffectToFile(fhandle,0);
     close(fhandle);
+    */
+    res = write_effect(newname);
     switch(res)
     {
     case 0:
@@ -1156,6 +1163,19 @@ void CEffEdit::OnToolsDuration()
 {
 	the_effect.header.duration=m_defduration;
 	UpdateData(UD_DISPLAY);
+}
+
+void CEffEdit::OnToolsIdsbrowser() 
+{
+	CIDSEdit dlg;
+  CString tmpstr;
+
+  dlg.SetReadOnly(true);
+  tmpstr=itemname;
+  itemname=m_idsname;
+  dlg.DoModal();
+  m_idsname=itemname;
+  itemname=tmpstr;
 }
 
 BOOL CEffEdit::PreTranslateMessage(MSG* pMsg) 

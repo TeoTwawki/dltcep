@@ -6,7 +6,7 @@ Content : The description of VVC - VEF Video Cell files
 History : Description by Manveru (09.07.2001)
 Update : Manveru (26.07.2001)
   Malnefein (major update 03.08.2001)
-
+  Avenger (major update 05.22.2004)
  
 
 Visual 'spell casting' effects with sounds attached. This kind of file call a BAM file and sometimes a sound one for playing 3D graphical effect. They are called by some script actions like CreateVisualEffect or CreateVisualEffectObject - they are not hardcoded in exe and could be simply made and put in override to use even without chitin.key reference. VVCs are used in the "Play 3D effect" in spells and items.
@@ -17,11 +17,53 @@ Offset Size (data type) Description
 0x0004 4 (char array) Version ('V1.0')
 0x0008 8 (resref) Reference to the BAM file - the animation of spell (in BG2 SPELAnim.bif) usually
 0x0010 8 (resref ?) unknown
-0x0018 2 (word) Transparency (00 is Not Transparent, 08 is Transparent)
-0x001a 2 (word) value 20h gives a white tint to the BAM
+0x0018 1 (dword) various flags, broken up by bytes below:
+  0x0018 1 (Byte) 
+	Bit 1:
+	Bit 2: Translucent
+	Bit 4: //if this bit was set, then 0x10 should contain non-zero, probably a transparency mask???
+	Bit 8: Transparent
+	Bit 0x10: Mirror Y axis if required
+	Bit 0x20: Mirror X axis if required
+	Bit 0x40:
+	Bit 0x80:
+
+  0x0019 1 (byte)
+	Bit 1:
+	Bit 2:
+	Bit 4:
+	Bit 8:
+	Bit 0x10:
+	Bit 0x20:
+	Bit 0x40:
+	Bit 0x80:
+
+  0x001a 1 (byte) 
+	Bit 1:
+	Bit 2:
+	Bit 4:
+	Bit 8: Greyscale
+	Bit 0x10:
+	Bit 0x20: Glowing
+	Bit 0x40:
+	Bit 0x80:
+
+  0x001b 1 (byte)
+	Bit 1:
+	Bit 2: Red Tint ???
+	Bit 4:
+	Bit 8:
+	Bit 0x10:
+	Bit 0x20:
+	Bit 0x40:
+	Bit 0x80:
+
 0x001c 4 (dword) unknown, always 0, Useless?
 0x0020 4 (dword) This field indicates the following :
 
+    Bit 1: looping
+    Bit 8: explosion sound (secondary)
+    
     * 00= Play only the first sound (0x0078 , no graphic or second sound (0x0080)
     * 01= Play both sounds (repeat the second for the duration of the effect) but without graphic
     * 02= Play both sounds, one after the other, for the duration of the effect (without graphic)
@@ -59,5 +101,5 @@ Offset Size (data type) Description
 0x0080 8 (resref) resref to the WAVC file (usually from SFXSound.bif in BG2) - sound of animation in its duration
 0x0088 356 (bytes) unknown, unused
 
- 
 
+Additional comments:

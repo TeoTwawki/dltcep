@@ -76,7 +76,18 @@ FillerProc Fillers[32] = {
 void CValueUnpacker::prepare_bits (int bits) {
 	while (bits > avail_bits) {
 		unsigned char one_byte;
-		if (!fread (&one_byte, 1, 1, file)) one_byte = 0;
+    //this hack is needed for embedded files, so we don't read past the boundary
+    if(ftell(file)==maxlen) 
+    {
+      one_byte = 0;
+    }
+    else
+    {
+      if (!fread (&one_byte, 1, 1, file))
+      {
+        one_byte = 0;
+      }
+    }
 		next_bits |= ((unsigned long)one_byte << avail_bits);
 		avail_bits += 8;
 	}
@@ -108,13 +119,15 @@ int CValueUnpacker::get_one_block (long* block) {
 	v = -val;
 	for (i=0; i<count; i++) {
 		buff_middle[-i-1] = (short) v;
-		v -= val;
+		v -= val; 
 	}
 
 	for (int pass=0; pass<sb_size; pass++) {
 		int ind = get_bits (5) & 0x1F;
 		if (! ((this->*Fillers[ind]) (pass, ind)) )
-			return 0;
+    {
+			return 1;
+    }
 	}
 	return 1;
 }

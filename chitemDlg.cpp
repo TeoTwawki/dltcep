@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.1"
+#define PRG_VERSION "6.2d"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -41,6 +41,7 @@
 #include "2DAEdit.h"
 #include "SRCEdit.h"
 #include "KeyEdit.h"
+#include "tispack.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -213,6 +214,10 @@ ON_COMMAND(ID_CHECK_PROJECTILE, OnCheckProjectile)
 	ON_COMMAND(ID_SEARCH_UI, OnSearchUi)
 	ON_COMMAND(ID_CHECK_UI, OnCheckUi)
 	ON_COMMAND(ID_EDIT_STRINGSSRC, OnEditSRC)
+	ON_COMMAND(ID_TOOLS_SCANJOURNALENTRIES, OnScanjournal)
+	ON_COMMAND(ID_AVATARS, OnAvatars)
+	ON_COMMAND(ID_COMPRESSBIF, OnCompressbif)
+	ON_COMMAND(ID_COMPRESSCBF, OnCompresscbf)
 ON_COMMAND(ID_COMPAT, OnCompat)
 ON_COMMAND(ID_SEARCH_ITEM, OnFinditem)
 ON_COMMAND(ID_SEARCH_SPELL, OnFindspell)
@@ -237,7 +242,7 @@ ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
 	ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
 	ON_BN_CLICKED(IDC_CHECKPROJ, OnCheckArea)
-	ON_COMMAND(ID_TOOLS_SCANJOURNALENTRIES, OnScanjournal)
+	ON_COMMAND(ID_TISPACK, OnTispack)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2833,10 +2838,11 @@ void CChitemDlg::OnFindScript()
   {
     searchflags=dlg.flags;
     searchdata=dlg.searchdata;
+    searchdata.itemtype&=0x3fff;
+    searchdata.itemtype2&=0x3fff;
     process_scripts(MATCHING); //perform matches
   }
 }
-
 
 void CChitemDlg::OnSearchUi() 
 {
@@ -2881,7 +2887,7 @@ void CChitemDlg::OnFindArea()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0xfc;
+  dlg.mask=0xc000fc;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find areas";
@@ -2933,7 +2939,7 @@ void CChitemDlg::OnFind2da()
   }
 }
 
-// import .D (weidu format)
+// import .D or .BAF (compile source files using weidu)
 
 void CChitemDlg::OnFileImportd() 
 {
@@ -2945,15 +2951,22 @@ void CChitemDlg::OnFileImportd()
 
   itemname="new d";
   flawless=true;
+  if(weidupath.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
   if(bgfolder.IsEmpty())
   {
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;  
-  CFileDialog m_getfiledlg(TRUE, "d", makeitemname(".d",0), res, szFilterWeidu);
+  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING;  
+  CFileDialog m_getfiledlg(TRUE, "d", bgfolder+weidudecompiled+"\\*.d;*.baf", res, szFilterWeiduAll);
   HackForLargeList(m_getfiledlg);
 
+  m_getfiledlg.m_ofn.lpstrTitle="Which source files to compile?";
+  res=99;
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -2984,6 +2997,10 @@ restart:
       }
     }
   }
+  if(res==99)
+  {
+    return;
+  }
   rescan_dialog(true);
   scan_override();
   if(flawless)
@@ -2998,7 +3015,7 @@ restart:
 
 /// import TBG
 
-static char BASED_CODE szFilter3[] = "Tbg files (*.tbg)|*.tbg|Iap files (*.iap)|*.iap|All files (*.*)|*.*||";
+static char BASED_CODE szFilter3[] = "Packed files (*.tbg;*.iap)|*.tbg;*.iap|Tbg files (*.tbg)|*.tbg|Iap files (*.iap)|*.iap|All files (*.*)|*.*||";
 
 void CChitemDlg::OnImporttbg()
 {
@@ -3009,9 +3026,11 @@ void CChitemDlg::Importtbg(int alt)
 {
   POSITION pos;
   Ctbg tbg; //no need of a global
-  CString filepath;
+  CString filepath, syscommand;
 	int res;
   bool flawless;
+  bool hasweidu;
+  CStringList filelist;
 
   itemname="new tbg";
   flawless=true;
@@ -3021,9 +3040,11 @@ void CChitemDlg::Importtbg(int alt)
     return;
   }  
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "tbg", makeitemname(".tbg",0), res, szFilter3);
+  CFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg;*.iap", res, szFilter3);
   HackForLargeList(m_getfiledlg);
 
+  m_getfiledlg.m_ofn.lpstrTitle="Which package files to import?";
+  res=99;
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -3042,7 +3063,7 @@ restart:
         }
       }
       
-      res=tbg.Readtbg(filepath);
+      res=tbg.Readtbg(filepath,filelist);
 leave:
       if(res) break;
     }
@@ -3076,10 +3097,37 @@ leave:
       }
     }
   }
+  if(res==99)
+  {
+    return;
+  }
   scan_chitin();
   scan_override();
   RefreshMenu(); //updates .tlk
   end_progress();
+  //
+  //postprocess files listed in filelist
+  //
+  if(filelist.GetCount())
+  {
+    hasweidu=true;
+    //
+    chdir(bgfolder);
+    while(filelist.GetCount() && hasweidu)
+    {
+      filepath=filelist.RemoveHead();
+      syscommand=AssembleWeiduCommandLine(filepath,"override");
+      res=my_system(syscommand);
+      if(res)
+      {
+        MessageBox("Can't import dialog source, check your WeiDU install!","Warning",MB_ICONEXCLAMATION|MB_OK);
+        hasweidu=false;
+        flawless=false;
+      }
+    }
+    rescan_dialog(true);
+    scan_override();
+  }
   if(flawless)
   {
     log("Imports done without error.");
@@ -3098,6 +3146,113 @@ void CChitemDlg::OnCreateIAP()
   
   dlg.NewIAP();
   dlg.DoModal();
+}
+
+void CChitemDlg::OnTispack() 
+{
+  POSITION pos;
+  CString tmpstr;
+  CString filepath;
+  int idx;
+  int res;
+  folderbrowse_t fb;
+
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CFileDialog m_getfiledlg(TRUE, "tis", makeitemname(".tis",0), res, ImageFilter(0x2) );
+  HackForLargeList(m_getfiledlg);
+  m_getfiledlg.m_ofn.lpstrTitle="Which tilesets to compress?";
+
+  if( m_getfiledlg.DoModal() != IDOK ) return;
+  pos=m_getfiledlg.GetStartPosition();
+
+  if(!pos)
+  {
+    return;
+  }
+  fb.initial=bgfolder+"override";
+  fb.title="Select output folder for the compressed tilesets";
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+
+  while(pos)
+  {
+    filepath=m_getfiledlg.GetNextPathName(pos);
+    idx = filepath.ReverseFind('.');
+    if (idx >= 0)
+		  changeitemname(filepath.Left(idx));
+	  else
+      changeitemname(filepath);
+
+    perform_tis2tiz(filepath,fb.initial);
+  }
+}
+
+void CChitemDlg::OnCompressbif()
+{
+  Compressbif(false); //BIFC
+}
+
+void CChitemDlg::OnCompresscbf() 
+{
+  Compressbif(true); //CBF
+}
+
+void CChitemDlg::Compressbif(bool cbf_or_bifc) 
+{
+  POSITION pos;
+  CBif my_bif;
+  CString tmpstr;
+  CString filepath;
+  int idx;
+  int res;
+
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
+  HackForLargeList(m_getfiledlg);
+  tmpstr.Format("Select bifs for compression into %s format",cbf_or_bifc?"CBF":"BIFC");
+  m_getfiledlg.m_ofn.lpstrTitle=tmpstr;
+
+  if( m_getfiledlg.DoModal() != IDOK ) return;
+  pos=m_getfiledlg.GetStartPosition();
+  while(pos)
+  {
+    filepath=m_getfiledlg.GetNextPathName(pos);
+    idx = filepath.ReverseFind('.');
+    if (idx >= 0)
+		  changeitemname(filepath.Left(idx));
+	  else
+      changeitemname(filepath);
+
+    if(!checkfile(filepath, "BIFF"))
+    {
+      log("Not an uncompressed bif, skipping");
+      continue;
+    }
+    res=my_bif.ReadBifHeader(filepath);
+    if(res<0)
+    {
+      log("The BIF has some problems, skipping");
+      continue;
+    }
+    if(my_bif.FindResType(REF_WED)==-1)
+    {
+      if(MessageBox("The BIF doesn't contain WED file.\nDo you still want to compress it?","Bif Compressor",MB_YESNO)!=IDYES)
+      {
+        continue;
+      }
+    }
+    if(cbf_or_bifc) CompressCBF(filepath);
+    else CompressBIFC(filepath);
+  }
 }
 
 void CChitemDlg::OnReorderbif() 
@@ -3226,6 +3381,7 @@ void CChitemDlg::OnUncompressbif()
   if(readonly) res|=OFN_READONLY;  
   CFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBifc);
 
+  m_getfiledlg.m_ofn.lpstrTitle="Which BIFs to uncompress?";
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -3524,7 +3680,7 @@ void CChitemDlg::OnEditIds()
 	CIDSEdit dlg;
 	
   dlg.NewIDS();
-  dlg.SetReadOnly(0);
+  dlg.SetReadOnly(false);
   dlg.DoModal();
   RefreshMenu();
 }
@@ -3644,9 +3800,11 @@ void CChitemDlg::DecompressAcm2(bool wavc_or_acm)
   }  
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, wavc_or_acm?"wav":"acm", wavc_or_acm?makeitemname(".wav",-1):makeitemname(".acm",-1), res, wavc_or_acm?szFilter1:szFilter2); 
+  CFileDialog m_getfiledlg(TRUE, wavc_or_acm?"wav":"acm", wavc_or_acm?makeitemname(".wav",0):makeitemname(".acm",0), res, wavc_or_acm?szFilter1:szFilter2); 
   HackForLargeList(m_getfiledlg);
 
+  folder.Format("Which %s files to decompress?",wavc_or_acm?"WAVC":"ACM");  
+  m_getfiledlg.m_ofn.lpstrTitle=folder;
   if( m_getfiledlg.DoModal() == IDOK )
   {
     pos=m_getfiledlg.GetStartPosition();
@@ -3703,7 +3861,9 @@ void CChitemDlg::CompressWav(bool wavc_or_acm)
   if(readonly) res|=OFN_READONLY;  
   CFileDialog m_getfiledlg(TRUE, "wav", makeitemname(".wav",0), res, szFilter1);
   HackForLargeList(m_getfiledlg);
-  
+
+  folder.Format("Which files to convert to %s?",wavc_or_acm?"WAVC":"ACM");  
+  m_getfiledlg.m_ofn.lpstrTitle=folder;
   if( m_getfiledlg.DoModal() == IDOK )
   {
     pos=m_getfiledlg.GetStartPosition();
@@ -4268,6 +4428,208 @@ void CChitemDlg::OnLookupstrref()
 	
   dlg.DoModal();
   RefreshMenu();
+}
+
+/////////////////////////////////////
+#define IE_ANI_CODE_MIRROR		0
+#define IE_ANI_ONE_FILE		  	1
+#define IE_ANI_TWO_FILES		  2
+#define IE_ANI_FOUR_FILES		  3
+#define IE_ANI_CODE_MIRROR_2	4
+#define IE_ANI_ONE_FILE_2		  5 
+#define IE_ANI_TWO_FILES_2		6
+#define IE_ANI_CODE_MIRROR_3	7
+#define IE_ANI_ONE_FILE_3		  8
+#define IE_ANI_TWO_FILES_3		9
+#define IE_ANI_PST_ANIMATION_1	10
+#define IE_ANI_PST_GHOST		  11
+
+//technical types
+#define IE_ANI_ONE_FILEG1	  	1001
+
+int DetermineMirrorType(CString prefix, CString &resref)
+{
+  loc_entry tmploc;
+
+  if(icons.Lookup(resref=prefix+"1CA",tmploc))
+  {
+    return IE_ANI_CODE_MIRROR; //character animation type
+  }
+  if(icons.Lookup(resref=prefix+"2CA",tmploc))
+  {
+    return IE_ANI_CODE_MIRROR; //character animation type (missing first armourlevel)
+  }
+
+  if(icons.Lookup(resref=prefix+"G14",tmploc))
+  {
+    return IE_ANI_CODE_MIRROR_2;
+  }
+
+  if(icons.Lookup(resref=prefix+"G2E",tmploc) )
+  {
+    return IE_ANI_FOUR_FILES;
+  }
+
+  if(icons.Lookup(resref=prefix+"GUE", tmploc) )
+  {
+    return IE_ANI_TWO_FILES_3;
+  }
+
+  if(icons.Lookup(resref=prefix+"G1E",tmploc) )
+  {
+    return IE_ANI_TWO_FILES;
+  }
+
+  if(icons.Lookup(resref=prefix+"G1", tmploc) ) //last chance
+  {
+    return IE_ANI_ONE_FILEG1;
+  }
+  if(icons.Lookup(resref=prefix, tmploc) )
+  {
+    return IE_ANI_ONE_FILE;
+  }
+
+  if(icons.Lookup(resref="DSTD"+prefix, tmploc) )
+  {
+    return IE_ANI_PST_ANIMATION_1;
+  }
+  return -1;
+}
+
+CString ArmourLevel(CString prefix, int armortype, int armourlevel)
+{
+  loc_entry tmploc;
+  CString retval;
+
+  if(armortype==IE_ANI_CODE_MIRROR)
+  {
+    retval.Format("%s%d",prefix,armourlevel);
+    if(icons.Lookup(retval+"CA",tmploc) ) return retval;
+    switch(armourlevel)
+    {
+    case 4: //defaults back to fighter on armour level 4
+      retval.SetAt(3,'F');
+      if(icons.Lookup(retval+"CA",tmploc) ) return retval;
+      break;
+    }
+    return "?????";
+  }
+  return prefix;
+}
+
+// this is just a hack, but should be effective
+int Orient(int mirrortype)
+{
+  if(mirrortype==1) return 16;
+  if(mirrortype==2) return 5;
+  return 9;
+}
+
+//this will try to determine the size of the image
+int Space(CString prefix, int /*mt*/)
+{
+  loc_entry tmploc;
+  int fhandle;
+  int space;
+
+  space=0;
+  the_bam.new_bam();
+  if(!icons.Lookup(prefix,tmploc) )
+  {
+    return -1;
+  }
+  fhandle=locate_file(tmploc,0);
+  if(fhandle>0)
+  {
+    if(the_bam.ReadBamFromFile(fhandle,tmploc.size,true))
+    {
+      //the_bam.m_header.chCycleCount;
+    }
+    close(fhandle);
+    return space;
+  }
+  return -1;
+}
+
+//this function tries to build avatars.2da, but it depends on a rather clumsy file
+//called anisnd.ids. It is by no means correct. For example MSLM instead of MSLI
+void CChitemDlg::OnAvatars() 
+{
+  loc_entry tmploc;
+  CStringMapInt animations;
+  POSITION pos;
+  CString key;
+  int value;
+
+  idrefs.Lookup("ANISND",tmploc);
+	if(ReadIds4(tmploc,animations))
+  {
+    MessageBox("Anisnd not found, sorry...");
+    return;
+  }
+  pos=animations.GetStartPosition();
+  while(pos)
+  {
+    animations.GetNextAssoc(pos,key,value);
+    CheckPrefix(key,value);
+  }
+}
+
+void CChitemDlg::CheckPrefix(CString key, int value)
+{
+  CString prefix, output, resref;
+  int mt, space;
+
+  if(value<0x1000) return;
+  resref.Empty();
+  mt=key.Find(' ');
+  if(mt<4 || mt>5) return;
+  prefix=key.Left(mt);
+  prefix.MakeUpper();
+  mt=DetermineMirrorType(prefix, resref);
+  if(mt==-1)
+  {
+    if(key.Find("chair")!=-1 )
+    {
+      prefix+="C";
+      mt=DetermineMirrorType(prefix, resref);
+    }
+    else if(key.Find("matte")!=-1 )
+    {
+      prefix+="M";
+      mt=DetermineMirrorType(prefix, resref);
+    }
+    else if(key.Find("stool")!=-1 )
+    {
+      prefix+="S";
+      mt=DetermineMirrorType(prefix, resref);
+    }
+    else if(key.Find("static")!=-1 )
+    {
+      prefix+="L";
+      mt=DetermineMirrorType(prefix, resref);
+    }
+    else
+    {
+      prefix+="H";
+      mt=DetermineMirrorType(prefix, resref);
+    }
+    if(mt==-1)
+    {
+      prefix=prefix.Left(4); //going back, like with mber
+      mt=DetermineMirrorType(prefix, resref);
+    }
+  }
+  if(mt==IE_ANI_ONE_FILEG1)
+  {
+    mt=IE_ANI_ONE_FILE;
+    prefix+="G1";
+  }
+  space=Space(resref,mt); //also loads the_bam
+  //                   1  2 3  4 mt ori sp
+  output.Format("0x%04X %s %s %s %s %d %d %d", value, ArmourLevel(prefix,mt,1), ArmourLevel(prefix,mt,2),
+    ArmourLevel(prefix,mt,3), ArmourLevel(prefix,mt,4), mt, Orient(mt), space);
+  log("%s",output);
 }
 
 void CChitemDlg::OnCancel() 

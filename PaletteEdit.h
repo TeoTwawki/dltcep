@@ -64,7 +64,7 @@ protected:
   int *m_pSteps;         //custom script for palette modifications
 
   void InitPaletteBitmap();
-  void ExecuteScript(int &fr, int &fg, int &fb, int &ftmp);
+  int ExecuteScript(int &fr, int &fg, int &fb, int &ftmp);
   void ExecuteStep(int &fr, int &fg, int &fb, int &ftmp, int function);
 	// Generated message map functions
 	//{{AFX_MSG(CPaletteEdit)

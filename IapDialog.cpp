@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include "chitem.h"
 #include "IapDialog.h"
+#include "options.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,6 +45,8 @@ void CIapDialog::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_TBGMAX, tmp);
   tmp=m_otherpicker.GetCount();
   DDX_Text(pDX, IDC_OTHERMAX, tmp);
+  tmp=WeHaveWeiDU(false);
+  DDX_Check(pDX, IDC_WEIDU, tmp);
 }
 
 BEGIN_MESSAGE_MAP(CIapDialog, CDialog)
@@ -60,6 +63,7 @@ BEGIN_MESSAGE_MAP(CIapDialog, CDialog)
 	ON_CBN_SELCHANGE(IDC_OTHER, OnSelchangeOther)
 	ON_BN_CLICKED(IDC_LAUNCH, OnLaunch)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
+	ON_BN_CLICKED(IDC_WEIDU, OnWeidu)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -164,11 +168,12 @@ static char BASED_CODE szFilter[] = "IAP files (*.iap)|*.iap|All files (*.*)|*.*
 
 void CIapDialog::OnLoad() 
 {
+  CStringList dummy;
   CString filepath;
   int fhandle;
   int res;
   
-  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
+  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING;
   if(readonly) res|=OFN_READONLY;
   CFileDialog m_getfiledlg(TRUE, "iap", makeitemname(".iap",0), res, szFilter);
 
@@ -186,7 +191,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     itemname=m_getfiledlg.GetFileTitle(); //itemname moved here because the loader relies on it
     itemname.MakeUpper();
-    res=the_iap.read_iap(fhandle,-1,1); //only open
+    res=the_iap.read_iap(fhandle,-1,1,dummy); //only open
     close(fhandle);
     switch(res)
     {
@@ -215,7 +220,7 @@ void CIapDialog::OnSaveas()
     MessageBox("Add some files first!","IAP creator",MB_OK);
     return;
   }
-  res=OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_EXPLORER;
+  res=OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING;
   CFileDialog m_getfiledlg(FALSE, "iap", makeitemname(".iap",0), res, szFilter);
 
 restart:  
@@ -236,19 +241,28 @@ restart:
       MessageBox(tmpstr,"Warning",MB_OK);
       goto restart;
     }
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+    fhandle=open(filepath+".tmp", O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
       MessageBox("Can't write file!","Error",MB_OK);
       goto restart;
     }
     Refresh();
-    res=the_iap.WriteIap(fhandle);
+    if(editflg&USEIAP)
+    {
+      res=the_iap.WriteZip(fhandle);
+    }
+    else
+    {
+      res=the_iap.WriteIap(fhandle);
+    }
     close(fhandle);
     switch(res)
     {
     case 0:
       itemname=newname;
+      unlink(filepath);
+      rename(filepath+".tmp",filepath);
       break; //saved successfully
     case -2:
       MessageBox("Error while writing file!","Error",MB_OK);
@@ -326,6 +340,7 @@ void CIapDialog::OnKillfocusTbg()
 static char BASED_CODE szFilter1[] =
  "Game files (*.*)|*.*|"
  "Animations (*.bam)|*.bam|"
+ "Compiled script files (*.bcs)|*.bcs|"
  "Bitmaps (*.bmp)|*.bmp|"
  "Images (*.mos)|*.mos|"
  "Paperdolls (*.plt)|*.plt|"
@@ -342,10 +357,11 @@ void CIapDialog::OnOpenother()
   POSITION pos;
   int flg;
   
-  flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING|OFN_EXPLORER;
+  flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING;
 
   CFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"override\\*.*", flg, szFilter1);
   
+  m_getfiledlg.m_ofn.lpstrTitle="Select game files!";
   if( m_getfiledlg.DoModal() == IDOK )
   {
     pos=m_getfiledlg.GetStartPosition();
@@ -366,6 +382,7 @@ void CIapDialog::OnOpentbg()
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING|OFN_EXPLORER;
   CFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg", flg, szFilterTbg);
   
+  m_getfiledlg.m_ofn.lpstrTitle="Select TBG files!";
   if( m_getfiledlg.DoModal() == IDOK )
   {
     pos=m_getfiledlg.GetStartPosition();
@@ -394,10 +411,60 @@ void CIapDialog::OnDblclkTbg()
 	m_tbgpicker.DeleteString(pos);
 }
 
+int CIapDialog::WeHaveWeiDU(bool toggle)
+{
+  int i, flg, ret;
+
+  ret=0;
+  i=0;
+  do
+  {
+    flg=m_otherpicker.GetItemData(i);  
+    if(flg==CB_ERR) break;
+    if(flg&4)
+    {
+      if(toggle)
+      {
+        ret=true;
+        m_otherpicker.DeleteString(i);
+        continue;
+      }
+      return true;
+    }
+    i++;
+  }
+  while(1);
+  if(!toggle) return 0;
+  if(ret) return 0;
+  if(weidupath.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return 0;
+  }
+  i=m_otherpicker.AddString(weidupath);
+  m_otherpicker.SetItemData(i,5);
+  return 1;
+}
+
+#define  WIT_UNUSED -1
+#define  WIT_TEXT   0  //textfile (launched by notepad)
+#define  WIT_EXE    1  //weidu mostly ;)
+#define  WIT_SOURCE 2  //weidu source files (.d, .baf)
+
+int WhatIsThis(CString file)
+{
+  if(!file.Right(4).CompareNoCase(".txt")) return WIT_TEXT;
+//  if(!file.Right(4).CompareNoCase(".exe")) return WIT_EXE;
+  if(!file.Right(2).CompareNoCase(".d")) return WIT_SOURCE;
+  if(!file.Right(4).CompareNoCase(".baf")) return WIT_SOURCE;
+  if(!file.Right(4).CompareNoCase(".tp2")) return WIT_SOURCE;
+  return WIT_UNUSED;
+}
+
 void CIapDialog::OnContextMenu(CWnd* pWnd, CPoint point) 
 {
   CString tmpstr;
-  int pick, tmp;
+  int pick, flg;
 
   if(pWnd->GetDlgCtrlID()==IDC_OTHER)
   {
@@ -405,16 +472,37 @@ void CIapDialog::OnContextMenu(CWnd* pWnd, CPoint point)
     pWnd->ScreenToClient(&point);
     pick=point.y/((CComboBox *) pWnd)->GetItemHeight(0)+((CComboBox *) pWnd)->GetTopIndex()-2;
     if(pick<0 || pick>=((CComboBox *) pWnd)->GetCount()) return;
-    tmp=((CComboBox *) pWnd)->GetItemData(pick)^1;
-    if(tmp)
+    flg=!((CComboBox *) pWnd)->GetItemData(pick);
+    if(flg)
     {
       ((CComboBox *) pWnd)->GetLBText(pick,tmpstr);
-      if(tmpstr.Right(4).CompareNoCase(".txt"))
+      switch(WhatIsThis(tmpstr) )
       {
+      case WIT_EXE:
+        if(WeHaveWeiDU(false))
+        {
+          MessageBox("You can mark only one executable as installer.","Warning",MB_ICONWARNING|MB_OK);
+          flg=0;
+        }
+        else
+        {
+          flg=4;   //this exe must be first unpacked
+        }
+        break;
+      case WIT_SOURCE:
+        flg=2;
+        /*
+        if(!WeHaveWeiDU(false) )
+        {
+          MessageBox("Make sure the other side has the external installer (WeiDU) as well.","Warning",MB_ICONWARNING|MB_OK);
+        }
+        */
+        break;
+      default:
         MessageBox("Only textfiles could be displayed on unpack.","Warning",MB_ICONWARNING|MB_OK);
       }
-    }
-    ((CComboBox *) pWnd)->SetItemData(pick,tmp);
+    }    
+    ((CComboBox *) pWnd)->SetItemData(pick,flg);
     ((CComboBox *) pWnd)->SetCurSel(pick);
     OnSelchangeOther();
   }
@@ -422,12 +510,31 @@ void CIapDialog::OnContextMenu(CWnd* pWnd, CPoint point)
 
 void CIapDialog::OnSelchangeOther() 
 {
+  CString tmpstr;
   int pick, flg;
 
 	pick=m_otherpicker.GetCurSel();
 	flg=(pick>=0) && (pick<m_otherpicker.GetCount());
   m_launch_control.EnableWindow(flg);
-  if(!flg) return;
+  
+  if(flg)
+  {
+    m_otherpicker.GetLBText(pick,tmpstr);
+    switch(WhatIsThis(tmpstr) )
+    {
+    case WIT_EXE:
+      tmpstr="Use as external compiler";
+      break;
+    case WIT_SOURCE:
+      tmpstr="Call external compiler";
+      break;
+    default:
+      tmpstr="Display textfile";
+      break;
+    }
+  }
+  else tmpstr="Display textfile";
+  m_launch_control.SetWindowText(tmpstr);
   m_launch_control.SetCheck(m_otherpicker.GetItemData(pick)&1);
 }
 
@@ -441,15 +548,40 @@ void CIapDialog::OnLaunch()
   m_launch_control.EnableWindow(flg);
   if(!flg) return;
   flg=m_otherpicker.GetItemData(pick)^1;
-  if(flg)
+  if(flg&1)
   {
     m_otherpicker.GetLBText(pick,tmpstr);
-    if(tmpstr.Right(4).CompareNoCase(".txt"))
+    switch(WhatIsThis(tmpstr) )
     {
+    case WIT_EXE:
+      if(WeHaveWeiDU(false))
+      {
+        MessageBox("You can mark only one executable as installer.","Warning",MB_ICONWARNING|MB_OK);
+        flg=0;
+      }
+      else
+      {
+        flg|=4;   //this exe must be first unpacked
+      }
+      break;
+    case WIT_SOURCE:
+      if(!WeHaveWeiDU(false) )
+      {
+        MessageBox("Make sure the other side has the external installer (WeiDU) as well.","Warning",MB_ICONWARNING|MB_OK);
+      }
+      flg|=2;
+      break;
+    default:
       MessageBox("Only textfiles could be displayed on unpack.","Warning",MB_ICONWARNING|MB_OK);
     }
   }
   m_otherpicker.SetItemData(pick,flg);
+}
+
+void CIapDialog::OnWeidu() 
+{
+  WeHaveWeiDU(true); //this will add/remove it 
+  UpdateData(UD_DISPLAY);
 }
 
 BOOL CIapDialog::PreTranslateMessage(MSG* pMsg) 

@@ -879,7 +879,7 @@ void CStoreItems::UpdateStoreditempicker()
     for(x=0;x<the_store.entrynum;x++)
     {
       RetrieveResref(m_itemres, the_store.entries[x].itemname);
-      tmpstr.Format("%d %s",x,m_itemres);
+      tmpstr.Format("#%d %s",x+1,m_itemres);
       if(!(editflg&RESOLVE))
       {
         name.Format(" (%s)",ResolveKey(m_itemres) );

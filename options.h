@@ -67,7 +67,8 @@
 #define OCTREE      0x40000 //octree or dl1 color reduction
 #define DITHER      0x80000 //dithering (or no), only in dl1
 #define W98         0x100000//w98 compatible mode (sound)
-
+#define RESLOC      0x200000//don't choke on bad bifs
+#define USEIAP      0x400000//use zip compression instead of iap
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -195,6 +196,8 @@ protected:
 	afx_msg void OnOctree();
 	afx_msg void OnDither();
 	afx_msg void OnW98();
+	afx_msg void OnWeidu();
+	afx_msg void OnZip();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -53,6 +53,22 @@ extern UINT WM_FINDREPLACE;
 #define SR_REPLACE 1
 #define SR_ALL 2
 
+//editor maptypes (for ImageView)
+#define MT_HEIGHT  0
+#define MT_LIGHT   1
+#define MT_SEARCH  2
+#define MT_BLOCK   3
+#define MT_OVERLAY 4
+#define MT_POLYGON 5
+#define MT_WALLPOLYLIST 6
+#define MT_DOORPOLYLIST 7
+
+//getpoint units (for ImageView)
+#define GP_POINT  0
+#define GP_TILE   1
+#define GP_BLOCK  2
+
+
 #define MAX_LINE  1000
 //#define VIEW_MAXEXTENT 8   
 
@@ -216,7 +232,7 @@ extern CString proj_facing_desc[NUM_FVALUE];
 
 #define NUM_SPKCOL 13
 
-#define NUM_ARTYPE 4
+#define NUM_ARFLAGS 4
 //area types
 #define AR_NORMAL
 #define AR_NOSAVE
@@ -655,6 +671,7 @@ extern char tbgext[NUM_OBJTYPE+1];
 extern char BASED_CODE szFilterKey[];
 extern char BASED_CODE szFilterTbg[];
 extern char BASED_CODE szFilterWeidu[];
+extern char BASED_CODE szFilterWeiduAll[];
 extern char BASED_CODE szFilterBifc[];
 extern char BASED_CODE szFilterBif[];
 extern CString storetypes[NUM_STORETYPE+1];
@@ -795,7 +812,7 @@ CString convert_radius(int value, int direction=0);
 CString get_face_value(int fvalue);
 CString get_compile_error(int ret);
 CString get_spark_colour(int spktype);
-CString get_areatype(unsigned long artype);
+CString get_areaflag(unsigned long artype);
 CString get_attack_type(int atype);
 CString get_attacknum(int anum);
 int find_attacknum(CString anum);
@@ -888,17 +905,31 @@ CString makeitemname(CString ext, int remember);
 CString ImageFilter(int mostisbmp);
 void CreateMinimap(HWND hwnd);
 int GetScanLineLength(int width, int bytes);
+int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes);
 CString AssembleWeiduCommandLine(CString filename, CString outpath);
 unsigned long getfreememory();
 afx_msg void DefaultKillFocus();
+int CompressBIFC(CString infilename);
+int CompressCBF(CString infilename);
+
+int SetupSelectPoint();
+//vertex & polygon functions
+int PolygonInBox(area_vertex *wedvertex, int count, CRect rect);
+int PointInPolygon(area_vertex *wedvertex, int count, CPoint point);
+int VertexOrder(area_vertex *wedvertex, int count);
 
 //readers & writers (they handle the lookup tables)
 void UpdateIEResource(CString key, int restype, CString filepath, int size);
+int write_area(CString key);
+int write_tis(CString key);
 int read_item(CString key);
 int write_item(CString key);
 int read_spell(CString key);
 int write_spell(CString key);
 int read_store(CString key);
+int write_store(CString key);
+int GetWed(bool night);
+int ReadWed(int res);
 int read_area(CString key);
 int read_projectile(CString key);
 int read_chui(CString key);
@@ -909,15 +940,18 @@ void MakeGradientBitmap(HBITMAP &hb, int GradientIndex);
 CString GetMapTypeValue(int maptype, int value);
 int read_bmp(CString key,HBITMAP &hb);
 int read_bmp(CString key, Cbam *cb, int lazy=0); //cb can't be NULL due to polymorphism
+int read_bmp(CString key, Cmos *cb, int lazy=0);
 int read_bam(CString key, Cbam *cb=NULL, int lazy=0);
 int write_bam(CString key);
 int read_mos(CString key, Cmos *cb=NULL, int lazy=0);
 int read_tis(CString key, Cmos *cb=NULL, int lazy=0);
 int read_dialog(CString key);
 int read_videocell(CString key);
+int write_videocell(CString key);
 int read_mus(CString key);
 int read_worldmap(CString key);
 int read_effect(CString key);
+int write_effect(CString key);
 int read_game(CString key);
 int write_game(CString key);
 int read_2da(CString key);

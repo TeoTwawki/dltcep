@@ -1307,7 +1307,7 @@ void CChuiEdit::OnPreview()
   //we prepare the initview by drawing the window
   preview.m_maxextentx=the_mos.mosheader.wColumn;
   preview.m_maxextenty=the_mos.mosheader.wRow;
-  preview.InitView(IW_ENABLEBUTTON|IW_NOREDRAW);
+  preview.InitView(IW_ENABLEBUTTON|IW_NOREDRAW, &the_mos);
   the_mos.MakeBitmapWhole(GREY,preview.m_bm,0,0,0,0);
 
   //then we put the controls on it
@@ -1444,7 +1444,7 @@ void CChuiEdit::OnPreview()
 
   //ImageView returns the point clicked on the screen, so we can select
   //the control pointed by the mouse
-  point=preview.GetPoint(0);
+  point=preview.GetPoint(GP_POINT);
   for(i=0;i<the_chui.windows[pos].controlcount;i++)
   {
     pos2=the_chui.windows[pos].controlidx+i;

@@ -556,7 +556,6 @@ void CGameEdit::SaveGame(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
 
   if(readonly)
@@ -597,6 +596,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
@@ -605,6 +605,8 @@ gotname:
     }
     res=the_game.WriteGameToFile(fhandle, 0);
     close(fhandle);
+    */
+    res = write_game(newname);
     switch(res)
     {
     case 0:

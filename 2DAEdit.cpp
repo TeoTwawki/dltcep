@@ -9,6 +9,7 @@
 #include "chitem.h"
 #include "2da.h"
 #include "2DAEdit.h"
+#include "StrRefDlg.h"
 #include "progressbar.h"
 
 #ifdef _DEBUG
@@ -95,12 +96,13 @@ BEGIN_MESSAGE_MAP(C2DAEdit, CDialog)
 	ON_BN_CLICKED(IDC_COLUMN2, OnColumn2)
 	ON_BN_CLICKED(IDC_ROW2, OnRow2)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_COMMAND(ID_TOOLS_CAPITALIZEENTRIES, OnToolsCapitalize)
 	ON_EN_KILLFOCUS(IDC_DEFAULT, DefaultKillfocus)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_TOOLS_CAPITALIZEENTRIES, OnToolsCapitalize)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	//}}AFX_MSG_MAP
   ON_EN_KILLFOCUS(IDC_EDITLINK,OnKillfocusEditlink)
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_2DA, OnCustomdrawMyList)
@@ -734,6 +736,15 @@ void C2DAEdit::OnToolsCapitalize()
   RefreshDialog();
 }
 
+void C2DAEdit::OnToolsLookupstrref() 
+{
+	CStrRefDlg dlg;
+	
+  if(IsWindow(m_edit)) m_edit.DestroyWindow();
+  dlg.DoModal();
+  RefreshDialog();
+}
+
 BOOL C2DAEdit::PreTranslateMessage(MSG* pMsg) 
 {
 	m_tooltip.RelayEvent(pMsg);
@@ -804,7 +815,14 @@ void CIDSEdit::RefreshDialog()
   int i;
   int val;
 
-  SetWindowText("Edit IDS: "+itemname);
+  if(m_readonly)
+  {
+    SetWindowText("Browse IDS: "+itemname);
+  }
+  else
+  {
+    SetWindowText("Edit IDS: "+itemname);
+  }
   m_ids_control.DeleteAllItems();
   while(m_ids_control.DeleteColumn(0));
   m_ids_control.SetItemCount(2);
@@ -848,6 +866,14 @@ BOOL CIDSEdit::OnInitDialog()
   if(m_readonly)
   {
     GetDlgItem(IDC_SAVEAS)->EnableWindow(false);
+  }
+  CMenu *menu=GetMenu();
+  if(menu) menu=menu->GetSubMenu(0);
+  if(menu)
+  {
+    menu->EnableMenuItem(ID_FILE_NEW,m_readonly?MF_GRAYED:MF_ENABLED);
+    menu->EnableMenuItem(ID_FILE_SAVE,m_readonly?MF_GRAYED:MF_ENABLED);
+    menu->EnableMenuItem(ID_FILE_SAVEAS,m_readonly?MF_GRAYED:MF_ENABLED);
   }
 	return TRUE;
 }
@@ -1674,7 +1700,7 @@ void CMUSEdit::OnPlaywhole()
   }
   dlg.waitsound=true;
   dlg.DoModal();
-
+  sndPlaySound(NULL,SND_NODEFAULT);
 endofquest:
   if(memory1)
   {

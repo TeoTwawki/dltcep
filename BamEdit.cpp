@@ -356,6 +356,11 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_DECOMPRESSALLFRAMES, OnDecompress)
 	ON_COMMAND(ID_TOOLS_ALIGNALL, OnAlign)
 	ON_COMMAND(ID_CYCLE_COPYCYCLE, OnCopycycle)
+	ON_COMMAND(ID_CYCLE_PASTECYCLE, OnCyclePastecycle)
+	ON_COMMAND(ID_SHIFT_FORWARD, OnShiftForward)
+	ON_COMMAND(ID_SHIFT_BACKWARD, OnShiftBackward)
+	ON_COMMAND(ID_FILE_LOADBMP, OnFileLoadbmp)
+	ON_COMMAND(ID_FILE_MERGEBAM, OnFileMergebam)
 	ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
@@ -380,7 +385,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
-	ON_COMMAND(ID_CYCLE_PASTECYCLE, OnCyclePastecycle)
+	ON_COMMAND(ID_FILE_MERGEEXTERNALBAM, OnFileMergeexternalbam)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -453,8 +458,113 @@ BOOL CBamEdit::OnInitDialog()
 
 	return TRUE;
 }
+  
+void CBamEdit::OnFileLoadbmp() 
+{
+	int res;
+	
+  pickerdlg.m_restype=REF_BMP;
+  pickerdlg.m_picked=itemname;
+	res=pickerdlg.DoModal();  
+	if(res==IDOK)
+	{
+    m_play&=~PLAYBAM;
+		res=read_bmp(pickerdlg.m_picked,&the_bam,0);
+    switch(res)
+    {
+    case -1:
+      MessageBox("Bitmap loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 0:
+  		itemname=pickerdlg.m_picked;
+      break;
+    default:
+      MessageBox("Cannot read bitmap!","Error",MB_ICONSTOP|MB_OK);
+      NewBam();
+      break;
+    }
+    RefreshDialog();
+	}
+}
 
 void CBamEdit::OnLoad() 
+{
+  LoadBam(&the_bam);
+}
+
+void CBamEdit::AddonBam(Cbam &addon)
+{
+  int i,j;
+  int nNewCycle;
+  int nStartFrame, nAddIndex;
+  CPoint acd;
+  int RLE;
+  int res;
+
+  nStartFrame = the_bam.GetFrameCount();
+  for(i=0;i<addon.GetFrameCount();i++)
+  {
+    RLE=addon.GetFrameRLE(i);
+    addon.SetFrameRLE(i,false); //uncompressing image
+    res=the_bam.AddFrame(nStartFrame+i,addon.GetFrameDataSize(i));
+    res=the_bam.ImportFrameData(nStartFrame+i,addon, i);
+    if(RLE) the_bam.SetFrameRLE(nStartFrame+i,true);//setting back RLE if required
+  }
+  for(i=0;i<addon.GetCycleCount();i++)
+  {
+    nNewCycle = the_bam.InsertCycle(-1);//adds a new cycle to the end
+    acd=addon.GetCycleData(i);
+    for(j=0;j<acd.y;j++)
+    {
+      nAddIndex=addon.GetFrameIndex(i,j);
+      the_bam.AddFrameToCycle(nNewCycle, j, nAddIndex+nStartFrame, 1);
+    }
+  }
+}
+/*
+void CBamEdit::AddonBam(Cbam &addon)
+{
+  int i,j;
+  int nNewCycle;
+  int nStartFrame, nFrameIndex, nAddIndex;
+  CPoint acd;
+  int res;
+  int RLE;
+
+  //better first add the frames
+  for(i=0;i<addon.GetCycleCount();i++)
+  {
+    nNewCycle = the_bam.InsertCycle(-1);//adds a new cycle to the end
+    acd=addon.GetCycleData(i);
+    nStartFrame = the_bam.GetFrameCount();
+    nFrameIndex = nStartFrame;
+    for(j=0;j<acd.y;j++)
+    {
+      nAddIndex=addon.GetFrameIndex(i,j);
+      RLE=addon.GetFrameRLE(nAddIndex);
+      addon.SetFrameRLE(nAddIndex,false); //uncompressing image
+      res=the_bam.AddFrame(nFrameIndex,addon.GetFrameDataSize(nAddIndex));
+      res=the_bam.ImportFrameData(nFrameIndex,addon, nAddIndex);
+      if(RLE) the_bam.SetFrameRLE(nFrameIndex,true);//setting back RLE if required
+      nFrameIndex++;
+    }
+
+    the_bam.AddFrameToCycle(nNewCycle,0,nStartFrame,nFrameIndex-nStartFrame);
+  }
+}
+*/
+
+void CBamEdit::OnFileMergebam() 
+{
+  Cbam additional;
+
+  additional.new_bam();
+	LoadBam(&additional);
+	AddonBam(additional);
+}
+
+void CBamEdit::LoadBam(Cbam *resource)
 {
 	int res;
 	
@@ -464,7 +574,7 @@ void CBamEdit::OnLoad()
 	if(res==IDOK)
 	{
     m_play&=~PLAYBAM;
-		res=read_bam(pickerdlg.m_picked);
+		res=read_bam(pickerdlg.m_picked, resource);
     switch(res)
     {
     case -1:
@@ -476,7 +586,7 @@ void CBamEdit::OnLoad()
       break;
     default:
       MessageBox("Cannot read animation!","Error",MB_ICONSTOP|MB_OK);
-      NewBam();
+      if(resource==&the_bam) NewBam();
       break;
     }
     RefreshDialog();
@@ -484,6 +594,20 @@ void CBamEdit::OnLoad()
 }
 
 void CBamEdit::OnLoadex() 
+{
+  LoadBamEx(&the_bam);
+}
+
+void CBamEdit::OnFileMergeexternalbam() 
+{
+  Cbam additional;
+
+  additional.new_bam();
+	LoadBamEx(&additional);
+	AddonBam(additional);
+}
+
+void CBamEdit::LoadBamEx(Cbam *resource)
 {
   CString filepath;
   int fhandle;
@@ -505,7 +629,7 @@ restart:
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
     m_play&=~PLAYBAM;
-    res=the_bam.ReadBamFromFile(fhandle,-1,0);
+    res=resource->ReadBamFromFile(fhandle,-1,0);
     close(fhandle);
     switch(res)
     {
@@ -520,7 +644,7 @@ restart:
       break;
     default:
       MessageBox("Cannot read animation!","Error",MB_ICONSTOP|MB_OK);
-      NewBam();
+      if(resource==&the_bam) NewBam();
       break;
     }
   }
@@ -534,32 +658,44 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
   CString tmpstr;
   int fhandle;
   int res;
+  bool bmpsave;
 
   if(readonly)
   {
     MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
+  if(no_compress())
+  {
+    the_bam.m_bCompressed=0;
+  }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "bam", makeitemname(".bam",0), res, szFilter);
+  CFileDialog m_getfiledlg(FALSE, "", makeitemname(".bam",0), res, ImageFilter(0x35));
   if(save)
   {
     newname=itemname;
     filepath=makeitemname(".bam",0);
     goto gotname;
   }    
+  
 restart:  
+  bmpsave=false;
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
     filepath.MakeLower();
     if(filepath.Right(4)!=".bam")
     {
-      filepath+=".bam";
+      if(filepath.Right(4)==".bmp")
+      {
+        bmpsave=true;
+      }
+      else filepath+=".bam";
     }
     newname=m_getfiledlg.GetFileName();
     newname.MakeUpper();
     if(newname.Right(4)==".BAM") newname=newname.Left(newname.GetLength()-4);
+    if(newname.Right(4)==".BMP") newname=newname.Left(newname.GetLength()-4);
 gotname:
     if(newname.GetLength()>8 || newname.GetLength()<1 || newname.Find(" ",0)!=-1)
     {
@@ -579,7 +715,14 @@ gotname:
       MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
       return;
     }
-    res=my_bam.WriteBamToFile(fhandle);
+    if(bmpsave==true)
+    {
+      res=my_bam.WriteBmpToFile(fhandle, m_framenum2);
+    }
+    else
+    {
+      res=my_bam.WriteBamToFile(fhandle);
+    }
     close(fhandle);
     switch(res)
     {
@@ -707,7 +850,6 @@ void CBamEdit::OnSelchangeCycframe()
   nIndex=m_cycleframe_control.GetCurSel();
   nCycle=m_cyclenum_control.GetCurSel();
   m_framenum2=the_bam.GetFrameIndex(nCycle,nIndex);
-//  m_cycleframe.Format("%d %d",nIndex, m_framenum2);
   m_framenum_control.SetCurSel(m_framenum2);
 	UpdateData(UD_DISPLAY);
 }
@@ -1064,7 +1206,7 @@ void CBamEdit::OnImport() //this imports many frames
   itemname=internalname;
   if(itemname.IsEmpty()) itemname="new bam";
   nFrameIndex=the_bam.GetFrameCount();
-  nStartFrame=nFrameIndex-1;
+  nStartFrame=nFrameIndex;
   do
   {
     format.Format("%s%%s%%0%dd.bmp",m_folder,digits);
@@ -1082,20 +1224,24 @@ void CBamEdit::OnImport() //this imports many frames
     if(res) break;
     res=the_bam.AddFrame(nFrameIndex,tmpbam.GetFrameDataSize(0));
     if(res) break;
-    the_bam.ImportFrameData(nFrameIndex, tmpbam);
+    the_bam.ImportFrameData(nFrameIndex, tmpbam,0);
   }
   while(++nFrameIndex<65000);
 endofquest:
   switch(res)
   {
+  case -99:
+    break;
   case -2:
   case -1:
     MessageBox("Animation loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
     break;
   case 0:
-    the_bam.InsertCycle(digits=the_bam.GetCycleCount());
-    //adding into the new cycle
-    the_bam.AddFrameToCycle(digits,0,nStartFrame,nFrameIndex-nStartFrame);
+    //adding the 1+ frames into the new cycle
+    if(nFrameIndex-nStartFrame)
+    {
+      the_bam.AddFrameToCycle(0,1,nStartFrame,nFrameIndex-nStartFrame);
+    }
     break;
   default:
     MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
@@ -1150,6 +1296,7 @@ restart:
       break;
     }
   }
+  else res=-99;
   return res;
 }
 
@@ -1192,11 +1339,7 @@ void CBamEdit::OnNewframe() //this imports one frame
     }
     the_bam.SetFrameData(nFrameIndex, tmpbam.GetFrameData(0),tmpbam.GetFrameSize(0));
     nCycle=m_cyclenum_control.GetCurSel();
-    if(nCycle<0)
-    {
-      nCycle=0;
-      the_bam.InsertCycle(nCycle);
-    }
+    nCycle=the_bam.InsertCycle(nCycle);
     CycleData=the_bam.GetCycleData(nCycle);
     the_bam.AddFrameToCycle(nCycle,CycleData.y,nFrameIndex,1);
   }
@@ -1213,8 +1356,9 @@ void CBamEdit::OnDropcyc()
   if(the_bam.DropCycle(nCycle))
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
-  }
+  }  
   RefreshDialog();
+  OnSelchangeCycframe();
 }
 
 void CBamEdit::OnInsertcycle() 
@@ -1223,7 +1367,7 @@ void CBamEdit::OnInsertcycle()
 
 	nCycle=m_cyclenum_control.GetCurSel();
   if(nCycle<0) nCycle=0;
-	if(the_bam.InsertCycle(nCycle))
+	if(the_bam.InsertCycle(nCycle)<0)
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
   }
@@ -1265,7 +1409,7 @@ void CBamEdit::OnNewcycle()
   int nCycle;
 
 	nCycle=m_cyclenum_control.GetCurSel()+1;
-	if(the_bam.InsertCycle(nCycle))
+	if(the_bam.InsertCycle(nCycle)<0)
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
   }
@@ -1314,6 +1458,39 @@ void CBamEdit::OnReversecycle()
   for(i=CycleData.y/2;i>=0;i--)
   {
     the_bam.SwapFrames(CycleData.x+i,CycleData.x+CycleData.y-i);
+  }
+  RefreshDialog();
+}
+
+
+void CBamEdit::OnShiftForward() 
+{
+  int nCycle;
+  CPoint CycleData;
+  int i;
+
+  nCycle=m_cyclenum_control.GetCurSel();
+  CycleData=the_bam.GetCycleData(nCycle);
+  CycleData.y--;
+  for(i=CycleData.y;i;i--)
+  {
+    the_bam.SwapFrames(CycleData.x+i,CycleData.x+i-1);
+  }
+  RefreshDialog();
+}
+
+void CBamEdit::OnShiftBackward() 
+{
+  int nCycle;
+  CPoint CycleData;
+  int i;
+
+  nCycle=m_cyclenum_control.GetCurSel();
+  CycleData=the_bam.GetCycleData(nCycle);
+  CycleData.y--;
+  for(i=0;i<CycleData.y;i++)
+  {
+    the_bam.SwapFrames(CycleData.x+i,CycleData.x+i+1);
   }
   RefreshDialog();
 }

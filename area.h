@@ -21,6 +21,7 @@ private:
   long startpointa, startpointw;
 public:
   //.wed
+  bool m_night;
   bool wedchanged, wedavailable;
   wed_header wedheader;
   wed_secondary_header secheader;
@@ -28,8 +29,10 @@ public:
 
   int overlaycount, overlaytilecount, overlaytileidxcount;
   int weddoorcount, doortileidxcount, doorpolygoncount;
-  int wallgroupidxcount, wallgroupcount, polygonidxcount;
-  int wedvertexcount, wallgroupvertexcount, doorvertexcount;
+  int wallgroupidxcount;
+  int wallpolygoncount;  //this is the count of the wallpolygons
+  int polygonidxcount; //this is the size of the wallgroup index table
+  int wedvertexcount;
 
   wed_overlay *overlayheaders;
   wed_tilemap *overlaytileheaders;
@@ -38,12 +41,12 @@ public:
   short *overlaytileindices;
   wed_polyidx *wallgroupindices;
   wed_polygon *doorpolygonheaders;
-  wed_polygon *wallgroupheaders;
+  wed_polygon *wallpolygonheaders;
   short *polygonindices; //wallgroup polygon indices
   area_vertex *wedvertices; //a wed vertex is the same as an area vertex (POINTS)
   //CleanupVertices will separate wedvertices into these parts
-  area_vertex *wallgroupvertices;
-  area_vertex *doorvertices; 
+//  area_vertex *wallgroupvertices;
+//  area_vertex *doorvertices; 
 
   unsigned short width, height;
   unsigned char *searchmap;
@@ -85,6 +88,7 @@ public:
   area_anim *animheaders;
   area_vertex *vertexheaders;
   CVertexPtrList vertexheaderlist;
+  CVertexPtrList wedvertexheaderlist;
   area_variable *variableheaders;
   area_door *doorheaders;
   area_mapnote *mapnoteheaders;
@@ -95,11 +99,13 @@ public:
 	Carea();
 	virtual ~Carea();
   void new_area();
+  int DefaultAreaOverlays();
   int WriteAreaToFile(int fh, int calculate);
-  int WriteWedToFile(int fh, int night);
+  int WriteWedToFile(int fh);
   int WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize);
   int ReadActorData();
   int ReadAreaFromFile(int fh, long ml);
+  int getotc(int overlay);
   int getfoti(int overlay);
   int getotic(int overlay);
   int ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palette, int size);
@@ -115,10 +121,10 @@ public:
     return wedchanged;
   }
   bool WedAvailable() { return wedavailable; }
-  void RecalcBox(int pos, wed_polygon *header, area_vertex *vertices, int door);
-  int VertexOrder(area_vertex *wedvertex, int count);
+  void RecalcBox(int pos, wed_polygon *header, area_vertex *vertices);
+  //int VertexOrder(area_vertex *wedvertex, int count);
   int ConvertOffsetToIndex(int polyoffset);
-  int ConsolidateVertices();
+//  int ConsolidateVertices();
   int ConsolidateDoortiles();
 
   inline void KillMaps()
@@ -204,12 +210,12 @@ public:
   }
   inline void KillWallgrouppolygons()
   {
-    if(wallgroupheaders)
+    if(wallpolygonheaders)
     {
-      delete[] wallgroupheaders;
-      wallgroupheaders=NULL;
+      delete[] wallpolygonheaders;
+      wallpolygonheaders=NULL;
     }
-    wallgroupcount=0;
+    wallpolygoncount=0;
   }
   inline void KillPolygonindices()
   {
@@ -229,6 +235,7 @@ public:
     }
     wedvertexcount=0;
   }
+  /* these will be in lists now
   inline void KillWallgroupvertices()
   {
     if(wallgroupvertices)
@@ -247,7 +254,7 @@ public:
     }
     doorvertexcount=0;
   }
-
+  */
   inline void KillActors()
   {
     KillCreDataPointers();
@@ -385,6 +392,20 @@ public:
     }
     vertexcount=0;
   }
+
+  inline void KillWedVertexList()
+  {
+    int i;
+    void *poi;
+    
+    i=wedvertexheaderlist.GetCount();
+    while(i--)
+    {
+      poi=wedvertexheaderlist.RemoveHead();
+      if(poi) delete [] poi;      
+    }
+  }
+
   inline void KillVertexList()
   {
     int i;
@@ -408,15 +429,18 @@ public:
   }
   void ShiftVertex(long id, int count, POINTS &point);
   void FlipVertex(long id, int count, int width);
+  int RecalcBoundingBoxes();
 private:
   int adjust_actpointa(long offset);
   int adjust_actpointw(long offset);
   void MergeVertex(long &offset, int count);
-  int RecalcBoundingBoxes();
-  int CleanUpVertices();
+  void MergeWedVertex(long &offset, int count);
   int ImplodeVertices();
+  int ImplodeWedVertices();
   void HandleVertex(long offset, int count);
+  void HandleWedVertex(long offset, int count);
   int ExplodeVertices();
+  int ExplodeWedVertices();
   inline long myseeka(long pos)
   {
     return lseek(fhandlea, pos+startpointa,SEEK_SET)-startpointa;

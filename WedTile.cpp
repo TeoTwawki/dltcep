@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "chitem.h"
+#include "chitemDlg.h"
 #include "WedTile.h"
 
 #ifdef _DEBUG
@@ -19,16 +20,15 @@ CWedTile::CWedTile(CWnd* pParent /*=NULL*/) : CDialog(CWedTile::IDD, pParent)
 	//{{AFX_DATA_INIT(CWedTile)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+  m_tilenum=-1;
 }
 
-static int tileboxids[]={IDC_FLAG1, IDC_FLAG2,IDC_FLAG3, IDC_FLAG4,
-IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8,
+static int overlayids[]={IDC_ALT, IDC_ADDALT, IDC_FIXALTER, IDC_GREENWATER,
 0};
 
 void CWedTile::DoDataExchange(CDataExchange* pDX)
 {
-  CButton *cb;
-  int i,j;
+  int tmp;
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CWedTile)
@@ -36,20 +36,33 @@ void CWedTile::DoDataExchange(CDataExchange* pDX)
   //}}AFX_DATA_MAP
   if(m_tilenum>=0)
   {
+    tmp=m_ptileheader[m_tilenum].firsttileprimary;
     DDX_Text(pDX, IDC_FIRST, m_ptileheader[m_tilenum].firsttileprimary);
+    if(tmp!=m_ptileheader[m_tilenum].firsttileprimary)
+    {
+      the_area.wedchanged=true;
+    }
+    tmp=m_ptileidx[m_ptileheader[m_tilenum].firsttileprimary];
+    DDX_Text(pDX, IDC_TILEIDX, m_ptileidx[m_ptileheader[m_tilenum].firsttileprimary]);
+    if(tmp!=m_ptileidx[m_ptileheader[m_tilenum].firsttileprimary])
+    {
+      the_area.wedchanged=true;
+    }
     DDX_Text(pDX, IDC_NUM, m_ptileheader[m_tilenum].counttileprimary);
+    tmp=m_ptileheader[m_tilenum].alternate;
     DDX_Text(pDX, IDC_ALT, m_ptileheader[m_tilenum].alternate);
+    DDV_MinMaxInt(pDX, m_ptileheader[m_tilenum].alternate,-1,the_mos.GetFrameCount());
+    if(tmp!=m_ptileheader[m_tilenum].alternate)
+    {
+      the_area.wedchanged=true;
+    }
+    tmp=m_ptileheader[m_tilenum].flags;
     DDX_Text(pDX, IDC_FLAGS, m_ptileheader[m_tilenum].flags);
     DDX_Text(pDX, IDC_UNKNOWN, m_ptileheader[m_tilenum].unknown);
 
-    i=0;
-    j=1;
-    while(tileboxids[i])
+    if(tmp!=m_ptileheader[m_tilenum].flags)
     {
-      cb=(CButton *) GetDlgItem(tileboxids[i]);
-      cb->SetCheck(m_ptileheader[m_tilenum].flags&j);
-      i++;
-      j<<=1;
+      the_area.wedchanged=true;
     }
   }
 }
@@ -58,21 +71,16 @@ BEGIN_MESSAGE_MAP(CWedTile, CDialog)
 	//{{AFX_MSG_MAP(CWedTile)
 	ON_LBN_SELCHANGE(IDC_BLOCKPICKER, OnSelchangeBlockpicker)
 	ON_EN_KILLFOCUS(IDC_FIRST, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
-	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
-	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
-	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
-	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
-	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
-	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
-	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_TILE, OnTile)
 	ON_BN_CLICKED(IDC_ADDALT, OnAddalt)
+	ON_BN_CLICKED(IDC_FIXALTER, OnFixalter)
+	ON_BN_CLICKED(IDC_GREENWATER, OnGreenwater)
+	ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
 	ON_EN_KILLFOCUS(IDC_NUM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_ALT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_REMALL, OnRemall)
+	ON_EN_KILLFOCUS(IDC_TILEIDX, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -86,29 +94,44 @@ void CWedTile::RefreshTile()
   int i,j;
 
   if(!m_tilepicker) return;
+  tmpstr.Format("Edit tiles & overlays (%s)",m_tisname);  
+  SetWindowText(tmpstr);  
   m_tilenum=m_tilepicker.GetCurSel();
   if(m_tilenum<0) m_tilenum=0;
   m_tilepicker.ResetContent();
   for(j=0;j<m_tilecounty;j++) for(i=0;i<m_tilecountx;i++)
   {
-    tmpstr.Format("[%d.%d]",i,j);
+    wed_tilemap *wtm=m_ptileheader+(j*m_tilecountx+i);
+    if(wtm->alternate==-1)
+    {
+      tmpstr.Format("[%d.%d] %d - %d",i,j,wtm->firsttileprimary, wtm->flags);
+    }
+    else
+    {
+      tmpstr.Format("[%d.%d] %d (%d) - %d",i,j,wtm->firsttileprimary, wtm->alternate, wtm->flags);
+    }
     m_tilepicker.AddString(tmpstr);
   }
   maxtilecount=i*j-1;
 
-  if(m_tilenum>=maxtilecount) m_tilenum=maxtilecount-1;
+  if(m_tilenum>maxtilecount) m_tilenum=maxtilecount;
   m_tilenum=m_tilepicker.SetCurSel(m_tilenum);
-  i=0;
-  while(tileboxids[i])
-  {
-    GetDlgItem(tileboxids[i])->EnableWindow(m_tilenum>=0);
-    i++;
-  }
 }
 
 BOOL CWedTile::OnInitDialog() 
 {
+  CWnd *cw;
 	CDialog::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
+  }
+  cw=GetDlgItem(IDC_OVERLAY);
+  cw->EnableWindow(!!the_mos.m_overlay);
   RefreshTile();
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -126,79 +149,119 @@ void CWedTile::DefaultKillfocus()
   UpdateData(UD_DISPLAY);
 }
 
-void CWedTile::OnFlag1() 
-{
-	m_ptileheader[m_tilenum].flags^=1;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag2() 
-{
-	m_ptileheader[m_tilenum].flags^=2;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag3() 
-{
-	m_ptileheader[m_tilenum].flags^=4;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag4() 
-{
-	m_ptileheader[m_tilenum].flags^=8;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag5() 
-{
-	m_ptileheader[m_tilenum].flags^=16;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag6() 
-{
-	m_ptileheader[m_tilenum].flags^=32;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag7() 
-{
-	m_ptileheader[m_tilenum].flags^=64;
-  UpdateData(UD_DISPLAY);
-}
-
-void CWedTile::OnFlag8() 
-{
-	m_ptileheader[m_tilenum].flags^=128;
-  UpdateData(UD_DISPLAY);
-}
-
 void CWedTile::OnTile() 
 {
 	CImageView dlg;
   CPoint cp;
 
-  dlg.m_clipx=dlg.m_minclipx=0;
-  dlg.m_clipy=dlg.m_minclipy=0;
-  dlg.m_maxclipx=m_tilecountx;
-  dlg.m_maxclipy=m_tilecounty;
-  dlg.m_oladjust=0;
-  dlg.m_enablebutton=IW_ENABLEBUTTON;
+  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID|IW_MARKTILE, &the_mos);
+  //setting the clipping, not required, but setting the position is nice
+  dlg.m_clipx=m_tilenum%m_tilecountx;
+  dlg.m_clipy=m_tilenum/m_tilecountx;
   dlg.DoModal();
-  cp=dlg.GetPoint(true);
+  cp=dlg.GetPoint(GP_TILE);
   m_tilenum=m_tilepicker.SetCurSel(cp.y*m_tilecountx+cp.x);
   UpdateData(UD_DISPLAY);
 }
 
-void CWedTile::OnAddalt() 
+void CWedTile::OnOverlay() 
 {
-	//makes a copy of tiles as alternate
-	
+  CImageView dlg;
+  CPoint cp;
+
+  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID|IW_OVERLAY, &the_mos);
+  //setting the clipping, not required, but setting the position is nice
+  dlg.m_clipx=m_tilenum%m_tilecountx;
+  dlg.m_clipy=m_tilenum/m_tilecountx;
+  dlg.SetMapType(MT_OVERLAY, (LPBYTE) m_ptileheader);
+  dlg.DoModal();
+  cp=dlg.GetPoint(GP_TILE);
+  m_tilenum=m_tilepicker.SetCurSel(cp.y*m_tilecountx+cp.x);
+  RefreshTile();
+  UpdateData(UD_DISPLAY);
 }
 
-void CWedTile::OnRemall() 
+void CWedTile::OnFixalter() 
 {
-	// TODO: Add your control notification handler code here
-	
+  int i;
+
+  i=m_tilecounty*m_tilecountx;
+  while(i--)
+  {
+    if(m_ptileheader[i].flags && (m_ptileheader[i].alternate==-1) )
+    {
+      m_ptileheader[i].alternate=m_ptileidx[m_ptileheader[i].firsttileprimary];
+      the_area.wedchanged=true;
+    }
+  }
+  RefreshTile();
+  UpdateData(UD_DISPLAY);
+}
+
+void CWedTile::OnAddalt() 
+{  
+  if(m_ptileheader[m_tilenum].alternate)
+  {
+    MessageBox("This tile already has an alternate.","Warning",MB_ICONINFORMATION|MB_OK);
+    return;
+  }
+	m_ptileheader[m_tilenum].alternate=(short) the_mos.AddTileCopy(m_ptileidx[m_ptileheader[m_tilenum].firsttileprimary]);
+  the_area.wedchanged=true;
+}
+
+void CWedTile::OnGreenwater() 
+{
+  int i;
+  int idx;
+  int ret;
+  bool deepen;
+
+  if(MessageBox("Do you want to remove the dithering too?","Tile editor",MB_YESNO)==IDYES)
+  {
+    deepen=true;
+  }
+  else
+  {
+    deepen=false;
+  }
+  i=m_tilecounty*m_tilecountx;
+  ((CChitemDlg *) AfxGetMainWnd())->start_progress(i, "Converting overlays...");
+
+  while(i--)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->set_progress(i); 
+    if(m_ptileheader[i].flags && (m_ptileheader[i].alternate==-1) )
+    {
+      idx = m_ptileidx[m_ptileheader[i].firsttileprimary];
+      ret=the_mos.SaturateTransparency(idx, true, deepen);
+      if(ret!=m_ptileheader[i].alternate)
+      {
+        m_ptileheader[i].alternate=(short) ret;
+        m_ptileidx[m_ptileheader[i].firsttileprimary]=(short) idx;
+        the_area.wedchanged=true;
+      }      
+    }
+  }
+  ((CChitemDlg *) AfxGetMainWnd())->end_progress();
+  RefreshTile();
+  UpdateData(UD_DISPLAY);
+}
+
+void CWedTile::OnOK() 
+{
+	if(the_mos.MosChanged() )
+  {
+    if(MessageBox("The tileset was changed, changes will be destroyed if you don't save it now.\n"
+      "Do you want to save it now?","Tile editor",MB_YESNO)==IDYES)
+    {
+      write_tis(m_tisname);
+    }
+  }
+	CDialog::OnOK();
+}
+
+BOOL CWedTile::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

@@ -62,6 +62,7 @@ public:
 
   void Importtbg(int alt);
   void scan_override();
+  void log(CString format, ...);
 
 // Dialog Data
 	//{{AFX_DATA(CChitemDlg)
@@ -100,7 +101,6 @@ protected:
   }
   int gather_override(CString folder, int where=false);
   void read_cd_locations();
-  void log(CString format, ...);
   int scan_2da();
   int scan_chitin();
   int scan_dialog(bool refresh=false);
@@ -212,9 +212,11 @@ protected:
   int store_variable(CString varname, int storeflags, int opcode, int trigger, int block);
   void RefreshMenu();
   int write_file(CString str);
+  void Compressbif(bool cbf_or_bifc);
   void CompressWav(bool acm_or_wavc);
   void DecompressAcm(bool wavc_or_acm);
   void DecompressAcm2(bool wavc_or_acm);
+  void CheckPrefix(CString key, int value);
 	// Generated message map functions
 	//{{AFX_MSG(CChitemDlg)
 	virtual BOOL OnInitDialog();
@@ -307,6 +309,10 @@ protected:
 	afx_msg void OnCheckUi();
 	afx_msg void OnEditSRC();
 	afx_msg void OnScanjournal();
+	afx_msg void OnAvatars();
+	afx_msg void OnCompressbif();
+	afx_msg void OnCompresscbf();
+	afx_msg void OnTispack();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

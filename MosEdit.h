@@ -79,6 +79,7 @@ protected:
 	afx_msg void OnKillfocusPheight();
 	virtual void OnOK();
 	afx_msg void OnMinimap();
+	afx_msg void OnLoadBmp();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -363,6 +363,7 @@ void CFileExtract3::OnOpenfile()
   itemname="new ";
   CFileDialog m_getfiledlg(TRUE, cbf_or_sav?"cbf":"sav", makeitemname(cbf_or_sav?".cbf":".sav",cbf_or_sav+2), res, szFilter);
 
+  m_getfiledlg.m_ofn.lpstrTitle="Which archive to uncompress from?";
   if( m_getfiledlg.DoModal() == IDOK )
   {
     m_filename=m_getfiledlg.GetPathName();

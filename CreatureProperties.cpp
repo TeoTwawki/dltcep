@@ -58,7 +58,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_LONGNAMEREF, the_creature.header.longname);
   DDX_Text(pDX, IDC_SHORTNAMEREF, the_creature.header.shortname);
 
-  tmpstr.Format("0x%04x",the_creature.header.flags);
+  tmpstr.Format("0x%08x",the_creature.header.flags);
   DDX_Text(pDX, IDC_DUALFLAGS, tmpstr);
   the_creature.header.flags=strtonum(tmpstr);
   DDX_Text(pDX, IDC_LEVEL1, the_creature.header.levels[0]);
@@ -603,12 +603,6 @@ CCreatureIcons::~CCreatureIcons()
 {
 }
 
-BOOL CCreatureIcons::OnInitDialog() 
-{
-	CPropertyPage::OnInitDialog();	
-	return TRUE;
-}
-
 void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
 {
   CWnd *cw;
@@ -727,16 +721,22 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
   DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr,the_creature.header.dialogresref);
 
-  RetrieveResref(tmpstr,the_creature.header.dvar);
+  RetrieveVariable(tmpstr,the_creature.header.dvar);
   DDX_Text(pDX, IDC_DVAR, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 32);
-  StoreResref(tmpstr,the_creature.header.dvar);
+  StoreVariable(tmpstr,the_creature.header.dvar);
 }
 
 //move itemdata to local variables
 void CCreatureIcons::RefreshIcons()
 {
   
+}
+
+BOOL CCreatureIcons::OnInitDialog() 
+{
+	CPropertyPage::OnInitDialog();	
+	return TRUE;
 }
 
 BEGIN_MESSAGE_MAP(CCreatureIcons, CPropertyPage)
@@ -1348,6 +1348,29 @@ void CCreatureResist::RefreshResist()
   
 }
 
+static int willboxids[5]={IDC_STH1,IDC_STH2,IDC_STH3,IDC_STH4,IDC_STH5};
+static const char *willboxtxt[5]={"Fortitude","Reflex","Will","",""};
+
+BOOL CCreatureResist::OnInitDialog() 
+{
+  CWnd *cw;
+  int i;
+
+	CPropertyPage::OnInitDialog();
+  if(the_creature.revision==22)
+  {
+    for(i=0;i<5;i++)
+    {
+      cw = GetDlgItem(willboxids[i]);
+      if(cw)
+      {
+        cw->SetWindowText(willboxtxt[i]);
+      }
+    }
+  }
+	return TRUE;
+}
+
 BEGIN_MESSAGE_MAP(CCreatureResist, CPropertyPage)
 	//{{AFX_MSG_MAP(CCreatureResist)
 	ON_EN_KILLFOCUS(IDC_DEATH, OnKillfocusDeath)
@@ -1525,6 +1548,22 @@ CCreatureStrings::~CCreatureStrings()
 {
 }
 
+void CCreatureStrings::DoDataExchange(CDataExchange* pDX)
+{
+	CPropertyPage::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CCreatureStrings)
+	DDX_Control(pDX, IDC_BUDDY, m_buddycontrol);
+	DDX_Control(pDX, IDC_SLOTSPIN, m_spincontrol);
+	DDX_Control(pDX, IDC_SLOTPICKER, m_slotpicker_control);
+	DDX_Text(pDX, IDC_TEXT, m_text);
+	DDX_Check(pDX, IDC_TAGGED, m_tagged);
+	DDX_Text(pDX, IDC_SOUNDREF, m_soundref);
+	DDV_MaxChars(pDX, m_soundref, 8);
+	DDX_Text(pDX, IDC_REF, m_ref);
+	DDV_MinMaxInt(pDX, m_ref, -1, 10000000);
+	//}}AFX_DATA_MAP
+}
+
 void CCreatureStrings::RefreshStrings()
 {
   CString tmpstr, tmp;
@@ -1572,22 +1611,6 @@ BOOL CCreatureStrings::OnInitDialog()
   m_spincontrol.SetRange(1,SND_SLOT_COUNT);
   m_spincontrol.SetPos(SND_SLOT_COUNT);
 	return TRUE; 
-}
-
-void CCreatureStrings::DoDataExchange(CDataExchange* pDX)
-{
-	CPropertyPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CCreatureStrings)
-	DDX_Control(pDX, IDC_BUDDY, m_buddycontrol);
-	DDX_Control(pDX, IDC_SLOTSPIN, m_spincontrol);
-	DDX_Control(pDX, IDC_SLOTPICKER, m_slotpicker_control);
-	DDX_Text(pDX, IDC_TEXT, m_text);
-	DDX_Check(pDX, IDC_TAGGED, m_tagged);
-	DDX_Text(pDX, IDC_SOUNDREF, m_soundref);
-	DDV_MaxChars(pDX, m_soundref, 8);
-	DDX_Text(pDX, IDC_REF, m_ref);
-	DDV_MinMaxInt(pDX, m_ref, -1, 10000000);
-	//}}AFX_DATA_MAP
 }
 
 BEGIN_MESSAGE_MAP(CCreatureStrings, CPropertyPage)
@@ -2144,10 +2167,10 @@ CCreatureItem::~CCreatureItem()
 }
 
 static int itemboxids[]={IDC_USE1,IDC_USE2,IDC_USE3,IDC_FLAGS,
-IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN,IDC_UNKNOWN,
+IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN, IDC_UNDROPPABLE, IDC_UNKNOWN,
 0};
 
-static int flagboxids[]={IDC_IDENTIFIED, IDC_NOSTEAL, IDC_STOLEN,
+static int flagboxids[]={IDC_IDENTIFIED, IDC_NOSTEAL, IDC_STOLEN, IDC_UNDROPPABLE,
 0};
 
 static int spellboxids[]={IDC_SPELLPICKER, IDC_MEMORISED, IDC_FORGET,
@@ -2222,9 +2245,9 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 
   //items section
-  tmpstr=get_slottype(*(short *) (the_creature.itemslots+the_creature.slotcount));
+  tmpstr=get_slottype(*(int *) (the_creature.itemslots+the_creature.slotcount));
   DDX_Text(pDX, IDC_SELECTED, tmpstr);
-  *(short *) (the_creature.itemslots+the_creature.slotcount)=(short) strtonum(tmpstr); //maybe int ???
+  *(int *) (the_creature.itemslots+the_creature.slotcount)=strtonum(tmpstr); //maybe short ???
   pos=m_slotpicker.GetCurSel();
   flg=(pos>=0) && (pos<the_creature.slotcount);
   if(flg)
@@ -2247,10 +2270,11 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_FLAGS, the_creature.items[m_idx].flags);
     DDX_Text(pDX, IDC_UNKNOWN, the_creature.items[m_idx].unknown);
     j=1;
-    for(i=0;i<3;i++)
+    for(i=0;i<8;i++)
     {
       flg=!!(the_creature.items[m_idx].flags&j);
       cb=(CButton *) GetDlgItem(flagboxids[i]);
+      if(!cb) break;
       cb->SetCheck(flg);
       j<<=1;
     }
@@ -2561,6 +2585,7 @@ BEGIN_MESSAGE_MAP(CCreatureItem, CPropertyPage)
 	ON_BN_CLICKED(IDC_BOOK2, OnBook2)
 	ON_BN_CLICKED(IDC_CLASS, OnClass)
 	ON_CBN_KILLFOCUS(IDC_SELECTED, OnKillfocusSelected)
+	ON_BN_CLICKED(IDC_UNDROPPABLE, OnUndroppable)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2638,7 +2663,7 @@ void CCreatureItem::OnKillfocusItemres()
       if(the_creature.itemslots[i]==m_idx) the_creature.itemslots[i]=-1;
       else if(the_creature.itemslots[i]>m_idx) the_creature.itemslots[i]--;
     }
-    the_creature.itemslots[pos]=-1;
+    the_creature.itemslots[pos]=-1; 
   }
   else
   {
@@ -2703,6 +2728,14 @@ void CCreatureItem::OnStolen()
 {
   if(m_idx<0) return;
   the_creature.items[m_idx].flags^=4;
+	UpdateData(UD_DISPLAY);
+}
+
+
+void CCreatureItem::OnUndroppable() 
+{
+  if(m_idx<0) return;
+  the_creature.items[m_idx].flags^=8;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -3081,10 +3114,10 @@ void CCreatureItem::OnBrowse3()
 {
   if(m_spellslot<0) return;
   pickerdlg.m_restype=REF_SPL;
-  RetrieveResref(pickerdlg.m_picked,the_creature.memos[m_spellslot].resref);
+  pickerdlg.m_picked=m_spellres2;
   if(pickerdlg.DoModal()==IDOK)
   {
-    StoreResref(pickerdlg.m_picked,the_creature.memos[m_spellslot].resref);
+    m_spellres2=pickerdlg.m_picked;
   }
 	UpdateData(UD_DISPLAY);
 }
@@ -3350,8 +3383,8 @@ void CCreatureEffect::OnAdd()
       MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
       return;
     }
-    memcpy(neweffects2, the_creature.effects, effectcount*sizeof(feat_block) );
-    memcpy(neweffects2+effectcount+1, the_creature.effects+effectcount,(the_creature.header.effectcnt-effectcount)*sizeof(feat_block) );
+    memcpy(neweffects2, the_creature.oldeffects, effectcount*sizeof(feat_block) );
+    memcpy(neweffects2+effectcount+1, the_creature.oldeffects+effectcount,(the_creature.header.effectcnt-effectcount)*sizeof(feat_block) );
     memset(neweffects2+effectcount,0,sizeof(feat_block) );
     neweffects2[effectcount].prob2=100;
     neweffects2[effectcount].timing=1;

@@ -54,7 +54,7 @@ void INF_BAM_FRAMEDATA::ReorderPixels(COLORREF *palette, BYTE chTransparentIndex
                                       BYTE chNewTransparentIndex, bool bIsCompressed)
 {
   int idx, color;
-  int i;
+  unsigned int i;
 
   for(i=0;i<nFrameSize;i++)
   {
@@ -91,7 +91,7 @@ void INF_BAM_FRAMEDATA::ReorderPixels(COLORREF *palette, BYTE chTransparentIndex
 void INF_BAM_FRAMEDATA::MarkPixels(COLORREF *palette, BYTE chTransparentIndex, bool bIsCompressed)
 {
   int color;
-  int i;
+  unsigned int i;
 
   for(i=0;i<nFrameSize;i++)
   {
@@ -105,6 +105,24 @@ void INF_BAM_FRAMEDATA::MarkPixels(COLORREF *palette, BYTE chTransparentIndex, b
       *((BYTE *) (palette+color)+3)=0;
     }
   }
+}
+
+int INF_BAM_FRAMEDATA::TakePltData(const LPWORD pRawBits, plt_header &sHeader, int row)
+{
+  unsigned int i;
+
+  if(!row)
+  {
+    if(pFrameData) delete [] pFrameData;
+    nFrameSize=sHeader.dwHeight*sHeader.dwWidth;
+    pFrameData=new BYTE[nFrameSize];
+    if(!pFrameData) return -3;
+  }
+  for(i=0;i<sHeader.dwWidth;i++)
+  {
+    pFrameData[(sHeader.dwHeight-row-1)*sHeader.dwWidth+i]=(BYTE) (pRawBits[i]>>8);
+  }
+  return 0;
 }
 
 int INF_BAM_FRAMEDATA::TakeBmpData(const LPBYTE pRawBits, bmp_header &sHeader, int row)
@@ -122,7 +140,7 @@ int INF_BAM_FRAMEDATA::TakeBmpData(const LPBYTE pRawBits, bmp_header &sHeader, i
 
 int INF_BAM_FRAMEDATA::TakeBmp4Data(const LPBYTE pRawBits, bmp_header &sHeader, int row)
 {
-  int i;
+  unsigned int i;
 
   if(!row)
   {
@@ -139,11 +157,12 @@ int INF_BAM_FRAMEDATA::TakeBmp4Data(const LPBYTE pRawBits, bmp_header &sHeader, 
   return 0;
 }
 
-int INF_BAM_FRAMEDATA::TakeBamData(const LPBYTE pRawBits, int nWidth, int nHeight,
-                                   BYTE chTransparentIndex, bool bIsCompressed, int nMaxLength)
+int INF_BAM_FRAMEDATA::TakeBamData(const LPBYTE pRawBits, unsigned int nWidth,
+                                   unsigned int nHeight, BYTE chTransparentIndex,
+                                   bool bIsCompressed, unsigned int nMaxLength)
 {
-	int nNumPixels = nWidth*nHeight;
-	int nPixelCount = 0;
+	unsigned int nNumPixels = nWidth*nHeight;
+	unsigned int nPixelCount = 0;
 
   if(pFrameData) delete [] pFrameData;  //deletes the old data
   
@@ -186,9 +205,9 @@ int INF_BAM_FRAMEDATA::TakeBamData(const LPBYTE pRawBits, int nWidth, int nHeigh
 int INF_BAM_FRAMEDATA::RLEDecompression(BYTE chTransparentIndex)
 {
   BYTE *pNewFrameData;
-  int nPixelCount = 0;
+  unsigned int nPixelCount = 0;
   int nTrans = 0;
-  int nNewFrameSize = 0;
+  unsigned int nNewFrameSize = 0;
 
   if(!pFrameData) return -1;
 	while(nPixelCount < nFrameSize)
@@ -232,9 +251,9 @@ int INF_BAM_FRAMEDATA::RLEDecompression(BYTE chTransparentIndex)
 int INF_BAM_FRAMEDATA::RLECompression(BYTE chTransparentIndex)
 {
   BYTE *pNewFrameData;
-  int nPixelCount = 0;
+  unsigned int nPixelCount = 0;
   int nTrans = 0;
-  int nNewFrameSize = 0;
+  unsigned int nNewFrameSize = 0;
 
   if(!pFrameData) return -1;
   ///////Precalculating RLE frame size
@@ -314,7 +333,7 @@ int INF_BAM_FRAMEDATA::ExpandBamBits(BYTE chTransparentIndex, COLORREF clrTransp
      COLORREF *pDIBits, bool bIsCompressed, int nColumn, COLORREF *pPal, int nWidth, int nHeight)
 {
 	int nNumRow, nNumColumn;
-	int nSourceOff = 0;
+	unsigned int nSourceOff = 0;
 	int nPixelCount = 0;
   int nReplaced = 0;
 	int nCount;
@@ -408,6 +427,7 @@ Cbam::Cbam()
   m_pFrames=NULL;
   m_pCycles=NULL;
   m_pFrameLookup=NULL;
+  memset(&m_header,0,sizeof(INF_BAM_HEADER) );
   memset(&c_header,0,sizeof(c_header));
   m_bCompressed=0;
   m_pclrDIBits=NULL;
@@ -468,6 +488,38 @@ bool Cbam::CanCompress()
   KillData();
   delete [] m_pCData;
   return ret==Z_OK; //we could compress this uncompressed file
+}
+
+int Cbam::WriteBmpToFile(int fhandle, int frame)
+{
+  LPBYTE poi;
+  CPoint fs;
+  int RLE;
+  int pad;
+  unsigned long padding;
+
+  padding=0;
+  fs=GetFrameSize(frame);
+  RLE=GetFrameRLE(frame);
+  SetFrameRLE(frame,0); //uncompressing the image
+  CreateBmpHeader(fhandle, fs.x, fs.y, 1);
+  if(write(fhandle,m_palette, sizeof(m_palette) )!=sizeof(m_palette) )
+  {
+    return -2;
+  }
+  poi=GetFrameData(frame)+fs.y*fs.x;
+  pad=4-fs.x&3;
+  while(fs.y--)
+  {
+    poi-=fs.x;
+    if(write(fhandle,poi, fs.x)!=fs.x)
+    {
+      return -2;
+    }
+    if(pad!=4) write(fhandle,&padding,pad);
+  }
+  SetFrameRLE(frame,RLE);//compressing the image back
+  return 0;
 }
 
 int Cbam::WriteBamToFile(int fhandle)
@@ -698,8 +750,8 @@ int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
   LPBYTE pRawData;
   int ret;
   int rows;
-  int x,y;
-  int nFrameWanted, nFrameSize;
+  unsigned int x,y;
+  unsigned int nFrameWanted, nFrameSize;
   OctQuant oc;
 
   nFrameWanted=0;
@@ -740,7 +792,7 @@ int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
     goto endofquest;
   }
 
-  if(read(fhandle,pRawData,sHeader.height*scanline)!=sHeader.height*scanline)
+  if(read(fhandle,pRawData,sHeader.height*scanline)!=(int) (sHeader.height*scanline) )
   {
     ret=-2;
     goto endofquest;
@@ -771,12 +823,12 @@ endofquest:
 
 int Cbam::ReadBmpFromFile(int fhandle, int ml)
 {
-  bmp_header sHeader;          //BMP header
-  unsigned char *pcBuffer;     //buffer for a scanline
-  int scanline;                //size of a scanline in bytes (ncols * bytesize of a pixel)
+  bmp_header sHeader;      //BMP header
+  unsigned char *pcBuffer; //buffer for a scanline
+  int scanline;            //size of a scanline in bytes (ncols * bytesize of a pixel)
   long original;
-  int y;
-  int nSourceOff;              //the source offset in the original scanline (which we cut up)
+  unsigned int y;
+  unsigned int nSourceOff; //the source offset in the original scanline (which we cut up)
   int ret;
 
   new_bam();
@@ -789,7 +841,7 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
     return -2;
   }
   if((*(unsigned short *) sHeader.signature)!='MB') return -2; //BM
-  if(sHeader.fullsize>ml) return -2;
+  if(sHeader.fullsize>(unsigned long) ml) return -2;
   if(sHeader.headersize!=0x28) return -2;
   if(sHeader.planes!=1) return -1;                  //unsupported
   if(sHeader.compression!=BI_RGB) return -1;        //unsupported
@@ -818,10 +870,10 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
   scanline=(sHeader.width*sHeader.bits+7)>>3;
   if(scanline&3) scanline+=4-(scanline&3);
   
-  if(scanline*sHeader.height+sHeader.offset>ml)
+  if(scanline*sHeader.height+sHeader.offset>(unsigned long) ml)
   {
     scanline=(sHeader.width*sHeader.bits+7)>>3;
-    if(scanline*sHeader.height+sHeader.offset>ml)
+    if(scanline*sHeader.height+sHeader.offset>(unsigned long) ml)
     {
       return -2;
     }
@@ -839,6 +891,7 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
     goto endofquest;
   }
   m_nCycles=1;
+  m_header.chCycleCount=1;
   m_pCycles=new INF_BAM_CYCLE[m_nCycles];
   if(!m_pCycles)
   {
@@ -846,6 +899,7 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
     goto endofquest;
   }
   m_nFrames=1;  //we can import only one frame
+  m_header.wFrameCount=1;
   m_pFrames=new INF_BAM_FRAME[m_nFrames];
   if(!m_pFrames)
   {
@@ -920,6 +974,9 @@ endofquest:
 int Cbam::ReadPltFromFile(int fhandle, int ml)
 {
   DWORD dwSize;
+  WORD *filedata;
+  int i;
+  int ret;
 
   if(ml<0) ml=filelength(fhandle);
   if((ml<sizeof(plt_header)) || (ml>100000) ) return -2; //file is bad
@@ -928,8 +985,65 @@ int Cbam::ReadPltFromFile(int fhandle, int ml)
     return -2;
   }
   m_bCompressed=false;
-  dwSize=m_nDataSize-sizeof(c_header);
-  return -1;
+  dwSize=ml-sizeof(plt_header);
+  if(memcmp(m_pltheader.chSignature,"PLT V1  ",8) )
+  {
+    return -1;
+  }
+  if(dwSize!=m_pltheader.dwWidth*m_pltheader.dwHeight)
+  {
+    return -2;
+  }
+  filedata = new WORD [m_pltheader.dwWidth];
+  if(!filedata)
+  {
+    return -3;
+  }
+  ret = 0;
+  for(i=0;i<256;i++)
+  {
+    m_palette[i]=RGB(i,i,i);
+  }
+  m_nFrameLookupSize=1;
+  m_pFrameLookup=new short[m_nFrameLookupSize];
+  if(!m_pFrameLookup)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  m_nCycles=1;
+  m_pCycles=new INF_BAM_CYCLE[m_nCycles];
+  if(!m_pCycles)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  m_nFrames=1;  //we can import only one frame
+  m_pFrames=new INF_BAM_FRAME[m_nFrames];
+  if(!m_pFrames)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  m_pFrameData=new INF_BAM_FRAMEDATA[m_nFrames];
+  if(!m_pFrameData)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  dwSize=m_pltheader.dwWidth*sizeof(WORD);
+  for(i=0;i<(int) m_pltheader.dwHeight;i++)
+  { 
+    if(read(fhandle,filedata,dwSize)!=(int) dwSize)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    m_pFrameData[0].TakePltData(filedata, m_pltheader, i);
+  }
+endofquest:
+  delete [] filedata;
+  return ret;
 }
 
 int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
@@ -1036,6 +1150,7 @@ int Cbam::GetCycleCount()
   return m_header.chCycleCount;
 }
 
+//returns firstframeindex and frameindexcount
 CPoint Cbam::GetCycleData(int nCycle)
 {
   if(nCycle<0) return (DWORD) -1;
@@ -1191,7 +1306,8 @@ int Cbam::DropCycle(int nCycleWanted)
   return 0;
 }
 
-//adds a completely new cycle
+//adds a completely new cycle, returns the cycle number
+//-1 will add one to the end
 int Cbam::InsertCycle(int nCycleWanted)
 {
   INF_BAM_CYCLE *newCycles;
@@ -1229,7 +1345,7 @@ int Cbam::InsertCycle(int nCycleWanted)
   if(m_pCycles) delete [] m_pCycles;
   m_pCycles=newCycles;
   m_header.chCycleCount=(BYTE) m_nCycles;
-  return 0;
+  return nCycleWanted;
 }
 
 //recalculates all the frame lookup tables, drops unused indices
@@ -1297,9 +1413,9 @@ int Cbam::AddFrameToCycle(int nCycle, int nCyclePos, int nFrameWanted, int nRepe
   {
     if(i!=nCycle)
     {
-      if(m_pCycles[nCycle].wFirstFrameIndex>nCyclePos)
+      if(m_pCycles[i].wFirstFrameIndex>=nCyclePos)
       {
-        m_pCycles[nCycle].wFirstFrameIndex=(unsigned short) (m_pCycles[nCycle].wFirstFrameIndex+nRepeat);
+        m_pCycles[i].wFirstFrameIndex=(unsigned short) (m_pCycles[i].wFirstFrameIndex+nRepeat);
       }
     }
   }
@@ -1338,9 +1454,9 @@ int Cbam::RemoveFrameFromCycle(int nCycle, int nCyclePos, int nRepeat)
   {
     if(i!=nCycle)
     {
-      if(m_pCycles[nCycle].wFirstFrameIndex>nCyclePos)
+      if(m_pCycles[i].wFirstFrameIndex>nCyclePos)
       {
-        m_pCycles[nCycle].wFirstFrameIndex=(short) (m_pCycles[nCycle].wFirstFrameIndex-nRepeat);
+        m_pCycles[i].wFirstFrameIndex=(short) (m_pCycles[i].wFirstFrameIndex-nRepeat);
       }
     }
   }
@@ -1351,12 +1467,12 @@ int Cbam::RemoveFrameFromCycle(int nCycle, int nCyclePos, int nRepeat)
 }
 //tmpbam.palette,tmpbam.GetFrameData(0),tmpbam.GetFrameDataSize(0)
 //palettetype &oldpalette, const LPBYTE pRawData, int nFrameSize
-int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam)
+int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex)
 {
   CPoint point;
   OctQuant oc;
 
-  point=tmpbam.GetFrameSize(0);
+  point=tmpbam.GetFrameSize(nImportFrameIndex);
   memset(m_pFrames+nFrameIndex,0,sizeof(INF_BAM_FRAME) );
   m_pFrames[nFrameIndex].dwFrameDataOffset=0x80000000;
   m_pFrames[nFrameIndex].wWidth=(unsigned short) point.x;
@@ -1364,7 +1480,7 @@ int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam)
 
   oc.AddPalette(m_palette); //fills palette into octtree
   return oc.QuantizeAllColors(m_pFrameData[nFrameIndex].pFrameData,
-    tmpbam.GetFrameData(0),tmpbam.GetFrameSize(0),tmpbam.m_palette,m_palette);//tmpbam.GetFrameDataSize(0),
+    tmpbam.GetFrameData(nImportFrameIndex),point,tmpbam.m_palette,m_palette);
 }
 
 //creates a new, empty frame; readjusts lookup

@@ -84,7 +84,6 @@ protected:
 	afx_msg void OnAttr14();
 	afx_msg void OnAttr15();
 	afx_msg void OnAttr16();
-	afx_msg void OnBrowse7();
 	afx_msg void OnSelchangeType();
 	afx_msg void OnExtension();
 	afx_msg void OnUnknown();
@@ -108,6 +107,10 @@ protected:
 	afx_msg void OnSetfocusU15();
 	afx_msg void OnSetfocusU16();
 	afx_msg void OnSetfocusU17();
+	afx_msg void OnFlag5();
+	afx_msg void OnBrowse7();
+	afx_msg void OnBrowse8();
+	afx_msg void OnBrowse9();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

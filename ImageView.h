@@ -21,6 +21,10 @@
 #define IW_MATCH        16        //match the image
 #define IW_NOREDRAW     32
 #define IW_EDITMAP      64        //edit a map (light/search/height)
+#define IW_OVERLAY      128       //edit overlay
+#define IW_MARKTILE     256
+#define IW_ENABLEFILL   512
+#define IW_GETPOLYGON   1024      //draws all polygons, you are allowed to select one
 
 typedef CList<CPoint, CPoint &> CPointList;
 
@@ -30,9 +34,10 @@ class CImageView : public CDialog
 public:
 	CImageView(CWnd* pParent = NULL);   // standard constructor
 //  void SetBitMap(HBITMAP *hb); obsolete
-  void InitView(int flags); //sets the viewer to the current mos dimensions
+  void InitView(int flags, Cmos *my_mos=NULL); //sets the viewer to the current mos dimensions
   void SetMapType(int maptype, LPBYTE map);
   void RedrawContent();
+  void RefreshDialog();
   void SetupAnimationPlacement(Cbam *bam, int orgx, int orgy);
   void DrawGrid();
   CPoint GetPoint(int frame);
@@ -69,8 +74,10 @@ public:
   int m_maxextentx, m_maxextenty;
   Cbam *m_animbam;
   LPBYTE m_map;
+//  int m_polycount;
   COLORREF *m_palette;
   HBITMAP m_bm;  //accessed from chui editor
+  Cmos *m_mos;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -90,8 +97,11 @@ protected:
   int GetPixel(CPoint point);
   void FloodFill(CPoint point, unsigned char color);
   void DrawLine(CPoint source, CPoint destination, unsigned char color);
-  void RefreshDialog();
-  void DrawLines();
+  void DrawPolyPolygon(CPtrList *polygons);
+  void CenterPolygon(CPtrList *polygons, int idx);
+  int FindPolygon(CPtrList *polygons, CPoint point);
+  void FixPolygon(POINT *polygon, unsigned int count, int needclose);
+  void DrawLines(POINTS *polygon, unsigned int count);
   void DrawMap(); //light, height, search maps
 	// Generated message map functions
 	//{{AFX_MSG(CImageView)

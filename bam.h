@@ -106,7 +106,7 @@ class INF_BAM_FRAMEDATA
 {
 public:
   BYTE *pFrameData;
-  int nFrameSize;
+  unsigned int nFrameSize;
 
   INF_BAM_FRAMEDATA()
   {
@@ -129,8 +129,9 @@ public:
   void ReorderPixels(COLORREF *palette, BYTE chTransparentIndex, 
       BYTE chNewTransparentIndex, bool bIsCompressed);
   void MarkPixels(COLORREF *palette, BYTE chTransparentIndex, bool bIsCompressed);
-  int TakeBamData(const LPBYTE pRawBits, int nWidth, int nHeight,
-       BYTE chTransparentIndex, bool bIsCompressed, int nMaxLength);
+  int TakeBamData(const LPBYTE pRawBits, unsigned int nWidth, unsigned int nHeight,
+       BYTE chTransparentIndex, bool bIsCompressed, unsigned int nMaxLength);
+  int TakePltData(const LPWORD pRawBits, plt_header &sHeader, int row);
   int TakeBmpData(const LPBYTE pRawBits, bmp_header &sHeader, int row);
   int TakeBmp4Data(const LPBYTE pRawBits, bmp_header &sHeader, int row);
   int ExpandBamBits(BYTE chTransparentIndex, COLORREF clrTransparent, COLORREF *pDIBits,
@@ -146,7 +147,7 @@ public:
   int ExplodeBamData(bool onlyheader);
   int ImplodeBamData();
   bool CanCompress();
-  int WriteBmpToFile(int fhandle);
+  int WriteBmpToFile(int fhandle, int frame);
   int WritePltToFile(int fhandle);
   int WriteBamToFile(int fhandle);
   int ReadBmpFromFile(int fhandle, int ml);
@@ -178,7 +179,7 @@ public:
   int AddFrame(int nFrameWanted, int nNewFrameSize);//inserts a new frame into the bam (doesn't take data)
   //returns quality loss
   //palettetype &oldpalette,const LPBYTE pRawData, int nFrameSize);
-  int ImportFrameData(int nFrameIndex, Cbam &tmpbam);
+  int ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex = 0);
   int AddFrameToCycle(int nCycle, int nCyclePos, int nFrameWanted, int nRepeat); //cycle, cyclepos, framewanted, repeat
   int RemoveFrameFromCycle(int nCycle, int nCyclePos, int nRepeat);
   int DropUnusedFrame(int bDropIt);

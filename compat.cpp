@@ -173,6 +173,7 @@ BOOL Ccompat::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_WEAPON), IDS_WEAPON);
     m_tooltip.AddTool(GetDlgItem(IDC_XPLIST), IDS_XPLIST);
     m_tooltip.AddTool(GetDlgItem(IDC_DLTC), IDS_DLTC);
+    m_tooltip.AddTool(GetDlgItem(IDC_TOB), IDS_TOB);
     m_tooltip.AddTool(GetDlgItem(IDC_LOGTYPE), IDS_LOGTYPE);
     m_tooltip.AddTool(GetDlgItem(IDC_TOOLTIP), IDS_TOOLTIP);
     tmpstr.LoadString(IDS_PROGRESS);

@@ -21,6 +21,13 @@ typedef struct
 
 typedef struct
 {
+  char signature[4]; //PK<ver>
+  short headersize;  //20
+  char unused[20];
+} zip_header;
+
+typedef struct
+{
   long nameoffset;
   long namelength;
   long launchflag;
@@ -34,10 +41,13 @@ public:
 	Ctbg();
 	virtual ~Ctbg();
   int WriteIap(int fhandle);
+  int WriteZip(int fhandle);
   int ExportFile(int filetype);
-  int Readtbg(CString filepath);
+  int Readtbg(CString filepath, CStringList &filelist);
   void new_iap();
-  int read_iap(int fhandle, int maxlen, int onlyopen); //new feature, modify iap
+  //new feature: modify iap
+  //new feature: list of postprocessed files
+  int read_iap(int fhandle, int maxlen, int onlyopen, CStringList &filelist);  
   int AddTbgFile(int pos,CString &newname);
   int AddOtherFile(int pos, CString &newname);
   int AllocateHeaders(int tbgnum, int othernum);
@@ -45,6 +55,7 @@ public:
   tbg4_header header;
   tbgn_header tbgnheader;
   iap_header iapheader;
+  zip_header zipheader;
   int revision;
 
   tbg_tlk_reference *tlkentries;

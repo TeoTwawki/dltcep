@@ -8,6 +8,8 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "AreaEdit.h"
+#include "WedEdit.h"
+#include "StrRefDlg.h"
 #include "tbg.h"
 
 #ifdef _DEBUG
@@ -51,6 +53,10 @@ void CAreaEdit::NewArea()
   {
     the_area.revision=10;
   }
+  if(the_area.DefaultAreaOverlays())
+  {
+    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
+  }
 }
 
 BEGIN_MESSAGE_MAP(CAreaEdit, CDialog)
@@ -62,12 +68,15 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_TOOLS_MIRRORAREAVERTICALLY, OnToolsMirrorareavertically)
+	ON_COMMAND(ID_REPAIRWED, OnRepairwed)
+	ON_COMMAND(ID_REPAIRWED2, OnRepairwed2)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_TOOLS_MIRRORAREAVERTICALLY, OnToolsMirrorareavertically)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -115,11 +124,9 @@ static char BASED_CODE szFilter[] = "Area files (*.are)|*.are|All files (*.*)|*.
 
 void CAreaEdit::OnLoadex() 
 {
-  CString wed;
   CString filepath;
   int fhandle;
   int res;
-  loc_entry wedfileloc;
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
@@ -135,31 +142,13 @@ restart:
       MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
+    the_area.m_night=false;
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_area.ReadAreaFromFile(fhandle,-1);
     close(fhandle);
     if(res>=0)
     {
-      RetrieveResref(wed,the_area.header.wed);
-      if(weds.Lookup(wed,wedfileloc))
-      {
-        fhandle=locate_file(wedfileloc, 0);
-        if(fhandle<1)
-        {        
-          res=3; //wedfile not available
-        }
-        else
-        {
-          switch(the_area.ReadWedFromFile(fhandle, wedfileloc.size) )
-          {
-          case 0: case 1: case 2: case 3: break;
-          default:
-            res=3;
-          }
-          close(fhandle);
-        }
-      }
-      else res=3;
+      res=ReadWed(res);
     }
     switch(res)
     {
@@ -267,6 +256,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     tmpath=bgfolder+"override\\"+itemname+".TMP";
     fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
@@ -276,47 +266,42 @@ gotname:
     }
     res=the_area.WriteAreaToFile(fhandle, 0);
     close(fhandle);
-    if(!res)
+    */
+    res = write_area(newname);
+    if(res)
     {
-      unlink(filepath);
-      rename(tmpath,filepath);
+      goto endofquest;
     }
 
     if(!res && the_area.WedChanged() && the_area.WedAvailable()) //writing the wed file out
     {
-      tmpath=bgfolder+"override\\"+the_area.header.wed+".TMP";
-      filepath=bgfolder+"override\\"+the_area.header.wed+".wed";
+      RetrieveResref(tmpstr,the_area.header.wed);
+      if(tmpstr.GetLength()!=6 || tmpstr.Find(" ",0)!=-1 )
+      {
+        res = -2;
+        goto endofquest;
+      }
+      if(the_area.m_night) tmpstr+="N";
+      tmpath=bgfolder+"override\\"+tmpstr+".TMP";
+      filepath=bgfolder+"override\\"+tmpstr+".wed";
       fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
       if(fhandle<1)
       {
-        MessageBox("Can't write wed!","Error",MB_ICONSTOP|MB_OK);
+        res = -2;
+        goto endofquest;
       }
       else
       {
-        res=the_area.WriteWedToFile(fhandle, false);
+        res=the_area.WriteWedToFile(fhandle);
         close(fhandle);
-        unlink(filepath);
-        rename(tmpath,filepath);
-      }
-      //night wed
-      if(the_area.header.areaflags&EXTENDED_NIGHT)
-      {
-        tmpath=bgfolder+"override\\"+the_area.header.wed+"N.TMP";
-        filepath=bgfolder+"override\\"+the_area.header.wed+"N.wed";
-        fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-        if(fhandle<1)
+        if(!res)
         {
-          MessageBox("Can't write wed!","Error",MB_ICONSTOP|MB_OK);
-        }
-        else
-        {
-          res=the_area.WriteWedToFile(fhandle, true); //night wed
-          close(fhandle);
           unlink(filepath);
           rename(tmpath,filepath);
         }
       }
     }
+endofquest:
     switch(res)
     {
     case 0:
@@ -366,6 +351,7 @@ BOOL CAreaEdit::OnInitDialog()
   CString tmpstr, tmpstr1, tmpstr2;
 
 	CDialog::OnInitDialog();
+  read_bam("CURSORS",&the_bam); //pre-reading the cursors bam
   SetWindowText("Edit area: "+itemname);
 	if (m_pModelessPropSheet == NULL)
 	{
@@ -409,22 +395,6 @@ BOOL CAreaEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_CHECK), tmpstr);
   }	
 	return TRUE;
-}
-
-void CAreaEdit::PostNcDestroy() 
-{
-  if (m_pModelessPropSheet)
-  {
-    delete m_pModelessPropSheet;
-    m_pModelessPropSheet=NULL;
-  }	
-	CDialog::PostNcDestroy();
-}
-
-BOOL CAreaEdit::PreTranslateMessage(MSG* pMsg)
-{
-  m_tooltip.RelayEvent(pMsg);
-  return CDialog::PreTranslateMessage(pMsg);
 }
 
 void CAreaEdit::OnToolsMirrorareavertically() 
@@ -510,4 +480,74 @@ void CAreaEdit::OnToolsMirrorareavertically()
     the_area.wedvertices[i].point.x=(short) (the_area.width-the_area.wedvertices[i].point.x);
   }
   UpdateData(UD_DISPLAY);
+}
+
+void CAreaEdit::OnRepairwed() 
+{
+	CWedEdit dlg;
+
+  if(GetWed(false)==-99) return; //make sure we get the day wed
+  the_area.wedavailable=true; //make sure we have access to it
+  dlg.m_repair=true;
+  dlg.DoModal();
+  m_pModelessPropSheet->RefreshDialog();
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaEdit::OnRepairwed2()
+{
+	CWedEdit dlg;
+	
+  if(!(the_area.header.areatype&EXTENDED_NIGHT))
+  {
+    the_area.header.areatype|=EXTENDED_NIGHT;
+  }
+
+  if(GetWed(true)==-99) return; //make sure we get the night wed
+  the_area.wedavailable=true;
+  dlg.m_repair=true;
+  dlg.DoModal();
+  m_pModelessPropSheet->RefreshDialog();
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaEdit::OnToolsLookupstrref() 
+{
+	CStrRefDlg dlg;
+	
+  dlg.DoModal();
+  m_pModelessPropSheet->RefreshDialog();
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaEdit::PostNcDestroy() 
+{
+  if (m_pModelessPropSheet)
+  {
+    delete m_pModelessPropSheet;
+    m_pModelessPropSheet=NULL;
+  }	
+	CDialog::PostNcDestroy();
+}
+
+void CAreaEdit::OnCancel() 
+{
+  CString tmpstr;
+
+	if(the_area.wedchanged && (itemname!="new area"))
+  {
+    tmpstr.Format("Changes have been made to the wed and/or tileset (%s).\n"
+      "Do you want to quit without save?\n",itemname);
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
+}
+
+BOOL CAreaEdit::PreTranslateMessage(MSG* pMsg)
+{
+  m_tooltip.RelayEvent(pMsg);
+  return CDialog::PreTranslateMessage(pMsg);
 }

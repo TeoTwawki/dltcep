@@ -45,6 +45,7 @@ public:
 	CString	m_text;
 	CString	m_text2;
 	//}}AFX_DATA
+  CString m_idsname;
   CString m_opcode;
   int m_par_type;
   int m_limitedeffect;
@@ -104,6 +105,7 @@ protected:
 	afx_msg void OnBrowse4();
 	afx_msg void OnToolsDuration();
 	afx_msg void OnKillfocusText2();
+	afx_msg void OnToolsIdsbrowser();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

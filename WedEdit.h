@@ -28,17 +28,17 @@ public:
 	CString	m_maxdoor;
 	CString	m_maxwallgroup;
 	CString	m_maxdoorpoly;
-	CString	m_maxwallpoly;
 	BOOL	m_open;
 	CString	m_polygontype;
 	CString	m_problem;
+	BOOL	m_whole;
 	//}}AFX_DATA
   int m_overlaynum;
   int m_doornum;
   int m_wallgroupnum;
   int m_doorpolynum;
   int m_wallpolynum;
-  BOOL m_night;
+  bool m_repair;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -69,21 +69,27 @@ protected:
 	afx_msg void OnSelchangeDoorpicker();
 	afx_msg void OnKillfocusDoorid();
 	afx_msg void OnKillfocusClosed();
-	afx_msg void OnBrowse();
 	afx_msg void OnKillfocusWallgrouppicker();
 	afx_msg void OnSelchangeWallgrouppicker();
 	afx_msg void OnEditdoorpoly();
 	afx_msg void OnEditwallpoly();
 	afx_msg void OnKillfocusDoorpolypicker();
 	afx_msg void OnSelchangeDoorpolypicker();
-	afx_msg void OnKillfocusWallpolypicker();
-	afx_msg void OnSelchangeWallpolypicker();
 	afx_msg void OnOpen();
 	afx_msg void OnOrder();
 	afx_msg void OnClear();
 	afx_msg void OnEdit();
 	afx_msg void OnNew();
 	afx_msg void OnEdittile();
+	afx_msg void OnRemove();
+	afx_msg void OnOverlay();
+	afx_msg void OnAdd();
+	afx_msg void OnSelection();
+	afx_msg void OnSelection2();
+	afx_msg void OnAdd3();
+	afx_msg void OnAdd2();
+	afx_msg void OnRemove2();
+	afx_msg void OnRemove3();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

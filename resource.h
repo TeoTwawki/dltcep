@@ -102,6 +102,7 @@
 #define IDS_NEW                         158
 #define IDD_SPELLEFFECT                 159
 #define IDS_EFFECT                      159
+#define IDS_ORDER                       160
 #define IDD_SPELLEDIT                   160
 #define IDD_AREAGENERAL                 161
 #define IDS_WMP                         161
@@ -284,6 +285,9 @@
 #define IDS_PARAM2                      264
 #define IDS_PROB1                       265
 #define IDS_PROB2                       266
+#define IDS_TOB                         267
+#define IDS_DELOVER                     268
+#define IDS_TILES                       269
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -364,8 +368,9 @@
 #define IDC_GCENTER                     1077
 #define IDC_REMOVE2                     1078
 #define IDC_SHORTDESC                   1079
+#define IDC_REMOVE3                     1079
 #define IDC_MCLASS                      1080
-#define IDC_REMOVE3                     1081
+#define IDC_REMOVEBLOCK                 1081
 #define IDC_LONGDESC                    1082
 #define IDC_MSPECIFIC                   1083
 #define IDC_MGENDER                     1084
@@ -532,9 +537,7 @@
 #define IDC_UNKNOWN1C                   1246
 #define IDC_EQUIPNUM                    1247
 #define IDC_DAMAGETYPE                  1248
-#define IDC_EXTEFFOPCODE                1249
 #define IDC_EFFOPCODE                   1250
-#define IDC_EXTEFFOPCODE2               1251
 #define IDC_EFFOPCODE2                  1252
 #define IDC_DESCOPEN                    1252
 #define IDC_UNKNOWN4                    1253
@@ -713,6 +716,7 @@
 #define IDC_PAPERDOLL                   1426
 #define IDC_ORDER                       1427
 #define IDC_PLAY1                       1428
+#define IDC_ORDER2                      1428
 #define IDC_SCHEDULE                    1429
 #define IDC_NIGHT                       1430
 #define IDC_RECALCBOX                   1431
@@ -746,6 +750,7 @@
 #define IDC_SELECTION                   1459
 #define IDC_UNKNOWN0C                   1460
 #define IDC_UNKNOWN23                   1461
+#define IDC_SELECTION2                  1461
 #define IDC_UNKNOWN28                   1462
 #define IDC_UNKNOWN2C                   1463
 #define IDC_UNKNOWN2A                   1464
@@ -762,7 +767,6 @@
 #define IDC_UNKNOWN16                   1475
 #define IDC_UNKNOWN22                   1476
 #define IDC_UNKNOWN1A                   1477
-#define IDC_UNKNOWN03                   1478
 #define IDC_WEAPON                      1479
 #define IDC_NORTHRES                    1480
 #define IDC_U48                         1481
@@ -1222,6 +1226,7 @@
 #define IDC_ANIMATION                   1935
 #define IDC_STOLEN                      1936
 #define IDC_EVIL                        1937
+#define IDC_UNDROPPABLE                 1937
 #define IDC_EGNEUTRAL                   1938
 #define IDC_TBG                         1939
 #define IDC_OTHERMAX                    1940
@@ -1325,12 +1330,10 @@
 #define IDC_DSIZE                       2038
 #define IDC_RED2                        2039
 #define IDC_DECOMPILED                  2040
-#define IDC_JUSTIFY                     2041
 #define IDC_LABEL3                      2042
 #define IDC_TAG                         2043
 #define IDC_REMBAF                      2044
 #define IDC_CWDBAF                      2045
-#define IDC_COLORPICKER                 2046
 #define IDC_CHECK                       2047
 #define IDC_DECOMPRESS                  2048
 #define IDC_NOCHECK                     2049
@@ -1422,7 +1425,6 @@
 #define IDC_LABEL2                      2135
 #define IDC_TILE                        2136
 #define IDC_ADDALT                      2137
-#define IDC_REMALL                      2138
 #define IDC_WINDOWPICKER                2139
 #define IDC_PROBLEM                     2140
 #define IDC_HIDDEN                      2141
@@ -1511,15 +1513,31 @@
 #define IDC_CENTER                      2223
 #define IDC_EDITTILE                    2224
 #define IDC_BLOCKPICKER                 2225
-#define IDC_EDIT1                       2226
-#define IDC_EDIT2                       2227
-#define IDC_EDIT3                       2228
 #define IDC_INIT                        2321
 #define IDC_SHOWALL                     2323
 #define IDC_SHOWGRID                    2324
 #define IDC_NEXT                        2325
 #define IDC_PREV                        2326
 #define IDC_FILL                        2329
+#define IDC_WEIDU                       2331
+#define IDC_MODBLOCK                    2333
+#define IDC_ZIP                         2337
+#define IDC_OVERLAY                     2338
+#define IDC_FIXALTER                    2339
+#define IDC_GREENWATER                  2340
+#define IDC_TILEIDX                     2341
+#define IDC_POS1                        2342
+#define IDC_POS2                        2343
+#define IDC_EDITBLOCK                   2343
+#define IDC_STH1                        2350
+#define IDC_STH2                        2351
+#define IDC_STH3                        2352
+#define IDC_STH4                        2353
+#define IDC_STH5                        2354
+#define IDC_USEBAM                      2355
+#define IDC_MIRROR                      2358
+#define IDC_MIRROR2                     2359
+#define IDC_INSERT                      2368
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1692,6 +1710,17 @@
 #define ID_EDIT_STRINGSSRC              32986
 #define ID_TOOLS_SCANJOURNALENTRIES     32987
 #define ID_TOOLS_CAPITALIZEENTRIES      32988
+#define ID_REPAIRWED                    32989
+#define ID_REPAIRWED2                   32990
+#define ID_AVATARS                      32992
+#define ID_SHIFT_FORWARD                32993
+#define ID_SHIFT_BACKWARD               32994
+#define ID_COMPRESSBIF                  32997
+#define ID_COMPRESSCBF                  32998
+#define ID_TISPACK                      32999
+#define ID_FILE_LOADBMP                 33000
+#define ID_FILE_MERGEBAM                33002
+#define ID_FILE_MERGEEXTERNALBAM        33003
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1699,8 +1728,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         32989
-#define _APS_NEXT_CONTROL_VALUE         2331
+#define _APS_NEXT_COMMAND_VALUE         33004
+#define _APS_NEXT_CONTROL_VALUE         2372
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

@@ -25,6 +25,7 @@ public:
   wed_tilemap *m_ptileheader;
   short *m_ptileidx;
   int m_tilecountx,m_tilecounty;
+  CString m_tisname;
 
   inline void SetTile(wed_tilemap *poi1, short *poi2, int countx, int county)
   {
@@ -37,30 +38,30 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CWedTile)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void RefreshTile();
+  void ChangeOverlay(int flag);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedTile)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSelchangeBlockpicker();
 	afx_msg void DefaultKillfocus();
-	afx_msg void OnFlag1();
-	afx_msg void OnFlag2();
-	afx_msg void OnFlag3();
-	afx_msg void OnFlag4();
-	afx_msg void OnFlag5();
-	afx_msg void OnFlag6();
-	afx_msg void OnFlag7();
-	afx_msg void OnFlag8();
 	afx_msg void OnTile();
 	afx_msg void OnAddalt();
-	afx_msg void OnRemall();
+	afx_msg void OnFixalter();
+	afx_msg void OnGreenwater();
+	virtual void OnOK();
+	afx_msg void OnOverlay();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -142,7 +142,6 @@ GAME V1.1 Journal entries
 Every time some text is entered into your journal, its strref is added to this table, along with the time (in seconds! not in 12-second increments, as the earlier game time in this file), as well as the "current chapter".
 Offset Size (data type) Description
 0x0000 4 (strref) Journal text
-0x0004 4 (dword) Time in seconds (I believe. The number goes up approximately 12 times too fast to be on the same scale as the earlier time values.
-0x0008 4 (dword) Current chapter number. (Always 0 for Torment).
-
- 
+0x0004 4 (dword) Ingame date/time
+0x0008 2 (word) Current chapter number. (Always 0 for Torment).
+0x000a 2 (word) Dialog group (gemrb extension)

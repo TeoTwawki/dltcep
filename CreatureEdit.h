@@ -24,7 +24,7 @@ public:
 	enum { IDD = IDD_CREATUREEDIT };
 		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
-
+  CString m_idsname;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -54,6 +54,7 @@ protected:
 	afx_msg void OnFileTbg();
 	afx_msg void OnExportsoundset();
 	afx_msg void OnImportsoundset();
+	afx_msg void OnToolsIdsbrowser();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -596,6 +596,7 @@ typedef struct
   unsigned char unused6[60];
 } eff_header;
 
+//+2 is for the equipped item info (dword)
 typedef short creature_itemslots[IWD2_SLOT_COUNT+2]; //IWD2 has more slots
 
 typedef struct
@@ -624,7 +625,7 @@ typedef struct
   char revision[4]; //'V1.0'
   long longname;
   long shortname;
-  long flags;
+  unsigned long flags;
   long expval;
   long expcur;
   long gold;
@@ -724,7 +725,7 @@ typedef struct
   char revision[4]; //'V1.2'
   long longname;
   long shortname;
-  long flags;
+  unsigned long flags;
   long expval;
   long expcur;
   long gold;
@@ -762,8 +763,8 @@ typedef struct
   char rescrush;
   char respierc;
   char resmiss;
-  unsigned char unusedprof;
-  unsigned char unknownx;
+  unsigned char detillusion;
+  unsigned char settraps;
   unsigned char lore;
   unsigned char lockpick;
   unsigned char stealth;
@@ -830,10 +831,10 @@ typedef struct
 typedef struct
 {
   char filetype[4]; //'CRE '
-  char revision[4]; //'V1.2'
+  char revision[4]; //'V9.0'
   long longname;
   long shortname;
-  long flags;
+  unsigned long flags;
   long expval;
   long expcur;
   long gold;
@@ -881,7 +882,7 @@ typedef struct
   unsigned char fatigue;
   unsigned char intox;
   unsigned char luck;
-  unsigned char unused[21];
+  unsigned char profs[21];
   unsigned char tracking;
   unsigned long unused2[8];
   long strrefs[SND_SLOT_COUNT];
@@ -933,7 +934,7 @@ typedef struct
   char revision[4]; //'V2.2'
   long longname;
   long shortname;
-  long flags;
+  unsigned long flags;
   long expval;
   long expcur;
   long gold;
@@ -1029,6 +1030,7 @@ typedef struct
   unsigned long animid;
   char scripts[5][8];
   char dialogresref[8];
+  char iwd2scripts[2][8];
 } creature_data;
 
 typedef struct {
@@ -1120,7 +1122,7 @@ typedef struct
   long framerate;
   long unknown38;
   long unknown3c;
-  long unknown40;
+  long position;
   long unknown44;
   long unknown48;
   long zpos;
@@ -1148,7 +1150,7 @@ typedef struct
   char revision[4];       //'V1.0'
   char wed[8];
   long lastsaved;
-  unsigned long areatype;
+  unsigned long areaflags; //can save, dream, etc
   char northref[8];
   long northflags;
   char westref[8];
@@ -1157,7 +1159,7 @@ typedef struct
   long southflags;
   char eastref[8];
   long eastflags;
-  unsigned char areaflags;
+  unsigned char areatype; //forest, extended night, etc
   unsigned char unkflags;
   short rain;
   short snow;
@@ -1220,7 +1222,7 @@ typedef struct {
 } wed_overlay;
 
 typedef struct {
-  long wallgroupcnt;
+  long wallpolycnt;
   long polygonoffset;
   long verticeoffset;
   long wallgroupoffset;
@@ -1821,28 +1823,28 @@ typedef struct {
 typedef struct {
   char filetype[4];
   char version[4];
-  long numtiles;  //global size/5120
-  long tilelength;//5120
-  long offset;    //20
-  long pixelsize; //64
+  unsigned long numtiles;  //global size/5120
+  unsigned long tilelength;//5120
+  unsigned long offset;    //20
+  unsigned long pixelsize; //64
 } tis_header;
 
 typedef struct {
   char signature[2]; //BM
-  long fullsize;     //offset+width*height
-  long unknown1;      //zero, reserved
-  long offset;       //0x36
-  long headersize;   //0x28 (40) (the size of the rest of the header)
-  long width;
-  long height;
-  short planes;      //1 ?
-  short bits;        //24 3*8?
-  long compression;  //0
-  long size;         //width*height*3 (3 bytes for 24 bits)
-  long hres;         //0xb12 ?
-  long vres;         //0xb12 ?
-  long colors;       //0
-  long impcolors;    //important colors
+  unsigned long fullsize;     //offset+width*height
+  unsigned long unknown1;      //zero, reserved
+  unsigned long offset;       //0x36
+  unsigned long headersize;   //0x28 (40) (the size of the rest of the header)
+  unsigned long width;
+  unsigned long height;
+  unsigned short planes;      //1 ?
+  unsigned short bits;        //24 3*8?
+  unsigned long compression;  //0
+  unsigned long size;         //width*height*3 (3 bytes for 24 bits)
+  unsigned long hres;         //0xb12 ?
+  unsigned long vres;         //0xb12 ?
+  unsigned long colors;       //0
+  unsigned long impcolors;    //important colors
 } bmp_header;
 
 //tbg & iap

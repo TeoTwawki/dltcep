@@ -6,6 +6,7 @@ private:
 // Parameters of ACM stream
 	int levels, subblocks;
 	FILE* file;
+  int maxlen;
 // Bits
 	unsigned long next_bits; // new bits
 	int avail_bits; // count of new bits
@@ -40,12 +41,13 @@ public:
 	int t3_7bits (int pass, int ind);
 
 
-	CValueUnpacker (int lev_cnt, int sb_count, FILE* handle)
+	CValueUnpacker (int lev_cnt, int sb_count, FILE* handle, int len)
 		: levels (lev_cnt), subblocks (sb_count),
-		file (handle),
+		file (handle), maxlen (len),
 		next_bits (0), avail_bits (0),
 		sb_size (1<< levels), block_size (sb_size * subblocks),
-		amp_buffer (NULL), buff_middle (NULL), block_ptr (NULL) {};
+		amp_buffer (NULL), buff_middle (NULL), block_ptr (NULL)
+  {};
 	virtual ~CValueUnpacker() { if (amp_buffer) delete amp_buffer; };
 
 	int init_unpacker();

@@ -272,6 +272,7 @@ protected:
 	afx_msg void OnDef2();
 	afx_msg void OnDef3();
 	afx_msg void OnDef4();
+	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -491,6 +492,7 @@ protected:
 	afx_msg void OnBook2();
 	afx_msg void OnClass();
 	afx_msg void OnKillfocusSelected();
+	afx_msg void OnUndroppable();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -34,7 +34,7 @@ public:
   palettetype Palette;
   BYTE *pFrameData;
   int nFrameSize;
-  int nWidth, nHeight;
+  DWORD nWidth, nHeight;
   int nKilla, nKillb, nTreshold;
 
   INF_MOS_FRAMEDATA()
@@ -58,7 +58,8 @@ public:
   void ReorderPixels();
   void MarkPixels();
   void MovePixels(BYTE chFrom, BYTE chTo);
-  int TakeMosData(const BYTE *pRawBits, int width, int height);
+  bool IsTransparent(DWORD x, DWORD y);
+  int TakeMosData(const BYTE *pRawBits, DWORD width, DWORD height, bool deepen=false);
   int ReducePalette(int treshold, int bestcolor, COLORREF newcolor, int index);
   int FindBestColor(COLORREF mycolor, int &difference);
   int FindColor(COLORREF mycolor, int palettesize);
@@ -69,6 +70,7 @@ public:
   bool ExpandMosBits(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, HBITMAP &hBitmap);
   bool ExpandMosBitsWhole(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, int nOffset, int wWidth);
   int ExpandMosLine(char *pBuffer, int nSourceOff);
+  int SaturateTransparency();
 };
 
 typedef CMap<COLORREF, COLORREF&, int, int&> CPaletteMap;
@@ -79,6 +81,8 @@ public:
 	Cmos();
 	virtual ~Cmos();
 
+  wed_tilemap *m_tileheaders;
+  short *m_tileindices;
   CString m_name;
   int m_nQualityLoss;
   int m_nFrameNumber;
@@ -86,21 +90,27 @@ public:
   tis_header tisheader;
   BOOL m_bCompressed;
   DWORD *m_pOffsets;
+  int m_overlay;
+  bool m_changed;
+  bool m_drawclosed;
 
+  bool MosChanged() { return m_changed; }
+  void SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices);
+  int ResolveFrameNumber(int framenumber);
   void new_mos();
   void DropUnusedPalette();
   int RetrieveTisFrameCount(int fhandle, int maxlen);
   int GetFrameCount();
-  CPoint GetFrameSize(int nFrame);
+  CPoint GetFrameSize(DWORD nFrame);
   COLORREF GetPixelData(int x, int y);
-  int TakeOneFrame(int nFrameWanted, COLORREF *prFrameBuffer, int factor);
-  unsigned long *GetFramePalette(int nFrame);
+  int TakeOneFrame(DWORD nFrameWanted, COLORREF *prFrameBuffer, int factor);
+  unsigned long *GetFramePalette(DWORD nFrame);
   int MakeBitmapInternal(HBITMAP &hBitmap);
   bool MakeBitmap(COLORREF clrTrans, Cmos &host, int nMode, int nXpos, int nYpos);
-  bool MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap);
+  bool MakeBitmap(DWORD nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap);
   bool MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int clipy, int maxclipx, int maxclipy);
-  int MakeTransparent(int nFrame, DWORD redgreenblue, int limit);
-  int ReadBmpFromFile(int fhandle, int ml, int tis_or_mos);
+  int MakeTransparent(DWORD nFrame, DWORD redgreenblue, int limit);
+  int ReadBmpFromFile(int fhandle, int ml);
   int WriteMosToBmpFile(int fhandle, int clipx=0, int clipy=0,int maxclipx=-1, int maxclipy=-1);
   int WriteTisToBmpFile(int fhandle, int clipx=0, int clipy=0,int maxclipx=-1, int maxclipy=-1);
   int WriteMosToFile(int fhandle);
@@ -108,11 +118,13 @@ public:
   int ReadMosFromFile(int fhandle, int maxlen);
   int ReadTisFromFile(int fhandle, int maxlen, int header);
   void SetTisParameters(int size);
-  int TisToMos(int x, int y);
-  int Allocate(int x, int y);
+  int TisToMos(DWORD x, DWORD y);
+  int Allocate(DWORD x, DWORD y);
   int GetImageWidth(int clipx, int maxclipx);
   int GetImageHeight(int clipy, int maxclipy);
-  DWORD GetColor(int x, int y);
+  DWORD GetColor(DWORD x, DWORD y);
+  int AddTileCopy(DWORD original, unsigned char *optionalpixels = NULL, bool deepen=false);
+  int SaturateTransparency(DWORD tile, bool createcopy = false, bool deepen=false);
 
   inline int GetDataSize()
   {
@@ -157,13 +169,14 @@ private:
 
   int ExplodeMosData();
   int ImplodeMosData();
-  int CreateBmpHeader(int fhandle, int width, int height, int bytes);
   int ReducePalette(int fhandle, bmp_header &sHeader, LPBYTE pcBuffer,
-    int scanline, int nSourceOff);
+    DWORD scanline, DWORD nSourceOff);
   int CollectFrameData(int fhandle, DWORD *prFrameBuffer, LPBYTE pcBuffer,
-    int height, int scanline, int nFrameCol, int cols, int rows);
-  int GetFrameData(DWORD *prFrameBuffer, LPBYTE pRawData, int height,
-    int scanline, int nFrameCol, int cols, int rows);
+    DWORD height, DWORD scanline, DWORD nFrameCol,
+    DWORD cols, DWORD rows);
+  int GetFrameData(DWORD *prFrameBuffer, LPBYTE pRawData, DWORD height,
+    DWORD scanline, DWORD nFrameCol, 
+    DWORD cols, DWORD rows);
 };
 
 #endif // !defined(AFX_MOS_H__143AC7EF_EC59_436A_8AA9_E17B960DBE01__INCLUDED_)

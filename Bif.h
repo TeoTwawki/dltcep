@@ -24,6 +24,7 @@ public:
   int ReadBifHeader(CString filename); //reading header, entries, tisentries
   int WriteBifHeader(CString filename); //writing out the indices ordered, the data part needs to be appended then
   int CopyData(CString infile, CString outfile); //copying the rest
+  int FindResType(int restype, int start=0);
 };
 
 #endif // !defined(AFX_BIF_H__31C58D81_6869_4B93_B788_E7A2CB00D662__INCLUDED_)

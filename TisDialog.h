@@ -26,7 +26,10 @@ public:
   int m_posx, m_posy;
   int m_minx, m_miny;
   int m_maxx, m_maxy;
-  int tis_or_mos;
+  int m_tis_or_mos;
+  int m_overlaynum;
+  wed_tilemap *m_tileheaders;
+  short *m_tileindices;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -42,6 +45,7 @@ protected:
   CToolTipCtrl m_tooltip;
 
   void SaveTis(int how);
+  void RefreshDialog();
 	// Generated message map functions
 	//{{AFX_MSG(CTisDialog)
 	afx_msg void OnKillfocusPosx();
@@ -57,6 +61,8 @@ protected:
 	afx_msg void OnPreview();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnMinimap();
+	afx_msg void OnOpen();
+	afx_msg void OnClearall();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

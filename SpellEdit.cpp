@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "SpellEdit.h"
+#include "StrRefDlg.h"
 #include "tbg.h"
 
 #ifdef _DEBUG
@@ -57,12 +58,13 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
 	ON_COMMAND(ID_ADDCFB, OnAddcfb)
 	ON_COMMAND(ID_REMOVECFB, OnRemovecfb)
+	ON_COMMAND(ID_SAVECFB, OnSavecfb)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_SAVECFB, OnSavecfb)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -173,7 +175,6 @@ void CSpellEdit::SaveSpell(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
 
   if(readonly)
@@ -216,6 +217,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
@@ -224,6 +226,8 @@ gotname:
     }
     res=the_spell.WriteSpellToFile(fhandle,0);
     close(fhandle);
+    */
+    res = write_spell(newname);
     switch(res)
     {
     case 0:
@@ -400,6 +404,15 @@ BOOL CSpellEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_CHECK), tmpstr);
   }	
 	return TRUE;
+}
+
+void CSpellEdit::OnToolsLookupstrref() 
+{
+	CStrRefDlg dlg;
+	
+  dlg.DoModal();
+  m_pModelessPropSheet->RefreshDialog();
+  UpdateData(UD_DISPLAY);
 }
 
 void CSpellEdit::PostNcDestroy() 

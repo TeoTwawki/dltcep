@@ -330,7 +330,7 @@ DLG V1.09 Transition table (player dialog options)
          Size (data type)
                                        Description
  0x0000
-        4 (dword)
+        2 (word)
                      Flags: 
 
                           bit 0: 1=associated text, 0=no associated text
@@ -339,6 +339,14 @@ DLG V1.09 Transition table (player dialog options)
                           bit 3: 1=terminates dialog, 0=has "next node"
                           information 
                           bit 4: 1=journal entry, 0=no journal entry 
+                          bit 5: -
+                          bit 6: unsolved quest
+                          bit 7: -
+                          bit 8: solved quest
+                          bit 15: clear group (gemrb extension)
+
+ 0x0002 2 (word)     Dialog group (gemrb extension)
+
  0x0004
         4 (strref)
                      If flags bit 0 was set, this is the text associated with

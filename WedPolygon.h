@@ -20,26 +20,40 @@ public:
 	//{{AFX_DATA(CWedPolygon)
 	enum { IDD = IDD_WEDPOLY };
 	CListBox	m_vertexpicker;
+	BOOL	m_graphics;
+	BOOL	m_open;
+	BOOL	m_insertpoint;
 	//}}AFX_DATA
   wed_polygon *wedpolygon;
   area_vertex *wedvertex;
+  int first;
   int m_vertexnum;
+  int m_changed;
+  CImageView m_preview;
+  POINT *m_polygon;
+  BOOL insertpoint;
+  POSITION pos;
 
-  inline void SetPolygon(wed_polygon *poi1, area_vertex *poi2)
+  inline void SetPolygon(wed_polygon *poi1, POSITION poi2)
   {
     wedpolygon=poi1;
-    wedvertex=poi2;
+    pos=poi2;
+    wedvertex=(area_vertex *) the_area.vertexheaderlist.GetAt(poi2);
   }
 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CWedPolygon)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void RefreshPolygon();
 
 	// Generated message map functions
@@ -67,7 +81,12 @@ protected:
 	afx_msg void OnOrder();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnShift();
+	afx_msg void OnPreview();
+	afx_msg void OnOpen();
+	afx_msg void OnDblclkVertexpicker();
+	afx_msg void OnInsert();
 	//}}AFX_MSG
+  void RefreshVertex(); //do we need afx_msg or not?
 	DECLARE_MESSAGE_MAP()
 };
 

@@ -30,11 +30,23 @@ CBif::~CBif()
   if(entries) delete [] entries;
   if(tisentries) delete [] tisentries;
 }
+
+int CBif::FindResType(int restype, int start)
+{
+  int i;
+
+  for(i=start;i<header.file_entries;i++)
+  {
+    if(entries[i].restype==restype) return i;
+  }
+  return -1;
+}
+
 //returns 1 if ordering is required
 int CBif::ReadBifHeader(CString filename)
 {
-  bif_entry *tmpentries=NULL; // unsorted entries
-  int i, idx;
+//  bif_entry *tmpentries=NULL; // unsorted entries
+  int i;
   int esize;
   int fhandle;
   int ret;
@@ -69,21 +81,14 @@ int CBif::ReadBifHeader(CString filename)
     ret=-2;      //corrupted file
     goto endofquest;
   }
-  tmpentries=new bif_entry[header.file_entries];
-  if(!tmpentries)
-  {
-    ret=-3;      //out of memory
-    goto endofquest;
-  }
   if(entries) delete [] entries;
-  entries=new bif_entry[header.file_entries]; //
-  memset(entries,-1,esize);           //fill memory with invalidated entries
+  entries=new bif_entry[header.file_entries];
   if(!entries)
   {
-    ret=-3;      //out of memory
+    ret=-3;
     goto endofquest;
   }
-  if(read(fhandle,tmpentries,esize)!=esize)
+  if(read(fhandle,entries,esize)!=esize)
   {
     ret=-2;      //corrupted file
     goto endofquest;
@@ -104,22 +109,22 @@ int CBif::ReadBifHeader(CString filename)
   //reordering bif entries according to res_loc
   for(i=0;i<header.file_entries;i++)
   {
-    idx=tmpentries[i].res_loc&FILE_IDX_MASK;
-    if(idx!=i) ret=1;
-    if(tmpentries[i].res_loc&TIS_IDX_MASK)
+    if(entries[i].res_loc!=i)
     {
-      ret=-2;
-      goto endofquest;
+      entries[i].res_loc=i;
+      ret=1;
     }
-    if(entries[idx].size!=-1)
+  }
+  for(i=0;i<header.tile_entries;i++)
+  {
+    int ii=(i+1)<<14;
+    if(tisentries[i].res_loc!=ii)
     {
-      ret=-2;
-      goto endofquest;
+      tisentries[i].res_loc=ii;
+      ret=1;
     }
-    entries[idx]=tmpentries[i];
   }
 endofquest:
-  if(tmpentries) delete [] tmpentries;
   close(fhandle);
   return ret;
 }
@@ -151,6 +156,7 @@ int CBif::WriteBifHeader(CString filename)
     goto endofquest;
   }
   
+  ret=0;
 endofquest:
   close(fhandle);
   return ret;

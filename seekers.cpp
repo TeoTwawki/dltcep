@@ -604,15 +604,21 @@ int CChitemDlg::check_anim(const char *animtype, int itemtype)
   ret=0;
   if(!goodletter(animtype[0]) || !goodletter(animtype[1]) )
   {
-    log("Invalid animation ID (%04x)",(int) (*(unsigned short *) animtype));
+    log("Invalid animation ID '%2.2s' (%04x)",animtype, (int) (*(unsigned short *) animtype) );
     return BAD_ANIM;
   }
+  if(animtype[0]!=' ' && !getanimationidx(*(unsigned short *) animtype) )
+  {
+    log("Non standard animation %2.2s (%04x) is a possible crasher", animtype, (int) (*(unsigned short *) animtype) );
+    flg=2;
+  }
+  else flg=1;
   x=itemanim[itemtype];
   if(!x)
   {
     log("Unknown itemtype");
   }
-  flg=1; 
+  
   while((x&0xffff) && flg)
   {
     a1=(int) x&0xff;
@@ -625,7 +631,14 @@ int CChitemDlg::check_anim(const char *animtype, int itemtype)
   }
   if(flg)
   {
-    log("This %s has an invalid animation ID of %2.2s (%04x).",format_itemtype(itemtype),animtype,(int) *(short *) animtype);
+    if(flg==2)
+    {
+      log("This %s has an invalid animation ID of '%2.2s' (%04x).",format_itemtype(itemtype),animtype,(int) *(short *) animtype);
+    }
+    else
+    {
+      log("This %s has an unusual animation ID of '%2.2s' (%04x).",format_itemtype(itemtype),animtype,(int) *(short *) animtype);
+    }
     ret|=BAD_ANIM;
   }
   if(animtype[1] && the_item.header.minlevel)
@@ -1959,7 +1972,13 @@ bool CChitemDlg::match_creature()
   int featblock, itemidx;
   unsigned short idx;
   search_data tmpdata;
-  
+
+#ifdef _DEBUG
+  if(the_creature.header.flags&0xffff0000)
+  {
+    log("Found 0x%x", the_creature.header.flags);
+  }
+#endif
   itemidx=featblock=0;
   idx=0;
   memset(&tmpdata,0,sizeof(tmpdata) );
@@ -2081,9 +2100,18 @@ bool CChitemDlg::match_creature()
     found=false;
     for(featblock=0;featblock<the_creature.header.effectcnt;featblock++)
     {
-      tmpdata.feature=(short) the_creature.effects[featblock].feature;
-      tmpdata.param1=the_creature.effects[featblock].par1.parl;
-      tmpdata.param2=the_creature.effects[featblock].par2.parl;
+      if(the_creature.header.effbyte)
+      {
+        tmpdata.feature=(short) the_creature.effects[featblock].feature;
+        tmpdata.param1=the_creature.effects[featblock].par1.parl;
+        tmpdata.param2=the_creature.effects[featblock].par2.parl;
+      }
+      else
+      {
+        tmpdata.feature=(short) the_creature.oldeffects[featblock].feature;
+        tmpdata.param1=the_creature.oldeffects[featblock].par1.parl;
+        tmpdata.param2=the_creature.oldeffects[featblock].par2.parl;
+      }
       if((tmpdata.feature>=searchdata.feature &&
         tmpdata.feature<=searchdata.feature2) )
       {
@@ -2253,7 +2281,14 @@ bool CChitemDlg::match_creature()
       }
       else
       {
-        memcpy(the_creature.effects[featblock].resource,searchdata.newresource,8);
+        if(the_creature.header.effbyte)
+        {
+          memcpy(the_creature.effects[featblock].resource,searchdata.newresource,8);
+        }
+        else
+        {
+          memcpy(the_creature.oldeffects[featblock].vvc,searchdata.newresource,8);
+        }
       }
       break;
     case FLG_MTYPE:
@@ -2376,27 +2411,45 @@ bool CChitemDlg::match_2da()
   int i,j;
   CString tmpstr;
 
-  for(j=0;j<the_2da.cols;j++)
-  {
-    tmpstr=the_2da.collabels[j];
-    tmpstr.MakeUpper();
-    if(tmpstr.Find(searchdata.variable)!=-1)
-    {
-      log("Found heading %s in column %d.",tmpstr,j+1);
-      return true;
-    }
-  }
-  for(i=0;i<the_2da.rows;i++)
+  if(searchflags&MV)
   {
     for(j=0;j<the_2da.cols;j++)
     {
-      tmpstr=the_2da.GetValue(i,j);
+      tmpstr=the_2da.collabels[j];
       tmpstr.MakeUpper();
       if(tmpstr.Find(searchdata.variable)!=-1)
       {
-        if(j) log("Found entry %s in row %d, column %d.",tmpstr,i+1,j);
-        else log("Found label %s in row %d.",tmpstr,i+1);
+        log("Found heading %s in column %d.",tmpstr,j+1);
         return true;
+      }
+    }
+    for(i=0;i<the_2da.rows;i++)
+    {
+      for(j=0;j<the_2da.cols;j++)
+      {
+        tmpstr=the_2da.GetValue(i,j);
+        tmpstr.MakeUpper();
+        if(tmpstr.Find(searchdata.variable)!=-1)
+        {
+          if(j) log("Found entry %s in row %d, column %d.",tmpstr,i+1,j);
+          else log("Found label %s in row %d.",tmpstr,i+1);
+          return true;
+        }
+      }
+    }
+  }
+  if(searchflags&MS)
+  {
+    for(i=0;i<the_2da.rows;i++)
+    {
+      for(j=1;j<the_2da.cols;j++)
+      {
+        tmpstr=the_2da.GetValue(i,j);
+        if(strtonum(tmpstr)==searchdata.strref)
+        {
+          log("Found entry %s in row %d, column %d.",tmpstr,i+1,j);
+          return true;
+        }
       }
     }
   }
@@ -2411,6 +2464,7 @@ bool CChitemDlg::match_area()
   search_data tmpdata;
 
 #ifdef _DEBUG
+  /*
   int i;
 
   for(i=0;i<the_area.triggercount;i++)
@@ -2420,18 +2474,20 @@ bool CChitemDlg::match_area()
       log("Using dialog: %.8s",the_area.triggerheaders[i].dialogref);
     }
   }
+  */
 #endif
   memset(&tmpdata,0,sizeof(tmpdata) );
   found=true;
+
   if(searchflags&MT )
   {    
-    tmpdata.itemtype=the_area.header.areaflags; //dungeon/forest/etc
+    tmpdata.itemtype=the_area.header.areatype; //dungeon/forest/etc
     if((tmpdata.itemtype<searchdata.itemtype) || (tmpdata.itemtype>searchdata.itemtype2)) return false;
   }
 
   if(searchflags&MF )
   {
-    tmpdata.feature=(short) the_area.header.areatype; //save, tutorial, antimagic, timestop
+    tmpdata.feature=(short) the_area.header.areaflags; //save, tutorial, antimagic, timestop
     if((tmpdata.feature<searchdata.feature) || (tmpdata.feature>searchdata.feature2)) return false;
   }
   if(searchflags&MI)
@@ -2467,6 +2523,31 @@ bool CChitemDlg::match_area()
       }
     }
   }
+  if(searchflags&MV)
+  {
+    found=false;
+    for(actp=0;actp<the_area.variablecount;actp++)
+    {
+      memcpy(tmpdata.variable,the_area.variableheaders,32);
+      if(searchdata.variable[0])
+      {
+        if(!strnicmp(tmpdata.variable,searchdata.variable,32) )
+        {
+          found=true;
+          break;
+        }
+      }
+      else
+      {
+        if(tmpdata.variable[0])
+        {
+          found=true;
+          break;
+        }
+      }
+    }
+  }
+
   if(searchflags&MR)
   {
     found=false;
@@ -2490,6 +2571,22 @@ bool CChitemDlg::match_area()
         }
       }
     }
+    for(actp=0;actp<the_area.overlaycount;actp++)
+    {
+      if(!strnicmp(the_area.overlayheaders[actp].tis,searchdata.resource,8) )
+      {
+        log("Using tileset: %.8s in overlay #%d",the_area.overlayheaders[actp].tis, actp);
+        break;
+      }
+    }
+    for(actp=0;actp<the_area.triggercount;actp++)
+    {
+      if(!strnicmp(the_area.triggerheaders[actp].dialogref,searchdata.resource,8) )
+      {
+        log("Using dialog: %.8s in trigger #%d",the_area.triggerheaders[actp].dialogref, actp);
+        break;
+      }
+    }
     if(!found) return false;
   }
   
@@ -2505,6 +2602,10 @@ bool CChitemDlg::match_area()
   {
     if(cidx!=the_area.containercount) log("Found item %s in position #%d in container #%d",tmpdata.itemname,idx+1,cidx+1);
     else log("Found item %s in position #%d (no container)",tmpdata.itemname,idx+1);
+  }
+  if(searchflags&MV)
+  {
+    log("Found variable %s", tmpdata.variable);
   }
   if(searchflags&MR)
   {
@@ -3057,14 +3158,23 @@ int CChitemDlg::check_creature_spells()
 
 int CChitemDlg::check_creature_features()
 {
-  int i;
+  int i, feat;
   int ret, gret;
 
   gret=0;
   for(i=0;i<the_creature.effectcount;i++)
   {
-    ret=check_feature(the_creature.effects[i].feature,the_creature.effects[i].par1.parl,the_creature.effects[i].par2.parl);
-    if(ret) log("Embedded effect (%s) #%d",get_opcode_text(the_creature.effects[i].feature), i);
+    if(the_creature.header.effbyte)
+    {
+      feat=the_creature.effects[i].feature;
+      ret=check_feature(feat,the_creature.effects[i].par1.parl,the_creature.effects[i].par2.parl);
+    }
+    else
+    {
+      feat=the_creature.oldeffects[i].feature;
+      ret=check_feature(feat,the_creature.oldeffects[i].par1.parl,the_creature.oldeffects[i].par2.parl);
+    }
+    if(ret) log("Embedded effect (%s) #%d",get_opcode_text(feat), i);
     gret|=ret;
   }
   return gret;
@@ -3290,7 +3400,7 @@ int CChitemDlg::check_creature()
     if(IDSToken("ANIMATE",idsrace).IsEmpty())
     {
       ret|=BAD_ANIM;
-      log("Animation ID cannot be found in animation.ids!");
+      log("Animation ID 0x%4x cannot be found in animation.ids!",idsrace);
     }
   }
 
@@ -3335,18 +3445,35 @@ int CChitemDlg::check_creature()
 int CChitemDlg::check_weaponslots()
 {
   int ret;
-  int i;
+  int i,j;
 
   if(chkflg&NOSLOTCH) return 0;
 
   ret=0;
   for(i=0;i<the_creature.itemcount;i++)
   {
-    if(check_itemref(the_creature.items[i].itemname,0) )
+    for(j=0;j<the_creature.slotcount;j++)
     {
-      log("Invalid item on creature: '%.8s'",the_creature.items[i].itemname);
+      if(the_creature.itemslots[j]==i) break;
+    }
+    if(j==the_creature.slotcount)
+    {
+      log("Dangling item on creature: '%.8s'",the_creature.items[i].itemname);
       ret|=BAD_ITEMREF;
     }
+    else
+    {
+      if(check_itemref(the_creature.items[i].itemname,0) )
+      {
+        log("Invalid item on creature: '%.8s'",the_creature.items[i].itemname);
+        ret|=BAD_ITEMREF;
+      }
+    }
+  }
+  //bg1 creatures don't have this?
+  if(!the_creature.header.effbyte)
+  {
+    return ret;
   }
   i=*(short *) (the_creature.itemslots+the_creature.slotcount);
   switch(i)
@@ -3362,7 +3489,7 @@ int CChitemDlg::check_weaponslots()
     }
     break;
   case 1000:
-    if(the_creature.itemslots[SLOT_WEAPON]!=0xffff)
+    if(the_creature.itemslots[SLOT_WEAPON]!=-1)
     {
       ret|=BAD_ATTR;
       log("Creature has weapon, but doesn't wield it!");
@@ -3483,18 +3610,49 @@ int CChitemDlg::check_effect()
 int CChitemDlg::check_videocell()
 {
   int ret;
-  
-  ret=0;
-  switch(check_resource(the_videocell.header.bam,false) )
+
+#ifdef _DEBUG
+  if(the_videocell.header.sequencing&2)
   {
-  case -1:
-    ret|=BAD_ICONREF;
-    log("Invalid bam reference: '%-.8s' in videocell.",the_videocell.header.bam);
-    break;
-  case -2:
-    ret|=BAD_ICONREF;
-    log("Empty bam reference in videocell.");
-    break;
+    log("COVER!");
+  }
+#endif  
+  ret=0;
+  if(the_videocell.header.transparency&4)
+  {
+    if(!the_videocell.header.unknown10)
+    {
+      ret|=BAD_ATTR;
+      log("0x4 in transparency causes crash if unknown10 field isn't set!");
+    }
+  }
+  if((the_videocell.header.transparency&10)==10)
+  {
+    ret|=BAD_ATTR;
+    log("Transparency+brightest flag causes crash!");
+  }
+  
+  if(the_videocell.header.sequencing&8)
+  {
+    switch(check_resource(the_videocell.header.bam,false) )
+    {
+    case -1:
+      ret|=BAD_ICONREF;
+      log("Invalid bam reference: '%-.8s' in videocell.",the_videocell.header.bam);
+      break;
+    case -2:
+      ret|=BAD_ICONREF;
+      log("Empty bam reference in videocell.");
+      break;
+    }
+  }
+  else
+  {
+    if(the_videocell.header.bam[0])
+    {
+      ret|=BAD_ATTR;
+      log("BAM is disabled!");
+    }
   }
 
   switch(check_soundref(the_videocell.header.sound1, 0) )
@@ -3518,14 +3676,23 @@ int CChitemDlg::check_area_actors()
   int ret;
   unsigned int tmp;
   CString actorname;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   for(i=0;i<the_area.header.actorcnt;i++)
   {
     RetrieveVariable(actorname,the_area.actorheaders[i].actorname);
     px=the_area.actorheaders[i].posx;
     py=the_area.actorheaders[i].posy;
+    if(px>=maxx || py>=maxy)
+    {
+      ret|=BAD_ATTR;
+      log("Actor #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,actorname,px,py);
+    }
     if(!the_area.actorheaders[i].schedule)
     {
       ret|=BAD_ATTR;
@@ -3536,8 +3703,7 @@ int CChitemDlg::check_area_actors()
     {
       ret|=BAD_RESREF;
       log("Bad creature reference '%-.8s' in actor header #%d (%-.32s [%d.%d])",
-          the_area.actorheaders[i].creresref,i+1,actorname,
-          px,py);
+          the_area.actorheaders[i].creresref,i+1,actorname,px,py);
     }
     tmp=the_area.actorheaders[i].face;
     if(tmp>15)
@@ -3674,14 +3840,23 @@ int CChitemDlg::check_area_anim()
   int i;
   int ret;
   CString animname;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   for(i=0;i<the_area.header.animationcnt;i++)
   {
     RetrieveVariable(animname,the_area.animheaders[i].animname);
     px=the_area.animheaders[i].posx;
     py=the_area.animheaders[i].posy;
+    if(px>=maxx || py>=maxy)
+    {
+      ret|=BAD_ATTR;
+      log("Animation #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,animname,px,py);
+    }
     if(!the_area.animheaders[i].schedule)
     {
       ret|=BAD_ATTR;
@@ -3711,19 +3886,29 @@ int CChitemDlg::check_area_container()
   int ret;
   int first, last;
   CString contname;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   for(i=0;i<the_area.header.containercnt;i++)
   {
-    if(the_area.containerheaders[i].unknown56)
-    {
-      ret|=BAD_ATTR;
-      log("Container vertex count has high word set in container #%d",i+1);
-    }
     RetrieveVariable(contname,the_area.containerheaders[i].containername);
     px=the_area.containerheaders[i].posx;
     py=the_area.containerheaders[i].posy;
+    if(px>=maxx || py>=maxy)
+    {
+      ret|=BAD_ATTR;
+      log("Container #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,contname,px,py);
+    }
+    if(the_area.containerheaders[i].unknown56)
+    {
+      ret|=BAD_ATTR;
+      log("Container vertex count has high word set in container #%d (%-.32s [%d.%d])",
+        i+1,contname,px,py);
+    }
     first=the_area.containerheaders[i].firstitem;
     last=first+the_area.containerheaders[i].itemcount;
     if(last>the_area.header.itemcnt)
@@ -3755,10 +3940,13 @@ int CChitemDlg::check_area_door()
   int i;
   int ret;
   CString doorname;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
   int strref;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   if(the_area.WedAvailable())
   {
     if(the_area.wedheader.doorcnt!=the_area.header.doorcnt)
@@ -3772,6 +3960,12 @@ int CChitemDlg::check_area_door()
     RetrieveVariable(doorname,the_area.doorheaders[i].doorname);
     px=the_area.doorheaders[i].locp1x; //closed door, bounding rect
     py=the_area.doorheaders[i].locp1y;
+    if(px>=maxx || py>=maxy)
+    {
+      ret|=BAD_ATTR;
+      log("Door #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,doorname,px,py);
+    }
     strref=the_area.doorheaders[i].strref;
     switch(check_reference(strref) )
     {
@@ -3838,15 +4032,24 @@ int CChitemDlg::check_area_entrance()
   int i;
   int ret;
   CString entrancename;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   for(i=0;i<the_area.header.entrancecnt;i++)
   {
     RetrieveVariable(entrancename,the_area.entranceheaders[i].entrancename);
     px=the_area.entranceheaders[i].px; //closed door, bounding rect
     py=the_area.entranceheaders[i].py;
-    //px,py check is needed here
+
+    if(px>=maxx || py>=maxy)
+    {
+      ret|=BAD_ATTR;
+      log("Entrance #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,entrancename,px,py);
+    }
   }
   return ret;
 }
@@ -3968,14 +4171,24 @@ int CChitemDlg::check_area_spawn()
   int cnt;
   CString tmpref;
   CString spawnname;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   for(i=0;i<the_area.header.spawncnt;i++)
   {
     RetrieveVariable(spawnname, the_area.spawnheaders[i].spawnname);
     px=the_area.spawnheaders[i].px;
     py=the_area.spawnheaders[i].py;
+    if(px>=maxx || py>=maxy)
+    {
+      ret|=BAD_ATTR;
+      log("Spawnpoint #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,spawnname,px,py);
+    }
+
     if(!the_area.spawnheaders[i].delay)
     {
       ret|=BAD_ATTR;
@@ -4244,6 +4457,13 @@ int CChitemDlg::check_area()
       log("Scriptname '%-.8s' isn't the same as the area name (possible problem)",the_area.header.scriptref);
     }
   }
+  if(!the_area.wedheader.overlaycnt || !the_area.overlaycount)
+  {
+    ret|=BAD_EXTHEAD;
+    log("Area has no dimensions!");
+    return ret;
+  }
+
   ret|=check_area_actors();
   ret|=check_area_trigger();
   ret|=check_area_spawn();
@@ -4281,7 +4501,6 @@ int CChitemDlg::check_area()
   else
   {
     ret|=BAD_EXTHEAD;
-    log("Wedfile is not available.");
   }
   return ret;
 }

@@ -162,6 +162,60 @@ endofquest:
   return ret;
 }
 
+int Ctbg::WriteZip(int fhandle)
+{
+  CString *tbgnames, *othernames;
+  int i;
+  int ret;
+
+  ret=0;
+  memcpy(zipheader.signature,"PK\3\4",4);
+  zipheader.headersize=(unsigned short) (sizeof(zipheader)-6); //20
+
+  othernames=tbgnames=NULL;  
+  if(tbgnamecount!=iapheader.tbgcount) return -1;
+  if(othernamecount!=iapheader.othercount) return -1;
+
+  tbgnames=new CString[iapheader.tbgcount];
+  if(!tbgnames)
+  {
+    return -3; //no need of quest
+  }
+  othernames=new CString[iapheader.othercount];
+  if(!othernames)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+
+  for(i=0;i<iapheader.tbgcount;i++)
+  {
+    if(AddTbgFile(i,tbgnames[i]))
+    {
+      ret=-2;
+      goto endofquest;
+    }
+  }
+  for(i=0;i<iapheader.othercount;i++)
+  {
+    if(AddOtherFile(i,othernames[i]))
+    {
+      ret=-2;
+      goto endofquest;
+    }
+  }
+  if(write(fhandle,&zipheader,sizeof(zipheader) )!=sizeof(zipheader) )
+  {
+    ret=-2;
+    goto endofquest;
+  }
+
+endofquest:
+  if(tbgnames) delete [] tbgnames;
+  if(othernames) delete [] othernames;
+  return ret;
+}
+
 int Ctbg::WriteIap(int fhandle)
 {
   CString tmpstr;
@@ -208,6 +262,7 @@ int Ctbg::WriteIap(int fhandle)
       goto endofquest;
     }
   }
+
   for(i=0;i<iapfilecount;i++)
   {
     iapfileheaders[i].nameoffset=iapheader.totallen;
@@ -252,15 +307,17 @@ endofquest:
   return ret;
 }
 
-int Ctbg::read_iap(int fhandle, int maxlen, int onlyopen)
+int Ctbg::read_iap(int fhandle, int maxlen, int onlyopen, CStringList &filelist)
 {
   char *filedata;
   char tmpfilename[MAX_PATH];
-  CString outfilepath;
+  CString outfilepath, syscommand;
   int esize, iapfullsize;
   int fhandle2;
   int ret;
+  int hasweidu;
 
+  hasweidu=1;
   if(maxlen==-1)
   {
     maxlen=filelength(fhandle);
@@ -312,46 +369,60 @@ int Ctbg::read_iap(int fhandle, int maxlen, int onlyopen)
       {
         m_tbgnames[actfilecount]=outfilepath;
         lseek(fhandle,esize,SEEK_CUR);
+        continue;
       }
-      else
-      {
-        ret=read_tbg(fhandle,esize);
-        if(ret<0) return ret;
-        if(ret==9) return 0;  //handled in read_tbg already
-        ret=ImportFile();
-        if(ret<0) return ret;
-      }
+      ret=read_tbg(fhandle,esize);
+      if(ret<0) return ret;
+      if(ret==9) return 0;  //handled in read_tbg already
+      ret=ImportFile();
+      if(ret<0) return ret;
+      continue;
     }
-    else
-    { //plain file
-      if(onlyopen)
-      {
-        m_othernames[actfilecount-iapheader.tbgcount]=outfilepath;
-        lseek(fhandle,esize,SEEK_CUR);
-      }
-      else
-      {
-        filedata=new char[esize+1];
-        if(!filedata) return -3;
-        filedata[esize]=0; //for using it as a string
-        if(read(fhandle,filedata,esize)!=esize)
-        {
-          delete [] filedata;
-          return -2;
-        }
-        fhandle2=creat(outfilepath,S_IWRITE);
-        if(fhandle2<1) return -2;
-        if(write(fhandle2,filedata,esize)!=esize) ret=-2;
-        else ret=0;
-        close(fhandle2);
-        if(ret<0) return ret;
-        if((iapfileheaders[actfilecount].launchflag&1) )
-        {
-          if(esize>1024) filedata[1024]=0;
-          MessageBox(0,filedata,"IAP import",MB_OK);
-        }
-      }
+    //plain file
+    if(onlyopen)
+    {
+      m_othernames[actfilecount-iapheader.tbgcount]=outfilepath;
+      lseek(fhandle,esize,SEEK_CUR);
+      continue;
     }
+    filedata=new char[esize+1];
+    if(!filedata) return -3;
+    filedata[esize]=0; //for using it as a string
+    if(read(fhandle,filedata,esize)!=esize)
+    {
+      delete [] filedata;
+      return -2;
+    }
+    fhandle2=creat(outfilepath,S_IWRITE);
+    if(fhandle2<1) return -2;
+    if(write(fhandle2,filedata,esize)!=esize) ret=-2;
+    else ret=0;
+    close(fhandle2);
+    if(ret<0)
+    {
+      delete [] filedata;
+      return ret;
+    }
+    if((iapfileheaders[actfilecount].launchflag&2) && hasweidu)
+    {
+      delete [] filedata;
+      if(weidupath.IsEmpty())
+      {
+        MessageBox(0,"Can't import dialog source without WeiDU installed!","Warning",MB_ICONEXCLAMATION|MB_OK);
+        hasweidu=0;
+        continue;
+      }
+      filelist.AddTail(outfilepath);
+      continue;
+    }
+    if((iapfileheaders[actfilecount].launchflag&1) )
+    {
+      if(esize>4096) filedata[4096]=0;
+      MessageBox(0,filedata,"IAP import",MB_OK);
+      delete [] filedata;
+      continue;
+    }
+    delete [] filedata;
   }
 
   if(iapfullsize!=maxlen) return -1;
@@ -785,6 +856,7 @@ int Ctbg::collect_creaturerefs(int alternate)
   int pos;
   int count;
   int i;
+  int feat;
 
   strref_opcodes=get_strref_opcodes();
   pos=0;
@@ -818,10 +890,26 @@ int Ctbg::collect_creaturerefs(int alternate)
   {
     for(i=0;i<the_creature.effectcount;i++)
     {
-      if(member_array(the_creature.effects[i].feature,strref_opcodes)!=-1)
+      if(the_creature.header.effbyte)
       {
-        strrefs[pos]=the_creature.header.effectoffs+calc_offset2(the_creature.effects[0],the_creature.effects[i].par1.parl);
-        if(!resolve_tbg_entry(the_creature.effects[i].par1.parl,tlkentries[pos]) ) pos++;
+        feat=the_creature.effects[i].feature;
+      }
+      else
+      {
+        feat=the_creature.oldeffects[i].feature;
+      }
+      if(member_array(feat,strref_opcodes)!=-1)
+      {
+        if(the_creature.header.effbyte)
+        {
+          strrefs[pos]=the_creature.header.effectoffs+calc_offset2(the_creature.effects[0],the_creature.effects[i].par1.parl);
+          if(!resolve_tbg_entry(the_creature.effects[i].par1.parl,tlkentries[pos]) ) pos++;
+        }
+        else
+        {
+          strrefs[pos]=the_creature.header.effectoffs+calc_offset2(the_creature.oldeffects[0],the_creature.oldeffects[i].par1.parl);
+          if(!resolve_tbg_entry(the_creature.oldeffects[i].par1.parl,tlkentries[pos]) ) pos++;
+        }
       }
     }
   }
@@ -1215,7 +1303,7 @@ int Ctbg::ImportFile()
   return 0;
 }
 
-int Ctbg::Readtbg(CString filepath)
+int Ctbg::Readtbg(CString filepath, CStringList &filelist)
 {
   int fhandle;
   int ret;
@@ -1228,7 +1316,7 @@ int Ctbg::Readtbg(CString filepath)
   if(ret==-4)
   {
     lseek(fhandle,0,SEEK_SET);
-    ret=read_iap(fhandle,-1,0); //handle it as an IAP (bundled tbg)
+    ret=read_iap(fhandle,-1,0, filelist); //handle it as an IAP (bundled tbg)
   }
   else
   {

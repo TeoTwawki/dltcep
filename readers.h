@@ -20,11 +20,14 @@ protected:
 	long samples_left; // count of unread samples
 	int is16bit; // 1 - if 16 bit file, 0 - otherwise
 	FILE* file; // file handle
+  int maxlen;
 
 public:
-	CSoundReader (int fhandle)
+	CSoundReader (int fhandle, int len)
     : samples (0), channels(0), samples_left (0), is16bit (1), file (NULL) 
-  { file=fdopen(fhandle,"rb");
+  {
+    file=fdopen(fhandle,"rb");
+    maxlen=len;
   };
 
 	virtual ~CSoundReader() {
@@ -45,14 +48,13 @@ public:
 	virtual const char* get_file_type() = 0;
 
 	virtual long read_samples (short* buffer, long count) = 0; // returns actual count of read samples
-	virtual short read_one_sample(); // returns next sound sample
 };
 
 // RAW file reader
 class CRawPCMReader: public CSoundReader {
 public:
 	CRawPCMReader (int fhandle, int bits, int len)
-		: CSoundReader (fhandle) {
+		: CSoundReader (fhandle, len) {
 			is16bit = (bits == 16);
       samples=len;
 		};
@@ -83,11 +85,12 @@ private:
 
 	int make_new_samples();
 public:
-	CACMReader (int fhandle)
-		: CSoundReader (fhandle),
+	CACMReader (int fhandle, int len)
+		: CSoundReader (fhandle, len),
 		block (NULL), values (NULL),
 		samples_ready (0),
-		unpacker (NULL), decoder (NULL) {};
+		unpacker (NULL), decoder (NULL)
+  {  };
 	virtual ~CACMReader() {
 		if (block) delete block;
 		if (unpacker) delete unpacker;

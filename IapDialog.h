@@ -52,6 +52,7 @@ protected:
   void AddOther();
   void AddTbg();
   int WriteIap(int fhandle);
+  int WeHaveWeiDU(bool toggle);
 	// Generated message map functions
 	//{{AFX_MSG(CIapDialog)
 	virtual BOOL OnInitDialog();
@@ -67,6 +68,7 @@ protected:
 	afx_msg void OnSelchangeOther();
 	afx_msg void OnLaunch();
 	afx_msg void OnLoad();
+	afx_msg void OnWeidu();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

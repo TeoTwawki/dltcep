@@ -26,7 +26,7 @@ CVVCEdit::CVVCEdit(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 }
 
-static int tranboxid1[]={0,IDC_TRANSPARENT,0,IDC_BRIGHTEST,0,0,0,0};
+static int tranboxid1[]={0,IDC_TRANSPARENT,0,IDC_BRIGHTEST,IDC_MIRROR,IDC_MIRROR2,0,0};
 static int tranboxid2[]={0,0,0,0,0,0,0,0};
 static int tranboxid3[]={0,0,0,IDC_GREY,0,IDC_GLOW,0,0};
 static int tranboxid4[]={0,IDC_TINT,0,0,0,0,0,0};
@@ -118,24 +118,78 @@ void CVVCEdit::DoDataExchange(CDataExchange* pDX)
  	DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr,the_videocell.header.sound2);
 
-  DDX_Text(pDX, IDC_UNKNOWN10, the_videocell.header.unknown10);
-  DDX_Text(pDX, IDC_UNKNOWN14, the_videocell.header.unknown14);
-  DDX_Text(pDX, IDC_UNKNOWN1C, the_videocell.header.unknown1c);
-  DDX_Text(pDX, IDC_UNKNOWN24, the_videocell.header.unknown24);
-  DDX_Text(pDX, IDC_UNKNOWN30, the_videocell.header.unknown30);
-  DDX_Text(pDX, IDC_UNKNOWN38, the_videocell.header.unknown38);
-  DDX_Text(pDX, IDC_UNKNOWN3C, the_videocell.header.unknown3c);
-  DDX_Text(pDX, IDC_UNKNOWN40, the_videocell.header.unknown40);
-  DDX_Text(pDX, IDC_UNKNOWN44, the_videocell.header.unknown44);
-  DDX_Text(pDX, IDC_UNKNOWN48, the_videocell.header.unknown48);
-  DDX_Text(pDX, IDC_UNKNOWN50, the_videocell.header.unknown50);
-  DDX_Text(pDX, IDC_UNKNOWN54, the_videocell.header.unknown54);
-  DDX_Text(pDX, IDC_UNKNOWN58, the_videocell.header.unknown58);
-  DDX_Text(pDX, IDC_UNKNOWN60, the_videocell.header.unknown60);
-  DDX_Text(pDX, IDC_UNKNOWN64, the_videocell.header.unknown64);
-  DDX_Text(pDX, IDC_UNKNOWN70, the_videocell.header.unknown70);
-  DDX_Text(pDX, IDC_UNKNOWN74, the_videocell.header.unknown74);
-  DDX_Text(pDX, IDC_UNKNOWN78, the_videocell.header.unknown88);
+  tmpstr.Format("0x%0x",the_videocell.header.unknown10);
+  DDX_Text(pDX, IDC_UNKNOWN10, tmpstr);
+  the_videocell.header.unknown10=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown14);
+  DDX_Text(pDX, IDC_UNKNOWN14, tmpstr);
+  the_videocell.header.unknown14=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown1c);
+  DDX_Text(pDX, IDC_UNKNOWN1C, tmpstr);
+  the_videocell.header.unknown1c=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown24);
+  DDX_Text(pDX, IDC_UNKNOWN24, tmpstr);
+  the_videocell.header.unknown24=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown30);
+  DDX_Text(pDX, IDC_UNKNOWN30, tmpstr);
+  the_videocell.header.unknown30=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown38);
+  DDX_Text(pDX, IDC_UNKNOWN38, tmpstr);
+  the_videocell.header.unknown38=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown3c);
+  DDX_Text(pDX, IDC_UNKNOWN3C, tmpstr);
+  the_videocell.header.unknown3c=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.position);
+  DDX_Text(pDX, IDC_UNKNOWN40, tmpstr);
+  the_videocell.header.position=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown44);
+  DDX_Text(pDX, IDC_UNKNOWN44, tmpstr);
+  the_videocell.header.unknown44=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown48);
+  DDX_Text(pDX, IDC_UNKNOWN48, tmpstr);
+  the_videocell.header.unknown48=strtonum(tmpstr);
+
+  //this 2 appears to be a numeric value (not bitfield)
+  tmpstr.Format("%d",the_videocell.header.unknown50);
+  DDX_Text(pDX, IDC_UNKNOWN50, tmpstr);
+  the_videocell.header.unknown50=strtonum(tmpstr);
+
+  tmpstr.Format("%d",the_videocell.header.unknown54);
+  DDX_Text(pDX, IDC_UNKNOWN54, tmpstr);
+  the_videocell.header.unknown54=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown58);
+  DDX_Text(pDX, IDC_UNKNOWN58, tmpstr);
+  the_videocell.header.unknown58=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown60);
+  DDX_Text(pDX, IDC_UNKNOWN60, tmpstr);
+  the_videocell.header.unknown60=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown64);
+  DDX_Text(pDX, IDC_UNKNOWN64, tmpstr);
+  the_videocell.header.unknown64=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown70);
+  DDX_Text(pDX, IDC_UNKNOWN70, tmpstr);
+  the_videocell.header.unknown70=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown74);
+  DDX_Text(pDX, IDC_UNKNOWN74, tmpstr);
+  the_videocell.header.unknown74=strtonum(tmpstr);
+
+  tmpstr.Format("0x%0x",the_videocell.header.unknown88);
+  DDX_Text(pDX, IDC_UNKNOWN78, tmpstr);
+  the_videocell.header.unknown88=strtonum(tmpstr);
 }
 
 void CVVCEdit::NewVVC()
@@ -152,34 +206,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
 	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
-	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_FLAG2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_FLAG3, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_FLAG4, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_FRAMERATE, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_SEQ1, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_SEQ2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SEQUENCING, OnKillfocusSequencing)
-	ON_EN_KILLFOCUS(IDC_SOUND1, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_SOUND2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN10, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN1C, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN24, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN38, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN3C, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN40, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN44, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN48, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN50, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN54, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN60, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN70, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_XCO, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_YCO, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_ZCO, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_LOOP, OnLoop)
 	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
 	ON_BN_CLICKED(IDC_PLAY2, OnPlay2)
@@ -191,20 +218,54 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_TINT, OnTint)
 	ON_BN_CLICKED(IDC_GLOW, OnGlow)
 	ON_BN_CLICKED(IDC_GREY, OnGrey)
+	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
+	ON_BN_CLICKED(IDC_BRIGHTEST, OnBrightest)
+	ON_BN_CLICKED(IDC_CHECK, OnCheck)
+	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_BN_CLICKED(IDC_POS1, OnPos1)
+	ON_BN_CLICKED(IDC_POS2, OnPos2)
+	ON_BN_CLICKED(IDC_USEBAM, OnUsebam)
+	ON_BN_CLICKED(IDC_U2, OnU2)
+	ON_BN_CLICKED(IDC_U3, OnU3)
+	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
+	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAG2, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAG3, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAG4, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FRAMERATE, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SEQ1, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SEQ2, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SOUND1, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SOUND2, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN10, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN1C, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN24, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN38, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN3C, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN44, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN48, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN50, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN54, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN60, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN70, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_XCO, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_YCO, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_ZCO, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN14, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN74, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN78, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN64, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN58, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
-	ON_BN_CLICKED(IDC_BRIGHTEST, OnBrightest)
-	ON_BN_CLICKED(IDC_CHECK, OnCheck)
-	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN40, OnKillfocusSequencing)
+	ON_BN_CLICKED(IDC_MIRROR2, OnMirror2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -299,7 +360,7 @@ void CVVCEdit::SaveVVC(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
+//  int fhandle;
   int res;
 
   if(readonly)
@@ -341,6 +402,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
@@ -349,6 +411,8 @@ gotname:
     }
     res=the_videocell.WriteVVCToFile(fhandle);
     close(fhandle);
+    */
+    res = write_videocell(newname);
     switch(res)
     {
     case 0:
@@ -380,9 +444,12 @@ void CVVCEdit::OnCheck()
 }
 
 int checkbuttons[]={
-  IDC_LOOP,
-0};
+  IDC_LOOP, IDC_U2, IDC_U3, IDC_USEBAM, 0
+};
 
+int posbuttons[]={IDC_POS1, IDC_POS2,0
+};
+  
 void CVVCEdit::RefreshDialog()
 {
   CButton *chkbutton;
@@ -395,6 +462,14 @@ void CVVCEdit::RefreshDialog()
   {
     chkbutton=(CButton *) GetDlgItem(checkbuttons[i]);
     chkbutton->SetCheck(!!(the_videocell.header.sequencing&bit));
+    bit<<=1;
+  }
+  bit=1;
+  for(i=0;i<32 && posbuttons[i];i++)
+  {
+    chkbutton=(CButton *) GetDlgItem(posbuttons[i]);
+    chkbutton->SetCheck(!!(the_videocell.header.position&bit));
+    bit<<=1;
   }
 }
 
@@ -464,6 +539,35 @@ void CVVCEdit::OnLoop()
   UpdateData(UD_DISPLAY);
 }
 
+void CVVCEdit::OnU2() 
+{
+	the_videocell.header.sequencing^=2;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnU3() 
+{
+	the_videocell.header.sequencing^=4;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnUsebam() 
+{
+	the_videocell.header.sequencing^=8;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnPos1() 
+{
+	the_videocell.header.position^=1;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnPos2() 
+{
+	the_videocell.header.position^=2;
+  UpdateData(UD_DISPLAY);
+}
 
 void CVVCEdit::OnPlay1() 
 {
@@ -514,12 +618,6 @@ void CVVCEdit::OnBrowse3()
   UpdateData(UD_DISPLAY);	
 }
 
-BOOL CVVCEdit::PreTranslateMessage(MSG* pMsg) 
-{
-  m_tooltip.RelayEvent(pMsg);
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
 void CVVCEdit::OnTransparent() 
 {
 	the_videocell.header.transparency^=2;
@@ -539,6 +637,18 @@ void CVVCEdit::OnBrightest()
     the_videocell.header.transparency&=~2;
     MessageBox("Turning off transparency flag.","VVC editor",MB_OK);
   }
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnMirror() 
+{
+	the_videocell.header.transparency^=0x10;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnMirror2() 
+{
+	the_videocell.header.transparency^=0x20;
   UpdateData(UD_DISPLAY);
 }
 
@@ -562,6 +672,11 @@ void CVVCEdit::OnGrey()
 
 void CVVCEdit::OnUnknown() 
 {
-	// TODO: Add your control notification handler code here
-	
+	MessageBox("Not implemented yet.","Unknown editor",MB_OK);
+}
+
+BOOL CVVCEdit::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

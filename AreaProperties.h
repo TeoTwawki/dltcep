@@ -23,21 +23,19 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAreaGeneral)
 	enum { IDD = IDD_AREAGENERAL };
-	CComboBox	m_areatype_control;
+	CComboBox	m_areaflag_control;
 	//}}AFX_DATA
 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaGeneral)
-	public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
-
+  int CantMakeMinimap(CString tmpstr);
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
 	//{{AFX_MSG(CAreaGeneral)
@@ -125,6 +123,7 @@ protected:
 	afx_msg void OnEdit();
 	afx_msg void OnSetpos();
 	afx_msg void OnSetdest();
+	afx_msg void OnBrowse9();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -215,6 +214,7 @@ protected:
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
+	afx_msg void OnKillfocusRegiontype();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -592,7 +592,7 @@ public:
 
   area_door doorcopy;
   area_vertex *vertexcopy[4];
-  int vertexsize[4];
+  int vertexsizes[4];
   HBITMAP hbd;
 
   int m_doornum;
@@ -609,7 +609,7 @@ public:
 
 // Implementation
 protected:
-  int AddWedDoor(char *doorid);
+  int AddWedDoor(CString doorid);
   int RemoveWedDoor(char *doorid);
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -645,7 +645,6 @@ protected:
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
 	afx_msg void OnAdd3();
-	afx_msg void OnRemove3();
 	afx_msg void OnUnknown();
 	afx_msg void OnBrowse5();
 	afx_msg void OnModvertex();
@@ -661,6 +660,10 @@ protected:
 	afx_msg void OnTagged();
 	afx_msg void OnChangeCursoridx();
 	afx_msg void OnSet();
+	afx_msg void OnModblock();
+	afx_msg void OnKillfocusBlocks();
+	afx_msg void OnRemoveblock();
+	afx_msg void OnEditblock();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

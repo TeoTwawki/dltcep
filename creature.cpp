@@ -101,10 +101,15 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   case 22:
     fullsize=sizeof(creature_iwd2_header);
   	memcpy(header.filetype,"CRE V2.2",8);
-    memcpy(&iwd2header,&header,((char *) &iwd2header.sfort)-(char *) &iwd2header);
+    memcpy(&iwd2header,&header,((char *) &iwd2header.crushac)-(char *) &iwd2header);
+    memcpy(&iwd2header.crushac,&header.crushac,13);
+    memcpy(&iwd2header.resfire,&header.resfire,12);
+    memcpy(&iwd2header.strrefs,&header.strrefs,64*sizeof(int) );
+    iwd2header.strstat=header.strstat;
+    memcpy(&iwd2header.intstat,&header.intstat,5);
     memcpy(iwd2header.scripts,header.scripts,sizeof(iwd2header.scripts) );
     memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
-    memcpy(&iwd2header.itemslots,&header.itemslots,5*sizeof(long)+8);
+    memcpy(&iwd2header.itemslots,&header.itemslots,(IWD2_SLOT_COUNT+2)*sizeof(short) );
     break;
   case 90:
     fullsize=sizeof(creature_iwd_header);
@@ -131,7 +136,14 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   }
   header.effectoffs=fullsize;
   //item
-  fullsize+=header.effectcnt*sizeof(creature_effect);
+  if(header.effbyte)
+  {
+    fullsize+=header.effectcnt*sizeof(creature_effect);
+  }
+  else //bg1 effects are smaller
+  {
+    fullsize+=header.effectcnt*sizeof(feat_block);
+  }
   header.itemoffs=fullsize;
   //itemslots
   fullsize+=header.itemcnt*sizeof(creature_item);
@@ -252,7 +264,6 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   {
     return -2;
   }
-
   return 0;
 }
 
@@ -276,6 +287,7 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
   int esize;
   int ret;
 
+  memset(&credata,0,sizeof(credata) );
   if(fh<1) return -1;
   fhandle=fh; //for safe string reads
   ret=0;
@@ -341,9 +353,9 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
       ret=-2;
       goto endofquest;
     }
-    credata.animid=the_creature.iwdheader.animid;
-    memcpy(credata.scripts,the_creature.iwdheader.scripts,5*8);
-    memcpy(credata.dialogresref,the_creature.iwdheader.dialogresref,8);
+    credata.animid=the_creature.iwd2header.animid;
+    memcpy(credata.scripts,the_creature.iwd2header.scripts,5*8);
+    memcpy(credata.dialogresref,the_creature.iwd2header.dialogresref,8);
     revision=22;
     goto endofquest;
   }
@@ -467,10 +479,16 @@ int Ccreature::handle_iwd2()
 {
   int flg, ret;
   int i,j,k;
-//IWD2_SPELLCOUNT
+
   //copying the last part which is common
   KillIwd2Spells();
-  memcpy(&header,&iwd2header,((char *) &iwd2header.sfort)-(char *) &iwd2header);
+  memcpy(&header,&iwd2header,((char *) &iwd2header.crushac)-(char *) &iwd2header);
+  memcpy(&header.crushac,&iwd2header.crushac,13);
+  memcpy(&header.resfire,&iwd2header.resfire,12);
+  memcpy(header.strrefs,iwd2header.strrefs,64*sizeof(int) );
+  header.strstat=iwd2header.strstat;
+  header.strbon=0;
+  memcpy(&header.intstat,&iwd2header.intstat,5);
   memcpy(header.scripts,iwd2header.scripts,sizeof(iwd2header.scripts) );
   memcpy(&header.idsea,&iwd2header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
   memcpy(&header.itemslots,&iwd2header.itemslots,5*sizeof(long)+8);

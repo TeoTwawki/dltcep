@@ -8,6 +8,8 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "CreatureEdit.h"
+#include "2da.h"
+#include "2daEdit.h"
 #include "tbg.h"
 
 #ifdef _DEBUG
@@ -26,6 +28,8 @@ CCreatureEdit::CCreatureEdit(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CCreatureEdit)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+  the_ids.new_ids();
+  m_idsname="";
 }
 
 void CCreatureEdit::DoDataExchange(CDataExchange* pDX)
@@ -73,6 +77,7 @@ void CCreatureEdit::NewCreature()
   the_creature.header.unknown27c=-1;
   the_creature.header.unknown27e=-1;
   memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );
+  *(int *) (the_creature.itemslots+the_creature.slotcount)=1000;
 }
 
 BEGIN_MESSAGE_MAP(CCreatureEdit, CDialog)
@@ -85,12 +90,13 @@ BEGIN_MESSAGE_MAP(CCreatureEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
 	ON_COMMAND(ID_EXPORTSOUNDSET, OnExportsoundset)
+	ON_COMMAND(ID_IMPORTSOUNDSET, OnImportsoundset)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_IMPORTSOUNDSET, OnImportsoundset)
+	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -232,7 +238,6 @@ void CCreatureEdit::SaveCreature(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int chrorcre;
   int res;
 
@@ -284,6 +289,7 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
+    /*
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
@@ -292,6 +298,8 @@ gotname:
     }
     res=the_creature.WriteCreatureToFile(fhandle,chrorcre);
     close(fhandle);
+    */
+    res = write_creature(newname);
     switch(res)
     {
     case 0:
@@ -381,6 +389,19 @@ void CCreatureEdit::PostNcDestroy()
     m_pModelessPropSheet=NULL;
   }	
 	CDialog::PostNcDestroy();
+}
+
+void CCreatureEdit::OnToolsIdsbrowser() 
+{
+	CIDSEdit dlg;
+  CString tmpstr;
+
+  dlg.SetReadOnly(true);
+  tmpstr=itemname;
+  itemname=m_idsname;
+  dlg.DoModal();
+  m_idsname=itemname;
+  itemname=tmpstr;
 }
 
 BOOL CCreatureEdit::PreTranslateMessage(MSG* pMsg) 
