@@ -99,6 +99,7 @@ public:
 	virtual ~Carea();
   void new_area();
   int RemoveDoorPolygon(int first);
+  int AddWedDoor(CString doorid);
   int RemoveWedDoor(char *doorid);
   int DefaultAreaOverlays();
   int WriteAreaToFile(int fh, int calculate);

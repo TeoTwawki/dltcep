@@ -1759,10 +1759,14 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, Cmos &host, int nMode,
     else if(nMode&BM_INVERT) clrTrans=(DWORD) -2;
     else clrTrans=(DWORD) 0xffffff;
     //the size of the original bitmap
-    nColumn=host.mosheader.wColumn*host.mosheader.dwBlockSize;
-    nRow=host.mosheader.wRow*host.mosheader.dwBlockSize;
+    nColumn=host.m_pixelwidth;
+    nRow=host.m_pixelheight;
     nOffset=nXpos+nYpos*nColumn;
     nLimit=min(m_pFrames[nFrameWanted].wHeight,nRow-nYpos);
+    if((unsigned int) (m_pFrames[nFrameWanted].wWidth+nXpos)>(unsigned int) nColumn)
+    {
+      nOffset=-1; //hack 
+    }
   }
   else
   {
@@ -1822,6 +1826,7 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
     BITMAP bm;
 
     if(nMode&BM_MATCH) clrTrans=(DWORD) -1;
+    else if(nMode&BM_INVERT) clrTrans=(DWORD) -2;
     else clrTrans=(DWORD) 0xffffff;
     CBitmap *cb=CBitmap::FromHandle(hBitmap);
     cb->GetBitmap(&bm);
@@ -1834,7 +1839,10 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
 //    memcpy(m_pclrDIBits,bm.bmBits,nColumn*nRow*sizeof(COLORREF) ); //doesn't work. bm.bmbits isn't set
     nOffset=nWidth+nHeight*nColumn;
     nLimit=min(m_pFrames[nFrameWanted].wHeight,nRow-nHeight);
-    if(m_pFrames[nFrameWanted].wWidth+nWidth>nColumn) nOffset=-1; //hack 
+    if((unsigned int) (m_pFrames[nFrameWanted].wWidth+nWidth)>(unsigned int) nColumn)
+    {
+      nOffset=-1; //hack 
+    }
   }
   else
   {
@@ -1852,7 +1860,7 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
       m_pFrames[nFrameWanted].wWidth,nLimit);
   }
   else nReplaced=0;
-  if (!MakeBitmapExternal(m_pclrDIBits,nColumn, nRow, hBitmap))
+  if (!MakeBitmapExternal(m_pclrDIBits, nColumn, nRow, hBitmap))
     return -1;
   
   if (nMode&BM_RESIZE)
@@ -2121,7 +2129,7 @@ bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nW
 
 	// Delete the original and point it at the new one.
 	pBmp->Detach();
-	::DeleteObject(hOriginal);
+	DeleteObject(hOriginal);
 
 	hOriginal = (HBITMAP)bmpNew;
 	bmpNew.Detach();

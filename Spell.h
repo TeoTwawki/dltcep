@@ -21,6 +21,7 @@ public:
   int featblkcount;
   spl_ext_header *extheaders;
   feat_block *featblocks;
+  int m_changed;
 
 	Cspell();
 	virtual ~Cspell();

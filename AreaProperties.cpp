@@ -1587,6 +1587,7 @@ void CAreaTrigger::OnAdd()
   memcpy(newtriggers, the_area.triggerheaders, the_area.triggercount*sizeof(area_trigger));
   memset(newtriggers+the_area.triggercount,0,sizeof(area_trigger) );
   tmpstr.Format("Info Point %d",the_area.header.infocnt);
+  newtriggers[the_area.triggercount].cursortype=42;
   StoreName(tmpstr,newtriggers[the_area.triggercount].infoname);
   newtriggers[the_area.triggercount].strref=-1;
   
@@ -5111,78 +5112,22 @@ void CAreaDoor::OnRecalcbox()
 
 int CAreaDoor::AddWedDoor(CString doorid)
 {
-  int i;
-  wed_door *newweddoors;
-  wed_polygon *newpolygonheaders;
-  area_vertex *newvertex;
-  short *newtiles;
+  int ret;
 
   if(!the_area.WedAvailable())
   {
     MessageBox("There is no wedfile!","Area editor",MB_ICONSTOP|MB_OK);
     return 2;
   }
-  for(i=0;i<the_area.wedheader.doorcnt;i++)
+
+  ret=the_area.AddWedDoor(doorid);
+  if(ret==1)
   {
-    if(!strnicmp(doorid, the_area.weddoorheaders[i].doorid,8) )
-    {
-      MessageBox("This door already exists in the wedfile.","Area editor",MB_ICONINFORMATION|MB_OK);
-      return 1;
-    }
+    MessageBox("This door already exists in the wedfile.","Area editor",MB_ICONINFORMATION|MB_OK);
   }
-
-  the_area.wedchanged=true;
-  //wed door (TODO)
-  newweddoors=new wed_door[++the_area.wedheader.doorcnt];
-  if(!newweddoors)
-  {
-    the_area.wedheader.doorcnt--;
-    MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
-    return -3;
-  }
-  memcpy(newweddoors, the_area.weddoorheaders, the_area.weddoorcount*sizeof(wed_door) );
-  memset(newweddoors+the_area.weddoorcount,0,sizeof(wed_door) );
-  StoreResref(doorid,newweddoors[the_area.weddoorcount].doorid);
-  newweddoors[the_area.weddoorcount].firstdoortileidx=(short) the_area.doortileidxcount;
-  newweddoors[the_area.weddoorcount].closed=1;
-  newweddoors[the_area.weddoorcount].countpolygonopen=1;
-  newweddoors[the_area.weddoorcount].countpolygonclose=1;
-  newweddoors[the_area.weddoorcount].offsetpolygonopen=the_area.doorpolygoncount;
-  newweddoors[the_area.weddoorcount].offsetpolygonclose=the_area.doorpolygoncount+1;
-  delete [] the_area.weddoorheaders;
-  the_area.weddoorheaders= newweddoors;
-
-  //adding 2 empty polygons (open/closed)
-  newpolygonheaders = new wed_polygon[the_area.doorpolygoncount+2];
-  if(!newpolygonheaders)
-  {
-    newweddoors[the_area.weddoorcount].countpolygonopen=0;
-    newweddoors[the_area.weddoorcount].countpolygonclose=0;
-    return -3;
-  }
-  memcpy(newpolygonheaders, the_area.doorpolygonheaders, the_area.doorpolygoncount*sizeof(wed_polygon) );
-  memset(newpolygonheaders+the_area.doorpolygoncount,0,2*sizeof(wed_polygon) );
-  newpolygonheaders[the_area.doorpolygoncount].firstvertex=the_area.wedvertexcount;
-  newpolygonheaders[the_area.doorpolygoncount+1].firstvertex=the_area.wedvertexcount+1;
-  newpolygonheaders[the_area.doorpolygoncount].flags=0x89;
-  newpolygonheaders[the_area.doorpolygoncount+1].flags=0x89;
-  newpolygonheaders[the_area.doorpolygoncount].unkflags=255;
-  newpolygonheaders[the_area.doorpolygoncount+1].unkflags=255;
-  delete [] the_area.doorpolygonheaders;
-  the_area.doorpolygonheaders=newpolygonheaders;
-  the_area.doorpolygoncount+=2;
-
-  newvertex=new area_vertex[0];
-  the_area.wedvertexheaderlist.AddTail(newvertex);
-  newvertex=new area_vertex[0];
-  the_area.wedvertexheaderlist.AddTail(newvertex);  
-
-  the_area.weddoorcount=the_area.wedheader.doorcnt;
-
-  newtiles=new short[0];
-  the_area.doortilelist.AddTail(newtiles);
-  return 0;
+  return ret;
 }
+
 
 void CAreaDoor::OnAdd() 
 {
@@ -5212,6 +5157,7 @@ void CAreaDoor::OnAdd()
   tmpstr.Format("Door %02d",the_area.header.doorcnt);
   StoreName(tmpstr,newdoors[the_area.doorcount].doorname);
   StoreResref(tmpstr,newdoors[the_area.doorcount].doorid);
+  newdoors[the_area.doorcount].cursortype=30; //door
   newdoors[the_area.doorcount].firstvertexopen=the_area.vertexcount;
   newdoors[the_area.doorcount].firstvertexclose=the_area.vertexcount;
   newdoors[the_area.doorcount].firstblockopen=the_area.vertexcount;

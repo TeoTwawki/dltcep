@@ -34,6 +34,7 @@ Ccreature::Ccreature()
   effectcount=0;
   revision=10;
   memset(iwd2_spells,0,sizeof(iwd2_spells));
+  m_savechanges=true;
 }
 
 Ccreature::~Ccreature()

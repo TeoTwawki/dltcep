@@ -166,7 +166,7 @@ void CWedEdit::RefreshOverlay()
   otc=the_area.overlayheaders[m_overlaynum].width*the_area.overlayheaders[m_overlaynum].height;
   if(!m_overlaynum)
   {
-    for(i=0;i<the_area.doorcount;i++)
+    for(i=0;i<the_area.weddoorcount;i++)
     {
       otc+=the_area.weddoorheaders[i].countdoortileidx;
     }
@@ -361,6 +361,7 @@ BEGIN_MESSAGE_MAP(CWedEdit, CDialog)
 	ON_BN_CLICKED(IDC_CLEANUP, OnCleanup)
 	ON_BN_CLICKED(IDC_EDITTILE2, OnEdittile2)
 	ON_BN_CLICKED(IDC_DROP, OnDrop)
+	ON_COMMAND(IDC_ADD, OnAdd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -621,6 +622,16 @@ void CWedEdit::OnRemove3()
     if(m_doorpolynum>=the_area.weddoorheaders[m_doornum].countpolygonclose) m_doorpolynum--;
   }
   the_area.wedchanged=true;
+  RefreshWed();
+  UpdateData(UD_DISPLAY);
+}
+
+void CWedEdit::OnAdd() 
+{
+  CString newid;
+
+  newid.Format("Door %02d",the_area.weddoorcount+1);
+  the_area.AddWedDoor(newid);
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
@@ -1235,8 +1246,19 @@ void CWedEdit::OnNew()
     itemname=tmpstr;
     return;
   }
-  the_area.wedchanged=true;
   
+  if(!m_overlaynum && the_area.overlaytileidxcount)
+  {
+    if(the_area.overlaytileidxcount!=the_area.overlayheaders[0].height*the_area.overlayheaders[0].width)
+    {
+      MessageBox("Can't replace the first layer while there are doors or overlays!");
+      itemname=tmpstr;
+      return;
+    }
+    the_area.overlaytileidxcount=0;
+    the_area.overlaytilecount=0;
+  }
+  the_area.wedchanged=true;
   StoreResref(itemname,the_area.overlayheaders[m_overlaynum].tis);
   itemname=tmpstr;
   //setting up overlaytileindices
@@ -1385,3 +1407,4 @@ void CWedEdit::PostNcDestroy()
   }
 	CDialog::PostNcDestroy();
 }
+

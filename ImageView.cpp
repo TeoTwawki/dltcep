@@ -411,12 +411,17 @@ void CImageView::DrawIcons()
 {
   int i, fc;
   CPoint point;
+  map_area *ar;
 
   for(i=0;i<m_animbam->GetCycleCount();i++)
   {
-    fc=m_animbam->GetFrameIndex(i,0);
-    point=((POINT *) m_map)[i];
-    m_animbam->MakeBitmap(fc,GREY,m_bm,BM_OVERLAY,point.x, point.y);
+    ar=((map_area *) m_map)+i;
+    fc=m_animbam->GetFrameIndex(ar->bamindex,0);
+    if(fc==m_frame) continue;
+    point.x = ar->xpos-m_clipx*m_mos->mosheader.dwBlockSize;
+    point.y = ar->ypos-m_clipy*m_mos->mosheader.dwBlockSize;
+    point-=m_animbam->GetFramePos(fc);
+    m_animbam->MakeBitmap(fc,GREY,*m_mos,BM_OVERLAY,point.x, point.y);
   }
 }
 
@@ -701,7 +706,7 @@ void CImageView::RedrawContent()
     maxy=m_clipy+m_maxextenty;
     if(m_maxclipx<maxx) maxx=m_maxclipx;
     if(m_maxclipy<maxy) maxy=m_maxclipy;
-    m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy);
+    m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy, false);
     m_bitmap.SetBitmap(m_bm);
   }
   m_button.GetWindowRect(brect);
@@ -760,12 +765,13 @@ void CImageView::RedrawContent()
   m_setbutton.ShowWindow(!!(m_enablebutton&IW_PLACEIMAGE));
   if(!(m_enablebutton&IW_NOREDRAW))
   {
-    RefreshDialog(); //need a redraw for selection of the bottom right side of the tis
+    PostMessage(WM_COMMAND,ID_REFRESH,0);//need a redraw for selection of the bottom right side of the tis
   }
 }
 
 BOOL CImageView::OnInitDialog() 
 {
+  CString tmpstr;
   int i;
 
   if(!m_mos)
@@ -782,9 +788,13 @@ BOOL CImageView::OnInitDialog()
   {
     switch(m_maptype)
     {
-    case MT_HEIGHT: SetWindowText("Edit heightmap"); break;
-    case MT_LIGHT: SetWindowText("Edit lightmap"); break;
-    case MT_SEARCH: SetWindowText("Edit searchmap"); break;
+    case MT_HEIGHT: SetWindowText("Edit heightmap: "+itemname+"HT"); break;
+    case MT_LIGHT:
+      if(the_area.m_night) tmpstr="LN";
+      else tmpstr="LM";
+      SetWindowText("Edit lightmap: "+itemname+tmpstr);
+      break;
+    case MT_SEARCH: SetWindowText("Edit searchmap: "+itemname+"SR"); break;
     case MT_BLOCK: SetWindowText("Edit impeded blocks"); break;
     case MT_OVERLAY: SetWindowText("Edit overlaid tiles"); break;
     default:
@@ -909,7 +919,7 @@ void CImageView::OnBitmap()
     {
       GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0 );
     }
-    else RefreshDialog();
+    else PostMessage(WM_COMMAND,ID_REFRESH,0 );
     return;
   }
   if(m_enablebutton&(IW_SETVERTEX|IW_MARKTILE) )
@@ -957,14 +967,14 @@ void CImageView::OnBitmap()
     {
       the_area.changedmap[m_maptype]=true;
     }      
-    RefreshDialog();
+    PostMessage(WM_COMMAND,ID_REFRESH,0);
     return;
   }
   if(m_enablebutton&IW_PLACEIMAGE)
   {
     m_spinx.SetPos(m_confirmed.x);
     m_spiny.SetPos(m_confirmed.y);
-    RefreshDialog();
+    PostMessage(WM_COMMAND,ID_REFRESH,0);
   }
 }
 
@@ -982,7 +992,6 @@ void CImageView::OnMouseMove(UINT nFlags, CPoint point)
 
 void CImageView::RefreshDialog()
 {
-  HBITMAP tmpbm;
   CString tmpstr;
   CPoint point;
   int nReplaced;
@@ -990,12 +999,15 @@ void CImageView::RefreshDialog()
 
   if(m_vertical.IsWindowVisible())  m_clipy=m_vertical.GetScrollPos();
   if(m_horizontal.IsWindowVisible()) m_clipx=m_horizontal.GetScrollPos();
-  if(m_enablebutton&IW_NOREDRAW) return;
+  if(m_enablebutton&IW_NOREDRAW)
+  {
+    return;
+  }
   maxx=m_clipx+m_maxextentx;
   maxy=m_clipy+m_maxextenty;
   if(m_maxclipx<maxx) maxx=m_maxclipx;
   if(m_maxclipy<maxy) maxy=m_maxclipy;
-  m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy);
+  m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy, false);
   if(m_enablebutton&IW_MARKTILE)
   {
     point=GetPoint(GP_TILE);
@@ -1013,7 +1025,7 @@ void CImageView::RefreshDialog()
   {
     if(m_maptype==MT_BAM && m_animbam && m_map && m_showall)
     {
-      //DrawIcons();//can't make this work yet
+      DrawIcons();//can't make this work yet
     }
 
     if(m_enablebutton&IW_MATCH) nReplaced=BM_OVERLAY|BM_MATCH;
@@ -1021,15 +1033,20 @@ void CImageView::RefreshDialog()
     point=m_confirmed-m_animbam->GetFramePos(m_frame);
     point.x-=m_clipx*m_mos->mosheader.dwBlockSize;
     point.y-=m_clipy*m_mos->mosheader.dwBlockSize;
-    nReplaced=m_animbam->MakeBitmap(m_frame,GREY,m_bm,nReplaced,point.x, point.y);
-    tmpbm=m_bitmap.GetBitmap();
-    if(tmpbm) ::DeleteObject(tmpbm);
+    nReplaced=m_animbam->MakeBitmap(m_frame,GREY,*m_mos,nReplaced,point.x, point.y);
 
     point=GetPoint(GP_POINT);
     if(m_enablebutton&IW_MATCH) tmpstr.Format("Place animation... (%d,%d) Match:%d",point.x,point.y,nReplaced);
     else tmpstr.Format("Select point... (%d,%d)",point.x,point.y);
     SetWindowText(tmpstr);
   }
+  //lets delete the bitmap before reassigning  
+  if(m_bm)
+  {
+    DeleteObject(m_bm);
+    m_bm=NULL;
+  }
+  MakeBitmapExternal(m_mos->GetDIB(),m_mos->m_pixelwidth,m_mos->m_pixelheight,m_bm);
   m_bitmap.SetBitmap(m_bm);
   if(m_enablebutton&IW_SETVERTEX)
   {
@@ -1070,8 +1087,7 @@ void CImageView::RefreshDialog()
   {
     DrawGrid();
   }
-  
-  UpdateData(UD_DISPLAY); //remove this only when checked all calls to RefreshDialog
+  UpdateData(UD_DISPLAY); //remove this only when checked all calls to RefreshDialog  
 }
 
 void CImageView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
@@ -1248,6 +1264,7 @@ void CImageView::OnDeltaposSpiny(NMHDR* pNMHDR, LRESULT* pResult)
 
 BOOL CImageView::PreTranslateMessage(MSG* pMsg) 
 {
+  if(!m_mos) return CDialog::PreTranslateMessage(pMsg);
 	if(pMsg->hwnd==m_bitmap.m_hWnd) 
   {
     if(pMsg->message==WM_MOUSEMOVE)
@@ -1283,6 +1300,7 @@ void CImageView::PostNcDestroy()
   if(m_bm)
   {
     DeleteObject(m_bm);
+    m_bm=NULL;
   }
 	CDialog::PostNcDestroy();
 }

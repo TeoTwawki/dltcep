@@ -95,7 +95,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
 
   value=the_creature.header.thac0;
   DDX_Text(pDX, IDC_THAC0, value);
-  DDV_MinMaxInt(pDX, value, -20,20);
+  DDV_MinMaxInt(pDX, value, -20,30);
   the_creature.header.thac0=(char) value;
 
   tmpstr=get_attacknum(the_creature.header.attacks);
@@ -179,7 +179,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsgender=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(IDSName(ALIGN,false),the_creature.header.idsalign) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(pst_compatible_var()?"ALIGN":IDSName(ALIGN,false),the_creature.header.idsalign) );
   DDX_Text(pDX, IDC_IDSALIGNMENT, tmpstr);
   value=IDSKey(IDSName(ALIGN,false), tmpstr);
   if(value==-1)
@@ -283,7 +283,8 @@ BOOL CCreatureGeneral::OnInitDialog()
   FillCombo("GENDER",cb,2);
 
 	cb=(CComboBox *) GetDlgItem(IDC_IDSALIGNMENT);
-  FillCombo("ALIGN",cb,2);
+  if(pst_compatible_var()) FillCombo("ALIGN",cb,2);
+  else FillCombo(IDSName(ALIGN,false),cb,2);
 
 	cb=(CComboBox *) GetDlgItem(IDC_HATED);
   FillCombo("RACE",cb,2);

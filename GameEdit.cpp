@@ -722,26 +722,32 @@ void CGameEdit::OnBrowse2()
   }
   RefreshDialog();
 }
+
 int CGameEdit::ReadTempCreature(char *&creature, long &esize)
 {
   int fhandle;
-
-  fhandle=open("dltcep.cre",O_RDONLY);
-  if(fhandle<1) return -2;
-  esize=filelength(fhandle);
-  if(creature) delete creature;
-  creature=new char[esize];
-  if(!creature)
+  
+  if(MessageBox("Do you want to keep the changes made on the creature?","Game editor",MB_YESNO)==IDYES)
   {
+    fhandle=open("tmp.cre",O_RDWR|O_BINARY|O_TRUNC|O_CREAT|O_TEMPORARY, S_IWRITE|S_IREAD);
+    if(fhandle<1) return -2;
+    the_creature.WriteCreatureToFile(fhandle,0);
+    lseek(fhandle,0,SEEK_SET);
+    esize=filelength(fhandle);
+    if(creature) delete creature;
+    creature=new char[esize];
+    if(!creature)
+    {
+      close(fhandle);
+      return -3;
+    }
+    if(read(fhandle,creature,esize)!=esize)
+    {
+      close(fhandle);
+      return -2;
+    }
     close(fhandle);
-    return -3;
   }
-  if(read(fhandle,creature,esize)!=esize)
-  {
-    close(fhandle);
-    return -2;
-  }
-  close(fhandle);
   return 0;
 }
 
@@ -760,9 +766,12 @@ void CGameEdit::OnEdit()
   ret=WriteTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
   if(ret>=0)
   {
+    the_creature.m_savechanges=false;
     dlg.DoModal();
+    the_creature.m_savechanges=true;
   }
   itemname=tmpname;
+  ReadTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
 }
 
 void CGameEdit::OnEdit2() 
@@ -781,9 +790,12 @@ void CGameEdit::OnEdit2()
   ret=WriteTempCreature(the_game.npcstructs[creaturenum],the_game.npcs[creaturenum].cresize);
   if(ret>=0)
   {
+    the_creature.m_savechanges=false;
     dlg.DoModal();
+    the_creature.m_savechanges=true;
   }
   itemname=tmpname;
+  ReadTempCreature(the_game.npcstructs[creaturenum],the_game.npcs[creaturenum].cresize);
 }
 
 void CGameEdit::OnEditlink() 

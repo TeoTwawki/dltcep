@@ -45,6 +45,7 @@ void CSpellEdit::NewSpell()
   the_spell.header.featureoffs=sizeof(spell_header);
   the_spell.header.unknown0c=the_spell.header.unknown54=9999999;
   the_spell.header.unknown38=1;
+  the_spell.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CSpellEdit, CDialog)

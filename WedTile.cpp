@@ -607,9 +607,10 @@ void CWedTile::LoadTileSetAt(int firsttile, int random)
       if(random)
       {
         nFrameWanted=m_ptileheader[m_pdooridx[i]].alternate;
-        if(nFrameWanted==-1)
+        if(nFrameWanted==(DWORD) -1)
         {
           nFrameWanted=the_mos.AddTileCopy(m_pdooridx[i]);
+          m_ptileheader[m_pdooridx[i]].alternate=(short) nFrameWanted;
         }
       }
       else

@@ -155,5 +155,8 @@ Every time some text is entered into your journal, its strref is added to this t
 Offset Size (data type) Description
 0x0000 4 (strref) Journal text
 0x0004 4 (dword) Ingame date/time
-0x0008 2 (word) Current chapter number. (Always 0 for Torment).
-0x000a 2 (word) Dialog group (gemrb extension)
+0x0008 1 (byte) Current chapter number. (Always 0 for Torment).
+0x0009 1 (byte) Unknown
+0x000a 1 (byte) Section (only bg2/iwd2)
+0x000b 1 (byte) Dialog group (gemrb extension)
+

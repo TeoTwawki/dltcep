@@ -4589,6 +4589,14 @@ int CChitemDlg::check_area()
     ret|=BAD_RESREF;
     log("Missing lightmap: %sLM", tmpref);
   }
+  if(the_area.header.areatype&EXTENDED_NIGHT)
+  {
+    if(check_bitmap(tmpref+"LN",false) )
+    {
+      ret|=BAD_RESREF;
+      log("Missing night lightmap: %sLN", tmpref);
+    }
+  }
   if(check_bitmap(tmpref+"SR",false) )
   {
     ret|=BAD_RESREF;
@@ -4600,7 +4608,8 @@ int CChitemDlg::check_area()
     log("Missing heightmap: %sHT", tmpref);
   }
 
-  switch(check_wed_reference(tmpref+"N", the_area.header.areaflags&EXTENDED_NIGHT) )
+  tmpref+="N";
+  switch(check_wed_reference(tmpref, the_area.header.areatype&EXTENDED_NIGHT) )
   {
   case -1:
     ret|=BAD_RESREF;

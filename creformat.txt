@@ -253,7 +253,7 @@ Offset Size (data type) Description
     * bit 0: identified
     * bit 1: can't steal
     * bit 2: "stolen"
-    * bit 4: cannot move
+    * bit 3: cannot move
 
 CRE V1.0 Item Slots
 
@@ -710,7 +710,9 @@ Offset Size (data type) Description
 0x0010 4 (dword) Flags:
 
     * bit 0: identified
+    * bit 1: can't steal
     * bit 2: "stolen"
+    * bit 3: cannot move
 
 CRE V9.0 Item Slots
 

@@ -819,7 +819,6 @@ void CMapEdit::OnSet()
 {
   CImageView dlg;
   CString tmpstr;
-  POINT *points;
   POINT point;
   int pos, pos2;
   int i;
@@ -828,16 +827,11 @@ void CMapEdit::OnSet()
   pos2=m_areapicker.GetCurSel();
   if(pos<0 || pos2<0) return;
   RetrieveResref(tmpstr, the_map.headers[pos].mos);
-  read_mos(tmpstr, &the_mos, true);
+  read_mos(tmpstr, &the_mos, false);
   i=the_map.headers[pos].areacount;
-  points=new POINT[i];
   //if points is null, then it will be ignored, no problem
-  while(i--)
-  {
-    points[i].x=the_map.areas[pos][i].xpos;
-    points[i].y=the_map.areas[pos][i].ypos;
-  }
-  dlg.SetMapType(MT_BAM,(LPBYTE) points);
+
+  dlg.SetMapType(MT_BAM,(LPBYTE) the_map.areas[pos]);
   dlg.InitView(IW_SHOWALL|IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
   //the cursors are loaded in 'the_bam' now
   dlg.SetupAnimationPlacement(&the_bam, the_map.areas[pos][pos2].xpos,
@@ -849,7 +843,6 @@ void CMapEdit::OnSet()
     the_map.areas[pos][pos2].xpos=point.x;
     the_map.areas[pos][pos2].ypos=point.y;
   }
-  if(points) delete [] points;
   UpdateData(UD_DISPLAY);
 }
 

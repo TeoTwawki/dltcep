@@ -310,8 +310,9 @@ Offset Size (data type) Description
 0x0010 4 (dword) Flags:
 
     * bit 0: identified
-    * bit 1: unstealable
-    * bit 2: stolen
+    * bit 1: can't steal
+    * bit 2: "stolen"
+    * bit 3: cannot move
 
 V1.0 Vertices
 

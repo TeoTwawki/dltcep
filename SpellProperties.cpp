@@ -30,6 +30,10 @@ static int featblkcnt=0;          //for headcopy
 
 #define OPC_DAMAGE  12
 
+static char *exclusion[]={"Chaotic","Evil","Good","... neutral","Lawful",
+"Neutral...","Abjurer","Conjurer","Diviner","Enchanter","Illusionist",
+"Invoker","Necromancer","Transmuter","Generalist",0};
+
 //gets the starting feature block counter for this extended header
 static int GetFBC(int extheader_num)
 {
@@ -123,6 +127,7 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
   CButton *checkbox;
   CComboBox *cb;
   CPoint newtopleft;
+  creature_header tmpheader;
   int value;
 
 	CPropertyPage::DoDataExchange(pDX);
@@ -144,15 +149,7 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
     the_spell.header.sectype=(unsigned char) strtonum(tmpstr);
 
     DDX_Text(pDX, IDC_EXCLUDE, tmpstr);
-    value=IDSKey(kitfile,tmpstr);
-    if(value==-1)
-    {
-      the_spell.header.school1=(short) strtonum(tmpstr);
-    }
-    else
-    {
-      the_spell.header.school1=(short) value;
-    }
+    the_spell.header.school1=(unsigned short) strtonum(tmpstr);
 
     DDX_Text(pDX,IDC_SELECTION, tmpstr);
     the_spell.header.castingglow=(unsigned short) strtonum(tmpstr);
@@ -180,7 +177,18 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
     tmpstr=format_sectype(the_spell.header.sectype);
     DDX_Text(pDX,IDC_SECTYPE, tmpstr);
    
-    tmpstr.Format("0x%x %s",the_spell.header.school1,IDSToken(kitfile,the_spell.header.school1) );
+    tmpstr.Format("0x%04x-Unused",the_spell.header.school1);
+    value=1;
+    for(bit=0;exclusion[bit];bit++)
+    {
+      if(the_spell.header.school1&value)
+      {
+        tmpstr.Format("0x%04x-Exclude %s",the_spell.header.school1,exclusion[bit] );
+        break;
+      }
+      value<<=1;
+    }
+    
     DDX_Text(pDX, IDC_EXCLUDE, tmpstr);
 
     cb=(CComboBox *) GetDlgItem(IDC_SELECTION);
@@ -243,6 +251,10 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_UNKNOWN58, the_spell.header.unknown58);
   DDX_Text(pDX, IDC_UNKNOWN5C, the_spell.header.unknown5c);
   DDX_Text(pDX, IDC_UNKNOWN60, the_spell.header.unknown60);
+  if(memcmp(&tmpheader,&the_spell.header,sizeof(spell_header) ))
+  {
+    the_spell.m_changed=true;
+  }
 }
 
 BOOL CSpellGeneral::OnInitDialog() 
@@ -290,8 +302,15 @@ BOOL CSpellGeneral::OnInitDialog()
     num++;
   }
 
-  cb=(CComboBox *) GetDlgItem(IDC_EXCLUDE);
-  FillCombo(kitfile,cb,4);
+  cb=(CComboBox *) GetDlgItem(IDC_EXCLUDE);  
+  x=0;
+  num=1;
+  while(exclusion[x])
+  {
+    tmpstr.Format("0x%04x-Exclude %s",num,exclusion[x++]);
+    cb->AddString(tmpstr);
+    num<<=1;
+  }
  
   UpdateData(UD_DISPLAY);
 	return TRUE;

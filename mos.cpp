@@ -192,26 +192,6 @@ int INF_MOS_FRAMEDATA::ExpandMosLine(char *pBuffer, int nSourceOff)
   return 3*nWidth;
 }
 
-bool INF_MOS_FRAMEDATA::ExpandMosBits(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, HBITMAP &hBitmap)
-{
-	int nPixelCount;
-
-  for(nPixelCount=0;nPixelCount<nFrameSize;nPixelCount++)
-	{
-    // If it is not compressed, still need to catch the transparent pixels and
-    // fill with the transparent color.
-    if(memcmp(Palette+pFrameData[nPixelCount],&clrReplace, 3) )
-    {
-      memcpy(pDIBits+nPixelCount,Palette+pFrameData[nPixelCount],sizeof(COLORREF));
-    }
-    else
-    {
-      memcpy(pDIBits+nPixelCount,&clrTransparent,sizeof(COLORREF));
-    }
-	} 
-	return MakeBitmapExternal(pDIBits,nWidth,nHeight,hBitmap);
-}
-
 bool INF_MOS_FRAMEDATA::ExpandMosBitsWhole(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, int nOffset, int wWidth)
 {
   int nCount;
@@ -529,36 +509,17 @@ bool Cmos::MakeBitmap(COLORREF clrTrans, Cmos &host, int nMode, int nXpos, int n
   return true;
 }
 
-bool Cmos::MakeBitmap(DWORD nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap)
-{
-  if(hBitmap)
-  {
-    DeleteObject(hBitmap);
-    hBitmap=0;
-  }
-  if(!m_pFrameData) return false;
-
-	if (tisheader.numtiles <= nFrameWanted )  //not enough frames
-		return false;
-
-	if (!m_pFrameData[nFrameWanted].ExpandMosBits(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits, hBitmap))
-		return false;
-
-	return true;
-}
-
-bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int clipy, int maxclipx, int maxclipy)
+bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int clipy, int maxclipx, int maxclipy, bool norender)
 {
   int nXpos,nYpos;
   int nOffset;
   DWORD nFrameWanted;
   bool ret;
-  int pixelwidth, pixelheight;
 
   if(hBitmap)
   {
     DeleteObject(hBitmap);
-    hBitmap=0;
+    hBitmap=NULL;
   }
 
   if(!m_pFrameData) return false;
@@ -571,12 +532,12 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
   {
     maxclipy=(mosheader.wHeight+63)/mosheader.dwBlockSize;
   }
-  pixelwidth=(maxclipx-clipx)*mosheader.dwBlockSize;
-  pixelheight=(maxclipy-clipy)*mosheader.dwBlockSize;
-  if(pixelwidth<0) pixelwidth=0;
-  if(pixelheight<0) pixelheight=0;
+  m_pixelwidth=(maxclipx-clipx)*mosheader.dwBlockSize;
+  m_pixelheight=(maxclipy-clipy)*mosheader.dwBlockSize;
+  if(m_pixelwidth<0) m_pixelwidth=0;
+  if(m_pixelheight<0) m_pixelheight=0;
 
-  nXpos=pixelwidth*pixelheight;
+  nXpos=m_pixelwidth*m_pixelheight;
   //check for overflow
   if(nXpos<=0) return false;
   if(m_DIBsize!=nXpos)
@@ -595,7 +556,7 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
   
   for(nYpos=0;(nYpos+clipy<maxclipy) /*&& (nYpos<VIEW_MAXEXTENT)*/;nYpos++)
   {
-    nOffset=mosheader.dwBlockSize*pixelwidth*nYpos;
+    nOffset=mosheader.dwBlockSize*m_pixelwidth*nYpos;
     for(nXpos=0;(nXpos+clipx<maxclipx) /*&& (nXpos<VIEW_MAXEXTENT)*/;nXpos++)
     {
       m_overlaytile=-1;
@@ -603,11 +564,11 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
       if(!m_friend) m_overlaytile=-1;
       if(m_overlaytile!=-1)
       {
-        m_friend->m_pFrameData[m_overlaytile].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits,nOffset, pixelwidth);
+        m_friend->m_pFrameData[m_overlaytile].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits,nOffset, m_pixelwidth);
       }
       if(nFrameWanted<tisheader.numtiles)
       {
-        if (!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=-1?TRANSPARENT_GREEN:clrTrans,m_pclrDIBits,nOffset, pixelwidth))
+        if (!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=-1?TRANSPARENT_GREEN:clrTrans,m_pclrDIBits,nOffset, m_pixelwidth))
         {
           delete [] m_pclrDIBits;
           m_pclrDIBits=NULL;
@@ -619,27 +580,11 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
     }
   }
 
-  ret=MakeBitmapExternal(m_pclrDIBits,pixelwidth,pixelheight,hBitmap);
+  if(norender) return false;
+
+  ret=MakeBitmapExternal(m_pclrDIBits,m_pixelwidth,m_pixelheight,hBitmap);
 
   return ret;
-}
-
-int Cmos::MakeBitmapInternal(HBITMAP &hBitmap)
-{
-  if((int) (mosheader.wColumn*mosheader.dwBlockSize*
-     mosheader.wRow*mosheader.dwBlockSize)!=m_DIBsize)
-  {
-    return false;
-  }
-
-  if(hBitmap)
-  {
-    DeleteObject(hBitmap);
-    hBitmap=0;
-  }
-
-  return MakeBitmapExternal(m_pclrDIBits,mosheader.wColumn*mosheader.dwBlockSize,
-    mosheader.wRow*mosheader.dwBlockSize,hBitmap);
 }
 
 int Cmos::MakeTransparent(DWORD nFrameWanted, DWORD redgreenblue, int limit)

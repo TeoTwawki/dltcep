@@ -541,7 +541,13 @@ int Carea::WriteWedToFile(int fh)
   {
     if(changedmap[1])
     {
-      WriteMap("LM",lightmap,lmpal,256);
+      if(m_night) {
+        WriteMap("LN",lightmap,lmpal,256);
+      }
+      else
+      {
+        WriteMap("LM",lightmap,lmpal,256);
+      }
       changedmap[1]=false;
     }
   }
@@ -1456,7 +1462,14 @@ int Carea::ReadWedFromFile(int fh, long ml)
     m_height=(unsigned short) (overlayheaders[0].height*64);
   }
   else m_width=m_height=0;
-  ReadMap("LM", lightmap, lmpal, sizeof(lmpal) );
+  if(m_night)
+  {
+    ReadMap("LN", lightmap, lmpal, sizeof(lmpal) );
+  }
+  else
+  {
+    ReadMap("LM", lightmap, lmpal, sizeof(lmpal) );
+  }
   ReadMap("SR", searchmap, srpal, sizeof(srpal) );
   ReadMap("HT", heightmap, htpal, sizeof(htpal) );
 
@@ -2305,6 +2318,74 @@ int Carea::RemoveDoorPolygon(int first)
   return 0;
 }
 
+int Carea::AddWedDoor(CString doorid)
+{
+  int i;
+  wed_door *newweddoors;
+  wed_polygon *newpolygonheaders;
+  area_vertex *newvertex;
+  short *newtiles;
+
+  for(i=0;i<the_area.wedheader.doorcnt;i++)
+  {
+    if(!strnicmp(doorid, the_area.weddoorheaders[i].doorid,8) )
+    {
+      return 1;
+    }
+  }
+
+  the_area.wedchanged=true;
+  //wed door (TODO)
+  newweddoors=new wed_door[++the_area.wedheader.doorcnt];
+  if(!newweddoors)
+  {
+    the_area.wedheader.doorcnt--;
+    return -3;
+  }
+  memcpy(newweddoors, the_area.weddoorheaders, the_area.weddoorcount*sizeof(wed_door) );
+  memset(newweddoors+the_area.weddoorcount,0,sizeof(wed_door) );
+  StoreResref(doorid,newweddoors[the_area.weddoorcount].doorid);
+  newweddoors[the_area.weddoorcount].firstdoortileidx=(short) the_area.doortileidxcount;
+  newweddoors[the_area.weddoorcount].closed=1;
+  newweddoors[the_area.weddoorcount].countpolygonopen=1;
+  newweddoors[the_area.weddoorcount].countpolygonclose=1;
+  newweddoors[the_area.weddoorcount].offsetpolygonopen=the_area.doorpolygoncount;
+  newweddoors[the_area.weddoorcount].offsetpolygonclose=the_area.doorpolygoncount+1;
+  delete [] the_area.weddoorheaders;
+  the_area.weddoorheaders= newweddoors;
+
+  //adding 2 empty polygons (open/closed)
+  newpolygonheaders = new wed_polygon[the_area.doorpolygoncount+2];
+  if(!newpolygonheaders)
+  {
+    newweddoors[the_area.weddoorcount].countpolygonopen=0;
+    newweddoors[the_area.weddoorcount].countpolygonclose=0;
+    return -3;
+  }
+  memcpy(newpolygonheaders, the_area.doorpolygonheaders, the_area.doorpolygoncount*sizeof(wed_polygon) );
+  memset(newpolygonheaders+the_area.doorpolygoncount,0,2*sizeof(wed_polygon) );
+  newpolygonheaders[the_area.doorpolygoncount].firstvertex=the_area.wedvertexcount;
+  newpolygonheaders[the_area.doorpolygoncount+1].firstvertex=the_area.wedvertexcount+1;
+  newpolygonheaders[the_area.doorpolygoncount].flags=0x89;
+  newpolygonheaders[the_area.doorpolygoncount+1].flags=0x89;
+  newpolygonheaders[the_area.doorpolygoncount].unkflags=255;
+  newpolygonheaders[the_area.doorpolygoncount+1].unkflags=255;
+  delete [] the_area.doorpolygonheaders;
+  the_area.doorpolygonheaders=newpolygonheaders;
+  the_area.doorpolygoncount+=2;
+
+  newvertex=new area_vertex[0];
+  the_area.wedvertexheaderlist.AddTail(newvertex);
+  newvertex=new area_vertex[0];
+  the_area.wedvertexheaderlist.AddTail(newvertex);  
+
+  the_area.weddoorcount=the_area.wedheader.doorcnt;
+
+  newtiles=new short[0];
+  the_area.doortilelist.AddTail(newtiles);
+  return 0;
+}
+
 int Carea::RemoveWedDoor(char *doorid)
 {
   wed_door *newdoors;
@@ -2340,7 +2421,7 @@ int Carea::RemoveWedDoor(char *doorid)
         RemoveDoorPolygon(weddoorheaders[i].offsetpolygonopen);
         weddoorheaders[i].countpolygonopen--;
       }
-      while(weddoorheaders[i].countpolygonopen)
+      while(weddoorheaders[i].countpolygonclose)
       {
         RemoveDoorPolygon(weddoorheaders[i].offsetpolygonclose);
         weddoorheaders[i].countpolygonclose--;

@@ -67,7 +67,6 @@ public:
   int TakeWholeBmpData(const COLORREF *pRawBits);
   int TakePaletteData(const BYTE *pRawBits);
   int TakeBmpData(const BYTE *pRawBits, int row, int offset);
-  bool ExpandMosBits(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, HBITMAP &hBitmap);
   bool ExpandMosBitsWhole(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, int nOffset, int wWidth);
   int ExpandMosLine(char *pBuffer, int nSourceOff);
   int SaturateTransparency();
@@ -96,6 +95,7 @@ public:
   Cmos *m_friend;
   bool m_changed;
   bool m_drawclosed;
+  int m_pixelwidth, m_pixelheight;
 
   bool MosChanged() { return m_changed; }
   void SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices, Cmos *overlaymos=NULL);
@@ -109,10 +109,8 @@ public:
   COLORREF GetPixelData(int x, int y);
   int TakeOneFrame(DWORD nFrameWanted, COLORREF *prFrameBuffer, int factor);
   unsigned long *GetFramePalette(DWORD nFrame);
-  int MakeBitmapInternal(HBITMAP &hBitmap);
   bool MakeBitmap(COLORREF clrTrans, Cmos &host, int nMode, int nXpos, int nYpos);
-  bool MakeBitmap(DWORD nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap);
-  bool MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int clipy, int maxclipx, int maxclipy);
+  bool MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int clipy, int maxclipx, int maxclipy, bool norender);
   int MakeTransparent(DWORD nFrame, DWORD redgreenblue, int limit);
   int ReadBmpFromFile(int fhandle, int ml);
   int WriteMosToBmpFile(int fhandle, int clipx=0, int clipy=0,int maxclipx=-1, int maxclipy=-1);
@@ -164,6 +162,7 @@ public:
     }
   }
   inline COLORREF *GetDIB() { return m_pclrDIBits; }
+  inline int GetDIBsize() { return m_DIBsize; }
   inline INF_MOS_FRAMEDATA *GetFrameData(DWORD nFrameWanted)
   {
     if(nFrameWanted>=tisheader.numtiles) return NULL;

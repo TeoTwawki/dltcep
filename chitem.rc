@@ -3442,7 +3442,7 @@ BEGIN
     PUSHBUTTON      "Edit NPC",IDC_EDIT2,186,62,38,14
 END
 
-IDD_MAPEDIT DIALOG DISCARDABLE  0, 0, 371, 231
+IDD_MAPEDIT DIALOG DISCARDABLE  0, 0, 410, 250
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Edit World Map:"
 MENU IDR_WORLDMAP
@@ -3463,51 +3463,51 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN1C,256,65,35,14,ES_AUTOHSCROLL
     COMBOBOX        IDC_AREAPICKER,7,95,92,101,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    EDITTEXT        IDC_AREA,124,95,44,14,ES_UPPERCASE | ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse",IDC_BROWSE4,174,95,28,14
-    EDITTEXT        IDC_NAME,207,95,44,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_LONGNAME,259,95,65,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_AREA,142,95,44,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE4,193,95,28,14
+    EDITTEXT        IDC_NAME,227,95,44,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LONGNAME,279,95,65,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_ICONIDX,7,123,40,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_ICONRES,"Static",SS_BITMAP | SS_SUNKEN,52,111,16,
                     14
-    EDITTEXT        IDC_LOADSCREEN,104,124,44,14,ES_UPPERCASE | 
+    EDITTEXT        IDC_LOADSCREEN,142,124,44,14,ES_UPPERCASE | 
                     ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse",IDC_BROWSE3,153,124,28,14
-    EDITTEXT        IDC_AREAFLAG,188,124,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_XPOS,239,124,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_YPOS,275,124,28,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Set position",IDC_SET,314,124,50,14
-    EDITTEXT        IDC_CAPTION,7,153,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CAPTIONTEXT,50,153,93,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TOOLTIP,7,183,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TOOLTIPTEXT,50,183,93,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE3,193,124,28,14
+    EDITTEXT        IDC_AREAFLAG,227,124,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_XPOS,279,124,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_YPOS,316,124,28,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set position",IDC_SET,353,124,50,14
+    EDITTEXT        IDC_CAPTION,7,169,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CAPTIONTEXT,50,169,93,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TOOLTIP,7,199,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TOOLTIPTEXT,50,199,93,14,ES_AUTOHSCROLL
     CONTROL         "Visible",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,145,153,36,10
+                    WS_TABSTOP,145,169,36,10
     CONTROL         "Visible from adjacent",IDC_FLAG2,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,145,165,81,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,145,181,81,10
     CONTROL         "Reachable",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,145,177,51,10
+                    WS_TABSTOP,145,193,51,10
     CONTROL         "Already visited",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,145,189,61,10
+                    WS_TABSTOP,145,205,61,10
     CONTROL         "5",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,
-                    153,20,10
+                    169,20,10
     CONTROL         "6",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,
-                    165,20,10
+                    181,20,10
     CONTROL         "7",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,
-                    177,20,10
+                    193,20,10
     CONTROL         "8",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,229,
-                    189,20,10
-    PUSHBUTTON      "Add Map",IDC_ADDMAP,314,7,50,14
-    PUSHBUTTON      "Remove Map",IDC_DELMAP,314,24,50,14
-    PUSHBUTTON      "Add Area",IDC_ADDAREA,314,41,50,14
-    PUSHBUTTON      "Remove Area",IDC_DELAREA,314,58,50,14
-    PUSHBUTTON      "Edit Links",IDC_EDITLINK,311,186,50,14
-    DEFPUSHBUTTON   "Load Map",IDC_LOAD,8,210,50,14
-    PUSHBUTTON      "Load external Map",IDC_LOADEX,66,210,64,14
-    PUSHBUTTON      "Save Map As...",IDC_SAVEAS,138,210,54,14
-    PUSHBUTTON      "New Map",IDC_NEW,200,210,50,14
-    PUSHBUTTON      "Check Map",IDC_CHECK,258,210,50,14
-    PUSHBUTTON      "Exit",IDCANCEL,316,210,48,14
+                    205,20,10
+    PUSHBUTTON      "Add Map",IDC_ADDMAP,353,7,50,14
+    PUSHBUTTON      "Remove Map",IDC_DELMAP,353,24,50,14
+    PUSHBUTTON      "Add Area",IDC_ADDAREA,353,41,50,14
+    PUSHBUTTON      "Remove Area",IDC_DELAREA,353,58,50,14
+    PUSHBUTTON      "Edit Links",IDC_EDITLINK,324,196,50,14
+    DEFPUSHBUTTON   "Load Map",IDC_LOAD,8,229,50,14
+    PUSHBUTTON      "Load external Map",IDC_LOADEX,66,229,64,14
+    PUSHBUTTON      "Save Map As...",IDC_SAVEAS,138,229,54,14
+    PUSHBUTTON      "New Map",IDC_NEW,200,229,50,14
+    PUSHBUTTON      "Check Map",IDC_CHECK,258,229,50,14
+    PUSHBUTTON      "Exit",IDCANCEL,355,229,48,14
     LTEXT           "/ 0",IDC_MAXMAP,104,10,18,8
     LTEXT           "Mos (map graphics)",IDC_STATIC,7,23,62,8
     LTEXT           "Width",IDC_STATIC,104,53,20,8
@@ -3518,22 +3518,22 @@ BEGIN
     LTEXT           "Mapicons",IDC_STATIC,7,53,32,8
     LTEXT           "Area",IDC_STATIC,7,83,16,8
     LTEXT           "Map #",IDC_STATIC,180,53,22,8
-    LTEXT           "Area",IDC_STATIC,124,83,16,8
-    LTEXT           "Areaname",IDC_STATIC,207,83,33,8
-    LTEXT           "Area flags",IDC_STATIC,188,112,32,8
+    LTEXT           "Area",IDC_STATIC,142,83,16,8
+    LTEXT           "Areaname",IDC_STATIC,227,83,33,8
+    LTEXT           "Area flags",IDC_STATIC,227,112,32,8
     LTEXT           "Icon index",IDC_STATIC,7,111,34,8
-    LTEXT           "Area position on map",IDC_STATIC,239,112,67,8
-    LTEXT           "Caption",IDC_STATIC,7,141,25,8
-    LTEXT           "Tooltip",IDC_STATIC,7,171,22,8
-    LTEXT           "Loadscreen",IDC_STATIC,104,112,38,8
-    LTEXT           "Long name",IDC_STATIC,259,83,36,8
-    LTEXT           "North:",IDC_NORTH,292,155,48,8
-    LTEXT           "South:",IDC_SOUTH,292,175,53,8
-    LTEXT           "East:",IDC_EAST,321,166,38,8
-    LTEXT           "West:",IDC_WEST,264,165,48,8
-    GROUPBOX        "Area Links",IDC_STATIC,251,145,114,64,BS_FLAT
+    LTEXT           "Area position on map",IDC_STATIC,279,112,67,8
+    LTEXT           "Caption",IDC_STATIC,7,157,25,8
+    LTEXT           "Tooltip",IDC_STATIC,7,187,22,8
+    LTEXT           "Loadscreen",IDC_STATIC,142,112,38,8
+    LTEXT           "Long name",IDC_STATIC,279,83,36,8
+    LTEXT           "North:",IDC_NORTH,305,165,48,8
+    LTEXT           "South:",IDC_SOUTH,305,185,53,8
+    LTEXT           "East:",IDC_EAST,334,176,38,8
+    LTEXT           "West:",IDC_WEST,277,175,48,8
+    GROUPBOX        "Area Links",IDC_STATIC,264,155,114,64,BS_FLAT
     LTEXT           "/ 0",IDC_MAXAREA,104,97,18,8
-    LTEXT           "Total Links:",IDC_MAXLINK,253,188,54,8
+    LTEXT           "Total Links:",IDC_MAXLINK,266,198,54,8
 END
 
 IDD_MAPLINK DIALOG DISCARDABLE  0, 0, 258, 231
@@ -4206,12 +4206,12 @@ FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Wall",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     14,18,30,10
-    CONTROL         "Hovering wall",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,14,32,59,10
-    CONTROL         "Cover animations",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,14,46,70,10
-    CONTROL         "4",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,
-                    60,20,10
+    CONTROL         "Disabled",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,32,43,10
+    CONTROL         "Hovering wall",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,46,59,10
+    CONTROL         "Cover animations",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,60,70,10
     CONTROL         "5",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,87,
                     18,20,10
     CONTROL         "6",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,87,
@@ -5294,9 +5294,9 @@ BEGIN
     IDD_MAPEDIT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 364
+        RIGHTMARGIN, 403
         TOPMARGIN, 7
-        BOTTOMMARGIN, 224
+        BOTTOMMARGIN, 243
     END
 
     IDD_MAPLINK, DIALOG
@@ -5595,8 +5595,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,3,10,0
- PRODUCTVERSION 6,3,10,0
+ FILEVERSION 6,4,0,0
+ PRODUCTVERSION 6,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5614,14 +5614,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 3, 10, 0\0"
+            VALUE "FileVersion", "6, 4, 0, 0\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2004 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 3, 10, 0\0"
+            VALUE "ProductVersion", "6, 4, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

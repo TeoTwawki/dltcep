@@ -360,7 +360,7 @@ void CChuiEdit::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX,IDC_YPOS2, the_chui.controls[pos2].ypos);
     DDX_Text(pDX,IDC_WIDTH2, the_chui.controls[pos2].width);
     DDX_Text(pDX,IDC_HEIGHT2, the_chui.controls[pos2].height);
-    DDX_Text(pDX, IDC_LENGTH, the_chui.controls[pos2].bufferlen);
+    DDX_Text(pDX, IDC_LENGTH, the_chui.controls[pos2].idflags);
     DDX_Text(pDX, IDC_U3, the_chui.controls[pos2].unknown);
     first=the_chui.controls[pos2].controltype;
   	DDX_CBIndex(pDX, IDC_TYPE, first);
@@ -1413,7 +1413,7 @@ void CChuiEdit::OnPreview()
   preview.m_maxextentx=the_mos.mosheader.wColumn;
   preview.m_maxextenty=the_mos.mosheader.wRow;
   preview.InitView(IW_ENABLEBUTTON|IW_NOREDRAW, &the_mos);
-  the_mos.MakeBitmapWhole(GREY,preview.m_bm,0,0,0,0);
+  the_mos.MakeBitmapWhole(GREY,preview.m_bm,0,0,0,0,true);
 
   //then we put the controls on it
   act=m_controlpicker.GetCurSel();
@@ -1559,7 +1559,7 @@ void CChuiEdit::OnPreview()
     }
   }
   //we put the prepared bitmap on the screen
-  the_mos.MakeBitmapInternal(preview.m_bm);
+  MakeBitmapExternal(the_mos.GetDIB(),the_mos.m_pixelwidth,the_mos.m_pixelheight,preview.m_bm);  
   preview.DoModal();
 
   //ImageView returns the point clicked on the screen, so we can select

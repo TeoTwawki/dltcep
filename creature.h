@@ -52,6 +52,7 @@ public:
   int startpoint;
   int maxlen;
   int m_changed;
+  int m_savechanges;
 
 	Ccreature();
 	virtual ~Ccreature();

@@ -93,6 +93,7 @@ int Cspell::WriteSpellToFile(int fhandle, int calculate)
       return -2;
     }
   }
+  m_changed=false;
   return 0;
 }
 
@@ -161,6 +162,7 @@ int Cspell::ReadSpellFromFile(int fhandle, long maxlen)
   int fbc;
   int i;
 
+  m_changed=false;
   if(fhandle<1) return -1;
   if(maxlen==-1) maxlen=filelength(fhandle);
   if(!maxlen) return -2; //short file, invalid item

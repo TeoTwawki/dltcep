@@ -399,7 +399,7 @@ void CCreatureEdit::OnCancel()
 {
   CString tmpstr;
 
-	if(the_creature.m_changed)
+	if(the_creature.m_changed && the_creature.m_savechanges)
   {
     tmpstr.Format("Changes have been made to the file (%s).\n"
       "Do you want to quit without save?\n",itemname);

@@ -186,7 +186,7 @@ typedef struct
 typedef struct
 {
   short controlid;
-  short bufferlen;
+  short idflags;
   short xpos, ypos;
   short width, height;
   char controltype;
@@ -289,7 +289,7 @@ typedef struct
   unsigned char splattr;
   unsigned short unkattr2;
   short spelltype;
-  short school1;
+  unsigned short school1;
   unsigned short priesttype; //0, 4000, 8000
   unsigned short castingglow;
   unsigned char unknown24;
