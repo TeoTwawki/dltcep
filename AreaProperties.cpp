@@ -28,6 +28,7 @@ IMPLEMENT_DYNCREATE(CAreaAmbient, CPropertyPage)
 IMPLEMENT_DYNCREATE(CAreaDoor, CPropertyPage)
 IMPLEMENT_DYNCREATE(CAreaVariable, CPropertyPage)
 IMPLEMENT_DYNCREATE(CAreaAnim, CPropertyPage)
+IMPLEMENT_DYNCREATE(CAreaMap, CPropertyPage)
 
 static unsigned long defschedule;
 
@@ -99,7 +100,7 @@ void CAreaGeneral::DoDataExchange(CDataExchange* pDX)
   CString tmpstr, old;
   int i,j;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaGeneral)
 	DDX_Control(pDX, IDC_AREATYPE, m_areatype_control);
 	//}}AFX_DATA_MAP
@@ -246,7 +247,7 @@ BOOL CAreaGeneral::OnInitDialog()
   int flg;
   CWnd *cb;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshGeneral();
   m_areatype_control.ResetContent();
   flg=bg1_compatible_area();
@@ -510,7 +511,7 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
   int flg;
   int i;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaActor)
 	DDX_Control(pDX, IDC_ACTORPICKER, m_actorpicker);
 	DDX_Control(pDX, IDC_SCHEDULE, m_schedule_control);
@@ -667,7 +668,7 @@ BOOL CAreaActor::OnInitDialog()
   CComboBox *cb;
   int i;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshActor();
   cb=(CComboBox *) GetDlgItem(IDC_FACE);
   for(i=0;i<NUM_FVALUES;i++)
@@ -1161,7 +1162,7 @@ void CAreaTrigger::DoDataExchange(CDataExchange* pDX)
   int id;
   int fc;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_CURSOR, m_cursoricon);
 	//{{AFX_DATA_MAP(CAreaTrigger)
 	DDX_Control(pDX, IDC_SPINCURSOR, m_spin_control);
@@ -1330,7 +1331,7 @@ BOOL CAreaTrigger::OnInitDialog()
 {
   int i;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 
   for(i=0;i<NUM_RTTYPE;i++)
   {
@@ -1971,7 +1972,7 @@ void CAreaSpawn::DoDataExchange(CDataExchange* pDX)
   int i;
   int id;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaSpawn)
 	DDX_Control(pDX, IDC_SPAWNNUMPICKER, m_spawnnumpicker);
 	DDX_Control(pDX, IDC_SCHEDULE, m_schedule_control);
@@ -2087,7 +2088,7 @@ BOOL CAreaSpawn::OnInitDialog()
   int i;
   CComboBox *cb;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshSpawn();
   cb=(CComboBox *) GetDlgItem(IDC_METHOD);
   cb->ResetContent();
@@ -2400,7 +2401,7 @@ void CAreaEntrance::DoDataExchange(CDataExchange* pDX)
   int flg;
   int i;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaEntrance)
 	DDX_Control(pDX, IDC_ENTRANCEPICKER, m_entrancepicker);
 	//}}AFX_DATA_MAP
@@ -2459,7 +2460,7 @@ BOOL CAreaEntrance::OnInitDialog()
   CComboBox *cb;
   int i;
 
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshEntrance();
   cb=(CComboBox *) GetDlgItem(IDC_FACE);
   for(i=0;i<NUM_FVALUES;i++)
@@ -2694,7 +2695,7 @@ void CAreaAmbient::DoDataExchange(CDataExchange* pDX)
   int i,j;
   int id;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaAmbient)
 	DDX_Control(pDX, IDC_AMBINUMPICKER, m_ambinumpicker);
 	DDX_Control(pDX, IDC_SCHEDULE, m_schedule_control);
@@ -2827,7 +2828,7 @@ void CAreaAmbient::RefreshAmbient()
 
 BOOL CAreaAmbient::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
   RefreshAmbient();
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -3211,7 +3212,7 @@ void CAreaAnim::OnTimer(UINT nIDEvent)
   the_anim.MakeBitmap(nFrameIndex,bgcolor,hbanim,BM_RESIZE,1,1);
   m_bamframe.SetBitmap(hbanim);
   playindex++;
-	CDialog::OnTimer(nIDEvent);
+	CPropertyPage::OnTimer(nIDEvent);
 }
 
 void CAreaAmbient::OnPlay() 
@@ -3274,7 +3275,7 @@ void CAreaContainer::DoDataExchange(CDataExchange* pDX)
   int id;
   int itemnum;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaContainer)
 	DDX_Control(pDX, IDC_VERTICES, m_vertexpicker);
 	DDX_Control(pDX, IDC_ITEMNUMPICKER, m_itemnumpicker);
@@ -3457,7 +3458,7 @@ BOOL CAreaContainer::OnInitDialog()
 {
   int i;
 
-	CDialog::OnInitDialog();	
+	CPropertyPage::OnInitDialog();	
 	RefreshContainer();
   m_containertype_control.ResetContent();
   for(i=0;i<NUM_CITYPE;i++)
@@ -4232,7 +4233,7 @@ void CAreaVariable::DoDataExchange(CDataExchange* pDX)
   int flg;
   int i;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaVariable)
 	DDX_Control(pDX, IDC_NOTEPICKER, m_notepicker);
 	DDX_Control(pDX, IDC_VARIABLEPICKER, m_variablepicker);
@@ -4336,7 +4337,7 @@ void CAreaVariable::RefreshVariable()
 
 BOOL CAreaVariable::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
   RefreshVariable();
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -4834,7 +4835,7 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
   int i,j;
   int fc;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
   DDX_Control(pDX, IDC_CURSOR, m_cursoricon);
 	//{{AFX_DATA_MAP(CAreaDoor)
 	DDX_Control(pDX, IDC_SPINCURSOR, m_spin_control);
@@ -4976,7 +4977,7 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
 
 BOOL CAreaDoor::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
   RefreshDoor();
   UpdateData(UD_DISPLAY);
   return TRUE;
@@ -5919,7 +5920,7 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
   int nFrameIndex;
   int i,j;
 
-	CDialog::DoDataExchange(pDX);
+	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaAnim)
 	DDX_Control(pDX, IDC_BAMFRAME, m_bamframe);
 	DDX_Control(pDX, IDC_SCHEDULE, m_schedule_control);
@@ -6031,12 +6032,12 @@ void CAreaAnim::RefreshAnim()
 
 BOOL CAreaAnim::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+	CPropertyPage::OnInitDialog();
 	RefreshAnim();
 	return TRUE;  
 }
 
-BEGIN_MESSAGE_MAP(CAreaAnim, CDialog)
+BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaAnim)
 	ON_CBN_KILLFOCUS(IDC_ANIMPICKER, OnKillfocusAnimpicker)
 	ON_CBN_SELCHANGE(IDC_ANIMPICKER, OnSelchangeAnimpicker)
@@ -6380,6 +6381,42 @@ void CAreaAnim::OnFit()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+// CAreaMap dialog
+
+CAreaMap::CAreaMap()	: CPropertyPage(CAreaMap::IDD)
+{
+	//{{AFX_DATA_INIT(CAreaMap)
+	m_maptype = 0;
+	//}}AFX_DATA_INIT
+}
+
+CAreaMap::~CAreaMap()
+{
+  
+}
+
+void CAreaMap::RefreshMap()
+{
+}
+
+void CAreaMap::DoDataExchange(CDataExchange* pDX)
+{
+	CPropertyPage::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CAreaMap)
+	DDX_Radio(pDX, IDC_HEIGHTMAP, m_maptype);
+	//}}AFX_DATA_MAP
+}
+
+BEGIN_MESSAGE_MAP(CAreaMap, CPropertyPage)
+	//{{AFX_MSG_MAP(CAreaMap)
+		// NOTE: the ClassWizard will add message map macros here
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CAreaMap message handlers
+
+/////////////////////////////////////////////////////////////////////////////
 // CAreaPropertySheet
 
 IMPLEMENT_DYNAMIC(CAreaPropertySheet, CPropertySheet)
@@ -6398,6 +6435,7 @@ CAreaPropertySheet::CAreaPropertySheet(CWnd* pWndParent)
   AddPage(&m_PageDoor);
   AddPage(&m_PageAnim);
   AddPage(&m_PageVariable);
+  AddPage(&m_PageMap);
 }
 
 CAreaPropertySheet::~CAreaPropertySheet()
@@ -6418,6 +6456,7 @@ void CAreaPropertySheet::RefreshDialog()
   m_PageDoor.RefreshDoor();
   m_PageVariable.RefreshVariable();
   m_PageAnim.RefreshAnim();
+  m_PageMap.RefreshMap();
   page=GetActivePage();
   page->UpdateData(UD_DISPLAY);
   read_bam("CURSORS",&the_bam); //pre-reading the cursors bam

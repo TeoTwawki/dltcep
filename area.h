@@ -45,6 +45,11 @@ public:
   area_vertex *wallgroupvertices;
   area_vertex *doorvertices; 
 
+  unsigned short width, height;
+  unsigned char *searchmap;
+  unsigned char *lightmap;
+  unsigned char *heightmap;
+
   //.area
   int revision;
   area_header header;
@@ -92,6 +97,7 @@ public:
   int ReadAreaFromFile(int fh, long ml);
   int getfoti(int overlay);
   int getotic(int overlay);
+  int ReadMap(const char *Suffix, unsigned char *Storage);
   int ReadWedFromFile(int fh, long ml);
   int CheckDestination(int fh, long ml, CString entryname);
   int FillDestination(int fh, long ml, CComboBox *cb);

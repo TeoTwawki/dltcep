@@ -235,6 +235,7 @@
 #define IDD_SRCEDIT                     218
 #define IDS_NEWCYCLE                    219
 #define IDR_SRC                         219
+#define IDD_AREAMAP                     219
 #define IDS_PAPERDOLL                   220
 #define IDS_CENTER                      221
 #define IDS_CLEANUP                     222
@@ -1508,6 +1509,9 @@
 #define IDC_READD                       2302
 #define IDC_W98                         2307
 #define IDC_ITMCOLOR                    2308
+#define IDC_LIGHTMAP                    2315
+#define IDC_SEARCHMAP                   2316
+#define IDC_HEIGHTMAP                   2317
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1688,7 +1692,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32989
-#define _APS_NEXT_CONTROL_VALUE         2312
+#define _APS_NEXT_CONTROL_VALUE         2318
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

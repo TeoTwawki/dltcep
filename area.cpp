@@ -51,6 +51,10 @@ Carea::Carea()
   wallgroupvertices=NULL;
   doorvertices=NULL;
 
+  searchmap=NULL;
+  lightmap=NULL;
+  heightmap=NULL;
+
   actorcount=0;
   triggercount=0;
   spawncount=0;
@@ -1155,6 +1159,29 @@ int Carea::getotic(int overlay) //overlay tile index count
   }
   return otic;
 }
+
+int Carea::ReadMap(const char *Suffix, unsigned char *Storage)
+{
+  Cbam tmpbam;
+  CString resname;
+  int size;
+
+  if(Storage)
+  {
+    delete [] Storage;
+    Storage=NULL;
+  }
+  RetrieveResref(resname,the_area.header.wed);
+  resname+=Suffix;
+  if(read_bmp(resname, &tmpbam, 0)) return -2;
+  if(tmpbam.GetFrameCount()!=1) return -2;
+  size=tmpbam.GetFrameDataSize(0);
+  if(size!=height*width) return -2;
+  Storage = tmpbam.GetFrameData(0);
+  tmpbam.DetachFrames();
+  return 0;
+}
+
 int Carea::ReadWedFromFile(int fh, long ml)
 {
   int flg, ret;
@@ -1202,6 +1229,15 @@ int Carea::ReadWedFromFile(int fh, long ml)
   if(read(fhandlew,overlayheaders,esize )!=esize )
   {
     return -2;
+  }
+  width=overlayheaders[0].width;
+  height=overlayheaders[0].height;
+  ReadMap("LM", lightmap);
+  ReadMap("SR", searchmap);
+  ReadMap("HT", heightmap);
+  if(header.exploredsize && (header.exploredsize!=width*height) )
+  {
+    ret|=8;
   }
   fullsizew+=esize;
   //precalculating the size of the overlaytilemap

@@ -3306,7 +3306,7 @@ int tob_action_flags[MAX_ACTION]={
 //290,  291,  292,  293,  294,  295,  296,  297,  298,  299,  
     OO,   OO,   io,   DO,   DO,   CO,   OO,   VO,   OO,   OO,  
 //300,  301,  302,  303,  304,  305,  306,  307,  308,  309,  
-    OO,   OO,   OO,   GO,   mv,   LO,   OO,   OO,   st,   OO,  
+    OO,   OO,   OO,   GO,   mv,   LO,   OO,   GO,   st,   OO,  
 //310,  311,  312,  313,  314,  315,  316,  317,  318,  319,  
     AA,   st,   OO,   OO,   OO,   OO,   OO,   OO,   pO,   pO,  
 //320,  321,  322,  323,  324,  325,  326,  327,  328,  329,  

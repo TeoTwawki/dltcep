@@ -1483,6 +1483,12 @@ int Cbam::SetFrameData(int nFrameWanted, LPBYTE pFrameData,const CPoint &cpFrame
   return 0;
 }
 
+void Cbam::DetachFrames()
+{
+  m_pFrames=NULL;
+  new_bam();
+}
+
 LPBYTE Cbam::GetFrameData(int nFrameWanted)
 {
   if(nFrameWanted<0) return NULL;

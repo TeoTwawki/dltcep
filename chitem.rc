@@ -1784,7 +1784,7 @@ END
 
 IDD_AREAGENERAL DIALOG DISCARDABLE  0, 0, 420, 199
 STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
-CAPTION "General properties"
+CAPTION "General"
 FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_WED,7,18,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
@@ -4062,7 +4062,7 @@ IDD_PANICBUTTON DIALOGEX 0, 0, 119, 31
 STYLE DS_SYSMODAL | DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_CAPTION
 EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_TOOLWINDOW
 CAPTION "Press Button To Abort Process"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     PUSHBUTTON      "Stop",IDCANCEL,7,7,105,17
 END
@@ -4543,6 +4543,20 @@ BEGIN
     PUSHBUTTON      "Check SRC",IDC_CHECK,301,200,50,14
     PUSHBUTTON      "Exit",IDCANCEL,368,200,38,14
     LTEXT           "/ 0",IDC_CNT,374,25,22,8
+END
+
+IDD_AREAMAP DIALOG DISCARDABLE  0, 0, 420, 199
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Maps"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Light map",IDC_LIGHTMAP,"Button",BS_AUTORADIOBUTTON,345,
+                    36,54,10
+    CONTROL         "Search map",IDC_SEARCHMAP,"Button",BS_AUTORADIOBUTTON,
+                    345,51,54,10
+    CONTROL         "Height map",IDC_HEIGHTMAP,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,345,21,54,10
+    GROUPBOX        "Choose map type",IDC_STATIC,337,7,76,60
 END
 
 
@@ -5257,6 +5271,14 @@ BEGIN
         TOPMARGIN, 6
         BOTTOMMARGIN, 214
     END
+
+    IDD_AREAMAP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 413
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 192
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -5306,8 +5328,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,0,0,11
- PRODUCTVERSION 6,0,0,11
+ FILEVERSION 6,0,0,12
+ PRODUCTVERSION 6,0,0,12
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5325,14 +5347,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "TeamBG (www.teambg.com)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 0, 0, 11\0"
+            VALUE "FileVersion", "6, 0, 0, 12\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2003 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 0, 0, 11\0"
+            VALUE "ProductVersion", "6, 0, 0, 12\0"
             VALUE "SpecialBuild", "\0"
         END
     END

@@ -161,6 +161,7 @@ public:
 	  int nMode, int nWidth, int nHeight); //creates a bitmap returns it in hbitmap
   int GetFrameCount();
   int GetCycleCount();
+  void DetachFrames();
   CPoint GetFrameSize(int nFrameWanted);
   LPBYTE GetFrameData(int nFrameWanted);
   int SetFrameData(int nFrameWanted, LPBYTE pFrameData, const CPoint &cpFrameSize);

@@ -725,6 +725,39 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
+class CAreaMap : public CPropertyPage
+{
+	DECLARE_DYNCREATE(CAreaMap)
+// Construction
+public:
+	CAreaMap();   // standard constructor
+	~CAreaMap();  
+  void RefreshMap();   
+
+// Dialog Data
+	//{{AFX_DATA(CAreaMap)
+	enum { IDD = IDD_AREAMAP };
+	int		m_maptype;
+	//}}AFX_DATA
+
+
+// Overrides
+	// ClassWizard generated virtual function overrides
+	//{{AFX_VIRTUAL(CAreaMap)
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	//}}AFX_VIRTUAL
+
+// Implementation
+protected:
+
+	// Generated message map functions
+	//{{AFX_MSG(CAreaMap)
+		// NOTE: the ClassWizard will add member functions here
+	//}}AFX_MSG
+	DECLARE_MESSAGE_MAP()
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaPropertySheet
 
@@ -748,6 +781,7 @@ public:
 	CAreaDoor m_PageDoor;
 	CAreaVariable m_PageVariable;
 	CAreaAnim m_PageAnim;
+	CAreaMap m_PageMap;
 
 // Operations
 public:
