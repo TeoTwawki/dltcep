@@ -1,0 +1,174 @@
+
+File Extension : CHU
+Content : Description of  CHU user interface graphics V.1
+History : File done by IEFFHP
+  Todd , 14.01.2002
+Description
+
+The Infinity Engine gui is represented through a combination of these CHUI files and the MOS and BAM files which are used for their visual representation. Roughly, the gui is composed of multiple "windows", any number of which can be activated at once; each window can have any number of "controls". A "window" can have a MOS file as its background, or it can have no background. A "control" has various parameters, one of which typically includes BAM files, along with cycle and frame indices to choose which frame of the BAM file to display.
+
+CHUI file versions
+
+    * V1: Baldur's Gate/ Baldur's Gate 2, Planescape: Torment
+
+
+CHUI V1
+
+Overall structure
+
+    * Header
+    * Windows
+    * Control table
+    * Controls
+
+
+CHUI V1 Header
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('CHUI')
+0x0004 4 (char array) Version ('V1 ')
+0x0008 4 (dword) Number of windows in this file.
+0x000c 4 (dword) Offset from start of file to controls table.
+0x0010 4 (dword) Offset from start of file to window entries.
+
+CHUI V1 Windows
+
+An interesting note about this structure : in BG, all of the CHUI files except for one exhibit a particular structure in their windows. (They are all 28 bytes in length.) This one exceptional file exhibits a 36-byte structure, which is essentially the 28-byte structure, except with an 8-byte descriptive name prepended. The question this raises is whether that exceptional file is a glitch or part of some additional unseen structure.
+
+It appears from the analysis I've done that the 36-byte file is spurious and was unintentionally included (i.e. the format of the file changed internally, and the version number didn't change. Then, when they were packing up the BIF files, they unintentionally included some files which were no longer needed. This wouldn't be too surprising, since there were BG files included in the Torment packaging, too.) Anyway, so the structure as presented here does not account for the spurious file. It is possible to create a routine to handle both types, simply because (offsetCtlTab - offsetWindows) / numWindows should be equal to the size of the window struct. But it's not clear that this is necessary. Most of the routines in BG are hard-coded to a 28-byte long window structure.
+Offset Size (data type) Description
+0x0000 2 (word) window id
+0x0002 2 (unknown) unknown
+0x0004 2 (word) X position
+0x0006 2 (word) Y position
+0x0008 2 (word) width
+0x000a 2 (word) height
+0x000c 2 (word) 1 if window has a background, 0 otherwise
+0x000e 2 (word) number of controls in this window
+0x0010 8 (resref) the resource name (MOS file) of the background of this window, if any
+0x0018 2 (word) index of the first control in this window
+0x001a 2 (word) Unknown - as some of the CHUI files (like start.chu) seem to sometimes have a number in the 0x001Ah part that would make to offset into the millions or more if it was actual a long value, which isn't correct.
+
+CHUI V1 Control table
+
+The different types of controls are all different sizes. Thus, in order to quickly set up the pointer structure after the data file is loaded, they need to store the offsets of each control. For some reason, they also store the size of the control structure. This is mystifying, since they almost never move things around in memory -- typically, they load the resource as one chunk, and then setup pointers to the appropriate bits, never having moved anything or done any more memory allocation than necessary. Actually a pretty fast way to deal with resources, although I suspect that performance might suffer at times from non-aligned memory access of commonly used fields.
+Offset Size (data type) Description
+0x0000 4 (dword) offset of actual control structure
+0x0004 4 (dword) length of actual control structure
+
+CHUI V1 Controls
+
+The different types of controls have different layouts; however, there is a common format for the first portion of the control, which dictates its position, its type, and a few other things.
+
+The types of controls which I have been able to figure out are:
+
+    * type 0: buttons/toggle buttons/pixmaps
+    * type 2: slider controls
+    * type 3: text edit field
+    * type 5: text area (optionally scrolled)
+    * type 6: label? static text field?
+    * type 7: scroll bar
+
+
+fields common to all control types
+Offset Size (data type) Description
+0x0000 2 (word) control id (presumably used in the executable to identify which control was manipulated)
+0x0002 2 (word) buffer length of an attached buffer (only significant for some types of text controls)
+0x0004 2 (word) x position of control relative to containing window
+0x0006 2 (word) y position of control relative to containing window
+0x0008 2 (word) width of control
+0x000a 2 (word) height of control
+0x000c 1 (byte) type of control (see below)
+0x000d 1 (byte) unknown
+
+CHUI V1 Controls: type 0: buttons/toggle buttons/pixmaps
+
+This is a simple type of control. It has an associated BAM file, a 'cycle number', which selects which cycle in the BAM to use frames from, and several associated frame numbers. For static pixmaps, clicks are ignored, and the pressed/unpressed frame indices are the same. For buttons, there is a pressed and an unpressed frame. Now, a caveat about this format. I believe that I have figured out the format of this type of control; however, I have found a file which does not quite appear to follow this format. This is the same file which is mentioned above whose windows appear to follow a different format from those of every other CHUI file in the game. For this reason, it seems highly likely that this is not a valid data point for disproving this format; however, keep this in mind while you examine this format.
+Offset Size (data type) Description
+0x0000 14 (common section) fields common to all control types
+0x000e 8 (resref) The resource name of the BAM file from which the graphics for this button are taken.
+0x0016 2 (word) The cycle from the BAM file to take our graphics from.
+0x0018 2 (word) Frame index from BAM file: Button unpressed
+0x001a 2 (word) Frame index from BAM file: Button pressed
+0x001c 2 (word) Frame index from BAM file: Button selected
+0x001e 2 (word) Frame index from BAM file: Button disabled
+
+CHUI V1 Controls: type 2: slider controls
+
+The vast majority of the fields in this control are unknown... I know what it does, and vaguely see how it could do it in a manner consistent with what I know, but...
+Offset Size (data type) Description
+0x0000 14 (common section) fields common to all control types
+0x000e 8 (resref) resource name of MOS file used for background of slider control
+0x0016 8 (resref) resource name of BAM file used for slider knob of control
+0x001e 2 (word) cycle number from BAM to take our graphics from.
+0x0020 2 (word) frame index from BAM file: Slider ungrabbed
+0x0022 2 (word) frame index from BAM file: Slider grabbed
+0x0024 2 (word) knob x offset
+0x0026 2 (word) knob y offset
+0x0028 2 (word) knob jump width
+0x002a 2 (word) knob jump count
+0x002c 2 (word) unknown
+0x002e 2 (word) unknown
+0x0030 2 (word) unknown
+0x0032 2 (word) unknown
+
+CHUI V1 Controls: type 3: text edit field
+
+Text edit fields, similar to that used for multi-player chat mode, typing in the name of your player, or entering cheat codes. Again, this control is mostly mysterious, still. Some of the unknown bytes must code for the cycle number and frame number in the BAM file to use for the cursor graphic, but I don't know which.
+Offset Size (data type) Description
+0x0000 14 (common section) fields common to all control types
+0x000e 8 (resref) MOS file resource name (background #1) what is this used for?
+0x0016 8 (resref) MOS file resource name (background #2) what is this used for?
+0x001e 8 (resref) MOS file resource name (background #3) what is this used for?
+0x0026 8 (resref) BAM file resource name (cursor)
+0x002e 12 (unknown) unknown
+0x003a 8 (resref) BAM file resource name (font). To display using a BAM font, use frame #0, cycle #c, where c is the ascii value of the char you are trying to print.
+0x0042 34 (unknown) unknown
+0x0064 2 (dword) maximum length of input
+0x0066 4 (dword) unknown
+
+CHUI V1 Controls: type 5: text area (optionally scrolled)
+
+Just about any text with a scrollbar you see in BG uses this control type. For instance, scrolled character sheet, or inventory item description. It is not entirely clear why there are two fonts and 3 colors involved here; I can't shed too much light on this, except to mention that in many cases, one of the fonts is the "illuminated manuscript" style font that is used for the first character of text in some dialogs. Beyond that, it's still a mystery.
+Offset Size (data type) Description
+0x0000 14 (common section) fields common to all control types
+0x000e 8 (resref) BAM file resource name (font #1) what is this used for ?
+0x0016 8 (resref) BAM file resource name (font #2) what is this used for ?
+0x001e 4 (RGBa color) color #1 (what is this used for ?)
+0x0022 4 (RGBa color) color #2 (what is this used for ?)
+0x0026 4 (RGBa color) color #3 (what is this used for ?)
+0x002a 4 (dword) the id field from the scroll bar attached to this, if any, or 0xffffffff if no scrollbar is used.
+
+CHUI V1 Controls: type 6: label/static text field (?)
+
+Many static labels use this. It may have more functionality than that, but that's all I know about. (i.e. I believe it ignores input and is only used for outputting text, primarily labels
+Offset Size (datatype) Description
+0x0000 14 (common section) fields common to all control types
+0x000e 4 (strref) Initial value for text to be loaded from Strref
+0x0012 8 (resref) BAM file name (font for displaying text)
+0x001a 4 (RGBa color) color #1 (background ?)
+0x001e 4 (RGBa color) color #2 (foreground ?)
+0x0022 2 (word) subtype (justification)
+Possible values:
+ 0x01: use rgb colors
+ 0x02: unknown
+ 0x04: center justification (also default)
+ 0x08: left justification
+ 0x10: right justification
+In case of combining center/left/right bits, the precedence is right, center and left.
+
+CHUI V1 Controls: type 7: scroll bar
+
+These scroll-bars are usually attached to a text-area. Sometimes, though (for instance, the save game screen), they are not.
+Offset Size (datatype) Description
+0x0000 14 (common section) fields common to all control types
+0x000e 8 (resref) BAM file name: resource from which to take our graphical representation
+0x0016 2 (word) cycle from BAM file to use for our graphics
+0x0018 2 (word) Frame index from BAM file: up-arrow, unpressed
+0x001a 2 (word) Frame index from BAM file: up-arrow, pressed
+0x001c 2 (word) Frame index from BAM file: down-arrow, unpressed
+0x001e 2 (word) Frame index from BAM file: down-arrow, pressed
+0x0020 2 (word) Frame index from BAM file: trough
+0x0022 2 (word) Frame index from BAM file: slider
+0x0024 4 (dword) id field from text area control this scroll-bar scrolls, if any, or 0xffffffff if this scroll bar is not attached to a text area.
+ 
+

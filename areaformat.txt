@@ -1,0 +1,500 @@
+ARE file format
+FileExtension : ARE
+Content : Description of area contents format ARE V.1
+History : File done by IEFFHP
+Update : Manveru Telcontar, major updates (last one 15.10.2001)
+Gorin (ambient sounds section, 30.06.2001)
+Vungoctan (verified and corrected by Manveru, 12.07.2001)
+TheoTeamBG (15.10.2001)
+To An (09.03.2002)
+Description
+
+This file format describes the content of an area, rather than its visual representation. It contains the list of actors, items, entrances and exits, spawn points, and other area-associated info. Essentially, this format is all about how the characters interact with the area and how the area responds, whereas the WED file is all about how the area appears graphically.
+AREA file versions
+
+    * V1.0: Baldur's Gate, Planescape: Torment, Icewind Dale, BG2 SoA 
+
+AREA V1.0
+
+Overall structure
+
+Note: The order of the sections in an AREA file do actually vary. In many files the sections are always found in a particular order. In AREA files, the same resource in its normal state and in its "post-save" state will have the different sections in different orders. The sections here, then, are stored in the order in which they are referenced in the header.
+
+    * File header
+    * Actors
+    * Info points (and trigger points and exits)
+    * Spawn points
+    * Entrances
+    * Containers
+    * Items
+    * Vertices
+    * Ambients
+    * Variables
+    * "Explored" bitmask
+    * Doors
+    * Animations
+    * Automap notes
+    * Tiled objects
+    * Songs entries
+    * Sleep option interruption by appearing creatures
+
+V1.0 File header
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('AREA')
+0x0004 4 (char array) Version ('V1.0')
+0x0008 8 (resref) The resref of the WED file corresponding to this file.
+0x0010 4 (dword) This field is called m_lastSaved in the BG source. There is always 0 value for original areas and diffetrent values for savegames output areas. It is just counter of the time when the area was saved in seconds of real time.
+0x0014 4 (dword) Area flag - according to the ToB IDS file AREAFLAG.IDS  (values valid also for BG1/ToTSC/IWD/HoW/ToTL  however except value 2).
+
+    * 0 - normal state
+    * 1 - save/rest option not available
+    * 2 - tutorial
+    * 4 - no magic works
+    * 8 - area is black/white colored
+
+For IWD2 a value of 4 is marked as 'LOCKBATTLEMUSIC' in areaflag.ids
+
+In PS:T we may find there some strange values that obviously have different function than in BG/BG2 or IWD - I have no idea what is this used for in this game: examples :
+
+    * 02 in AR0104C
+    * 04 in AR0200
+    * 06 in AR1500
+
+0x0018 8 (resref) Resref of the area to the North of this area. Not used in BG2/IWD
+0x0020 4 (dword) (usually 3, sometimes 1) and in BG2/IWD usually 0
+0x0024 8 (resref) Resref of the area to the West of this area. Not used in BG2/IWD
+0x002c 4 (dword) (usually 3, sometimes 1) and in BG2/IWD usually 0
+0x0030 8 (resref) Resref of the area to the South of this area. Not used in BG2/IWD
+0x0038 4 (dword) (usually 3, sometimes 1) and in BG2/IWD usually 0
+0x003c 8 (resref) Resref of the area to the East of this area. Not used in BG2/IWD
+0x0044 4 (dword) (usually 3, sometimes 1) and in BG2/IWD usually 0
+0x0048 2 (word) Flags: according to the AREATYPE.IDS in ToB
+
+    * bit 0: Outdoor
+    * bit 1: day/night
+    * bit 2: weather
+    * bit 3: city
+    * bit 4: forest
+    * bit 5: dungeon
+    * bit 6: extended night
+    * bit 7: can rest indoors
+
+Also here I have noticed some weird values in PS:T - for example in city areas - value 0104 here - I have no idea why it is like this.
+0x004a 2 (word) Rain probability
+0x004c 2 (word) Snow probability
+0x004e 2 (word) Fog probability
+0x0050 2 (word) Lightning probability
+0x0052 2 (word) Unknown, however I noticed that in all games other than BG1/ToTSC this value is always zero. In case of BG1 in the outdoors areas there are numbers other than zero - maybe flags of some sort ? Maybe it is used to control the weather somehow ?
+0x0054 4 (dword) Offset of actors (i.e. creatures and NPCs).
+0x0058 2 (word) Count of actors in this area (i.e. creatures and NPCs).
+0x005a 2 (word) Count of info points, trigger points, and exits in this area.
+0x005c 4 (dword) Offset of info points, trigger points, and exits.
+0x0060 4 (dword) Offset of spawn points.
+0x0064 4 (dword) Count of spawn points.
+0x0068 4 (dword) Offset of entrances.
+0x006c 4 (dword) Count of entrances.
+0x0070 4 (dword) Offset of containers.
+0x0074 2 (word) Count of containers.
+0x0076 2 (word) Count of items.
+0x0078 4 (dword) Offset of items.
+0x007c 4 (dword) Offset of vertices.
+0x0080 2 (word) Count of vertices.
+0x0082 2 (word) Count of ambients (i.e. ambient sounds).
+0x0084 4 (dword) Offset of ambients.
+0x0088 4 (dword) Offset of variables.
+0x008c 4 (dword) Count of variables.
+0x0090 4 (dword) Unknown, unused ? Set to zero in BG1/ToTSC/BG2/IWD/PST
+0x0094 8 (resref) Script file corresponding to this area
+0x009c 4 (dword) "Explored" bitmask size
+0x00a0 4 (dword) Offset to "explored" bitmask
+0x00a4 4 (dword) Count of doors in this area
+0x00a8 4 (dword) Offset to doors structures.
+0x00ac 4 (dword) Count of animations in this area.
+0x00b0 4 (dword) Offset to animation structures.
+0x00b4 4 (dword) Tiled object count
+0x00b8 4 (dword) Tiled objects offset
+0x00bc 4 (dword) Offset to Songs entries of the area
+0x00c0 4 (dword) Offset to  Interruption of rest party option section )
+0x00c4 4 (dword) offset of the automap note section, if any
+0x00c8 4 (dword) number of entries in the automap note section
+0x00cc 4*20 (dword) Unknown,unused
+V1.0 Actors
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this actor (for editors purposes only)
+0x0020 4 (point) Current position of this actor within the area.
+0x0024 4 (point) Current destination of this actor within the area.
+0x0028 4 (dword) Unknown, it was supposed to be visible flag , but when I have checked it didn't work
+0x002c 4 (dword) Unknown (usually 0), unused (no effects in game) ?
+0x0030 4 (dword) Unknown (actor type?) No apparent effect in game.
+0x0034 4 (dword) It's the orientation of the actor (values between 0-15 , 0 for the NPC looking south and clockwise as the scriptcompiler.doc tell us)
+0x0038 4 (dword) Unknown (usually FFFF FFFF, I have noticed only that if this value is set to 0 or other small ?! value then actor is not present)
+0x003c 4 (dword) Unknown (usually 0), unused (no effects in game) ?
+0x0040 4 (dword) Determines the presence or not of the actor in the cycle of day / night  (it's not the visible flag). 
+
+There is probably some system that describes all possible time intervals when  creatures are spawned - for now I know only that when 2nd offset is set to 00 and 4th offset is set to FF we have the effect that takes place at night in time interval defined probably in 1st and 3rd offset. The analogical situation for day is when 2nd offset is set to FF and 4th to 00. However I have no idea how to define correctly for example that creatures are spawned from 8 hour of day to , say 11.  
+
+Known values :
+
+    * F0FF 0F00 - day
+    * E0FF 0100 - dawn
+    * 0F00 F0FF - night
+    * 1F00 FEFF- dusk
+    * FF00 FFFF - unknown
+    * 3F00 E0FF - unknown
+    * FFFF FFFF - always
+
+0x0044 4 (dword) Unknown (usually 0), probably unused, no visible effects in game
+0x0048 8 (resref) Resref of a dialog file associated with this creature. Presumably this is so that a creature can have their own dialog overridden in specific areas.
+0x0050 8 (resref) Resref of a script file ("override" script). As in the CRE  file, there appear to be 5 slots for scripts, not all of which need be occupied.
+0x0058 8 (resref) Resref of a script file ("class" script)
+0x0060 8 (resref) Resref of a script file ("race" script)
+0x0068 8 (resref) Resref of a script file ("general" script)
+0x0070 8 (resref) Resref of a script file ("default" script)
+0x0078 8 (resref) Resref of a script file ("specific" script)
+0x0080 8 (resref) Resref of the CRE file for this actor
+0x0088 4 (dword) Offset to CRE structure (stored if the status of this creature is changed from its original status in the CRE file)
+0x008c 4 (dword) Size of stored CRE structure
+0x0090 128 (bytes) Unknown. Unused. Most of these bytes are probably placeholders for fields which are used in-memory by either the game or the editor, since many of them contain what appears to be garbage of the sort which is left by not initializing a block of memory.
+V1.0 Info points, trigger points, and exits
+
+Note: These are referred to as info points. A more appropriate name might be "active regions"; the name "Info point" comes from the names seen in the file as assigned to the various objects. Likely, the Bioware editors automatically name these as "Info point 1", "Info point 2", ..., and "Trigger point 1", "Trigger point 2", ..., and "toXXXX", where XXXX is replaced with the 4-digit area specifier (i.e. AR2600 == 2600, etc). This can be seen in that many of the names will appear as "Name1\0oint 3" -- i.e. the old name can be seen, only having been partially overwritten. Anyway, some of the objects are, in fact, info points, but many of them are exits or "trigger points" (e.g. traps and other special regions). This section has C4h bytes.
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this info point (this is the full name, probably used only in the editor?)
+0x0020 2 (word) Type of this "trigger point":
+
+    * 00: proximity trigger
+    * 01: info trigger (sign, point of notice, etc)
+    * 02: travel trigger
+
+0x0022 8 (rect) Minimum bounding box of this point.
+0x002a 2 (word) Count of vertices composing the perimeter of this info point.
+0x002c 4 (dword) Index of first vertex for this info point.
+0x0030 4 (dword) Unknown. (usually 0)
+0x0034 4 (dword) Index of cursor to use for this region (i.e. usually '22' for info point, '28' for inside exits, '30' for outside exits). This resource taken from cursors.bam  that is the part of GUIbam.bif  file. The frame number to use for the cursor.
+0x0038 8 (resref) Resref of the destination area, if this is an exit. Unused for other object types.
+0x0040 32 (char array) Name of the entrance within the destination area where we will appear if we pass through this door. Only used for "exit" objects.
+0x0060 4 (dword) Flags:
+
+    * bit 0
+    * bit 1: Reset trap flag (for proximity triggers)
+    * bit 2: Party Required flag (for travel triggers). Responsible for the "You must gather your party before venturing forth" message
+
+0x0064 4 (strref) The text associated with this "info point", if this is actually an "info point" (i.e. if type==01).
+0x0068 2 (word) Trap detection difficulty (%)
+0x006a 2 (word) Trap removal difficulty (%)
+0x006c 2 (word) Trapped flag :
+
+    * Bit 0: Whether there is a trap (value 1) or not (value 0) 
+
+0x006e 2 (word) trap detected flag
+0x0070 4 (point) "trap launch" location.
+0x0074 8 (bytes) Key type (usage unknown)
+0x007c 8 (resref) The script associated with this region, if it is a "trigger point". This script is activated when a member of your party passes over one of the edges of the polygon defining this region.
+0x0084 48 (bytes) Unknown
+0x00b4 4 (point) Unknown.
+0x00b8 4 (dword) Unknown.
+0x00bc 8 (resref) Dialog file to be activated when this trigger is activated. Associated with proximity triggers. Whether it is used for other types is unknown.
+V1.0 Spawn points
+
+This section has C8 (200) bytes.
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this spawn point (this is the full name)
+0x0020 4 (point) The "location" of this spawn point
+0x0024 8*10 (resref array) Resref of up to 10 creature types that could be put in the area
+0x0074 2 (word) Number of creature types in this spawn point section.
+0x0076 2 (word) Flag of some sort ?! , has some influence on respawn frequency (i.e. player sleeps in the area and the creatures appears again, or player comes back to the area and creatures appears). I have noticed only that there appears only one given creature if it is set to 0. In other case there appear as many creatures as defined in offset 0x0084, usually value 2 or 1.    
+0x0078 2 (word) Time intervals (in seconds) between creatures spawn.
+0x007a 2 (word) Unknown, probably could have some influence on respawn frequency
+0x007c 4 (dword) Unknown, no effect on game noticed
+0x0080 2 (word) Unknown, no effect on game noticed
+0x0082 2 (word) Unknown, the same value as in offset 0x0080, no effect on game noticed.
+0x0084 2 (word) The maximal number of spawned creatures.
+0x0086 2 (word) Unknown, usually value 1
+0x0088 4 (dword) Time of spawning creatures in day/night cycle. There is probably some system that describes all possible time intervals when  creatures are spawned - for now I know only that when 2nd offset is set to 00 and 4th offset is set to FF we have the effect that takes place at night in time interval defined probably in 1st and 3rd offset. The analogical situation for day is when 2nd offset is set to FF and 4th to 00. However I have no idea how to define correctly for example that creatures are spawned from 8 hour of day to , say 11.  
+
+Known values :
+
+    * F0FF 0F00 - day
+    * E0FF 0100 - dawn
+    * 0F00 F0FF - night
+    * 1F00 FEFF- dusk
+    * FF00 FFFF - unknown
+    * 3F00 E0FF - unknown
+    * FFFF FFFF - always
+//the schedule uses only the low 24 bits, so the highest byte has no effect.
+//It is simply an hourly schedule
+
+0x008c 2 (word) unknown, usually value 64h (100) //day chance
+0x008e 2 (word) unknown, usually value 64h (100) //night chance
+0x0090 56 (word) unknown, unused, sometimes there are some remains from Bioware's computers memory..
+V1.0 Entrances
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this entrance -- as referenced by exits which lead to this entrance (specified in the source area's Info points, trigger points, and exits section.
+0x0020 4 (point) The "location" of this entrance -- when you enter the area via this entrance, where does your party actually appear?
+0x0024 2 (word) The direction of the entrance
+0x0026 62 (bytes) Unknown, unused.
+V1.0 Containers
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this container -- Probably only used by the editor, since the name makes it fairly obvious which containers are trapped.
+0x0020 4 (point) Location of this container.  It's the destination where the character go to open or disarm a container.
+0x0024 2 (word) Container type:
+
+    * 00: <n/a>
+    * 01: BAG
+    * 02: CHEST
+    * 03: DRAWER
+    * 04: PILE
+    * 05: TABLE
+    * 06: SHELF
+    * 07: ALTAR
+    * 08: NONVISIBLE
+    * 09: SPELLBOOK
+    * 0a: BODY
+    * 0b: BARREL
+    * 0c: CRATE
+
+0x0026 2 (word) Lock difficulty
+0x0028 2 (word) Is locked? (1 if locked, 0 otherwise)
+0x002a 2 (word) Unknown, always 0 ?
+0x002c 2 (word) Trap detection difficulty
+0x002e 2 (word) Trap removal difficulty
+0x0030 2 (word) Container is trapped (0 if not , 1 otherwise)
+0x0032 2 (word) Trap has been detected (trap is visible 1, 0 otherwise)
+0x0034 4 (point) Trap launch target
+0x0038 8 (rect) Minimum bounding box of container polygon
+0x0040 4 (dword) Index of first item in this container.
+0x0044 4 (dword) Count of items in this container.
+0x0048 8 (resref) Resref of script to trigger if container trap is set off.
+0x0050 4 (dword) Index of first vertex making up the outline of this container.
+0x0054 4 (dword) Count of vertices making up the outline of this container.
+0x0058 32 (bytes) Unknown, probably name of trap trigger that could be used in scripts ? in IWD, there are some containers that have a resref to a cre file.Take a look at AR1008.ARE for example but i haven't find yet any function for this. Maybe a "awaken" function linking a container to a particular NPC that was never use because of scripting ?
+0x0078 8 (resref) Resref of a "key" item, which, if possessed allows this chest to be opened.
+0x0080 4 (dword) Unknown, unused.
+0x0084 4 (dword) TLK ref that is displayed when a lockpicking is attempted upon a container that couldn't be unlock (lock strength set to 100 or item needed). Only tested in BG II
+0x0080 56 (bytes) Unknown, unused.
+V1.0 Items
+
+For those of you that have been paying attention, you may recognize this struct as being used in both the CRE file and the STO file.
+Offset Size (data type) Description
+0x0000 8 (resref) Resref of the ITM resource for this particular item.
+0x0008 2 (word) Unknown
+0x000a 2 (word) Usage 1 (typically the number of stacked items or the number of uses of the primary facility of a magical item)
+0x000c 2 (word) Usage 2 (typically the number of uses of the secondary facility of a magical item)
+0x000e 2 (word) Usage 3 (typically the number of uses of the tertiary facility of a magical item)
+0x0010 4 (dword) Flags:
+
+    * bit 0: identified
+	* bit 1: unstealable
+    * bit 2: stolen
+
+V1.0 Vertices
+
+This is an array of points which are used to create the outlines of trigger/info/exit regions and for containers. Not much else to say. Lots of 16-bit words stored x0, y0, x1, y1...
+V1.0 Ambients
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this particular ambient. Typically a descriptive name, like "Tavern", "Dogs", or "Kids". Sometimes a not-so-descriptive name, like "ambi". Could be used by scripts to switch on/off ambient
+0x0020 4 (point) "Origin" (center) of this particular sound
+0x0024 2 (word) The radius of the sounds.
+0x0026 2 (bytes) Appears to be the ?height? of the sound.  At least it only appears for birds or in one case a tree
+0x0028 6 (bytes) Unknown, usually zero.
+0x002e 2 (word) Volume of this sound (i.e. as a percentage of the maximum)
+0x0030 8*10 (resref array) Resref of up to 10 sounds. The noise for this ambient sound is chosen at random from the (up to) 10 available sounds.
+0x0080 2 (word) Number of sounds in the array of sound resource at 0x30
+0x0082 2 (word) Number of sounds in the array of sound resource at 0x30 or zero, exact purpose unknown.
+0x0084 4 (dword) This offset determines time intervals (in seconds) between sounds from this ambient list
+0x0088 4 (dword) Number of sounds to use per set ( can be more than total number of sounds in the list).
+0x008c 4 (dword) Time of playing sounds in day/night cycle. There is probably some system that describes all possible time intervals when sound is played - for now I know only that when 2nd offset is set to 00 and 4th offset is set to FF we have the effect that takes place at night in time interval defined probably in 1st and 3rd offset. The analogical situation for day is when 2nd offset is set to FF and 4th to 00. However I have no idea how to define correctly for example that ambient is played from 8 hour of day to , say 11. 
+
+Known values :
+
+    * F0FF 0F00 - day
+    * E0FF 0100 - dawn
+    * 0F00 F0FF - night
+    * 1F00 FEFF- dusk
+    * FF00 FFFF - unknown
+    * 3F00 E0FF - unknown
+    * FFFF FFFF - always
+//see notes in spawn schedule
+ 
+0x0090 4 (dword) Flag that controls if it is main ambient (for the whole area) or local (only for the part indicated by radius of the sound)
+
+Known values :
+
+    * Bit 0 - Enables/disables ambient sounds of current section.
+    * Bit 1 - Point sound, i.e. volume decreases away from central point.
+    * Bit 2 - switches between local ambient (set to 0) where radius is taken into account and main ambient (set to 1) where radius is ignored and sound is played on the whole area.
+    * Bit 3 - Area Sound, same volume throughout area.
+    * Bit 4 - Unknown
+    * Bit 5 - Unknown
+    * Bit 6 - Unknown
+    * Bit 7 - Unknown 
+
+0x0094 64 (bytes) Unknown, not used.
+V1.0 Variables
+
+Each area can have associated variables. Variables not associated with an area are associated with either "GLOBAL" for global variables, or "LOCALS" for local variables. This stores variables associated with this particular area (this is keyed on the resref of this area, which is assumed to be a 6 character code, even though a resref is 8 characters long). For instance, the variable accessed via 'Global("AR2600","FooBarDead")' would be stored in the ARE file for AR2600. Typically these blocks are found only in saved ARE files (i.e. extracted from .SAV files.). The structure, as much as is known, is:
+Offset Size (data type) Description
+0x0000 32 (char array) Name of this variable.
+0x0020 8 (bytes) Unknown
+0x0028 4 (dword) Variable value
+0x002c 40 (bytes) Unknown
+V1.0 Explored bitmask
+
+The explored bitmask is an array of bits, one bit for each 16x16 pixel cell on the map. If a bit is 1, then the cell has been explored. Otherwise, it has not.
+V1.0 Doors
+
+Doors in an AREA file are the "door" objects that the user interacts with, to be distinguished from the "door" objects in the WED file. The WED file deals with how the opening and closing of a door changes the appearance of the world. A door in an AREA file details what happens when the user tries to open the door, what polygon the mouse must be inside of in order for mouse clicks to affect the door in question. The two types of door objects are linked through the id field in each -- the 8-byte character array which contains an identifier for the door. If the names in the two files match, the doors are the same, and toggling the state of the AREA door will toggle the state of the WED door. The name "doors" includes also all possible "secret doors" that appear on the wall after longer examination of it or using "detect trap" ability.
+Offset Size (data type) Description
+0x0000 32 (char array) A long name for this door. Could be used by scripts.
+0x0020 8 (char array) A short identifier for this door. Probably used to establish a mapping between doors in the AREA file and doors in the WED file.
+0x0028 4 (dword) Flags related to this door. It probably controlls if door is open or closed (since the value is changed in case of opened door)
+
+But also :
+
+    * Bit 0 : if set to 1 then door is open
+    * Bit 1 : defines whether door is locked or not
+    * Bit 2 : unknown
+    * Bit 3 : unknown
+    * Bit 4 : unknown
+    * Bit 5 : seem to be intern doors.
+    * Bit 6 : seem to lead to another area.  the doors have a reference to a trigger after 0x0098 like TranXXXX (where XXXX it's the corresponding area number)
+    * Bit 7 : door is secret, detect trap ability may be used to detect them , also the sound of opening/closing is different, 
+
+Usually values 40, 4a, 42, 4001, 4a01, 4201 for normal doors are used . 
+0x002c 4 (dword) Index of first vertex comprising the outline of this door while the door is open.
+0x0030 2 (word) Count of vertices comprising the outline of this door while the door is open.
+0x0032 2 (word) Count of vertices comprising the outline of this door while the door is closed.
+0x0034 4 (dword) Index of first vertex comprising the outline of this door while the door is closed.
+0x0038 8 (rect) Minimum bounding box of the door polygon when it is open.
+0x0040 8 (rect) Minimum bounding box of the door polygon when it is closed.
+0x0048 4 (dword) Index of first "vertex" in "impeded cell block" for "door open" state. These vertices are not actually vertices, but instead, cell coordinates (each cell corresponding to one tile in the WED file's Tilemap structures. When the door is closed, these cells cannot be entered by any object.
+0x004c 2 (word) Count of "vertices" in "impeded cell block" for "door open" state. See note at offset 0x48 in this structure for details.
+0x004e 2 (word) Count of "vertices" in "impeded cell block" for "door closed" state. This is the same as the above field, except it is used when the door is open, instead of when the door is closed.
+0x0050 4 (dword) Index of first "vertex" in "impeded cell block" for "door closed" state. This is the same as the field at 0x48, except it is used when the door is open, instead of when the door is closed.
+0x0054 2 (word) Unknown
+0x0056 2 (word) Unknown
+0x0058 2x8 (char array) Two resref to sound files (Often the same duplicated reference) - only the first seem to be play when the player open the door (no sound when he close it even if a second sound reference is given). See Waste Doors in AR0602.ARE for example.
+0x0068 4 (dword) It is an index into cursors.bam frame - it's the cursor that's shown when hovering over the door.
+0x006c 2 (word) Trap detection difficulty
+0x006e 2 (word) Trap removal difficulty
+0x0070 2 (word) Trapped flag
+0x0072 2 (word) Trap detected flag
+0x0074 4 (point) Trap launch target point
+0x0078 8 (resref) Resref of key item needed to unlock door.
+0x0080 8 (resref) Resref of script for this item. (Script is activated when "open" attempt is made on item.)
+0x0088 4 (dword) Unknown, almost always 5a value or 0
+0x008c 4 (dword) Lock difficulty (0-100)
+0x0090 8 (rect) Bounding box where the player must be in to open the door.
+0x0098 4 (strref) StrRef from dialog.tlk that appear when a thief attempt to unlock a door that couldn't be unlock (see the jail's door in AR1000.ARE and the shadow doors in AR1401.ARE for example). 
+0x009c 8 (bytes) Region link
+0x00a4 16 (bytes) Unknown
+0x00b4 4 (strref) Name of this door, if it has one. Name is used if the door initiates dialog with the user.
+0x00b8 8 (resref) Resref of the dialog resource associated with this door, if any. This dialog will be used if the door initiates dialog with the user in its associated script.
+0x00c0 8 (bytes) Unknown
+V1.0 Animations
+Offset Size (data type) Description
+0x0000 32 (char array) A long name for this animation. Used by editors and probably by scripts
+0x0020 4 (point) The point at which the "center" of the animation is to be played -- i.e. each frame in the BAM file has its center placed at this precise coordinate.
+0x0024 4 (dword) Time of playing animation in day/night cycle. 
+
+There is probably some system that describes all possible time intervals when animation is played - for now I know only that when 2nd offset is set to 00 and 4th offset is set to FF we have the effect that takes place at night in time interval defined probably in 1st and 3rd offset. The analogical situation for day is when 2nd offset is set to FF and 4th to 00. However I have no idea how to define correctly for example that ambient is played from 8 hour of day to , say 11. 
+
+Known values :
+
+    * F0FF 0F00 - day
+    * E0FF 0100 - dawn
+    * 0F00 F0FF - night
+    * 1F00 FEFF- dusk
+    * FF00 FFFF - unknown
+    * 3F00 E0FF - unknown
+    * FFFF FFFF - always
+//see notes in spawn schedule
+ 
+0x0028 8 (resref) The resref of the BAM file to be played for this animation.
+0x0030 2 (word) Sequence number (number of animation) within the BAM resource 
+0x0032 2 (word) Number of frame within current animation/sequence in the BAM resource 
+0x0034 4 (dword) Flag, so far there is known the following :
+
+    * Bit 0 : Determines whether animation is shown (set to 1) or not (set to 0)
+    * Bit 1 : Turns on (value 0) the shades (i.e. smoke of fire)  or turns off (value 1)
+    * Bit 2 : If set to 1 then the whole animation is shaded (harder to notice) during night and normal during day.
+    * Bit 3 : If set to 1 then animation is stopped on frame specified in offset 0x0032. If set to 0 then the animation is played normally. 
+    * Bit 4 : unknown
+    * Bit 5 : unknown
+    * Bit 6 : unknown
+    * Bit 7 : unknown
+
+0x0038 4 (dword) Unknown, I haven't noticed any effect on game.
+0x003c 16 (bytes) Unknown, unused
+V1.0 Automap notes
+
+These are textual notes which either you can add to your map, or which, in Torment, are automatically added to your map. Section size : 34h bytes.
+Offset Size (data type) Description
+0x0000 2 (word) X coordinate
+0x0002 2 (word) Y coordinate
+0x0004 4 (dword) strref to dialog.tlk or TOH/TOT files
+0x0008 2 (word) unknown, I haven't noticed any differences after changing this offset. I have always seen value 1 or 0 here. 
+0x000a 2 (word) For Baldur's Gate 2 this field specify the color of internal side of mark on worldmap :
+
+    * 0 - Gray (default value)
+    * 1 - Violet
+    * 2 - Green
+    * 3 - Orange
+    * 4 - Red
+    * 5 - Blue
+    * 6 - Dark Blue
+    * 7 - Light Gray 
+
+0x000c 4 (dword) Unknown, in BG2 at least it is probably some kind of Automaps counter ?! purpose unknown.
+0x0010 36 (bytes) Unknown, unused
+V1.0 Tiled objects
+
+This information comes from Dmitry Jemerov. Neither of us have seen any instances of areas which include objects of this type, but he has managed to determine the format of these objects, nonetheless. Since there are no examples, we don't know precisely what they are used for. If more information becomes available, this space will be updated.
+Offset Size (data type) Description
+0x0000 32 (char array) Name
+0x0020 8 (resref) Unknown
+0x0028 4 (dword) Unknown
+0x002c 4 (dword) Primary search squares start. The primary search squares are the squares which are impeded when the object is in one state (i.e. the search squares through which a creature cannot travel).
+0x0030 4 (dword) Primary search squares count
+0x0034 4 (dword) Secondary search squares start. The secondary search squares are like the primary search squares, except for when the object is in an alternate state of some sort.
+0x0038 4 (dword) Secondary search squares count
+0x003c 48 (bytes) Unknown (unused?)
+V1.0 Songs entries
+
+This sections determines which *.acm files are played in the some situations. The length of this section is 90h  bytes. The first 10 dwords seems to be numbers of the songs listed in proper files for each game (like SongList.2da  for BG2 and MUSIC.2DA for IWD and SONGS.IDS for PS:T), however there are known only three entries to this list - the rest is probably unused.
+Offset Size (data type) Description
+0x0000 4 (dword) Day song reference number
+0x0004 4 (dword) Night song reference number
+0x0008 4 (dword) Unknown, usually set to 0000 0000 in BG2 and FFFF FFFF in BG1.
+0x000c 4 (dword) Battle song reference number
+0x0010 4 (dword) Unknown, usually set to 0000 0000 in BG2 and FFFF FFFF in BG1.
+0x0014 4x5 (dword) Unknown, set to FFFF FFFF
+0x0028 16 (ASCII string) in bg1 there were some names that reminded me ambient filenames (in ar2300 this section contains of AMB_M13NAMB_M13N ASCII string).
+0x0038 4 (dword) Unknown, usually value 6400 0000 or sometimes 5000 0000 - I haven't noticed any influence of this offset on game (BG2, however the same values are also in BG/ToTSC/IWD).  . 
+0x003c 16 (ASCII string) in BG1/BG2 there were some names that reminded me ambient filenames (in ar2300 this section contains of AMB_M13NAMB_M13N ASCII string).
+0x004c 4 (dword) Unknown, constant value 6400 0000 or sometimes 5000 0000 - I haven't noticed any influence of this offset on game (BG2, however the same values are also in BG/ToTSC/IWD). 
+0x0050 4 (dword) Probably used only in PS: T - I suspect it has the meaning as described in SongFlag.IDS in this game
+
+For more details check this file and AR1363 , AR1700 ARE files of PST as examples of different values in this offset.
+0x0054 60 (bytes) Unknown, always 00
+
+ 
+V1.0 Creatures appearance that interrupts party rest 
+
+This section determines whether the sleep of the party is interrupted by some creatures spawn or not (i.e. Aminsh soldiers in Athkatla that interrupts Party's sleep inside the city, or monsters that appear during the sleep) , The length of this section is E4h bytes.
+Offset Size (data type) Description
+0x0000 32 (bytes) Name of this section. For editors
+0x0020 4x10 (dword) Ten strrefs from Dialog.tlk corresponding to the resrefs in next parts that appears when sleep is interrupted (i.e. 9627 0000 stands for "You are awakened from your rest." )
+0x0048 8x10 (resref) The 10 resref table that contains of the references to the cre files.
+0x0098 2 (word) Number of cre entries in the references table
+0x009a 2 (word) Unknown, I have noticed only that there appears only one given creature if it is set to 0. In other case there appear as many creatures as defined in offset 0x00a4, usually value 2 or 1. There may be some bit flags.    
+0x009c 4 (dword) Unknown, no effect on game noticed
+0x00a0 2 (word) Unknown, no effect on game noticed
+0x00a2 2 (word) Unknown, the same value as in offset 0x00a0, no effect on game noticed.
+0x00a4 2 (word) Maximal number of spawned creatures.
+0x00a6 2 (word) Unknown, usually value 1.
+0x00a8 2 (word) Unknown
+0x00aa 2 (word) Unknown, the same value as in offset 0x00a8
+0x00ac 56 (bytes) Set to zero. Unused , unknown.
+
+ 

@@ -1,0 +1,59 @@
+ 
+
+resType extension format tag Notes Description 
+N/A .key 'KEY '   Directory of resources, their locations, and their types. It is usually located in the main IE game directory.  Could be modified and exported by using ICM, WinBiff 
+N/A .bif 'BIFF'   Archive containing resources, as indexed by the .KEY file.Could be imported and exported by using ICM. WinBiff 
+N/A .cbf 'BIF ' Icewind Dale only Compressed archive containing resources, as indexed by the .KEY file. Could be imported and exported by using ICM ,WinBiff 
+N/A .tlk 'TLK '   Table in which strings (and occasionally, sounds) are looked up by strref. Could be modified by many utilities : IDU, IEEP, ICM, Dialog.tlk converter 
+N/A .acm ???   Music.  In aim to convert it to ordinary wav file we have to use acm2wav.exe tool . In aim to convert it again from wav to acm we use snd2acm.exe program - these tools could be found :  http://www.fallout.ru/teamx 
+N/A .mus N/A Text format It is responsible for the music play in IE games - loops, repeating, ending (for example battle songs, area songs, romance songs). ISC , MUSmaker 
+0x0001 .bmp N/A   Microsoft-endorsed standard for static graphics. This is, as often as not, used for storing palettes, rather than for storing bitmapped graphics. In this case, the file will be a 1x1 pixel image, with a full palette. 4, 8, and 24 bit BMPs are supported, but only uncompressed BMPs are supported. 
+0x0002 .mve ???   I do not know anything about this format. Also guarded by Interplay. There is mve2exe converter :  MVE2EXE by TeamBG 
+0x0004 .wav 
+.wac
+ 'WAVC'   Sound files used throughout the game are stored in these formats. Note that 'WAVC' and 'RIFF' .wav files are used interchangeably throughout the engine; WAVC is an internal format -- more precisely, an ACM file with a header attached to simplify buffer estimation during file decompression. 
+0x0004 .wav N/A   RIFF wave files. A published format. The Microsoft mmio* routines are not used for WAV reading. As a result, the file must be of the very straight-forward variety. Fortunately, most WAV files are.ISC  
+0x0005 N/A 'WFX '   They are located in Biffs that contain of huge amounts of Wavc files - so maybe they are responsible somehow for sounds ?  
+0x0006 .plt 'PLT '   A bitmapped graphics format used for paper dolls. It basically consists of interleaved bytes of 'color type' and 'intensity'. 
+0x03e8 .bam 'BAM '   Used for animations as well as for multi-frame static graphics, this is a format supporting multiple animation cycles, each containing multiple frames. The GUI uses these extensively, as all the controls (buttons, sliders, etc) have controls represented by these files. This could be edited by : BAMworkshop 
+0x03e8 .bam 'BAMC' Baldur's Gate 2 only Simple zlib based compression format. Essentially, an entire BAM file is compressed using zlib and a small header prepended. This could be edited by : BAMworkshop 
+0x03e9 .wed 'WED '   Represents the graphics of a region. Some connectivity information appears here, though probably only for clipping purposes -- i.e. we have 2-d maps and tiles, but we need to simulate a 3-d environment. Thus, we store the walls in here so that we know which parts are raised, so that a person walking behind a wall is clipped. Anyway, this file type contains lists of regions (overlays), details for how animated tiles are to be animated, and which tiles change when doors are opened. Could be edited either in Gorin's Area Editor or in ICM. IETME 
+0x03ea .chu 'CHUI'   A representation (a la Windows dialog templates) of GUI elements. Basically, it is a list of 'windows', which may optionally have a .mos as a background, and a list of 'controls' for each window. The controls include 'slider controls', 'text fields', 'buttons', 'scroll bars' and a few other assorted types 
+0x03eb .tis N/A   This is the tileset information used for painting the screens. A tileset is basically an array of tiles which are composed of a palette of 256 24-bit colors and a block of pixels (typically 64x64) which are to be painted using that palette. This could be extracted using TisUtil or ICM. IETME 
+0x03ec .mos 'MOS '   Yet another tiled file-format. This is used for backgrounds for gui windows and for the overhead map of regions. It is likely that this is stored in tile format only because of the compression advantages, as opposed to the .tis files which are stored in tiled format because of the pragmatic advantage of being able to load tiles quickly on demand. This could be modified and extracted using : MosWorkshop and MosUtil 
+0x03ec .mos 'MOSC'   Compressed format, exactly like BAMC format, except with a different signature field in the header. This could be modified and extracted using : MosWorkshop and MosUtil 
+0x03ed .itm 'ITM '   Objects which may appear in either the player character's inventory, or in various creatures 'inventory' are stored in these files. Could be edited by  IEEP 
+0x03ee .spl 'SPL '   Spells are stored in this format. This includes wizard spells (spwi*), priest spells (sppr*), and innate spells (spin*), as well as any spells which monsters have which are unavailable to the user. Could be edited by  IEEP 
+0x03ef .bcs N/A Text format Compiled script files, as are output by the script compiler. 
+0x03f0 .ids N/A Text format A mapping from numbers to text, typically giving descriptive names or labels to engine internals. For instance the exported functions that can be accessed from scripts are given IDs in one of these files. 
+0x03f1 .cre 'CRE '   All the monsters in the game are stored in this format, which associates statistics, graphics, and AI scripts to baddies. Could be edited by : ICM, Character Controls ICE 
+0x03f2 .are 'AREA'   A description of an area, but more schematic than WED files. The AREA file contains descriptions of where containers, doors, actors, and items are in the area. Modified by ICM or Gorin's Area Editor, IETME 
+0x03f3 .dlg 'DLG '   All inter-character dialog is scripted using these files. In aim to edit these files we use IDU from TeamBG. 
+0x03f4 .2da '2DA ' Text format. Note: Do not count on the signature being at the beginning of the file. The reason for this is twofold. First, these are text files and may have spaces before the signature. Second, these may be encrypted with a simple XOR key. (Enough to stop a snooper, but not enough to keep a determined intruder out.) A "two-dimensional array" file format which has, in addition to a 2-dim array of strings, column and row headers. Typically used for storing the AD&D rule sets. 
+0x03f5 .gam 'GAME'   Save game file format -- stores the current state of the party and of the internal variables. Edited by The series of the keeper programs. , Character Controls (for PST) ,  IEEP 
+N/A .sav 'SAV '   Save game file format -- stores the current state of the areas the party has visited. 
+0x03f6 .sto 'STOR'   Store file format. Stores information on a stores stock, it's prices, and what it's willing to buy. Edited by IEEP. 
+0x03f7 .wmp 'WMAP'   World map file format. This stores information on which areas are located where on the world-map, and which graphics to use for them. Edited by ICM. IETME 
+0x03f8 .chr 'CHR '   Exported player characters are stored in this format, which actually contains a .cre file in its entirety. The series of the keeper programs. , Character Controls 
+0x03f8 .eff 'EFF ' ToTSC and IWD and BG2 The EFF V2.0 format replaces the old 30-byte effect structure found in CRE files and ITM files, and partially documented in the effects section. The EFF V2.0 format can be found either as a standalone file, or, if certain flags are set, in CRE files, and in SPL and ITM files. Edited by EFFmaker. 
+0x03f9 .bs N/A Text format Principally the same as the .bcs file, these are only used for character control scripts. It is likely that they are restricted to a subset of the functions callable from a .bcs 
+0x03fa .chr 'CHR '   Character files. Used to be 0x3f8, but now that's EFF, so... Dunno...Ths is edited  by  The series of the keeper programs., Character Controls 
+0x03fb .vvc 'VVC '   Visual 'spell casting' effects are described by these files.  VVCUTIL 
+0x03fc .vef ??? Baldur's Gate 2 only Visual effects (possibly OpenGL effects?) 
+0x03fd .pro 'PRO '   Description of 'projectile' types IPU 
+N/A .res ??? IWD only 
+Text format
+ Stores the edited biography of characters. 
+0x03fe .bio ??? Baldur's Gate 2 only 
+Text format
+ Stores the edited biography of characters. 
+0x044c .bah ??? Baldur's Gate 2 only Unknown 
+N/A .baf N/A Text format This is the file format used for scripts for the Infinity Engine, both for character control and, one would assume, for scripted events (although scripted events can call a broader range of functions than character AI scripts). These files compile to either .bs or .bcs files. 
+0x0802 .ini N/A Text format
+Torment and Icewind Dale This is basically the windows .ini file format. It is focused on storing things like quest information and respawn information for areas. 
+0x0803 .src N/A Torment only This is a binary file format, though very simple. It is used to determine the text that appears over people's heads on the overland screen. 
+N/A .toh 'TLK ' Icewind Dale only/BG2 only "Talk Table Override Header". This is used for overrides to specific entries in the TLK file. It is used in conjunction with the .tot file. 
+N/A .tot N/A Icewind Dale only/BG2 only "Talk Table Override Text". This is used for overrides to specific entries in the TLK file. It is used in conjunction with the .toh file. 
+N/A .var N/A Planescape Torment only File that stores variables declarations for starting game. 
+
+ 

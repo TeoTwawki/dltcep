@@ -1,0 +1,2623 @@
+Baldur's Gate 2 Shadows of Amn
+
+0 (0h) Bonus AC vs. Weapon Type,
+
+Parameter 1 :AC Bonus/Setting,
+
+Parameter 2 :Weapon Type,
+
+Set the AC Bonus/Setting parameter to the AC Bonus against the weapon type set in Weapon Type parameter. If Weapon Type parameter is set to Base AC Setting then AC Bonus/Setting parameter is the base AC setting of the item like as in a Bracers of Defense. Possible values of the Weapon Type parameter are 0 for All Weapons, 1 for Blunt, 2 for Missile, 4 for Piercing, 8 for Slashing, and 16 for Base AC Setting.
+
+1 (1h) Attacks per 2 round Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+"Attacks per 2 rounds" is a misnomer.  The number of attacks is stored in a lookup table:
+
+
+index   value
+1       1
+2       2
+3       3
+4       4
+5       5
+6      1/2
+7      3/2
+8      5/2
+9      7/2
+10     9/2
+
+When you modify the statistic using this effect, you are modifying the index of the lookup table, you are not modifying the number of attacks.  With a modifier type of 00, you are incrementing the index by the value of the modifier.  With a modifier type of 01, you are setting the index to the value of the modifier.  A modifier type of 02 seems to be ignored.
+
+2,(2h) (Awaken),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+3, (3h)Beserking,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+4 (4h)(Calm),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+5 (5h)Charm Specific Creature,
+
+Parameter 1 :Specific Creature Type,
+
+Parameter 2 :Undefined,
+
+Set the Specific Creature Type parameter to the name of the creature type to charm. The known values of the Specific Creature Type parameter are 00 is Any, 01 is HUMANOID, 02 is ANIMAL, 03 is DEAD, 04 is UNDEAD, 05 is GIANTHUMANOID, 06 is FROZEN, and 255 is MONSTER.
+
+6 (6h)Charisma Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+7,(7h)Set Item Colors,
+
+Parameter 1 :Gradient Number,
+
+Parameter 2 :Location,
+
+The part changed is specified in the Location parameter and will be changed to the color set assigned by the Gradient Number parameter. The known values of the Location parameter are 00 is belt buckle (when on armor) or amulets (on robes), 01 is minor color, 02 is major color, 03 is skin color, 04 is strap color (on armor) or minor trimming (on robes - the center strip down a robe and the hem on some robes), 05 is armor color (and major trimming on robe - cross trim and cape trim on robe of archmagi), 06 is hair color, 16 is quillons or crossguard, 20 is grip (usually not seeable as it's in the charcter's hand), 21 is blade or major portion of weapon, 32 is shield hub, 34 is shield paneling, 37 is shield rim, 48 is helm ornamentation - i.e. wings, 49 is helm ornamentation - i.e. feathers/horsehair, 52 is unknown but listed in helm01, and 53 is helm - the main covering.
+
+8 (8h) Change Colors by RGB,
+
+Parameter 1 :RGB Color,
+
+Parameter 2 :Location,
+
+Set the RGB Color parameter to the color value you want to use with the second byte being the Red portion (0-255), the third byte the Green portion (0-255), and the fourth byte being the Blue portion (0-255) and the part specified in the Location parameter will change to that color. The known values of the Location parameter are 00 is belt buckle (when on armor) or amulets (on robes), 01 is minor color, 02 is major color, 03 is skin color, 04 is strap color (on armor) or minor trimming (on robes - the center strip down a robe and the hem on some robes), 05 is armor color (and major trimming on robe - cross trim and cape trim on robe of archmagi), 06 is hair color, 16 is quillons or crossguard, 20 is grip (usually not seeable as it's in the charcter's hand), 21 is blade or major portion of weapon, 32 is shield hub, 34 is shield paneling, 37 is shield rim, 48 is helm ornamentation - i.e. wings, 49 is helm ornamentation - i.e. feathers/horsehair, 52 is unknown but listed in helm01, and 53 is helm - the main covering.
+
+9 (9h) Shining Colors by RGB,
+
+Parameter 1 :RGB Color,
+
+Parameter 2 :Location and Speed,
+
+Set the RGB Color parameter to the color value you want to use with the second byte being the Red portion (0-255), the third byte the Green portion (0-255), and the fourth byte being the Blue portion (0-255) and the part specified by the first 2 bytes of the Location and Speed parameter will flash that color with the third byte of the Location and Speed parameter determining the speed of the flashing with 01 the fastest and 255 the slowest. The known values of the Location part of the Location and Speed parameter are 00 is belt buckle (when on armor) or amulets (on robes), 01 is minor color, 02 is major color, 03 is skin color, 04 is strap color (on armor) or minor trimming (on robes - the center strip down a robe and the hem on some robes), 05 is armor color (and major trimming on robe - cross trim and cape trim on robe of archmagi), 06 is hair color, 16 is quillons or crossguard, 20 is grip (usually not seeable as it's in the charcter's hand), 21 is blade or major portion of weapon, 32 is shield hub, 34 is shield paneling, 37 is shield rim, 48 is helm ornamentation - i.e. wings, 49 is helm ornamentation - i.e. feathers/horsehair, 52 is unknown but listed in helm01, and 53 is helm - the main covering.
+
+10 (Ah) Constitution Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+11 (Bh) Neutralize Poison,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+12 (Ch) Fixed/Random Damage,
+
+Parameter 1 :Fixed Damage,
+
+Parameter 2 :Damage Type,
+
+If the Fixed Damage parameter is set to an actual value then that is how much damage of the type specified in the Damage Type parameter that is done. If the Fixed Damage parameter is set to zero then it will do the random damage assigned by the Die Throws in the effect. The known values for the Damage Type parameter are 0 is CRUSHING, 16777216 (00 00 00 01) is SLASHING, 33554432 (00 00 00 02) is MAGICFIRE, 67108864 (00 00 00 04) is MAGICCOLD, 134217728 (00 00 00 08) is STUNNING, 65536 (00 00 01 00) is ACID, 131072 (00 00 02 00) is COLD, 262144 (00 00 04 00) is ELECTRICITY, 524288 (00 00 08 00) is FIRE, 1048576 (00 00 16 00) is PIERCING, 2097152 (00 00 32 00) is POISON, 4194304 (00 00 64 00) is MAGIC, 8388608 (00 00 128 00) is MISSILE, 2 (02 00 00 00) is Lower HP to Fixed Percent set by Fixed Damage value, and 1 (01 00 00 00) is Lower HP to Fixed Damage value.
+
+13 (Dh) Death,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Death Type,
+
+This effect will instantly kill a creature. The Death Type parameter sets which type of death occurs. Known values for the Death Type parameter are 0 for a normal death , 8 for a chunked death, 32 for freezing death, and 64 for exploding stoned death.
+
+14 (Eh) (Defrost),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+15 (Fh)  Dexterity Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+16 (10h) Haste,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Haste Type,
+
+The Haste Type parameter sets how this Haste effect functions. Known values are 0 for normal Haste, 1 for Improved Haste, and 2 for speed haste without attack bonuses.
+
+17 (11h) Current HP Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+18 (12h) Maximum HP Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+19 (13h) Intelligence Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+20 (14h) Invisibility,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Invisibility type,
+
+Leave 1 parameter at all zeros for this Effect to work. 
+
+Invisibility type - 0 is normal invisibility.  Invisibility type 1 is improved invisibilty.
+
+21 (15h) Lore Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+22 (16h) (Old Lore Bonus),
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+This effect is undetermined at this time.
+
+23 (17h) Remove Fear,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+24 (18h) Horror,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+25 (19h) Poison,
+
+Parameter 1 :Damage Amount,
+
+Parameter 2 :Damage Determination,
+
+The Damage Amount parameter is the amount of damage done by the poison as set by the Damage Determination parameter. If the Damage Determination parameter is 01 then then Damage Amount is Hit Point percentile of total damage done by the end of the poison run, 02 sets the Damage Amount to be the Hit Point damage per second, and 03 sets the Damage Amount to be the Hit Point damage per round.
+
+26 (1Ah) Remove Curse,
+
+Parameter 1 :Non-meaningful,
+
+Non-meaningful,
+
+Parameter 2 :Leave both parameters at all zeros for this Effect to work.
+
+27 (1Bh) Acid Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+28 (1Ch) Cold Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+29 (1Dh) Lightning Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+30 (1Eh) Fire Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+31 (1Fh) Magic Damage Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+Baldur's Gate 2 Shadows of Amn
+
+32 (20h) Raise Dead,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+33 (21h) Save vs. Death Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+34 (22h) Save vs. Wands Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+35 (23h) Save vs. Petrification/Polymorph Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+36 (24h) Save vs. Breath Weapons Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+37 (25h) Save vs. Spells Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+38 (26h) Silence,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+39 (27h) Unconsciousness,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+40 (28h) Slow,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+41 (29h) (Sparkle),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+42 (2Ah) Bonus Wizard Spells,
+
+Parameter 1 :Spell Addition,
+
+Parameter 2 :Spell Level,
+
+The Spell Level paramter determines the level of the additional spells to add, and the Spell Addition parameter sets how many spells of that level to add. To double the spells instead of adding a fixed amount set the Spell Level paramater to zero and use the Spell Additions parameter to set the levels to double using a level mask. The values for the Spell Level parameter are 1 for level 1, 2 for level 2, 4 for level 3, 8 for level 4, 16 for level 5, 32 for level 6, 64 for level 7, 128 for level 8,and 256 for level 9.
+
+43 (2Bh) Stone to Flesh,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+44 (2Ch) Strength Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+45 (2Dh) Stun,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+46 (2Eh) Unstun,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will make the target not stunned anymore. Leave both parameters to zero for this effect to function.
+
+47 (2Fh) (Visible),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+48 (30h) Vocalize,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+49 (31h) Wisdom Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+50 (32h) Character Colorization,
+
+Parameter 1 :RGB Color,
+
+Parameter 2 :Location,
+
+Set the RGB Color parameter to the color value you want to use with the second byte being the Red portion (0-255), the third byte the Green portion (0-255), and the fourth byte being the Blue portion (0-255) and the part specified by the Location parameter will be that color. The known values of the Location parameter are 00 is belt buckle (when on armor) or amulets (on robes), 01 is minor color, 02 is major color, 03 is skin color, 04 is strap color (on armor) or minor triming (on robes - the center strip down a robe and the hem on some robes), 05 is armor color (and major triming on robe - cross trim and cape trim on robe of archmagi), 06 is hair color, 16 is quillons or crossguard, 20 is grip (usually not seeable as it's in the charcter's hand), 21 is blade or major portion of weapon, 32 is shield hub, 34 is shield panelling, 37 is shield rim, 48 is helm ornamentation - i.e. wings, 49 is helm ornamentation - i.e. feathers/horsehair, 52 is unknown but listed in helm01, and 53 is helm - the main covering.
+
+51 (33h) Strong/Dark Colorization,
+
+Parameter 1 :RGB Color,
+
+Parameter 2 :Location,
+
+Set the RGB Color parameter to the color value you want to use with the second byte being the Red portion (0-255), the third byte the Green portion (0-255), and the fourth byte being the Blue portion (0-255) and the part specified by the Location parameter will be that color. The known values of the Location parameter are 00 is belt buckle (when on armor) or amulets (on robes), 01 is minor color, 02 is major color, 03 is skin color, 04 is strap color (on armor) or minor triming (on robes - the center strip down a robe and the hem on some robes), 05 is armor color (and major triming on robe - cross trim and cape trim on robe of archmagi), 06 is hair color, 16 is quillons or crossguard, 20 is grip (usually not seeable as it's in the charcter's hand), 21 is blade or major portion of weapon, 32 is shield hub, 34 is shield panelling, 37 is shield rim, 48 is helm ornamentation - i.e. wings, 49 is helm ornamentation - i.e. feathers/horsehair, 52 is unknown but listed in helm01, and 53 is helm - the main covering.
+
+52 (34h) Very Bright Colorization,
+
+Parameter 1 :RGB Color,
+
+Parameter 2 :Location,
+
+Set the RGB Color parameter to the color value you want to use with the second byte being the Red portion (0-255), the third byte the Green portion (0-255), and the fourth byte being the Blue portion (0-255) and the part specified by the Location parameter will be that color. The known values of the Location parameter are 00 is belt buckle (when on armor) or amulets (on robes), 01 is minor color, 02 is major color, 03 is skin color, 04 is strap color (on armor) or minor triming (on robes - the center strip down a robe and the hem on some robes), 05 is armor color (and major triming on robe - cross trim and cape trim on robe of archmagi), 06 is hair color, 16 is quillons or crossguard, 20 is grip (usually not seeable as it's in the charcter's hand), 21 is blade or major portion of weapon, 32 is shield hub, 34 is shield panelling, 37 is shield rim, 48 is helm ornamentation - i.e. wings, 49 is helm ornamentation - i.e. feathers/horsehair, 52 is unknown but listed in helm01, and 53 is helm - the main covering.
+
+53  (35h) Animation Change,
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+This effect will change the character animation.
+
+54 (36h) THAC0 Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+55 (37h) Slay Creature,
+
+Parameter 1 :Class Type,
+
+Parameter 2 :Static Value,
+
+This item will slay the type of creature set by the Class Type parameter with a number of hit dice less than the Dice Throws setting in the Effect settings. The Static Value parameter needs to be set to 5. The known values of the Class Type parameter are 00 is All, 01 is MAGE, 02 is FIGHTER, 03 is CLERIC, 04 is THIEF, 05 is BARD, 06 is PALADIN, 11 is DRUID, 12 is RANGER, 101 is ANKHEG, 102 is BASILISK, 103 is BASILISK_GREATER, 104 is BEAR_BLACK, 105 is BEAR_BROWN, 106 is BEAR_CAVE, 107 is BEAR_POLAR, 108 is CARRIONCRAWLER, 109 is DOG_WILD, 110 is DOG_WAR, 111 is DOPPLEGANGER, 112 is DOPPLEGANGER_GREATER, 115 is ETTERCAP, 116 is GHOUL, 117 is GHOUL_REVEANT, 118 is GHOUL_GHAST, 119 is GIBBERLING, 120 is GNOLL, 121 is HOBGOBLIN, 122 is KOBOLD, 123 is KOBOLD_TASLOI, 124 is KOBOLD_XVART, 125 is OGRE, 126 is OGRE_MAGE, 127 is OGRE_HALFOGRE, 128 is OGRE_OGRILLON, 130 is FAIRY_SIRINE, 131 is FAIRY_DRYAD, 132 is FAIRY_NEREID, 133 is FAIRY_NYMPH, 134 is SKELETON, 135 is SKELETON_WARRIOR, 136 is SKELETON_BANEGUARD, 137 is SPIDER_GIANT, 138 is SPIDER_HUGE, 139 is SPIDER_PHASE, 140 is SPIDER_SWORD, is 141 SPIDER_WRAITH, 143 is WOLF, 144 is WOLF_WORG, 145 is WOLF_DIRE, 146 is WOLF_WINTER, 147 is WOLF_VAMPIRIC, 148 is WOLF_DREAD, 149 is WYVERN, 150 is OLIVE_SLIME, 151 is MUSTARD_JELLY, 152 is OCRE_JELLY, 153 is GREY_OOZE, 154 is GREEN_SLIME, 157 is WEREWOLF (TotSC), 158 is WOLFWERE (TotSC), 159 is DEATHKNIGHT (TotSC), 160 is TANARI (TotSC), 186 is Air Elemental, 187 Fire Elemental, and 188 is Earth Elemental.
+
+56 (38h) Alignment Invert,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+57 (39h) Alignment Change,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Alignment,
+
+Set the Alignment parameter to the alignment you want. The known values of the Alignment parameter are 00 is None, 17 is Lawful Good, 18 is Lawful Neutral, 19 is Lawful Evil, 33 is Neutral Good, 34 is True Neutral, 35 is Neutral Evil, 49 is Chaotic Good, 50 is Chaotic Neutral, and 51 is Chaotic Evil.
+
+58 (3Ah) Dispel Magic (Not magical weaponry like Spiritual Hammer),
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. Setting param 2 to 1 does the dispel check as the spell describes (meaning it sometimes doesn't dispel stuff if your low level).
+
+Setting param 2 to 2 lets you cast at a certain level 
+which you set with param 1.
+
+e.g.: Inquisitor Innate Dispel magic (spcl231.spl)
+
+59 (3Bh) Stealth Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+60 (3Ch) Miscast Magic,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+62 (3Eh) Bonus Priest Spell,
+
+Parameter 1 :Spell Addition,
+
+Parameter 2 :Spell Level,
+
+The Spell Level paramter determines the level of the additional spells to add, and the Spell Addition parameter sets how many spells of that level to add. To double the spells instead of adding a fixed amount set the Spell Level paramater to zero and use the Spell Additions parameter to set the levels to double using a level mask. The values for the Spell Level parameter are 1 for level 1, 2 for level 2, 4 for level 3, 8 for level 4, 16 for level 5, 32 for level 6, 64 for level 7, 128 for level 8,and 256 for level 9.
+
+63 (3Fh) Infravision,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+Baldur's Gate 2 Shadows of Amn
+
+64 (40h) (Infravision off),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+65 (41h) Blur,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+66 (42h) Transparency Fade,
+
+Parameter 1 :Fade Amount,
+
+Parameter 2 :Non-meaningful,
+
+Set the Fade Amount parameter to set how faded the Effect does. A 1 is fully visible and a 255 is nearly invisible.
+
+67 (43h) Creature Summoning,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The resource key needs to be set to the creature type (CRE file name) to summon. Always sets summoned creature to state "ally" unless value of parameter 2 is 2. In case it's 2, the summoned creature will have the EA state which is contained in original CRE file. All other values set EA to ally.
+
+68 (44h) Unsummon Creature,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+69 (45h) Non-Detection,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+70 (46h) (End Non-Detection),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+71 (47h) Sex Change,
+
+Parameter 1 :IDS Choice,
+
+Parameter 2 :IDS File,
+
+Leave both parameters at all zeros for this Effect to swap the sex of the affected target. For specific changes set the IDS File parameter to 1 to use the Gender.ids file for the game, then set the IDS Choice parameter to the value from the IDS file you want to use.
+
+72 (48h) Set Reaction State,
+
+Parameter 1 :Reaction State,
+
+Parameter 2 :Non-meaningful,
+
+Set the Reaction State parameter to the value of the state you wish the Effect to do. Known values are in EA.IDS.
+
+73 (49h) Bonus Damage Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+74 (4Ah) Blindness,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+75 (4Bh) Cure Blindness,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+76 (4Ch) Feeblemindedness,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+77 (4Dh) Cure Feeblemindedness,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will remove feeblemindedness from the target. Leave both parameters at zeros for this effect to work.
+
+78 (4Eh) Disease,
+
+Parameter 1 :Damage,
+
+Parameter 2 :Non-meaningful,
+
+Set the Damage parameter as the amount of damage per second.
+
+some value could be found in Param #2 associated with different effect on target. For example 10 is responsible of the slow effect of Otyugh's attack whereas 3 seem to be the hill effect (i have no idea of the 6 found in Param #1 - maybe a timing mode between each time target get damage ?). The Item is IOTYUGH.ITM. Check SPWI409 which reduce the STR, DEX and CHR of the target by the number in Param #1. In Param #2 we have 4, 5 and 9. Okay, i have tested this one. Seem to ignore the Dice parameters (size and number) :
+* Param #1 = Non meaningful, Param #2 = 0, the target take 1 damage each second for the duration of the effect.
+* Param #1 = int, Param #2 = 1, the target take 1 damage each second for some times defined in param #1 : = 2, take damage for 6 seconds, = 3 take damage for 21 seconds, = 4+ take damage for the full duration of the effect. Work only if a duration is set
+* Param #1 = int, Param #2 = 2. The target take an amount of damage equal to Param #1 / Param #2 (with param #1 at least > to Param #2 - round to superior) each second for the duration of the effect.
+* Param #1 = int, Param #2 = 3. The target take 1 damage each X, where X = Param #1
+* Param #1 = int, Param #2 = 4. The Strength's target is reduced to a value = Param #1 (if the value is negative then the strength is increase instead).
+* Same as above for the dexterity with Param #2 = 5
+* For the constitution is Param #2 = 6
+* Param #2 = 7 for INT, = 8 for WIS and 9 for CHR
+* Param #2 = 10, make the target slow.
+* tested 11 and 13, crashes the game.
+
+79 (4Fh) Cure Disease,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+80 (50h) (Deafness),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+81 (51h) Cure Deafness,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will remove the Deafness effect from the target. Leave both parameter set to zero for this effect to function.
+
+82 (52h) Set AI Script,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Script Type,
+
+This effect will set the AI Script of the target. The Script Type parameter sets the specific script to set and the resource key should be set to the AI Script to use. The known values for the Script Type parameter are 0 for OVERRIDE, 1 for AREA, 2 for SPECIFICS, 4 for CLASS, 5 for RACE, 6 for GENERAL, and 7 for DEFAULT.
+
+83 (53h) Protection From Projectile Weapon,
+
+Parameter 1 :defines the enchanment of the projectile,
+
+Parameter 2 :Weapon Type, defines the projectile from PROJECTL.IDS
+
+Set the Weapon TypeStruct to the type of weapon to have protection from.
+
+84 (54h) Reduced Damage from Magical Fire Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+85 (55h) Reduced Damage from Magical Cold Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+86 (56h) Reduced Damage from Slashing Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+87 (57h) Reduced Damage from Crushing Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+88 (58h) Reduced Damage from Piercing Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+89 (59h) Reduced Damage from Missiles Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+90 (5Ah) Open Locks Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+91 (5Bh) Find Traps Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+92 (5Ch) Pick Pockets Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+93 (5Dh) Fatigue Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+94 (5Eh) Drunkenness Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+95 (5Fh) Tracking Skill Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+Baldur's Gate 2 Shadows of Amn
+
+96 (60h) Level Change,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+97 (61h) Strength-Bonus Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+98 (62h) Regeneration,
+
+Parameter 1 :Regen Modifier,
+
+Parameter 2 :Regen Type,
+
+The Regen Type parameter sets how the Regen Modifier parameter works. If it is a 01 then it makes the Modifier is the Hit Point percentage to replace by the end of the Effect, if it is a 02 the Modifer is the amount of Hit Points to regenerate per second, and if it is a 03 then the Modifier is the amount of seconds it takes to regenerate 1 Hit Point.
+
+99 (63h) (Duration Modifier),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+100 (64h) Protect from Creature Type,
+
+Parameter 1 :Value #1,
+
+Parameter 2 :Value #2,
+
+This effect will provide protection from a specific creature type. The known values are Value#1 of 0 with Value#2 of 0 for Anything, Value#1 of 0 with Value#2 of 3 for Undead, and Value#1 of 9 with Value#2 of 7 for Demonic Creatures.
+
+works in the same way as 'THAC0 vs. bonus' and 'Damage vs. bonus'. Also 6 = SPECIFICS.IDS and 7 = GENDER.IDS
+
+101 (65h) Protection from Opcode,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :OPCode,
+
+The OPCode parameter sets what exactly to protect against. Known values for the OPCode parameter are as follows: 0 is Bonus AC vs. Weapon Type, 1 is Attacks per 2 round Bonus, 2 is (Awaken), 3 is Beserking, 4 is (Calm), 5 is Charm Specific Creature, 6 is Charisma Bonus, 7 is Set Item Colors, 8 is Change Colors by RGB, 9 is Shining Colors by RGB, 10 is Constitution Bonus, 11 is Neutralize Poison, 12 is Fixed/Random Damage, 13 is Death, 14 is (Defrost), 15 is Dexterity Bonus, 16 is Haste, 17 is Current HP Bonus, 18 is Maximum HP Bonus, 19 is Intelligence Bonus, 20 is Invisibility, 21 is Lore Bonus, 22 is (Old Lore Bonus), 23 is Remove Fear, 24 is Horror, 25 is Poison, 26 is Remove Curse, 27 is Acid Resistance Bonus, 28 is Cold Resistance Bonus, 29 is Lightning Resistance Bonus, 30 is Fire Resistance Bonus, 31 is Magic Damage Resistance Bonus, 32 is Raise Dead, 33 is Save vs. Death Bonus, 34 is Save vs. Wands Bonus, 35 is Save vs. Petrification/Polymorph Bonus, 36 is Save vs. Breath Weapons Bonus, 37 is Save vs. Spells Bonus, 38 is Silence, 39 is Unconsciousness, 40 is Slow, 41 is (Sparkle), 42 is Bonus Wizard Spells, 43 is Stone to Flesh, 44 is Strength Bonus, 45 is Stun, 46 is Unstun, 47 is (Visible), 48 is Vocalize, 49 is Wisdom Bonus, 50 is Character Colorization, 51 is Strong/Dark Colorization, 52 is Very Bright Colorization, 53 is Animation Change, 54 is THAC0 Bonus, 55 is Slay Creature, 56 is Alignment Invert, 57 is Alignment Change, 58 is Dispel Magic (Not magical weaponry like Spiritual Hammer), 59 is Stealth Bonus, 60 is Miscast Magic, 62 is Bonus Priest Spell, 63 is Infravision, 64 is (Infravision off), 65 is Blur, 66 is Transparency Fade, 67 is Creature Summoning, 68 is Unsummon Creature, 69 is Non-Detection, 70 is (End Non-Detection), 71 is Sex Change, 72 is Set Reaction State, 73 is Bonus Damage Bonus, 74 is Blindness, 75 is Cure Blindness, 76 is Feeblemindedness, 77 is Cure Feeblemindedness, 78 is Disease, 79 is Cure Disease, 80 is (Deafness), 81 is (Cure Deafness), 82 is Set AI Script, 83 is Protection From Projectile Weapon, 84 is Reduced Damage from Heat Modifier, 85 is Reduced Damage from Cold Modifier, 86 is Reduced Damage from Slashing Modifier, 87 is Reduced Damage from Crushing Modifier, 88 is Reduced Damage from Piercing Modifier, 89 is Reduced Damage from Missiles Modifier, 90 is Open Locks Bonus, 91 is Find Traps Bonus, 92 is Pick Pockets Bonus, 93 is Fatigue Bonus, 94 is Drunkenness Bonus, 95 is Tracking Skill Bonus, 96 is Level Change, 97 is Strength-Bonus Bonus, 98 is Regeneration, 99 is (Duration Modifier), 100 is Protect from Creature Type, 101 is Protection from Opcode, 102 is Protection from Spells, 103 is Change Name, 104 is Experience Points Stat, 105 is Gold Stat, 106 is Fail Morale, 107 is Portrait Change, 108 is (Reputation), 109 is Hold, 110 is (Retreat From), 111 is Create Item, 112 is Remove Item, 113 is (Equip Weapon), 114 is Can't Cast Spells, 115 is Detect Alignment, 116 is Detect Invisibility, 117 is Clairvoyance, 118 is (Show Creatures), 119 is Mirror Image, 120 is Immunity to Weapons, 121 is (Visual Animation Effect), 122 is Create Inventory Item, 123 is Remove Inventory Item, 124 is Teleport (Dimension Door), 125 is Unlock (Knock), 126 is Movement Modifier, 127 is Monster Summoning, 128 is Confusion/Rigid Thinking/Fear, 129 is Aid, 130 is Bless, 131 is Chant, 132 is Raise Strength/Constitution/Dexterity Non-Cumulative, 133 is Luck Non-Cumulative, 134 is Petrification, 135 is Polymorph into Specific, 136 is (Force Invisible), 137 is (Non-Cumulative Chant Bad), 138 is Character Animation Change, 139 is Display String, 140 is (Casting Glow), 141 is Lighting Effects, 142 is Display Special Effect Icon, 143 is Create Item in Slot, 144 is Disable Buttons, 145 is Disable Spell Casting Abilities, 146 is Cast Spell (Mage/Cleric/etc.), 147 is Learn Spell, 148 is Cast Spell (Like Scrolls), 149 is (Identify), 150 is Find Traps, 151 is Creature Summoning Hostile, 152 is Play Movie, 153 is Sanctuary, 154 is Entangle Overlay, 155 is Minor Globe Overlay, 156 is Protection from Normal Missiles Cylinder Overlay, 157 is Web Effect Overlay, 158 is Grease Display, 159 is Mirror Image (Exact Number), 161 is Remove Fear (II), 162 is Remove Paralysis, 163 is Free Action, 164 is Slow Poison, 165 is Burning Hands Overlay, 166 is Magic Resistance Bonus, 167 is THAC0 Bonus with Missile Weapons, 168 is Remove Creature, 169 is Remove Special Effect Icon, 170 is Play Damage Animation, 171 is Give Innate Ability, 172 is Remove Spell, 173 is Poison Resistance Bonus, 174 is Play Sound Effect, 175 is Hold Creature Type, 177 is Use EFF File, 178 is THAC0 vs. Bonus, 179 is Damage vs. Bonus, 180 is Can't Use Item, 185 is Hold Creature (II), 187 is Set Local Variable, 188 is Increase Spellcasting Speed, 189 is Spell Speed Factor, 190 is Attack Speed Factor, 192 is Find Familiar, 193 is Invisible Detection by Script, 197 is Physical Mirror, 199 is Reflect Spells, 200 is Spell Turning, 201 is Spell Deflection/Shield of the Archons, 203 is Damage Turning, 204 is Protection from Spell School, 206 is Protection from Spell, 208 is Minimum HP, 209 is Kill 60HP, 210 is Stun 90HP, 211 is Imprisionment, 212 is Freedom, 213 is Maze, 214 is Select Spell, 215 is Play 3D Effect, 216 is Level Drain, 217 is Unconsciousness 20HP, 218 is Stoneskin Protection, 219 is Attack Roll Penalty, 220 is True Sight, 221 is Remove Spell Protections, 222 is Teleport Field, 223 is Random Attack Sequence, 224 is Restoration, 226 is Spell Shield, 230 is Remove Magical Protections, 231 is Time Stop, 232 is Cast Spell on Condition, 233 is Proficiency Modify, 234 is Contingency, 235 is Wing Buffet, 236 is Image Projection, 238 is Disintegrate, 239 is Farsight, 240 is Remove Physical Protections, 241 is Control Creature, 242 is Cure Confusion/Rigid Thinking/Fear, 243 is Drain Item Charges, 244 is Drain Wizard Spell, 247 is Attack Nearest Creature, 248 is Give Item Effect, 249 is Use EFF File (II), 250 is Maximum Damage Per Hit, 251 is Change Bard Song Effect, 252 is Set Trap, 253 is Map Marker Set, 254 is Map Marker Position, 255 is Create Item (II), 257 is Spell Sequencer Creation, 258 is Spell Sequencer Activation, 259 is Spell Trap, 261 is Spell Restore, 263 is Backstab, 264 is Drop Weapons in Panic, 265 is Set Global Variable, 267 is Disable Display String, 268 is Clear Fog of War, 269 is Shake Window, 270 is Unpause Caster, 271 is Animation Removal, 272 is Summon Insects/Insect Plague/Creeping Doom, 273 is Zone of Sweet Air, 274 is Un-Zone of Sweet Air, 275 is Hide in Shadow Bonus, 276 is Detect Illusion Bonus, 277 is Set Traps Bonus, 278 is To Hit Bonus, 279 is Renable Button, 280 is Wild Magic, 281 is Restore Normal Spellcasting Ability, 282 is Scripting State Modify, 285 is Melee Weapon Damage Bonus, 286 is Missile Weapon Damage Bonus, 287 is Feet Circle Removal, 288 is Fist THAC0 Bonus, 289 is Fist Damage Bonus, 290 is Change Title, 291 is Disable Visual Effect, 292 is Immunity to Backstab, 295 is Play Animation Sequence, 296 is Immunity to Specific Animation, 298 is Use 2DA file, 301 is Die Roll Number, 302 is Can Use Any Item, 303 is Backstab Every Hit, 304 Bonus THAC0 to Off-Hand, 310 is Protection from Timestop, and 317 is Attack Number Double.
+
+102 (66h) Protection from Spells,
+
+Parameter 1 :Spell Level,
+
+Parameter 2 :Non-meaningful,
+
+The Spell Level parameter sets what level of spell that the Effect grants immunity to. Known values as 01 to 09.
+
+103 (67h) Change Name,
+
+Parameter 1 :Name Reference,
+
+Parameter 2 :Non-meaningful,
+
+The Name Reference parameter sets what reference in the Dialok.tlk file that the name is changed to.
+
+104 (68h) Experience Points Stat,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+105 (69h) Gold Stat,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value). NOTE: This seems to be non-functional and doesn't do anything.
+
+106 (6Ah) Fail Morale,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+107 (6Bh) Portrait Change,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Portrait Type,
+
+This effect will change the portraits seen for a character in the game. The Portrait Type parameter sets which portrait to change, and the Resource Key sets the new BMP file to use for the portrait. The known values of the Portrait Type parameter are 0 for small portrait, and 1 for large portrait.
+
+108 (6Ch) (Reputation),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+109 (6Dh) Hold,
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+110 (6Eh) (Retreat From),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+111 (6Fh) Create Item,
+
+Parameter 1 :Number to Create,
+
+Parameter 2 :Non-meaningful,
+
+Set the Number to Create parameter to the number you wish to create of the item specified by the Resource Key, which needs to be set to the item name to create (i.e. name of .itm file).
+
+112 (70h) Remove Item,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The resource key needs to be set to the item name to remove (i.e. name of .itm file).
+
+113 (71h) (Equip Weapon),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+114 (72h) Can't Cast Spells,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+115 (73h) Detect Alignment,
+
+Parameter 1 :Non-meaningful,
+
+Alignment Mask,
+
+The Alignment Mask parameter sets the alignment to detect for. Known values for the Alignment Mask parameter are 0 for Evil, 1 for Neutral, and 2 for Good.
+
+116 (74h) Detect Invisibility,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+117 (75h) Clairvoyance,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+118 (76h) (Show Creatures),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+119 (77h) Mirror Image,
+
+Parameter 1 :Maximum Images,
+
+Parameter 2 :Non-meaningful,
+
+The Maximum Images parameter sets the maximum number of images the Effect will create.
+
+120 (78h) Immunity to Weapons,
+
+Parameter 1 :Magical Plus to Affect,
+
+Parameter 2 :Weapon Type,
+
+This effect will provide protection against all forms of weapons. The Weapon Type parameter sets the generic type of weapon to protect against where 1 is magical weapons, and 2 is non-magical weapons. The Magical Plus to Affect sets the enchanted value for a weapon to protect against with a 0 being non-magical, 1 for +1, 2 for +2, 3 for +3, 4 for +4, and 5 for +5.
+
+121 (79h) (Visual Animation Effect),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+122 (7Ah) Create Inventory Item,
+
+Parameter 1 :Number to Create,
+
+Parameter 2 :Non-meaningful,
+
+Set the Number to Create parameter to the number you wish to create of the item specified by the Resource Key, which needs to be set to the item name to create (i.e. name of .itm file).
+
+123 (7Bh) Remove Inventory Item,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The resource key needs to be set to the item name (i.e. name of .itm file) to remove.
+
+124 (7Ch) Teleport (Dimension Door),
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+125 (7Dh) Unlock (Knock),
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+126 (7Eh) Movement Modifier,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+127 (7Fh) Monster Summoning,
+
+Parameter 1 :Monster Numbers,
+
+Parameter 2 :
+
+0 = monster summoning 1 
+1 = monster summoning 2 
+2 = monster summoning 3 
+3 = animal summoning 1 
+4 = animal summoning 2, 3, and conjure animals 
+5 to ? = enemy summoning spells, 
+The Monster Numbers parameter is the number of monsters times 4 that you want to summon.
+Baldur's Gate 2 Shadows of Amn
+
+128 (80h) Confusion/Rigid Thinking/Fear,
+
+Parameter 1 :Type,
+
+Parameter 2 :Non-meaningful,
+
+Though both parameters are actually non-meaningful, this program uses the Type parameter to affect a different location to determine which exact effect this Effect does. The known values are 04 for Confusion, 03 for Rigid Thinking, and 00 for Fear.
+
+129 (81h) Aid,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+130 (82h) Bless,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Non-meaningful,
+
+The Statistic Modifier parameter sets what point modifier this Effect has on Saving Throws and Rolls.
+
+131 (83h) Chant,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+132 (84h) Raise Strength, Constitution, & Dexterity Non-Cumulative,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Non-meaningful,
+
+The Statistic Modifier parameter sets what point modifier this Effect has on Strength, Constitution, and Dexterity.
+
+133 (85h) Luck Non-Cumulative,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Non-meaningful,
+
+The Statistic Modifier parameter sets what point modifier this Effect has on Luck.
+
+134 (86h) Petrification,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+135 (87h) Polymorph into Specific,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Change Specifics,
+
+This effect will polymorph the target into the creature type (i.e. the .cre file name) set by the Resource Key. The Change Specifics parameter sets information about how the polymorph affects the target. The known values for the Change Specifics parameter are 1 for polymorph with creature coloring, spellcasting enabled, and gain none of creature statistics or resistences; and 2 for polymorph without creature coloring, spellcasting enabled, and gain non of creature statistics or resistences.
+
+136 (88h) (Force Invisible),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+137 (89h) (Non-Cumulative Chant Bad),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+138 (8Ah) Character Animation Change,
+
+Parameter 1 :denotes which animation to use, from animate.ids,
+
+Parameter 2 :Animation Sequence,
+
+The Animation Sequence parameter sets which animation is shown. The known values of the Animation Sequence parameter are 01 is Lay down (short), 02 is Move hands (short), 03 is Move hands (long), 04 is Move shoulder (short), 05 is Move shoulder (long), 06 is Lay down (long), 07 is Breath rapidly (short), and 08 is Breath rapidly (long).
+
+139 (8Bh) Display String,
+
+Parameter 1 :Text Reference,
+
+Parameter 2 :Non-meaningful,
+
+The Text Reference parameter sets what reference in the Dialok.tlk file that is displayed.
+
+140 (8Ch) (Casting Glow),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+141 (8Dh) Lighting Effects,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Lighting,
+
+The Lighting parameter sets which lighting effect actually shows. Known values are 00 is Potion of Healing, 01 is Chill Touch, 02 is Potion of Healing, 04 is Oil of Speed, 05 is Potion of Invulnerability, 06 is Potion of Cloud Giant Strength, 08 is Potion of Genius, 09 is Sleep *W*/Hold Person *P*, 10 is Antidote, 12 is Potion of Absorbtion, 15 is Arrow of Dispelling, 16 is Potion of Invisibility, 18 is Blindness *W*, 20 is Chant *P*, 22 is Bless *P*, 24 is Magic Missile *W*, 25 is Chromatic Orb *W*, 26 is Spwi984 *W*, 28 is Infravision *W*, 30 is Detect Evil *I*, 32 is Spwi983 *W*, 33 is Animal Summoning I *P*, 34 is Mushroom Cloud of Green Smoke, 35 is Flamestrike *P*, 36 is Call on Holy Might *P*, 37 is Clairvoyance *W*, and 38 is Shadow Door *W*.
+
+142 (8Eh) Display Special Effect Icon,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Icon Type,
+
+The Icon Type parameter sets which icon is shown. Known values are 00 is charm, 01 is dire charm, 02 is rigid thinking, 03 is confused, 04 is beserk, 05 is intoxicated, 06 is poisoned, 07 is nauseated, 08 is blind, 09 is protection from evil, 10 is protection from petrification, 11 is protection from missiles, 12 is magic armour, 13 is held, 14 is sleep, 15 is shielded, 16 is protection from fire, 17 is blessed, 18 is chant, 19 is free action, 20 is barkskin, 21 is strength, 22 is heroism, 23 is invulnerable, 24 is protection from acid, 25 is protection from cold, 26 is resist fire/cold, 27 is protection from electricity, 28 is protection from magic, 29 is protection from undead, 30 is protection from poison, 31 is non-detection, 32 is good luck, 33 is bad luck, 34 is silenced, 35 is cursed, 36 is panic, 37 is resist fear, 38 is haste, 39 is fatigue, 40 is bard song, 41 is slow, 42 is regenerate, 43 is domination, 44 is hopelessness, 45 is greater malison, 46 is spirit armour, 47 is chaos, 48 is feebleminded, 49 is defensive harmony, 50 is champions strength, 51 is dying, 52 is mind shield, 53 is Level Drain, 54 is polymorph self, 55 is stun, 56 is regeneration, 57 is perception, 58 is master theivery, 59 is Energy Drain (Psionic/Mindflayer), 60 is Holy Power, 61 is Cloak of Fear, 62 is Iron Skins, 63 is Magic Resistance, 64 is Righteous Magic, 65 is Spell Turning, 66 is Repulsing Undead, 67 is Spell Deflection, 68 is Fire Shield Red, 69 is Fire Shield Blue, 70 is Protection from Normal Weapons, 71 is Protection from Magic Weapons, 72 is Tensor’s Transformation, 73 is Protected from Magical Energy, 74 is Mislead, 75 is Contingency Active, 76 is Protected from the Elements, 77 is Projected Image, 78 is Maze, 79 is Imprisonment, 80 is Stoneskin, 81 is KAI, 82 is Called Shot, 83 is Spell Failure, 84 is Offensive Stance, 85 is Defensive Stance, 86 is Intelligence Drained by Mind Flayer, 87 is Regenerating, 88 is Talking, 89 is At a Store, 90 is Negative Plane Protection, 91 is Ability Score Drained, 92 is Spell Sequencer Active, 93 is Protected from Energy, 94 is Magnetized, 95 is Able to Poison Weapons, 96 is Setting Trap, 97 is Glass Dust, 98 is Blade Barrier, 99 is Death Ward, 100 is Doom, 101 is Decaying, 102 is Acid, 103 is Vocalize, 104 is Mantle, 105 is Miscast Magic, 106 is Magic Resistance Lowered, 107 is Spell Immunity, 108 is True Seeing, 109 is Detecting Traps, 110 is Improved Haste, 111 is Spell Trigger, 112 is Deaf, 113 is Enfeebled, 114 is Infravision, 115 is Friends, 116 is Shield of the Archons, 117 is Spell Trap, 118 is Absolute Immunity, 119 is Improved Mantle, 120 is Farsight, 121 is Globe of Invulnerability, 122 is Minor Globe of Invulnerability, 123 is Spell Shield, 124 is Polymorphed, 125 is Otiluke’s Resilient Sphere, 126 is Nauseated, 127 is Ghost Armor, 128 is Glitterdust, 129 is Webbed, 130 is Unconscious, 131 is Mental Combat, 132 is Physical Mirror, 133 is Repulse Undead, 134 is Chaotic Commands, 135 is Draw Upon Holy Might, 136 is Strength of One, 137 is Bleeding, 138 is Barbarian Rage, 139 is Boon of Lathander, 140 is Storm Shield, 141 is Enraged, 142 is Stunning Blow, 143 is Quivering Palm, 144 is Entangled, 145 is Grease, 146 is Smite, 147 is Hardiness, 148 is Power Attack, 149 is Whirlwind Attack, 150 is Greater Whirlwind Attack, 152 is Critical Strike, 153 is Greater Deathblow, 154 is Deathblow, 155 is Avoid Death, 156 is assassination, 157 is Evasion, and 158 is Greater Evasion.
+
+143 (8Fh) Create Item in Slot,
+
+Parameter 1 :Slot Type,
+
+Parameter 2 :Non-meaningful,
+
+The Slot Type parameter sets which slot the item is created in. The Resource Key needs to be set to the item name (i.e. the .itm file name) to be created. Known values are 00 is AMULET, 01 is ARMOR, 02 is BELT, 03 is BOOTS, 04 is CLOAK, 05 is GAUNTLETS, 06 is HELMET, 07 is RING_LEFT, 08 is RING_RIGHT, 09 is SHIELD, 10 is FIST, 11 is AMMO, 15 is MISC, 35 is WEAPON, 11 is AMMO0, 12 is AMMO1, 13 is AMMO2, 14 is AMMO3, 15 is MISC0, 16 is MISC1, 17 is MISC2, 18 is MISC3, 19 is MISC4, 20 is MISC5, 21 is MISC6, 22 is MISC7, 23 is MISC8, 24 is MISC9, 25 is MISC10, 26 is MISC11, 27 is MISC12, 28 is MISC13, 29 is MISC14, 30 is MISC15, 31 is MISC16, 32 is MISC17, 33 is MISC18, 34 is MISC19, 35 is WEAPON0, 36 is WEAPON1, 37 is WEAPON2, and 38 is WEAPON3.
+
+144 (90h) Disable Buttons,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Button Type,
+
+The Button Type parameter sets which button is disabled. Known values are 00 is Stealth Button, 01 is the Thieving Skill Button, 02 is the Spell Select Button, 03 is the First Quick Spell Button, 04 is the Second Quick Spell Button, 05 is the Third Quick Spell Button, 06 is the Turn Undead Button, 07 is the Talk Button, 08 is the Use Item Button, 09 is the First Quick Item Button, 11 is the Second Quick Item Button, 12 is the Third Quick Item Button, and 13 is the Innate Ability Button.
+
+145 (91h) Disable Spell Casting Abilities,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Spell Type,
+
+The Spell Type parameter sets which type of spells are disabled. Known values are 00 is Wizard, 01 is Priest, and 02 is Innate.
+
+146 (92h) Cast Spell (Mage/Cleric/etc.),
+
+Parameter 1 :Casting Level,
+
+Parameter 2 :Casting Type,
+
+The Casting Level parameter sets what level the spell is cast at. The Casting Type parameter sets how the spell is cast. The Resource Key must be set to the Spell Name (i.e. the .spl file name) to cast. Known values for the Casting Type parameter are 0 for Normal Casting, and 1 for Cast Instantly.
+
+147 (93h) Learn Spell,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Spell Name (i.e. the .spl file name) to learn.
+
+148 (94h) Cast Spell (Like Scrolls),
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Spell Name (i.e. the .spl file name) to cast.
+
+149 (95h) (Identify),
+
+Parameter 1 :Undefined,
+
+Parameter 2 :Undefined,
+
+The exact definitions of these parameter and exact functions are undefined at this time.
+
+150 (96h) Find Traps,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+151 (97h) Creature Summoning Hostile,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Creature Name (i.e. the .cre file name) to be summoned.
+
+152 (98h) Play Movie,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Movie Name to play. Known movies are wyvvern, beregost, BG4LOGO, TSRLOGO, BILOGO, INFELOGO, INTRO, DEATHAND, REST, FRARMINN, BEREGOST, NASHKELL, GNOLL, BGENTER, IRONTHRN, CAMP, SEWER, and BGSUNSET.
+
+153 (99h) Sanctuary,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+154 (9Ah) Entangle Overlay,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+155 (9Bh) Minor Globe Overlay,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+156 (9Ch) Protection from Normal Missiles Cylinder Overlay,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+157 (9Dh) Web Effect Overlay,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+158 (9Eh) Grease Display,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+159 (9Fh) Mirror Image (Exact Number),
+
+Parameter 1 :Image Number,
+
+Parameter 2 :Non-meaningful,
+
+The Image Number parameter sets the exact number of images to create with this Effect.
+Baldur's Gate 2 Shadows of Amn
+
+160 (A0h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+161 (A1h) Remove Fear (II),
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeroes for this Effect to work.
+
+162 (A2h) Remove Paralysis,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+163 (A3h) Free Action,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+164 (A4h) Slow Poison,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+165 (A5h) Burning Hands Overlay,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work.
+
+166 (A6h) Magic Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+167 (A7h) THAC0 Bonus with Missile Weapons,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+168 (A8h) Remove Creature,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. Note that no experience is given for creatures removed thusly.
+
+169 (A9h) Remove Special Effect Icon,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Icon Type,
+
+The Icon Type parameter sets which icon is shown. Known values are 00 is charm, 01 is dire charm, 02 is rigid thinking, 03 is confused, 04 is beserk, 05 is intoxicated, 06 is poisoned, 07 is nauseated, 08 is blind, 09 is protection from evil, 10 is protection from petrification, 11 is protection from missiles, 12 is magic armour, 13 is held, 14 is sleep, 15 is shielded, 16 is protection from fire, 17 is blessed, 18 is chant, 19 is free action, 20 is barkskin, 21 is strength, 22 is heroism, 23 is invulnerable, 24 is protection from acid, 25 is protection from cold, 26 is resist fire/cold, 27 is protection from electricity, 28 is protection from magic, 29 is protection from undead, 30 is protection from poison, 31 is non-detection, 32 is good luck, 33 is bad luck, 34 is silenced, 35 is cursed, 36 is panic, 37 is resist fear, 38 is haste, 39 is fatigue, 40 is bard song, 41 is slow, 42 is regenerate, 43 is domination, 44 is hopelessness, 45 is greater malison, 46 is spirit armour, 47 is chaos, 48 is feebleminded, 49 is defensive harmony, 50 is champions strength, 51 is dying, 52 is mind shield, 53 is Level Drain, 54 is polymorph self, 55 is stun, 56 is regeneration, 57 is perception, 58 is master theivery, 59 is Energy Drain (Psionic/Mindflayer), 60 is Holy Power, 61 is Cloak of Fear, 62 is Iron Skins, 63 is Magic Resistance, 64 is Righteous Magic, 65 is Spell Turning, 66 is Repulsing Undead, 67 is Spell Deflection, 68 is Fire Shield Red, 69 is Fire Shield Blue, 70 is Protection from Normal Weapons, 71 is Protection from Magic Weapons, 72 is Tensor’s Transformation, 73 is Protected from Magical Energy, 74 is Mislead, 75 is Contingency Active, 76 is Protected from the Elements, 77 is Projected Image, 78 is Maze, 79 is Imprisonment, 80 is Stoneskin, 81 is KAI, 82 is Called Shot, 83 is Spell Failure, 84 is Offensive Stance, 85 is Defensive Stance, 86 is Intelligence Drained by Mind Flayer, 87 is Regenerating, 88 is Talking, 89 is At a Store, 90 is Negative Plane Protection, 91 is Ability Score Drained, 92 is Spell Sequencer Active, 93 is Protected from Energy, 94 is Magnetized, 95 is Able to Poison Weapons, 96 is Setting Trap, 97 is Glass Dust, 98 is Blade Barrier, 99 is Death Ward, 100 is Doom, 101 is Decaying, 102 is Acid, 103 is Vocalize, 104 is Mantle, 105 is Miscast Magic, 106 is Magic Resistance Lowered, 107 is Spell Immunity, 108 is True Seeing, 109 is Detecting Traps, 110 is Improved Haste, 111 is Spell Trigger, 112 is Deaf, 113 is Enfeebled, 114 is Infravision, 115 is Friends, 116 is Shield of the Archons, 117 is Spell Trap, 118 is Absolute Immunity, 119 is Improved Mantle, 120 is Farsight, 121 is Globe of Invulnerability, 122 is Minor Globe of Invulnerability, 123 is Spell Shield, 124 is Polymorphed, 125 is Otiluke’s Resilient Sphere, 126 is Nauseated, 127 is Ghost Armor, 128 is Glitterdust, 129 is Webbed, 130 is Unconscious, 131 is Mental Combat, 132 is Physical Mirror, 133 is Repulse Undead, 134 is Chaotic Commands, 135 is Draw Upon Holy Might, 136 is Strength of One, 137 is Bleeding, 138 is Barbarian Rage, 139 is Boon of Lathander, 140 is Storm Shield, 141 is Enraged, 142 is Stunning Blow, 143 is Quivering Palm, 144 is Entangled, 145 is Grease, 146 is Smite, 147 is Hardiness, 148 is Power Attack, 149 is Whirlwind Attack, 150 is Greater Whirlwind Attack, 152 is Critical Strike, 153 is Greater Deathblow, 154 is Deathblow, 155 is Avoid Death, 156 is assassination, 157 is Evasion, and 158 is Greater Evasion.
+
+170 (AAh) Play Damage Animation,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Damage Animation,
+
+This effect will play the damage animation type specified by the Damage Animation parameter on the target. The known values for the Damage Animation parameter are 0 for Blood behind, 1 for Blood in front, 2 for Blood to the Left, 3 for Blood to the right, 4 for Fire 1, 5 for Fire 2, 6 for Fire 3, 7 for Electricity 1, 8 for Electricity 2, 9 for Electricity 3.
+
+171 (ABh) Give Innate Ability,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Innate Ability Name. Known values for innate abilities are SPIN101 is Cure Light Wounds, SPIN102 is Slow Poison, SPIN103 is Draw Upon Holy Might, SPIN104 is Larloch's Minor Drain, SPIN105 is Ghoul Touch, SPIN106 is Vampiric Touch, SPIN107 is Shapeshifts Brown Bear, SPIN108 is Charm Animal, SPIN109 is Lay On Hands, SPIN110 is Shapeshifts Wolf, SPIN111 is Shapeshifts Black Bear, SPIN112 is Dispel Magic, SPIN113 is Spiritual Hammer, SPIN114 is Summon Dread Wolf, SPIN115 is Summon Ghast, SPIN116 is Create Poisoned Arrows, SPIN117 is Berserk, SPIN118 is Invisibility, SPIN119 is Charm Person, SPIN120 is Detect Evil, SPIN121 is Protection From Evil, SPIN122 is Shapeshifts Natural Form, SPIN123 is Shapeshifts Natural Form, and SPIN124 is Shapeshifts Natural Form.
+
+172 (ACh) Remove Spell,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Spell Name (i.e. the .spl file name) to remove.
+
+173 (ADh) Poison Resistance Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+This effect will modify the poison resistance of the target. The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+174 (AEh) Play Sound Effect,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeros for this Effect to work. The Resource Key must be set to the Sound File to play. Known sound effects are EFF_E01 is Draw upon holy might, EFF_E02 is Armor / Free Action, EFF_E03 is Barkskin, EFF_E04 is Protection from evil, EFF_E05 is Hold, EFF_E06 is Silence, EFF_E08 is Hold, EFF_M02 is Blindness, EFF_M04 is Detect Evil, EFF_M05 is Sleep, EFF_M07 is Death spell/ Laroch's drain, EFF_M08 is Strength of One/ Tensers Transformation, EFF_M09 is Dimension Door, EFF_M10 is Dispel/Shapeshift, EFF_M11A is Protection from Petrification, EFF_M11B is Protection from Norm Missles, EFF_M12B is Minor Globe, EFF_M13 is Summon, EFF_M15 is Hold, EFF_M16 is Charm, EFF_M18D is Melf's Acid Arrow, EFF_M26 is Animate Dead, EFF_M28 is Haste/Slow, EFF_M29 is Haste/Slow, EFF_M31C is Grease, EFF_P01 is Remove Fear/Curse, EFF_P02 is Good Berries, EFF_P03 is Invisibility Purge, EFF_P04 is Command/Rigid Thinking, EFF_P07 is Resist Fire/Cold, EFF_P10 is Remove Paralysis, EFF_P11 is Hold Person Priest, EFF_P13 is Miscast Magic, EFF_P16 is Flame Strike, EFF_P18 is Raise Dead/Blindness, EFF_P21C is Sanctuary, and EFF_P27 is Web.
+
+175 (AFh) Hold Creature Type,
+
+Parameter 1 :Creature Type,
+
+Parameter 2 :Non-meaningful,
+
+The Creature Type parameter sets which type of creature is held. The known values of the parameter are 00 is Any, 01 is HUMANOID, 02 is ANIMAL, 03 is DEAD, 04 is UNDEAD, 05 is GIANTHUMANOID, 06 is FROZEN, and 255 is MONSTER.
+
+176 (B0h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+177 (B1h) Use EFF File,
+
+Parameter 1 :Value from specified resource,
+
+Parameter 2 :Resource Key,
+
+The Resource key (Param 2) is set to a EFF filename to use. 
+
+2 for Object.ids,
+3 for General.ids,
+4 for Race.ids,
+5 for Class.ids,
+6 for Specific.ids,
+7 for gender.ids and
+8 for Align.ids.
+
+It does work for well for effects that cause damage, better 
+THAC0, kill, display strings upon hit and similar.
+Not sure if it works for all effects.
+Also I found the target in the called effects set to party 
+with Eff Maker, for in game Effects,
+don´know if it makes a difference.
+
+178 (B2h) THAC0 vs. Bonus,
+
+Parameter 1 :Reference Value,
+
+Parameter 2 :Reference IDS,
+
+This effect will give a bonus to THAC0 against something specific. The Reference IDS parameter sets which IDS file to use in determine what to give the bonus against, and the Reference Value parameter sets the exact value from the IDS file to use. The known values for the Reference IDS parameter are 2 for Object.ids, 3 for General.ids, 4 for Race.ids, 5 for Class.ids, and 8 for Align.ids.
+
+179 (B3h) Damage vs. Bonus,
+
+Parameter 1 :Reference Value,
+
+Parameter 2 :Reference IDS,
+
+This effect will give a bonus to Damage against something specific. The Reference IDS parameter sets which IDS file to use in determine what to give the bonus against, and the Reference Value parameter sets the exact value from the IDS file to use. The known values for the Reference IDS parameter are 2 for Object.ids, 3 for General.ids, 4 for Race.ids, 5 for Class.ids, and 8 for Align.ids.
+
+180 (B4h) Can't Use Item,
+
+Parameter 1 :Message Reference,
+
+Parameter 2 :Non-meaningful,
+
+This effect will cause an item to not be usable by the affected individual. The Message Reference is a String Reference (StrRef) to the dialog.tlk file about what is displayed when the item is attempted to be used. The Resource Key sets the item filename of the specific Item to no be usable.
+
+181 (B5h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+182 (B6h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+183 (B7h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+184 (B8h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+some items / creatures use this effect to be in place, where normally a cre/chr couldn't be in the map. Items are WALPASS.ITM (the name say all ?), WATERELE.ITM (found in Water elementals), GORCHR.CRE, MALLA01.CRE, PPGIRL.CRE, PPLOVE.CRE, SARFAKIE.CRE and TALMISS2.CRE. The only effect i have directly tested using the first item, is the fact that i could teleport one of my member party inside the glass tubes of irenicus Vault (where normally we activate some tortured souls with energetic stuff). Maybe some collision with wall flags ?
+
+185 (B9h) Hold Creature (II),
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+Exact use of this effect is undetermined at this time.
+
+186 (BAh) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+187 (BBh) Set Local Variable,
+
+Parameter 1 :Value,
+
+Parameter 2 :Non-meaningful,
+
+This Effect will set a Local Variable to the value you specify. The Value parameter is set to the number value you wish the Local Variable to be set to. The Resource Key must be set to the name of the Local Variable you wish to set via this Effect. NOTE: Since the Resource Key can only be 8 characters long maximum, you can not set a Local Variable with this Effect this has a name longer than this amount.
+
+188 (BCh) Increase Spellcasting Speed,
+
+Parameter 1 :Spells/Round,
+
+Parameter 2 :Non-meaningful,
+
+Set the Spells/Round parameter to the number of spells to be able to cast in a single round.
+
+189 (BDh) Spell Speed Factor,
+
+Parameter 1 :Speed Modifer,
+
+Parameter 2 :Non-meaningful,
+
+Set the Speed Modifier parameter to the amount to decrease all spells casting speed by.
+
+190 (BEh) Attack Speed Factor,
+
+Parameter 1 :Speed Modifer,
+
+Parameter 2 :Non-meaningful,
+
+Set the Speed Modifier parameter to the amount to decrease weapon attack speed by.
+
+191 (BFh) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+192 (C0h) Find Familiar,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will summon a familiar for the Bhaalspawn PC only. When used it will pick the familiar to summon based off of the alignment of the PC at a specific piece of information in the GAM file for the current game. The default information from the GAM file and alignment is as follows: Lawful Good is a Pseudo Dragon (FAMPSD), Lawful Neutral is a Ferret (FAMFER), Lawful Evil is a Imp (FAMIMP), Neutral , Good is a Pseudo Dragon (FAMPSD), Neutral is aRabbit (FAMRAB), Neutral Evil is aDust Mephit (FAMDUST), Chaotic Good is a Fairy Dragon (FAMFAIR), Chaotic Neutral is a Cat (FAMCAT), and Chaotic Evil is a Quasit (FAMQUAS).
+
+193 (C1h) Invisible Detection by Script,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will make an invisible creature which is normally unseeable and unattackable, able to be attacked atleast via scripts. The Constant Value parameter should be set to 1 or 2 for this effect to work.
+
+194 (C2h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+195 (C3h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+196 (C4h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+197 (C5h)  Physical Mirror,
+
+Parameter 1 :defines the enchanment of the projectile,
+
+Parameter 2 :Reflected Choice, defines the projectile from PROJECTL.IDS
+
+This effect will reflect back specific attacks, as specified by the Reflected Choice parameter, at the attacker. 
+
+198 (C6h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+199 (C7h) Reflect Spells,
+
+Parameter 1 :Reflected Level, 
+
+Parameter 2 :Non-Meaningful,
+
+This effect will reflect spells. The Reflected Level parameter sets the Spell Level to reflect.
+
+200 (C8h) Spell Turning,
+
+Parameter 1 :Amount Protected Against,
+
+Parameter 2 :Level Protected Against,
+
+This effect will turn spells cast against the affected individual. The Level Protected Against parameter sets the level of the spells protected against, and the Amount Protected Against parameter sets the number of spells of the level set with the Level Protected Against parameter to work against.
+
+201 (C9h) Spell Deflection/Shield of the Archons,
+
+Parameter 1 :Amount Protected Against,
+
+Parameter 2 :Level Protected Against,
+
+This effect will absorb spells cast against the affected individual. The Level Protected Against parameter sets the level of the spells protected against, and the Amount Protected Against parameter sets the number of spells of the level set with the Level Protected Against parameter to work against.
+
+202 (CAh) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+203 (CBh) Damage Turning,
+
+Parameter 1 :Amount Protected Against,
+
+Parameter 2 :Level Protected Against,
+
+This effect will turn damaging spells cast against the affected individual. The Level Protected Against parameter sets the level of the spells protected against, and the Amount Protected Against parameter sets the number of spells of the level set with the Level Protected Against parameter to work against.
+
+204 (CCh) Protection from Spell School,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Spell School,
+
+This effect will grant immunity to ANY spell from the spell school specified by the Spell School parameter. The known values for the Spell School parameter are 1 for Abjuration, 2 for Conjuration, 3 for Divination, 4 for Enchantment, 5 for Illusion, 6 for Evocation, 7 for Necromancy, and 8 for Alteration.
+
+205 (CDh) Spell Type Deflection,
+
+Parameter 1 :Unused,
+
+Parameter 2 :Spell Type,
+
+Parameter #2 Description
+0     Miscellaneous
+1     Absorption/Deflection
+2     Magical Protections
+3     Illusion
+4     Remove Spell Protections
+5     Remove Illusion
+6     Summoning
+7     Physical Protections
+8     Spell Triggers
+9     Area Effects
+a     Offensive
+b     Disruptive
+c     Weapon Creation/Physical Transformations
+d     Healing/Information
+
+If a character/creature is protected against Remove Spell Protections, casting spells with that Spell Type will still work (such as Breach, Spellstrike, etc.) . 
+Also, casting spells on yourself remain normal and aren't rendered ineffective (as Spell Ineffective is what the text area should say when a this effect 'deflects' it)
+
+This effect is used in Otiluke's Resilient Sphere and also in the Cloak of Mirroring. 
+
+Connected with offset 27h of header of SPL
+
+206 (CEh) Protection from Spell,
+
+Parameter 1 :String Reference,
+
+Parameter 2 :Non-meaningful,
+
+The String Reference parameter sets the reference in the dialog.tlk that is protected from, if not used simply set to zero. Set Resource Key to the spell filename to give protection from, i.e. SP??### where ?? is either WI for Wizard, PR for Priest, or IN for Innate Ability and ### is the number identifying the spell.
+
+207 (CFh) Reflect Specified Spell,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will reflect a spell back at the caster. To make this effect work simply leave both parameters set to zero and set the Resource Key to the filename of the spell to be reflected without the extension (i.e. the .SPL).
+Baldur's Gate 2 Shadows of Amn
+
+202 (CAh) , Display the same graphic, icon than Balduran's shield on the target but don't reflect a specific projectile, nor a specific spell - need more testing,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+208 (D0h) Minimum HP,
+
+Parameter 1 :Minimum Value,
+
+Parameter 2 :Non-meaningful,
+
+This effect will set a minimum hit point that the affected individual can not go below. The Minimum Value parameter is the actual number of Hit Points to not allow to be gone below.
+
+209 (D1h) Kill 60HP,
+
+Parameter 1 :Non-Meaningful,
+
+Parameter 2 :Non-Meaningful,
+
+Leave both parameters at all zeroes for this Effect to work. This effect will instantlly kill a creature if it has less than 60 hit points currently. If it has more then this Effect does nothing.
+
+210 (D2h) Stun 90HP,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will stun opponents under 90 hit points. The durations seem to be as follows: Creatures with 1 to 29 HP are stunned for 4d4 rounds, Creatures with 30 to 59 HP are stunned for 2d4 rounds, and Creatures with 60 to 89 HP are stunned for 1d4 rounds.
+
+211 (D3h) Imprisionment,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will trap an individual in a mystical prison below the ground that is phased out from the normal timeflow and world. Leave both parameters at all zeroes for this effect to work.
+
+212 (D4h) Freedom,
+
+Parameter 1 :Non-meaningful,
+
+Non-meaningful,
+
+This effect will free individuals trapped by Imprisonment spells in the area of affect. Leave both parameters at all zeroes for this effect to work.
+
+213 (D5h) Maze,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will trap the affected individual in a mystical other-planar maze. They will escape this place in a time period determined by their intelligence. Leave both parameters at all zeroes for this effect to work.
+
+214 (D6h) Select Spell,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeroes for this Effect to work. Simply put the Resource Key as the 2DA filename to use to select the spell from, or if you leave it blank it will use the Wizard's Spellbook. NOTE: to make your own 2DA file for this simply use the SPWI510.2DA as a reference.
+
+215 (D7h) Play 3D Effect, Apply VVC
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Effect State,
+
+Place the name of the VVC file in the Reference Key that you wish to play. The Effect State parameter determines the state of the effect played. Known values for the Effect State parameter are 0 for Play On Place Cast, and 1 for Play Over Target. Known VVC files from the game are acidblob is Ankheg Spit, aciddth is acid hit, bloodcr is blood splash, bloodl is blood splash, bloodm is blood splash, bloods is blood splash, burnhand is burning hands, cgabjura is Abjuration, cgaltera is Alteration, cgconjur is Conjuration, cgdivina is Divination, cgenchan is Enchantment, cgillusi is Illusion, cginvoca is Invocation, cgnecrom is Necromancy, colrspry is Colour Spray, explode is Crashes Computer, fire is Crashes Computer, firebrn is Small Dot of Fire, flml is Bolt Of Flame, flmm is Small Bolt Of Flame, flms is Tiny Bolt Of Flame, flmstrk is Bg Flame Strike, glphwrdh is Peice of Glyph of Warding, glphwrdt is Full Glyph, greased is Blob Of Grease, greaseh is Blob Of Grease, grndglow is Grey round ground Explosion, hlymite is Call Upon Holy Might, magicstn is Magic Stone, minorglb is Minor Globe of Invulnerbility, mmagich is Burst of Yellowish Magic (like Bolt Of Glory), sanctry is Sanctuary, settrap is Spell Icon, shacid is Acid Damage, shair is Green mist rises from head to air above, sharea is Exploding Yellow Ring above head, shearth is blue drops from chest drop on ground, shglyph is Rubbish, shskull is Rubbish, shwater is Potion of Healing, sklh is Skull trap (moving), sklt is Skull Trap stationary, skybolt is Call Lightning, spabjura is Four cornered blue magic joins in middle, spagscho is Unexplainable, spaltera is Coloured magic rising from ground (Like Teleport Field), spanisum is Opening Plant (find familiar), sparmor2 is Magic helm forms above target, sparmori is golden armor jions together at chest of caster (armor), sparmour is snowball like balls swirl around target, spattck1 is Globe of magic (Like ruby ray of reversal), spattck2 is swirling small ball of magic (umber hulk confusion), spbaserd is Golden Light with white rays of light coming from middle, spbasewt is Blue Light with white rays of light coming from middle, spbdbur is Lime green blob of magic, spbdburs is Direct Vertical Strike of greenish blue magic, spbdimsp is Greenish burst of magic upon target, spbehbla is Purplish magic swirling on target, spbehray is Fire like blob, spbhandi is Small ball of burning red fire, spblbbtm is Blade Barrier (bottom half), spblbtop is Blade Barrier (Top Half), spbleshi is 3 Golden rays convergin upon target, spblood is Chunk of flesh when body explodes due to too much damage, spboom is Mushroom like cloud of fire, spbrnhnd is Burning Hands, spburn is Tiny blob of fire, spburns1 is round fire, spcagemz is Maze (Only top 2 grates), spcallli is Strike of Lightning (not lightning strike), spccmdsi is Purplish red burst of magic, spccolde is round of blue ice with a trail of smoke smashing on target, spccoldl is Travelling round blue ice with a trail of smoke, spccwoui is Burst of Bluish lighy bursting on target, spchlgt1 is Chain Lightning, spchlgt2 is Chain Lightning, spchlgt3 is Chain Lightning, spchchromi is Orb of Translucent bluish green magic, spchrorb is Chromatic Orb, spchunks is Ice Chunks (when target is frozen and smashed), spclcomp is Blue cloud of mist, spclkfri is Blue Cloak forming on target (cloak of fear), spcloud1 -Blue Cloud of mist, spcloud2 is A better Blue cloud of mist, spcloud3 is small cloud of blue mist, spcloudi is Burst of orangey red magic, spcmwoui is Blue magic on target increases then shrinks and disapears, spcomend is Tentacle Whip, spcomett is A Purple Comet, spcomstt is A whip, spconfus is Confusion a ring of intertwined birds, spcontin is A large white star forming a book which blasts white light, spcrtwpn is Yellow and white rays circle forming hammer and anvil, spcspra2 is Coloured ball of magic, spcspra3 is Larger more clearer ball of magic, spcsprai is Same as last one, spcswoui is A blast of greenish yellowey white magic, spdeath3 is Rising spirit (Finger of Death), spdimdr1 is Bg open dimension door, spdimdr2 is Bg opening dimension door, spdimndr is Bg2 dimension door, spdispma is Swirling balls of blue magic (dispel magic), spdivina is five balls of blue magic seperating very small, spdusty2 is Disintegration dust, spelltin is Rubbish green square, spentaai is green Vine from ground, spentaci is A swarm of green vines, spentaxi is a swarm of vines that disappear after intertwining, spfbsmal is White Ball of fire, spfdeath is Rising Spirit (Finger of Death), spfdeth3 is Rising Spirit (Finger Of Death), spfearef is Face on ground (Horror), spfinodi is A dieing Rose, spfire is Flame Damage, spfirebl is Fireball, spfirepl is Burst of fire in middle with a circle of white light leaving, spfiresb is Fire Shield Blue, spfiresr is Fire Shield Red, spfiret is Small Ball of Fire, spfiretr is Better Small Ball Of Fire, spfirimp is Fire Damage, spfirsdi is Burst of Flames, spfirsed is Fire Seed, spfladow is Flame Strike, spflames is Burst of Flames, spflast1 is Burst Of Flames (Different), spflast2 is Flame Strike (different), spfleshs is Swirling white rays (when Irenicus petrifies people), spflmarr is Flame Arrow (more real), spflmbld is Rising Sword, spflmsti is Bottom half Of Icewind Dale Style Flame Strike, spflsrin is Central flaming ball ejecting 2 rings of white light, spflstri is Flamestrike with burning bright yellow at bottom, spfracti is a chain breaking in half, spfstrmi is Small meteor swarm, spgenhla is Ray of bluish light with rays of yellow light (Holy Power), spgenhlb is Ray Above but forming (the one above forms and finishes), spgflsh1 is Burst of yellow red magic (when monsters unsummon), spglyphi is Travelling Coloured glyph of warding, spglypti is Floating coloured glyph, spgreaai is Purple oval of magic, spgreaci is same oval of magic but still the one above forms and goes, spgreaxi is Blob of purple goo exploding on target, spgreorb is green Orb, sphandat is A electrical lookiung hand appearing, sphealin is Healing, sphleft is left Half of Icewind style Heal, sphlhi01 is left half of icewinds Heal, sphlhi02 is Right half of icewinds heal, sphlybls is Aid, sphlysm2 is Later Ray of Holy Smite, sphlysm3 is Darker ray of Holy Smite, sphlysmt is Yellow ray of light striking target, sphollyw is A swirl of blue magic forming then exploding into many doves, spholmig is Already formed circle of magic with white rays shining out, spholymt is Yellow ray with bluish mist on side vertically on target, spholywd is Light blue ray of vertical energy with whitish mist on side, sphorpuf is Yellowish puff of smoke, sphorwil is Abi Dalzims horrid wilting, sphright is Right hands side of Icewinds spell heal, spicestm is Ice storm, spillus is a ball of blue magic swirling, spilusio is a ball of blue magic swirling, spinsect is Black swarm of Insects, spiplaai is Brown swarm of insects, spiplari is Brown swarm of insects, spiplaui is Forming swarm of brown insects, splightb is Lightning Bolt, spmagglo is Minor Spell Deflection, spmagmis is Magic Missle, spmetswa is Flaming ball of fire, spmetswm is Meteor Swarm, spmetswn is More Balls of Meteor swarm, spmindat is The swirling ball above head when you are held, spmirroi is A shining blue mirror, spmonsum is Monster Summoning, spnecro1 is Ring of circling reddish purplish magic, spnpoisi is Icewinds style of cure disease, spnwchrm is Green orbs rising from ground to head (charm), sppfirai is Produce Fire, sppfirri is smaller burst of fire, sppfirxi is larger burst of flame, spplanar is Large yellow orb forming then shattering, sppolymp is Polymorph, spportal is Round portal forming, sppowwrd is One of the red Power Word effects, spprayri is Icewind Dales style of prayer, spprism2 is swirling orb of colour, spprism3 is swirling ball of colour, spprismt is swirling ball of colour, spproimg is Crack in ground forming some round circle, spprotec is Protection from normal weapons, spraised is animate dead, spraisei is growing rose (raise dead), sprdrabu is Vertical strike of red magic, sprdrae2 is burst of yellow fire like magic, sprdraex is burst of yellow fire like magic, sprdraim is puff of red smoke exploding on target in a ring, sprdrasi is puff of red smoke formed and it stays formed, spresuri is growing silver rose (ressurection), spring is grey travelling ray, sprmpari is Icewind Style of remove paralysis, sprotect is Protectino from evil, sprwra2i is A blue symbol on the ground with rays of blue rising from it, sprwrati is green ray forming and bursting down on target, spsarmor is Forming wings, spschgi is Purple energy with a black ring around it swirling, spscorch is Fire thing again (so many of these), spscoric is same as above, spsdbur is A ray of misty grey magic vertically striking fast, spsdimpa is Great sparks of white bursting, spsdrbur is a ray of misty grey magic vertically striking, spshadow is Nothing, spshield is Prot normal missiles, spshkimp is Electrical damage effect, spskullt is red eyed skull with a trail of green smoke, spsmkjet is nothing, spsmold is nothing, spsmpuff is white round puff of smoke disappearing, spsnrayi is Sunray, spsohopi is Symbol forming and ejecting a ray of magic (symbol hopeless), spspaini is Symbol of Pain, spsparks is sparks, spspeart is Bolt of Glory, spspmaze is 4 lines forming a sharp cage of spears,spstink is small puff of smoke rising from ground, spstones is stoneskin, spstrenh is Whiteray shooting down forming a puff of magic on target (lesser restoration), spstreni is Strngth of One, spsturni is Minor Spell Turning, spsumgte is gate (ring of bones), spsummon is Call Woodland Beings, spsunray is Larger sunray, sptrapbb is Snare Trap, sptrusee is Opening Eye (clairvoyance), spturni2 is Already formed spell turning, spunhbl2 is Purple version of holy smite, spunhbl3 is darker version of above, spunhblt is Red bolt shooting, spunholy is Am orange glow exploding into many doves, spwi124a is Spell Icon, spwi124b is Spell Icon, spwi124c is Spell Icon, spwirbla is Some ring forming a circle with other lines coming from it with, blades arching up forming some cage, spwrdfld is Teleport Field, stnkcldd is Stinking Cloud, stnkcldt is Travelling Ball of Stinking Cloud, travel is An orb of swirling magic orb that shoots out to everyone, trbloba is green blob forming and splatting on target, trblobb is green blob forming and splatting on target, trdartst is Shooting knive looking things, trgooyaa is green blob forming and splatting on target, trgooybb is green blob forming and splatting on target, trspeart is Spear rising from ground striking target, trventaa is Bottom part of opening vent, trventbb is top part of opening vent which sprays out mist, webbomb is A burst of webs, webc is entangled in web, webentd is other version of web, webenth is entangling web, and webentt is travelling ball of shining web.
+
+216 (D8h) Level Drain,
+
+Parameter 1 :Drain Amount,
+
+Parameter 2 :Non-meaningful,
+
+Set the Drain Amount parameter to the number of levels you want this effect to drain.
+
+217 (D9h) Unconsciousness 20HP,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will cause a creature under 20 hit points to fall unconscious for the duration of the effect. Leave both parameters to zero for this effect to work.
+
+218 (DAh) Stoneskin Protection,
+
+Parameter 1 :Number of Hits,
+
+Parameter 2 :Non-meaningful,
+
+Set the Number of Hits parameter to the number of attacks to protect against for this Effect to work.
+
+219 (DBh) Attack Roll Penalty,
+
+Parameter 1 :IDS Choice,
+
+Parameter 2 :IDS File,
+
+This effect causes the creature specified in the IDS Choice and IDS File parameters to have -2 in their attack rolls against the target of this effect. Also if the creature's attack causes a saving throw, this effect gives a +2 bonus to the effect's target saving throw. Known IDS File parameter values are 2 for Object.IDS, 3 for General.IDS, 4 for Race.IDS, 5 for Class.IDS, 7 for Gender.IDS, and 8 for Align.IDS. The IDS Choice parameter is simply the value of the choice from this selected IDS file.
+
+220 (DCh) True Sight,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+Exact use of this effect is undetermined at this time.
+
+221 (DDh) Remove Spell Protections,
+
+Parameter 1 :Maximum Level,
+
+Parameter 2 :Removal Type,
+
+This effect removes all spell protections of type selected by the Removal Type parameter. Known values of the Removal Type parameter are 1 for Spell Protections or 2 for Specific Protections. Spell Protections will remove Minor Spell Turning, Minor Globe Of Invulnerability, Spell Immunity, Globe Of Invulnerability, Minor Spell Deflection, Spell Turning, Spell Shield, Spell Defection, Spell Invulnerability, and Spell Trap. Specific Protections will remove Protection from Energy, Protection from Fire, Protection from Electricity, Protection from Magical Energy, Protection from Acid, Protection from Elements, and Protection from Cold.
+
+222 (DEh) Teleport Field,
+
+Parameter 1 :Max Range,
+
+Parameter 2 :Non-meaningful,
+
+This effect will randomly teleport the affected being around the screen. The Max Range parameter sets the maximum range of this teleporting.
+
+223 (DFh) Random Attack Sequence,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+Exact use of this effect is undetermined at this time.
+
+224 (E0h) Restoration,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters set to zeros for this Effect to work. This Effect will restore lost levels after a Level Drain.
+
+225 (E1h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+226 (E2h) Spell Shield,
+
+Parameter 1 :Constant Value#1,
+
+Parameter 2 :Constant Value#2,
+
+This effect will absorb ONE spell that would normally remove a defensive spell. To make this effect work set the Constant Value#1 parameter to 1, and set the Constant Value#2 parameter to 4.
+
+227 (E3h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+228 (E4h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+229 (E5h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+230 (E6h) Remove Magical Protections,
+
+Parameter 1 :Maximum Level Affected,
+
+Parameter 2 :Amount to Affect,
+
+This effect will remove magical protections from the affected creature. The Maximum Level Affected parameter sets the highest level of spell it can remove, and the Amount to Affect parameter sets how many to remove.
+
+231 (E7h) Time Stop,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will activate the Time Stop for the caster with the duration lasting half the time set in the Effect Time section. Leave both parameters zero for this effect to work.
+
+232 (E8h) Cast Spell on Condition,
+
+Parameter 1 :Constant Value#1,
+
+Parameter 2 :Constant Value#2,
+
+This effect will cast a spell when the condition set by the two parameters is true. The spell to be cast when this occurs is set by the Resource Key parameter and is the spell filename without the extension (i.e. the .SPL). The known values for specific conditions are: Constant Value#1 set to 1 with Constant Value#2 set to 0 for the condition of when target is hit, and Constant Value#1 set to 0 with Constant Value#2 set to 8 for the condition of cast the spell every round.
+
+233 (E9h) Proficiency Modify,
+
+Parameter 1 :Prof Stars,
+
+Parameter 2 :Prof Type,
+
+This effect will modify the proficiency the affected target has. The Prof Stars parameters sets the number of stars to modify, and the Prof Type parameters sets how which proficiency is modified. The known values for Prof Type are Axe is 92, Bastard Sword is 89, Blackjack is 108, Club is 115, Crossbow is 103, Dagger is 96, Darts is 106, Flail/Morningstar is 100, Gun is 109, Halberd is 99, Katana is 94, Long Bow is 104, Long Sword is 90, Mace is 101, Martial Arts is 110, Quarter Staff is 102, Scimitar/Wakizashi/Ninja-To is 95, Short Bow is 195, Short Sword is 91, Single Weapon Skill is 113, Sling is 107, Spear is 98, Sword and Shield Skill is 112, Two-Handed Sword is 93, Two-Handed Weapon Skill is 111, Two Weapon Skill is 114, War Hammer is 97, Extra Proficiency 2(Unused) is 116, Extra Proficiency 3(Unused) is 117,Extra Proficiency 4(Unused) is 118, Extra Proficiency 5(Unused) is 119, Extra Proficiency 6(Unused) is 120, Extra Proficiency 7(Unused) is 121, Extra Proficiency 8(Unused) is 122, Extra Proficiency 9(Unused) is 123, Extra Proficiency 10(Unused) is 124, Extra Proficiency 11(Unused) is 125, Extra Proficiency 12(Unused) is 126, Extra Proficiency 13(Unused) is 127, Extra Proficiency 14(Unused) is 128, Extra Proficiency 15(Unused) is 129, Extra Proficiency 16(Unused) is 130, Extra Proficiency 17(Unused) is 131, Extra Proficiency 18(Unused) is 132, Extra Proficiency 19(Unused) is 133, and Extra Proficiency 20(Unused) is 134.
+
+234 (EAh) Contingency,
+
+Parameter 1 :Maximum Level Usable,
+
+Parameter 2 :Number to Use,
+
+This effect sets spells up to work on contingency, i.e. when a certain condition is met. The Maximum Level Usable parameter sets the maximum level spell that can be put into the contingency. The Number to Use parameter sets the number of spells to have activate when the contingency is triggered.
+
+235 (EBh) Wing Buffet,
+
+Parameter 1 :Distance,
+
+Parameter 2 :Direction,
+
+This effect will cause those affected to be thrown across the screen as if by a wing buffet from a large creature. The Distance parameter sets how far those affected move, and the Direction parameter sets which way the affected move in relation to the source. The known values for the Direction parameter are 1 for towards the source, or 2 for away from the source.
+
+236 (ECh) Image Projection,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Projection Ability,
+
+This effect will make an image projection of the caster. The Projection Ability parameter sets the abilities of the projection with known values of 1 for image with no attack or spellcasting ability, 2 no spell casting abilities but can attack, and 3 is can attack and cast spells.
+
+237 (EDh) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+238 (EEh) Disintegrate,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will disintegrate the target, i.e. kill them by turning them and all possessions to dust. To make this effect work simply set the Constant Value parameter to 2.
+
+239 (EFh) Farsight,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Exploration Type,
+
+This effect will allow viewing of a different part of the current map. The Exploration Type parameter sets the restrictions on this viewing. Known values for the Exploration Type parameter are 0 for viewing of explored sections only, and 1 is for viewing explored or unexplored sections.
+
+240 (F0h) Remove Icon II,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Icon,
+
+Parameter 2 is set according to STATDESC.2DA table. For example if it is 0Dh that will remove an Icon (and description) for Held (TLKref 43FCh).
+
+
+The exact explanation why this effect exists parallely with older Remove Icon (effect A9h) is not clear.
+
+Important note:
+Unlike Remove Icon effect A9h where is ordinary used duration flag 00, for F0h effect the duration flag must be set to 01 (permanent?!). Why is that so, I don't know.
+
+
+241 (F1h) Control Creature,
+
+Parameter 1 :Creature ID,
+
+Parameter 2 :Constant Value,
+
+The Constant Value parameter needs to be set to 1003 for this effect to work. The Creature ID parameters sets the type of creature that can be controlled with this effect and uses the values from the General.IDS file. Known values for the Creature ID parameter are 1 for HUMANOID, 2 for ANIMAL, 3 for DEAD, 4 for UNDEAD, 5 for GIANTHUMANOID, 6 for FROZEN, and 255 for MONSTER.
+
+242 (F2h) Cure Confusion/Rigid Thinking/Fear,
+
+Parameter 1 :Non-Meaningful,
+
+Parameter 2 :Non-Meaningful,
+
+This effect will cure Confusion, Rigid Thinking, and Fear. Leave both parameters set to zeros for this effect to work.
+
+243 (F3h) Drain Item Charges,
+
+Parameter 1 :Item Type,
+
+Parameter 2 :Non-meaningful,
+
+This effect will cause items determined by the Item Type parameter on the target to get drained charges. The known values for the Item Type parameter are 0 for magical items excluding weapons, and 1 for magical items including weapons.
+
+244 (F4h) Drain Wizard Spell,
+
+Parameter 1 :Number to Drain,
+
+Parameter 2 :Non-Meaningful,
+
+This effect will drain spells from a wizards memory. This spell always drains the highest level possible spell first and drains the number set by the Number to Drain parameter.
+
+245 (F5h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+246 (F6h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+247 (F7h) Attack Nearest Creature,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will cause the affected individual to attack the nearest creature. To make this effect work properly the Constant Value parameter needs to be set to 1.
+
+248 (F8h) Give Item Effect,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will apply a spell specified in the Resource Key to the weapon used by the target. Leave both parameters set to zero for this effect to function.
+
+249 (F9h) Use EFF File (II),
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will use the EFF file specified in the Resource Key. Leave both parameters at zeros for this effect to work.
+
+250 (FAh) Maximum Damage Per Hit,
+
+Parameter 1 :Constant Value,
+
+Parameter 2 :Non-meaningful,
+
+This effect will cause the affect individual to do maximum damage every hit. To make this effect work set the Constant Value parameter to 20 as in Kensai's Kai ability (SPCL144) or Blade's Offensive Spin (SPCL521) or all other values between 20 and 10. 
+
+
+251 (FBh) Change Bard Song Effect,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will allow the changing of what the bard's song ability does. To get this effect to work you need to leave both parameters set to zero and put the Resource Key as the name of the spell file that has the effects the song is to have in it.
+
+252 (FCh) Set Trap,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will attempt to set a trap. The specific trap effects is determined by the Spell Filename (i.e. SPL filename) set in the Resource Key. Also this effect will fail on non-thief creatures if that creature aren't somehow given a bonus to set traps ability as they have a zero naturally.
+
+253 (FDh) Map Marker Set,
+
+Parameter 1 :StrRef Value,
+
+Parameter 2 :Non-meaningful,
+
+This effect will set a marker on the game map. The StrRef Value parameter is a string reference to the dialog.tlk file that sets what the marker says when the marker is read. The Target of this effect should be set to self to function correctly.
+
+254 (FEh) Map Marker Position,
+
+Parameter 1 :StrRef Value,
+
+Parameter 2 :Non-meaningful,
+
+This effect will set the position of a marker on the game map. The StrRef Value parameter is a string reference to the dialog.tlk file that sets what the marker says when the marker is read. The Target of this effect should be set to Pre-Target to function correctly.
+
+255 (FFh) Create Item (II),
+
+Parameter 1 :Constant Value,
+
+Parameter 2 :Non-meaningful,
+
+This effect will create the item specified in the Resource Key. The Constant Value parameter should be set to 1 to function.
+Baldur's Gate 2 Shadows of Amn
+
+256 (100h) ,Display a spell sequence activated - need more test,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+257 (101h) Spell Sequencer Creation,
+
+Parameter 1 :Maximum Level Usable,
+
+Parameter 2 :Number to Use,
+
+This effect will create the spells to cast in sequence. The Maximum Level Usable parameter sets the highest level the spells to use can be, and the Number to Use parameter sets the number of spells to put in the sequencer.
+
+258 (102h) Spell Sequencer Activation,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+For this effect to work the Resource Key needs to be set to the Spell file name which contains the Spell Sequencer Creation effect. This effect must be in innate ability. This is important to anyone who wants to create spell sequencer, it seem that in BG2 the spell file naming is important and because the spell sequencer creation effect itself creates innate ability naming must be correct. So the spell file what contains the Spell Sequencer Creation effect can only be 7 letters long (including numbers) and that file what have Spell Sequencer Activation effect must have same file name ending in D (ie. spell sequencer creation file name SPSS101 and spell sequencer activation SPSS101D).
+
+259 (103h) Spell Trap,
+
+Parameter 1 :Amount Protected Against,
+
+Parameter 2 :Level Protected Against,
+
+This effect will absorb spells cast against the affected individual then allow a previously cast spell to be recalled. The Level Protected Against parameter sets the level of the spells protected against, and the Amount Protected Against parameter sets the number of spells of the level set with the Level Protected Against parameter to work against.
+
+260 (104h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+Crashes the game when set to while equipped, Self
+
+261 (105h) Spell Restore,
+
+Parameter 1 :Spell Level,
+
+Parameter 2 :Spell Type,
+
+This effect will restore one spell to memory. The Spell Level parameter sets which level spell to restore, and the Spell Type parameter sets the type of the spell to restore. If the level to restore a spell from is not possible it should restore the next lowest level possible. Known values of the Spell Type parameter are 0 for Wizard or Bard, and 1 for Cleric or Druid.
+
+262 (106h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+263 (107h) Backstab,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+264 (108h) Drop Weapons in Panic,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will cause the target to drop its weapon. Set the Constant Value parameter to 1 for this effect to work.
+
+265 (109h) Set Global Variable,
+
+Parameter 1 :Value,
+
+Parameter 2 : When Param#2 is set to 1, the effect becomes Increment Global Variable, where param#1 is the number to increment by.,
+
+This Effect will set a Global Variable to the value you specify. The Value parameter is set to the number value you wish the Global Variable to be set to. The Resource Key must be set to the name of the Global Variable you wish to set via this Effect. NOTE: Since the Resource Key can only be 8 characters long maximum, you can not set a Global Variable with this Effect this has a name longer than this amount.
+
+266 (10Ah) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+267 (10Bh) Disable Display String,
+
+Parameter 1 :Text Reference,
+
+Parameter 2 :Non-meaningful,
+
+The Text Reference parameter sets what reference in the Dialok.tlk file that is disabled from being displayed.
+
+268 (10Ch) Clear Fog of War,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect allows a creature to clear the Fog of War on an area, i.e. allows it to explore like a PC does. Leave both parameters set to zero for this effect to work.
+
+269 (10Dh) Shake Window,
+
+Parameter 1 :Strength,
+
+Parameter 2 :Undetermined,
+
+This effect will shake the screen window. The Strength parameter sets how strong the shaking is.
+
+270 (10Eh) Unpause Caster,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will unpause the caster from the pausing effects of things like summoning elementals. The Constant Value parameter needs to be set to 3 for this effect to function.
+
+271 (10Fh) Animation Removal,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Leave both parameters at all zeroes for this Effect to work. This effect will cause the animations of the affected thing to disappear and make it essentially completely invisible with no ring even. Scripting commands still apply to the thing affected but any that involve animations will not work (i.e. attacking, casting spells, walking, etc.). Essentially this can be useful for making items that need a script to run by having a creature summoned and then this cast on it thus making it not seen or anything and able to run the script.
+
+272 (110h) Use EFF on condition,
+
+Parameter 1 : (always set to 2 - I haven't the time to test more value, sorry),
+
+Parameter 2 :
+
+set to 0 - the EFF is use each second upon the target. 
+set to 1 (crash my game if I remember well)  
+set to 2 - the EFF is use each second the number of time specified in Param #1 
+set to 3 - the EFF is use each X seconds where X=int found in Param #1. 
+set to 5 crash the game for me. 
+found with all priest spells that summon insect. In IEEP, the resources field of the CastingFeature Block link to an EFF File (ipdam1 and ipdam2). Same effect found in BOOT08.ITM (the cursed boots that teleport the wearer near the closest enemy). From what has been determined this effect seem to use some combinations :
+* Param #2 set to 0 - the EFF is use each second upon the target.
+* Param #2 set to 1 (crash my game if I remember well)
+* Param #2 set to 2 - the EFF is use each second the number of time specified in Param #1
+* Param #2 set to 3 - the EFF is use each X seconds where X=int found in Param #1.
+* Param #2 set to 5 crash the game for me.
+It's not enough, tough, to pretend to have found a something new.
+
+273 (111h) Zone of Sweet Air,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+This effect will absorb spells cast against the affected individual then allow a previously cast spell to be recalled. The Level Protected Against parameter sets the level of the spells protected against, and the Amount Protected Against parameter sets the number of spells of the level set with the Level Protected Against parameter to work against.
+
+274 (112h) Un-Zone of Sweet Air,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+Exact use of this effect is undetermined at this time.
+
+275 (113h) Hide in Shadow Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+276 (114h) Detect Illusion Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+277 (115h) Set Traps Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+278 (116h) To Hit Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+279 (117h) Renable Button,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Button Type,
+
+This effect will renable the button specified by the Button Type parameter that was disabled previously. The known values of the Button Type parameter are 0 is Stealth Skill, 1 is Thieving Skill, 2 is Cast Spell, 3 is Quick Spell #1, 4 is Quick Spell #2, 5 is Quick Spell #3, 7 is Talk, 8 is Use Item, 9 is Quick Item #1, 11 is Quick Item #2, 12 is Quick Item #3, and 13 is Use Innate Ability.
+
+280 (118h) Wild Magic,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :How to Work,
+
+This effect will cause other spells to become wild magic and have the possibility to do other things. Set the How to Work parameter to either 1 to affect the next spell cast, or 2 to affect every spell cast for the duration of this effect.
+
+281 (119h) Restore Normal Spell Casting Ability,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+Exact use of this effect is undetermined at this time.
+
+282 (11Ah) Scripting State Modify,
+
+Parameter 1 :Undetermined,
+
+Parameter 2 :Undetermined,
+
+Exact use of this effect is undetermined at this time.
+
+283 (11Bh) Use EFF File (III),
+
+Parameter 1 :Unused,
+
+Parameter 2 : 2, 3, or 4 (I've only tested 0 to 4, 0 and 1 yield no result),
+
+Resref: EFF File
+
+This is a much "better" version of Use EFF File because this overrides all resistances as well as other effects that grant protection from this spell (that is, if no saving throw made of course).
+
+This is used in the Deck of Many Things effects:
+
+Fool
+Talons
+Strength Curse
+High Priestess
+Strife
+Plague 
+
+284 (11Ch) Modified THAC0 Bonus,
+
+Parameter 1 :Amount/Number,
+
+Parameter 2 :See list below,
+
+Number and Type
+
+0 Increase/Decrease by Amount
+
+1 Set as being +/- the Amount
+
+2 Revert Settings (regardless of Param#1)
+
+This is used in SPIN676.SPL (Invoke Courage).
+
+
+285 (11Dh) Melee Weapon Damage Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+286 (11Eh) Missile Weapon Damage Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+287 (11Fh) Feet Circle Removal,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will remove the circle from around the feet of the target. Set the Constant Value parameter to 2 for this effect to work.
+Baldur's Gate 2 Shadows of Amn
+
+288 (120h) Fist THAC0 Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+289 (121h) Fist Damage Bonus,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+290 (122h) Change Title,
+
+Parameter 1 :StrRef Number,
+
+Parameter 2 :Position,
+
+This effect will change the Title associated for an individual. The StrRef Number parameter is the string reference number from the dialog.tlk which contains the text to change the Title to, and the Position parameter sets which Title is changed. Known values of the Position parameter are 0 to change the Title on the Records Screen information section, and 1 to change Title shown on the top of the bar for the character in various of the character screens (like Inventory and Records Screen). For example the Records Screen would show for a level 8 beserker, Beserker along the top bar (changable by the value of 1) and Beserker: Level 8 on the information section (changable by the value of 0).
+
+291 (123h) Disable Visual Effect,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will disable the glowing disk when some effects are in use, i.e. physical mirror. However it will not have any effect on those visual effects what use BAM files, i.e. Fire Shield (red). Set the Constant Value parameter to 1 for this effect to work.
+
+292 (124h) Immunity to Backstab,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will make the target immune to backstabbing. Set the Constant Value parameter as 1 to make this effect function.
+
+293 (125h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+294 (126h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+295 (127h) Play Animation Sequence,
+
+Parameter 1 :non meaningful, set to 0.
+
+Parameter 2 :description of values beneath.
+
+It is actually used to enable Non-Permanent Dying.
+
+Param2 = 0 (used to re-enable permanent death only after having been previously disabled by this effect) 
+Param2 = 1 (to enable non-permanent dying on whoever has this effect)
+
+So you would put param1 = 0 and param2 = 1, to disable dying permanently like going under -20hp but NOT by disintegrating or similar instant-permanent death spells. This will let you ressurect your party member,(doesn't work for your character of course). Also, this should be used on core-rules or above because the other settings wouldn't need it) 
+
+296 (128h) Immunity to Specific Animation, Immunity to VVC
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+Set the resource key to the animation file VVC name to provide immunity to and leave the parameters at zero for this effect to work.
+
+297 (129h) ,Creature non-interruptable,
+
+Parameter 1 : ,
+
+Parameter 2 :,
+
+Seem to be use to make a creature non-interruptable. In fact, i don't exactly know how it works since i haven't get a true response to this. At least, it's not use to override the default sound of a creature. Use with LESTER.CRE (the Spawned Zombie - sordid story about swamp and clothe - in the Graveyard), AMILICH01.CRE (check a trigger in AR5509.ARE, the lich in Balthazar town, if balthazar is the monk i am thinking of),MELSUM06.CRE, MINDAL01.CRE (in AR0711.ARE)
+
+Baldur's Gate 2 Throne of Bhaal
+
+ 
+
+298 (12Ah) Use 2DA File,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will use a 2DA file specified by the Resource Key. The Constant Value parameter needs to be set to 1 for this effect to function.
+
+299 (12Bh) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+300 (12Ch) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+301 (12Dh) Die Roll Number,
+
+Parameter 1 :Roll Number,
+
+Parameter 2 :Non-meaningful,
+
+This effects sets what number for the die roll to come up as. Simply set the Roll Number parameter to the number to roll for this effect to work.
+
+302 (12Eh) Can Use Any Item,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect sets it so the target can use any item. Simply set the Constant Value parameter to 1 for this effect to work.
+
+303 (12Fh) Backstab Every Hit,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect sets it so the target will backstab with every hit. Simply set the Constant Value parameter to 1 for this effect to work.
+
+304 (130h) Mass Raise Dead,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Non-meaningful,
+
+This effect will raise multiple dead PCs and NPCs. Simple leave both parameters set to zero for this effect to work.
+
+305 (131h) Bonus THACO to Off-Hand,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+306 (132h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+307 (133h) Tracking Ability,
+
+Parameter 1 :Statistic Modifier,
+
+Parameter 2 :Modifier Type,
+
+The Modifier Type parameter sets how the Statistic Modifier works. If it it a 00 then it makes the Modifier a flat point modifier (i.e. statistic plus the modifier number), if it is 01 the Modifier is a straight stat change (i.e. the statistic becomes what ever value the Modifier is), and if it is a 02 then the Modifier is a percentile modifier (i.e. the ability is multiplied by the Modifier value in percent so 10 is 10% making the ability 10% of its value).
+
+This ability is used in SPCL922.SPL and only on MERLIN.CRE, which as far as I know, is not used in the game.
+I'm not even sure the tracking ability is compatible (useable) within any area of BG2. 
+
+308 (134h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+309 (135h) ,Modify Local Variable,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+It could be modify Local Variable. It is used in SPIN579 with Param #1 set to 1 (i think it's the modifier int, could be + ou -), Param #2 set to 1 (no idea about this one, i have tried 0, 2 and 3 but the spell doesn't work) and the resource is the name of the Local Variable (here KOBAMP_N). The caster is KOBAMP01.CRE, the "receiver" is KOBSOU01.CRE. Check its general script (kobsou01.bcs)
+
+310 (136h) Protection from Timestop,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will make the target immune to the Timestop effect. Set the Constant Value parameter to 1 for this effect to function correctly.
+
+311 (137h) ,Random Wish Spell,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+Whatever I made, cast on the target a random wish spell (the lvl9 spell, not the minor). I have no clue on how it works after changing a lot of value and trying to link it to WISH.2DA
+
+312 (138h) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+Crashes the game when set to while equipped, Self
+
+313 (139h) , (Denote high level ability ?),
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+It is used to denote that a high level ability specified by the resref field. I think one of the parameters specifies how many times it was chosen. It is used for prerequisites, antirequisites and to check if you've reached the maximum number of times you can take that ability
+
+314 (13Ah) Stone Skin (2),
+
+Parameter 1: Number of Hits
+Parameter 2: Non-meaningful
+
+Sets the Number of Hits parameter to the number of attacks to protect against for this Effect to work.
+
+Word of warning: Don't use this effect unless you are certain that tome04.itm (Juggernaut Golem Manual) is not used at the same time because this effect can and will corrupt the use of that item.
+
+315 (13Bh) ,UNKNOWN,
+
+Parameter 1 :,
+
+Parameter 2 :,
+
+316 (13Ch) Rest (Refresh Spells and Remove Fatigue),
+
+Parameter 1 :0,
+
+Parameter 2 :1,
+
+This is used in SPWISH16.SPL, part of the bigger Wish spell. 
+
+317 (13Dh) Attack Number Double,
+
+Parameter 1 :Non-meaningful,
+
+Parameter 2 :Constant Value,
+
+This effect will double the number of attacks the target has. Simple set the Constant Value parameter to 1 for this effect to work.

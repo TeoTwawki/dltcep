@@ -1,0 +1,6 @@
+// Microsoft Developer Studio generated Help ID include file.
+// Used by chitem.rc
+//
+#define HIDC_EVENT                      0x808a03f5    // IDD_CFB
+#define HIDC_FILENAME                   0x808a03ea    // IDD_CFB
+#define HIDC_PALETTE                    0x8096058c    // IDD_PALETTE

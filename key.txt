@@ -1,0 +1,50 @@
+KEY files
+FileExtension : KEY 
+Content : Description of KEY resource fileV.1.0 
+History : File done by IEFFHP 
+
+Description
+Each Infinity Engine game has a KEY file with it. The KEY file is loaded at startup, and the resources indexed in it are added to a hash table. BIF files included in the game should be indexed in the KEY file, so that the resource manager knows which resources may be found in each BIF file. The KEY file indicates which files are contained in which BIF, and what locations (CDs, cache directory, etc) should be searched for the resource. The KEY file also maintains a mapping from resource names (8-byte names) to a 32-bit ID of sorts, of which the bottom 12-bits are used to identify an individual resource within a BIF file.
+
+KEY file versions
+V1: Baldur's Gate, Planescape: Torment, Icewind Dale 
+KEY V1
+Overall structure
+
+Header 
+Bif indices 
+Strings referenced by Bif indices 
+Resource indices 
+KEY V1 Header
+Offset Size (data type) Description 
+0x0000 4 (char array) Signature ('KEY ') 
+0x0004 4 (char array) Version ('V1 ') 
+0x0008 4 (dword) Number of BIF entries 
+0x000c 4 (dword) Number of resource entries 
+0x0010 4 (dword) Offset of BIF entries from start of file 
+0x0014 4 (dword) Offset of resource entries from start of file 
+
+ 
+
+KEY V1 Bif Entries
+The BIF entries typically occur immediately after the header. The structures are packed tight -- i.e. not padded to a multiple of 4 bytes
+
+Offset Size (data type) Description 
+0x0000 4 (dword) Length of BIF file 
+0x0004 4 (dword) Offset from start of file to ASCIIZ BIF filename 
+0x0008 2 (word) Length, including terminating NUL, of ASCIIZ BIF filename 
+0x000a 2 (word) Which locations contain this BIF. each location is one bit. The second bit from the bottom (bit 1) indicates whether the file is found in the 'cache' on the hard-drive. (i.e. a temporary cache is set up and the files are copied from the CD into the cache, which is assumed to be faster than the CD. In memory, it uses bit 1 to indicate that the file is available in the cache. The purpose of bit 0 is unknown, but it could refer to the fact that the contents of the bif should be searched for in the override directory first. 
+
+ 
+
+KEY V1 Resource Entries
+The resource entries typically occur immediately after the strings section for the BIF filenames.
+
+Offset Size (data type) Description 
+0x0000 8 (resref) Resource name. Together with the resource type, this allows a resource to be uniquely identified. 
+0x0008 2 (word) Resource type (see the table of resTypes for the allowable values of this word (some of which are different between, e.g. BG and Torment, or even BG and ToTSC). 
+0x000a 4 (dword) Resource locator. Throughout the resource manager of the Infinity Engine, 32-bit values are used as a sort of 'resource index', which codifies the source of the resource as well as which source it refers to. This is that value, as stored on disk. It can go through some changes as it is being loaded, but the basic layout of the value on disk is: 
+bits 31-20: source index (on disk, this is the ordinal value giving the index of the corresponding bif entry) 
+bits 19-14: tileset index 
+bits 13- 0: non-tileset file index (any 14 bit value, so long as it matches the value used in the .bif file) 
+In memory, the 'bif index' becomes the 'source index' (i.e. can refer to override directory files, or whatever). 

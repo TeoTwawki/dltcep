@@ -1,0 +1,41 @@
+TIS file format
+FileExtension : TIS
+Content : Description of TIS files
+History : File done by IEFFHP
+Update : Manveru (17.10.01)
+Description
+
+TIS is, no doubt, short for tileset, since that is what these files essentially are. TIS files are comprised of a (typically) large number of tiles, which are, themselves, composed of a palette and a rectangular block of pixels, which are indices into the associated palette. Each tile has its own palette and a block of pixels. The pixel data is not at all compressed.
+TIS files: Baldur's Gate, Planescape: Torment, Icewind Dale, Baldur's Gate 2
+
+A tileset doesn't mean much on its own, since the tile locations are specified in another file (the .WED file). The layout of a tile is as follows. First, there is a 256-color palette. Each palette entry is a Windows RGBQUAD structure, which means that each palette entry is 4-bytes long, and that the layout in memory is B, G, R, a. The a is probably flags, since that is what the extra byte is used for in the Win32 API. It could be alpha, but alpha transparency is not used in BG. In either case, it is immaterial, since it doesn't appear to be used anywhere. Immediately following that, there are 8-bit pixel values, which are indices into this palette. The pixel values come one after another, row by row, from left to right and top to bottom. Index 0 is hardcoded to be the transparent index. (I think; however, I had previously believed this to be true of the BAM file format, and found myself to be quite mistaken, so...) 
+
+Several more comments on TIS :
+
+Header :
+
+Header length  - 18h
+Offset Data type Description
+
+0x0000   (4 char )   the name 'TIS '
+
+0x0004   (4 char)   the version 'V1  '
+
+0x0008   (4 dword)   the number of tiles within this tileset
+
+0x000c   (4 dword)   the length of Tiles sections in bytes (there was noticed only value 1400h= 5120 )
+
+0x0010   (4 dword)   size of the header (offset to tiles)
+
+0x0014   (4 dword)   Dimension of 1 tile in pixels (actually everywhere 64x64).
+
+The offset 18h seems to be fixed beginning of Tiles sections that have length specified in offset 0x000c and the number of them withing this file is specified in 0x0008 offset.
+
+    * One tile inside TIS files is 0x000c offset value  bytes long.
+    * All tiles are composed of 0x0014 offset value pixels
+    * Usually in areas that contain doors/ overlays areas there are several more tiles than it may be visible on main area . 
+    * Such a tile has size :   (Width(in tiles)*Height(in tiles) + DoorsTilesClosedState + OverlayShapesTiles) *(offset 0x000c value) bytes
+    * The special "green" colour is used to mark overlay areas in OverlayShapesTiles.
+    * DoorTilesClosedState and OverlayShapesTiles are also referenced from WED files but as the alternative tiles from Tilemap structure and their appearance is defined by offset 0x0006 of this structure.  
+
+

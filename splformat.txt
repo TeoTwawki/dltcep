@@ -1,0 +1,769 @@
+SPL file format
+ 
+FileExtension : SPL
+Content : Description of  spells V.1
+History : Basic version from IEFFHP
+  File done by GMan on 20/06/2000
+  File Updated by TL on 16/05/2001
+  File Updated by Cbisson ( entered 24/10/2001
+Description
+
+This file describes any spells or character abilities which operate in a similar manner to spells. Innate abilities and such are handled via these files, as are priest and mage spells. In composition, this file is very, very similar to the ITM file format. It seems likely that some cut-n-paste coding occurred during the creation of the SPL module. (Or the ITM module.) The physical appearance of the two editors is quite similar, the spell editor looking a lot like the item editor minus a bunch of options which are only relevant to items. Glance over the list of offsets and types in the ITM file and compare to the offsets and types here. The purpose of some of these fields may never actually be established, since some of them are not actually used in any items in the games we have available to us. Most notable among these are the 2 blank resrefs, which are recognizable as resrefs only because thanks to the wonders of not initialized data buffers, the editors used in creating these games typically leave one of a handful of easily recognizable signatures when writing an "empty" resref.
+
+NOTE : Because these files contain of huge amounts of information it is good to use already existing tools to edit SPL files : TeamBG IEEP or DLTCEP
+
+Header: Size=114 Bytes
+Ext. Header: Size= 40 Bytes
+Feature Block: Size=48 Bytes
+SPL file versions
+
+    * V1: Baldur's Gate, Planescape: Torment, Icewind Dale, Baldur's Gate 2
+
+SPL V1
+
+Overall structure
+
+    *
+
+      Header 
+    *
+
+      Extended Headers
+    *
+
+Feature Blocks
+
+NOTE: The following symbols as they pertain to the information that follows:
+* Icewind Dale only.
+# Baldur's Gate II: Shadows of Amn only.
+
+Header :
+
+Every spell file contains a header. It contains the basic properties of the spell represented by the file.
+ 
+
+ 
+Offset Size Description
+0x0000 4 FileType
+0x0004 4 FileRevision
+0x0008 4 SpellNameReference
+0x000C 4 UNKNOWN
+0x0010 8 CompletionSound
+0x0018 4 SpellAttributes
+0x001C 2 SpellType
+0x001E 2 WizardSchool
+0x0020 2 PriestType
+0x0022 2 CastingGlow
+0x0024 1 UNKNOWN
+0x0025 2 SpellSchoolSelection
+0x0027 1 SecType
+0x0028 12 Unknown
+0x0034 4 SpellLevel
+0x0038 2 UNKNOWN
+0x003A 8 SpellBookIcon
+0x0042 14 UNKNOWN
+0x0050 4 SpellDescriptionReference
+0x0054 16 UNKNOWN
+0x0064 4 ExtendedHeaderOffset
+0x0068 2 ExtendedHeaderCount
+0x006A 4 FeatureTableOffset
+0x006E 2 CastingFeatureBlockOffset
+0x0070 2 CastingFeatureBlockCount
+
+Extended Header:
+
+If a spell does anything and/or has level dependent effects then the spell file contains an extended header. One Extended Header is required for each different level that has different values to the effects.
+ 
+Offset Size Description
+0x0000 2 SpellForm
+0x0002 2 AbilityUseLocation
+0x0004 8 MemorizedIcon
+0x000C 1 Target
+0x000D 1 TargetNumber #
+0x000E 2 Range
+0x0010 2 LevelRequired
+0x0012 4 CastingTime
+0x0016 8 UNKNOWN
+0x001E 2 ExtHeaderFeatureBlockCount
+0x0020 2 ExtHeaderFeatureBlockOffset
+0x0022 2 Reference in PROJECTL.IDS to PRO files (value in PROJECTL.IDS +1)
+0x0024 2 UNKNOWN
+0x0026 2 EffectAnimation (not only graphic!!!)
+
+Feature Block:
+
+Any spell that does anything will contain one or more Feature Blocks. Every Feature Block represents one special ability or effect of a spell.
+ 
+ 
+Offset Size Description
+0x0000 2 Feature/Effect
+0x0002 1 TargetIdentifier
+0x0003 1 Power
+0x0004 4 Parameter 1
+0x0008 4 Parameter 2
+0x000C 1 EffectTimeMode
+0x000D 1 Resistance & Dispellability
+0x000E 4 EffectTime
+0x0012 2 Probability
+0x0014 8 ResourceKey
+0x001C 4 DiceThrows
+0x0020 4 DiceSides
+0x0024 4 SavingThrowType
+0x0028 4 SavingThrowBonus
+0x002C 4 UNKNOWN
+
+ 
+Header:
+
+ 
+
+FileType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0000 4 FileType Array[0..3] Of Char File type  'SPL '
+
+This field contains the type of the data file. It usually is the same as the file extension.
+ 
+
+FileRevision:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0004 4 FileRevision Array[0..3] Of Char 'V1 ' or 'V1.0'
+
+Revision of the data file.
+ 
+
+SpellNameReference:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0008 4 SpellNameReference dword FFFFh for none
+
+This is the StrRef to the name of the spell. The StrRef is the index to the string contained in Dialog.tlk file for the specific game.
+ 
+
+CompletionSound:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0010 8 CompletionSound Array[0..7] Of Char  
+
+This field contains the filename of a sound file that will play when the spell casting is completed.
+ 
+
+SpellAttributes:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0018 4 SpellAttributes (Array Of?) Boolean  
+
+The Spell Attributes field is a set of bitmasked bytes holding information about the attributes of the spell. If the bit is set on then the corresponding attribute is set to on:
+
+ 
+Byte 01 Offset 0x0018
+
+ 
+Bit Data Description
+0 UNKNOWN  
+1 UNKNOWN  
+2 UNKNOWN  
+3 UNKNOWN  
+4 UNKNOWN  
+5 UNKNOWN  
+6 UNKNOWN  
+7 UNKNOWN  
+
+ 
+Byte 02 Offset 0x0019
+
+ This bit flag determines where the spell is not castable according to AREATYPE.IDS : this is information to be verified.
+
+ 
+Bit Data Description
+0 NOT in an OUTDOOR area  
+1 NOT in a DAYNIGHT area  
+2 NOT in a WEATHER area  
+3 NOT in a CITY area  
+4 NOT in a FOREST area  
+5 NOT in a DUNGEON area  
+6 NOT in a EXTENDEDNIGHT area  
+7 NOT in a CANRESTOTHER area  
+
+ 
+Byte 03 Offset 0x001A
+
+ 
+Bit Data Description
+0 UNKNOWN  
+1 UNKNOWN  
+2 UNKNOWN  
+3 UNKNOWN  
+4 UNKNOWN  
+5 UNKNOWN  
+6 UNKNOWN  
+7 UNKNOWN  
+
+ 
+Byte 04 Offset 0x001B
+
+ 
+Bit Data Description
+0 UNKNOWN  
+1 UNKNOWN  
+2 UNKNOWN  
+3 UNKNOWN  
+4 UNKNOWN  
+5 UNKNOWN  
+6 UNKNOWN  
+7 UNKNOWN  
+
+Bit 0 is the LSB, Bit 7 the MSB
+ 
+
+SpellType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001C 2 SpellType Word  
+
+This field specifies what category the spell falls into:
+ 
+
+ 
+Value Spell Type
+0000h Special
+0001h Wizard
+0002h Priest
+0004h Innate
+
+WizardSchool:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001E 2 WizardSchool Word  
+
+The wizard school sets which school of magic that wizard spells falls under:
+
+ 
+Value(Hex) Description
+0000h Schoolless, Metamagic, or Unspecified
+0040h Alteration
+0080h Divination
+0200h Invocation/Evocation
+0800h Enchantment/Charm
+0900h Conjuration/Summoning
+1000h Illusion/Phantasm
+2000h Abjuration
+2400h Necromancy
+
+PriestType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0020 2 PriestType Word  
+
+The priest type sets which type of priest restriction the spell has:
+
+ 
+Value(Hex) Description
+0000h All Priests
+4000h Druid & Ranger
+8000h Cleric & Paladin
+
+CastingGlow:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0022 2 CastingGlow Word  
+
+The casting glow is spell school dependant, see sceffect.ids in IWD2:
+ 
+Value(Hex) Description
+00h Schoolless or Unspecified
+09h Necromancy
+0Ah Alteration
+0Bh Enchantment/Charm
+0Ch Abjuration
+0Dh Illusion/Phantasm
+0Eh Conjuration/Summoning
+0Fh Invocation
+10h Divination
+18h Evocation
+20h Metamagic
+
+sceffect.ids:
+0x0000 NONE
+0x0001 FIRE_AQUA
+0x0002 FIRE_BLUE
+0x0003 FIRE_GOLD
+0x0004 FIRE_GREEN
+0x0005 FIRE_MAGENTA
+0x0006 FIRE_PURPLE
+0x0007 FIRE_RED
+0x0008 FIRE_WHITE
+0x0009 GLOW_NECROMANCY
+0x000A GLOW_ALTERATION
+0x000B GLOW_ENCHANTMENT
+0x000C GLOW_ABJURATION
+0x000D GLOW_ILLUSION
+0x000E GLOW_CONJURE
+0x000F GLOW_INVOCATION
+0x0010 GLOW_DIVINATION
+0x0011 SPARKLES_FOUNTAIN_AQUA
+0x0012 SPARKLES_FOUNTAIN_BLACK
+0x0013 SPARKLES_FOUNTAIN_BLUE
+0x0014 SPARKLES_FOUNTAIN_GOLD
+0x0015 SPARKLES_FOUNTAIN_GREEN
+0x0016 SPARKLES_FOUNTAIN_MAGENTA
+0x0017 SPARKLES_FOUNTAIN_PURPLE
+0x0018 SPARKLES_FOUNTAIN_RED
+0x0019 SPARKLES_FOUNTAIN_WHITE
+0x001A SPARKLES_SWIRL_AQUA
+0x001B SPARKLES_SWIRL_BLACK
+0x001C SPARKLES_SWIRL_BLUE
+0x001D SPARKLES_SWIRL_GOLD
+0x001E SPARKLES_SWIRL_GREEN
+0x001F SPARKLES_SWIRL_MAGENTA
+0x0020 SPARKLES_SWIRL_PURPLE
+0x0021 SPARKLES_SWIRL_RED
+0x0022 SPARKLES_SWIRL_WHITE 
+
+MageSpellSelection:
+ 
+Offset Size Data Type Default Data 
+0x0025 2 MageSpellSelection word  
+
+This is set to the school of the spell and is used for the purpose of spell selection, such as when you select spells that must be from a particular school and it gives a green outline around it. This is only useful for specialist wizards and I believe that this is the only use for this offset. The values are in SCHOOL.IDS.
+ 
+
+SecType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0027 1 SpellAttribute byte  
+
+
+Information:
+Actually this is content from SecType.IDS.
+Hex Value     Description
+0     Miscellaneous
+1     Absorption/Deflection
+2     Magical Protections
+3     Illusion
+4     Remove Spell Protections
+5     Remove Illusion
+6     Summoning
+7     Physical Protections
+8     Spell Triggers (e.g. Contingency)
+9     Area Effects (inc. Insect Summoning)
+a     Offensive
+b     Disruptive
+c     Weapon Creation/Physical Transformations
+d     Healing/Information
+
+These details aren't really used much (as far as researching is concerned), but is linked with Unknown Effect 0xCDh, which I will be posting on my other topic right after this.
+
+There are some deviations from the descriptions above. They are listed below:
+Hex Value     Deviants
+6     Holy Word, Unholy Word (don't summon)
+c     Negative Plane Protection, Lesser Restoration (this probably should be have the '0d 00' value),
+d     Champions Strength (probably should be '0c 00') 
+
+
+SpellLevel:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0034 4 SpellLevel dword  
+
+Sets the level of the spell.
+ 
+
+SpellBookIcon:
+ 
+
+ 
+Offset Size Data Type Default Data 
+003Ah 0008h SpellBookIcon Array[0..7] Of Char  
+
+Filename of the BAM file that contains the graphics shown to represent this spell in the spellbook.
+ 
+
+SpellDescriptionReference:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0050 4 SpellDescriptionReference dword FFFFh for none
+
+This is the StrRef to the description of the spell. The StrRef is the index to the string contained in Dialog.tlk file for the specific game.
+ 
+
+ExtendedHeaderOffset:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0064 4 ExtendedHeaderOffset dword  
+
+Offset in the spell file itself to the first Extended Header.
+ 
+
+ExtendedHeaderCount:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0068 2 ExtdendedHeaderCount Word  
+
+Number of Extended Headers in this spell.
+ 
+
+FeatureTableOffset:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x006A 4 FeatureTableOffset dword  
+
+Offset in the spell file itself to the first Feature Block. If there is no Features Blocks at all in the spell, this still points to where they would begin which is after the last Extended Header.
+ 
+
+CastingFeatureBlockOffset:
+
+ 
+Offset Size Data Type Default Data 
+0x006E 2 CastingFeatureBlockOffset Word  
+
+This field contains the beginning offset of the Feature Blocks that affect the caster of the spell upon it being cast.
+ 
+
+CastingFeatureBlockCount:
+
+ 
+Offset Size Data Type Default Data 
+0x0070 2 CastingFeatureBlockCount Word  
+
+This field contains the number of Feature Blocks that affect the caster of the spell upon it being cast.
+ 
+ 
+ 
+Extended Header:
+
+SpellForm:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0000 2 SpellForm Word  
+
+This field sets the form of the spell contained in the Extended Header:
+ 
+
+ 
+Value Data
+01h Normal
+02h Projectile
+
+AbilityUseLocation:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0002 2 UseLocation Word  
+
+This field determines the location of the icon to cast the spell contained in the Extended Header:
+ 
+
+ 
+Value Data
+02h Spell
+04h Innate
+
+MemorizedIcon:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0004 8 MemorizedIcon Array[0..7] Of Char  
+
+Filename of the BAM file that contains the graphics shown to represent this spell in its use location.
+ 
+
+Target:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000C 1 Target Byte  
+
+Specifies the target of this Extension Header:
+ 
+
+ 
+Value Data
+01h Creature
+02h Inventory
+03h Dead Character
+04h Area
+05h Self
+
+TargetNumber:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000D 1 TargetNumber Byte  
+
+Specifies the number of specific targets of this Extended Header.
+ 
+
+Range:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000E 2 Range Word  
+
+Specifies the range of this Extended Header.
+ 
+
+LevelRequired:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0010 2 LevelRequired Word  
+
+This field sets the level required by the caster for this extension header to function. Only one extension header will ever function and it used the one with the highest possible value in this field compared to the caster's level to function.
+ 
+
+CastingTime:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0012 4 CastingTime Dword  
+
+This field specifies how long in game time it takes to cast this extension header in the spell.
+ 
+
+ExtHeaderFeatureBlockCount:
+
+ 
+Offset Size Data Type Default Data 
+0x001E 2 ExtHeaderFeatureBlockCount Word  
+
+This field contains the number of Feature Blocks that this Extension Header uses.
+ 
+
+ExtHeaderFeatureBlockOffset:
+
+ 
+Offset Size Data Type Default Data 
+0x0020 2 ExtHeaderFeatureBlockOffset Word  
+
+This field contains the beginning offset of the Feature Blocks that this Extension Header uses.
+ 
+
+EffectAnimation:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0026 2 EffectAnimation Word  
+
+EffectAnimation is the animation that will start when this Extension Header is used and is dependent on the specific game: look here for the effects tables .
+
+ 
+Feature Block:
+
+Feature/Effect:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0000 2 Feature/Effect Word  
+
+This field sets the specific effect of this feature block and is dependent on the specific game: there you could find the list of effects.
+  
+
+
+TargetIdentifier:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0002 1 TargetIdentifier Byte  
+
+TargetIdentifier determines the target of this effect:
+ 
+
+ 
+Value Data
+01h Self
+02h Pre-Target
+03h Party
+04h Global
+05h Global without Party
+
+
+Power:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0003 1 Power Byte  
+
+Power sets the strength of the effect for purposes of dispelling and similiar.
+ 
+
+Parameter 1:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0004 4 Parameter 1 dword  
+
+Parameter 1 is the first parameter passed to the Feature/Effect. A lot of the time it contains the Modification Value for the Feature/Effect, however the exact functioning of this Parameter changes with the Feature/Effect and the Struct List itself should be checked for specifics.
+ 
+
+Parameter 2:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0008 4 Parameter 2 dword /Bitfield  
+
+Parameter 2 is the second parameter passed to the Feature/Effect. The exact functioning of this Parameter changes with the Feature/Effect and the Struct List itself should be checked for specifics.
+ 
+
+EffectTimeMode:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000C 1 EffectTimeMode Byte  
+
+This field sets the timemode of the spell and the EffectTimeField
+ 
+
+ 
+Value Start of Effect Duration
+0 Instantly For [EffecTime] Seconds
+1 Instantly Permanent
+2 Instantly While equiped
+4 After [EffecTime] Seconds Permanent
+9 Instantly Permanent After Bonuses
+
+Resistance & Dispellability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000D 1 Resistance & Dispellability Byte  
+
+This field sets whether the effect is dispellable and if it can bypass the proper resistance or not.
+ 
+
+ 
+Value Meaning
+0 Not Dispellable & Will Bypass Resistance
+1 Dispellable & Will not Bypass Resistance
+2 Unknown
+3 Dispellable & Will Bypass Resistence
+
+EffectTime:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000E 4 EffectTime dword  
+
+EffectTime contains a time value for this effect.
+
+Game Time In Rounds = EffectTime / 60
+ 
+
+Probability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0012 1 High Probability Byte  
+0x0013 1 Low Probability Byte  
+
+These two fields contain the Probability this Effect will happen. Values can go from 0 to 100 on each setting. When the Extension Header is called to be used a random value from 1 to 100 will be chosen. If this number is with in the range set by the Low to High Probability then it will occur. Therefore if you set the Low to 0 and the High to 100 then it will occur 100% of the time, and likewise Low to 0 and High to 0 will occur 0% of the time.
+ 
+
+Resource Key:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0014 8 ResourceKey Array[0..7] Of Char  
+
+Resource Key is another Paremeter passed to the Effect/Feature. Some functions use it to specify a filename of some type (i.e. BAM, CRE, EFF, etc.).
+ 
+
+Throws:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0001C 4 Throws dword  
+
+This field only matters for dice based Effects and sets the number of dice to use.
+ 
+
+DiceSides:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x00020 4 DiceSides dword  
+
+This field only matters for dice based Effects and sets the number of sides on each die.
+ 
+
+SavingThrowType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0024 4 SavingThrowType dword  
+
+This field determines the type of saving throw that must be made to avoid the Effect.
+ 
+
+ 
+Value Data
+00h No Saving Throw
+01h Save vs. Spells
+02h Save vs. Breath Weapon
+04h Save vs. Death/Poison
+08h Save vs. Wands
+16h Save vs. Petrification/Polymorph
+
+SavingThrowBonus:
+ 
+
+ 
+Offset Size Data type Type Default Data 
+0x0028 4 SavingThrowBonus dword  
+
+This field determines the bonus to the saving throw that must be made to avoid the Effect.
+

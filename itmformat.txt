@@ -1,0 +1,1466 @@
+ITM file format
+
+Description
+
+An ITM file describes any item that can appear in the inventory of any creature. Some ITM files do not describe objects the user would typically have in their inventory -- for instance, many monsters have attacks which are special items that don't appear elsewhere in the game. In Torment, there is the additional complication that objects can have associated dialog resources; hence, it is possible to create items with which the character can carry on conversations. The same thing is possible in BG2, however it is done in easier way.
+
+ITM file versions
+
+    * V1: Baldur's Gate, Icewind Dale
+    * V1.1: Planescape: Torment
+
+ITM V1
+FileExtension : ITM
+Content : Item Definitions (Version 1 or 1.0 ONLY)
+History : File done by GMan 6/20/2000
+  File Updated by TL on 5/16/2001
+  File Updated by M on 25/01/2002
+  File Updated by Avenger on 08/03/2002
+
+Header: Size=114 Bytes
+Ext. Header: Size= 40 Bytes
+Feature Block: Size=48 Bytes
+
+Overall structure
+
+    * Header
+    * Extended header
+    * Feature block
+
+ITM V1 Header
+
+NOTE: The following symbols as they pertain to the information that follows:
+* Icewind Dale only.
+# Baldur's Gate II: Shadows of Amn only.
+
+Every item file contains a header. It contains the basic properties of the item represented by the file.
+ 
+Offset Size Description
+0000h 0004h FileType
+0004h 0004h FileRevision
+0008h 0004h ItemNameReference(UnIdentfied)
+000Ch 0004h ItemNameReference(Identified)
+0010h 0008h UsedUpItemFile
+0018h 0004h ItemAttributes
+001Ch 0002h ItemType
+001Eh 0004h Useability
+0022h 0002h ItemAnimation
+0024h 0001h MinimumLevel #*
+0025h 0001h UNKNOWN
+0026h 0001h MinimumStrength #*
+0027h 0001h UNKNOWN
+0028h 0001h MinimumStengthBonus #*
+0029h 0001h KitRestrictions(Byte 1) #
+002Ah 0001h MinimumIntelligence #*
+002Bh 0001h KitRestrictions(Byte 2) #
+002Ch 0001h MinimumDexterity #*
+002Dh 0001h KitRestrictions(Byte 3) #
+002Eh 0001h MinimumWisdom #*
+002Fh 0001h KitRestrictions(Byte 4) #
+0030h 0001h MinimumConstitution #*
+0031h 0001h WeaponProficiency #
+0032h 0001h MinimumCharisma #*
+0033h 0001h UNKNOWN
+0034h 0004h ItemPrice
+0038h 0002h ItemStack
+003Ah 0008h InventoryIcon
+0042h 0002h LoreToIdentify
+0044h 0008h GroundIcon
+004Ch 0004h ItemWeight
+0050h 0004h DescriptionReference(UnIdentified)
+0054h 0004h DescriptionReference(Identified)
+0058h 0008h DescriptionIcon
+0060h 0004h ItemMagicalPlusToAffectCreatures #*
+0064h 0004h ExtendedHeaderOffset
+0068h 0002h ExtendedHeaderCount
+006Ah 0004h FeatureTableOffset
+006Eh 0002h EquiptFeatureBlockOffset
+0070h 0002h EquiptFeatureBlockCount
+
+Extended Header:
+
+If an item affects other creatures (like a weapon), casts a spell (like a wand), or has any other effects besides equipping effects then the item file contains an extended header. One Extended Header is required for each ability of an item.
+ 
+Roughly speaking, each "ability" (I believe this to be the terminology used in the Bioware tools) corresponds to a different way to use the item. For instance, in BG, there is an item which can be either a melee (hand-to-hand) axe, or a throwing axe. Or the "wand of fire" which fires either fireballs or "aganazzar's scorcher". To choose which, you click on the item while it is selected, and you are given a menu to choose the ammunition type -- the same procedure used for selecting different missile types for a missile weapon. (Note, also, that it is possible to get an info screen for a bow, for instance, in which all of the "abilities" of the bow are listed -- namely the different types of ammunition it fires. I suspect that it is no coincidence that the same interfaces are used to select "abilities" of an item, and differing ammunition types of a launcher; likely the game internally handles different ammunition types via the same interface it uses for abilities.).
+
+ 
+Offset Size Description
+0000h 0001h AttackType
+0001h 0001h ForceIdentify
+0002h 0001h AbilityUseLocation
+0003h 0001h UNKNOWN
+0004h 0008h UseIcon
+000Ch 0001h Target
+000Dh 0001h TargetNumber #
+000Eh 0002h EffectRadius / AttackRange (feet)
+0010h 0002h ProjectileType
+0012h 0002h SpeedFactor
+0014h 0002h THAC0 Bonus
+0016h 0002h DamageDice
+0018h 0002h DamageThrows
+001Ah 0002h DamageBonus
+001Ch 0002h DamageType
+001Eh 0002h ExtHeaderFeatureBlockCount
+0020h 0002h ExtHeaderFeatureBlockOffset
+0022h 0002h Charges
+0024h 0001h ItemDrainability #*
+0025h 0001h UNKNOWN
+0026h 0001h AllowStrengthBonus #*?
+0027h 0001h ItemRechargeability #*
+0028h 0002h UNKNOWN
+002Ah 0002h EffectAnimation (not only graphic!!!)
+002Ch 0006h MeleeAnimation
+0032h 0002h BowArrowQualifier
+0034h 0002h CrossBowBoltQualifier
+0036h 0002h MiscMissileQualifier
+
+Feature Block:
+
+Items with magical capabilities, equipping effects, or any type of abilities besides simple weapon damage contain one or more Feature Blocks. Every Feature Block represents one special ability of an item.
+ 
+Offset Size Description
+0000h 0002h Feature/Effect
+0002h 0001h TargetIdentifier
+0003h 0001h Power
+0004h 0004h Parameter 1
+0008h 0004h Parameter 2
+000Ch 0001h EffectTimeMode
+000Dh 0001h Resistance & Dispellability
+000Eh 0004h EffectTime
+0012h 0002h Probability
+0014h 0008h ResourceKey
+001Ch 0004h DiceThrows
+0020h 0004h DiceSides
+0024h 0004h SavingThrowType
+0028h 0004h SavingThrowBonus
+002Ch 0004h UNKNOWN
+
+ 
+
+Header:
+
+FileType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0000 4 FileType Array[0..3] Of Char 'ITM '
+
+This field contains the type of the data file. It usually is the same as the file extension.
+ 
+
+FileRevision:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0004 4 FileRevision Array[0..3] Of Char 'V1 ' or 'V1.0'
+
+Revision of the data file.
+ 
+
+ItemNameReference(UnIdentified):
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0008 4 ItemNameReference Longint FFFFh for none
+
+This is the StrRef to the name of the (Unidentified) item. The StrRef is the index to the string contained in Dialog.tlk file for the specific game.
+ 
+
+ItemNameReference(Identified):
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000C 4 ItemNameReference dword FFFFh for none
+
+This is the StrRef to the name of the (Identified) item. The StrRef is the index to the string contained in Dialog.tlk file for the specific game.
+ 
+
+UsedUpItemFile:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0010 8 UsedUpItemFile Array[0..7] Of Char  
+
+This field contains the filename of an Item file. If the item gets destroyed (Used Up), it will get replaced by the item specified in this field.
+ 
+
+ItemAttributes:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0018 4 ItemAttributes (Array Of?) Boolean  
+
+The Item Attributes field is a set of bitmasked bytes holding information about the attributes of the item. If the bit is set on then the corresponding attribute is set to on:
+
+ 
+Byte 01 Offset 0018h
+
+ 
+Bit Data Description
+0 Unsellable Item cannot be sold
+1 TwoHanded Item Requires Two Hands To Use
+2 Movable Item Is Able To Be Moved From Slot To Slot
+3 Displayable ?  
+4 Cursed The Item Is Cursed And Cannot Be Removed Without A Remove Curse Spell.
+5 Copyable ?  
+6 Magical Item Is A Magical Item, And Thus Indestructable
+7 Bow Item Is A Bow
+
+ 
+Byte 02 Offset 0019h
+
+ 
+Bit Data Description
+0 Silver?  Item Is Made From Silver?
+1 Cold Iron? Item Is Made From Cold Iron?
+2 UNKNOWN  
+3 Conversable Item Is Conversable On Item Information Screen
+4 UNKNOWN  
+5 UNKNOWN  
+6 UNKNOWN  
+7 UNKNOWN  
+
+ 
+Byte 03 Offset 001Ah
+
+ 
+Bit Data Description
+0 UNKNOWN  
+1 UNKNOWN  
+2 UNKNOWN  
+3 UNKNOWN  
+4 UNKNOWN  
+5 UNKNOWN  
+6 UNKNOWN  
+7 UNKNOWN  
+
+ 
+Byte 04 Offset 001Bh
+
+ 
+Bit Data Description
+0 UNKNOWN  
+1 UNKNOWN  
+2 UNKNOWN  
+3 UNKNOWN  
+4 UNKNOWN  
+5 UNKNOWN  
+6 UNKNOWN  
+7 UNKNOWN  
+
+Bit 0 is the LSB, Bit 7 the MSB
+ 
+
+ItemType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001C 2 ItemType Word  
+
+This field specifies what category the item falls into. Note that anything listed in brackets is what what that value means for the specified game:
+ 
+
+ 
+Value Item Type Inventory
+0000h Book {Inventory)
+0001h Amulet/Necklace (Amulet)
+0002h Armor (Armor)
+0003h Belt/Girdle (Belt)
+0004h Boots (Boots)
+0005h Arrow (Quiver)
+0006h Bracer/Gauntlet (Bracer)
+0007h Helmet (Helmet)
+0008h Key (Inventory Item)
+0009h Potion (Quick Item)
+000Ah Ring (Ring)
+000Bh Scroll (Quick Item)
+000Ch Shield (Shield)
+000Eh Bullet (Quiver)
+000Fh Bow (Weapon)
+0010h Dagger (Weapon)
+0011h Club/Mace [Mace *#] (Weapon)
+0012h Sling (Weapon)
+0013h Short Sword [Short Sword/Wakizashi #] (Weapon)
+0014h Bastard, Long, 2-Handed Sword [Long Sword *] (Weapon)
+0015h Warhammer (Weapon)
+0016h Morning Star (Weapon)
+0017h Flail (Weapon)
+0018h Dart (Weapon)
+0019h Axe 1-Handed (Weapon)
+001Ah Staff (Weapon)
+001Bh Crossbow (Weapon)
+001Ch Hand-to-Hand (Weapon)
+001Dh Spear (Weapon)
+001Eh Halberd, 2-Handed Polearm (Weapon)
+001Fh Bolt (Quiver)
+0020h Cloak (Cloak)
+0021h Gold Piece(s)  
+0022h Misc (Gems....) (Quick Item)
+0023h Wand (Quick Item)
+0024h Key *# (Inventory)
+0025h Broken Shield *# (Shield)
+0026h Broken Sword *# (Weapon)
+0029h Buckler * (Shield)
+002Ah Candle *# (Inventory)
+002Ch Club *# (Weapon)
+002Fh Large Shield * (Shield)
+0031h Medium Shield * (Shield)
+0035h Small Shield * (Shield)
+0037h Telescope *# (Inventory)
+0038h Bottle of Wine/Container of Razorvine Extract *# (Quick Item)
+0039h Great Sword * (Weapon)
+
+Useability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001E 4 Useability 4*Array Of Boolean  
+
+The Usability field is a set of bitmasked bytes holding information about setting who can use the item. If the bit is set on then the corresponding type can not use the item:
+
+ 
+Byte 01 Offset 001Eh
+
+ 
+Bit Data Description
+0 Chaotic Chaotic.. (..Good/..Neutral/..Evil)
+1 Evil ..Evil
+2 Good ..Good
+3 Neutral ..Neutral
+4 Lawful Lawful.. (..Good/..Neutral/..Evil)
+5 Neutral Neutral..(..Good/..Evil) / True..(..Neutral)
+6 Bard (Single Class)
+7 Cleric (Single Class)
+
+ 
+Byte 02 Offset 001Fh
+
+ 
+Bit Data Description
+0 Cleric/Mage (Multiclass)
+1 Cleric/Thief (Multiclass)
+2 Cleric/Ranger (Multiclass)
+3 Fighter (Single Class)
+4 Fighter/Druid (Multiclass)
+5 Fighter/Mage (Multiclass)
+6 Fighter/Cleric (Multiclass)
+7 Fighter/Mage/Cleric (Multiclass)
+
+ 
+Byte 03 Offset 0020h
+
+ 
+Bit Data Description
+0 Fighter/Mage/Thief (Multiclass)
+1 Fighter/Thief (Multiclass)
+2 Mage (Single Class)
+3 Mage/Thief (Multiclass)
+4 Paladin (Single Class)
+5 Ranger (Single Class)
+6 Thief (Single Class)
+7 Elf (Race)
+
+ 
+Byte 04 Offset 0021h
+
+ 
+Bit Data Description
+0 Dwarf (Race)
+1 Half-Elf (Race)
+2 Halfling (Race)
+3 Human (Race)
+4 Gnome (Race)
+5 Monk # (Single Class)
+6 Druid (Single Class)
+7 Half-Orc # (Race)
+
+Bit 0 is the LSB, Bit 7 the MSB
+ 
+
+ItemAnimation:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0022 2 PaperdollItem Word  
+
+This field specifies the item animation and the item appearance on the paperdoll:
+ 
+
+ 
+Value(ASCII) Value(Hex) Description
+" " 2020h <none>
+"2A" 3241h Leather Armor
+"3A" 3341h Chainmail
+"4A" 3441h Plate Mail
+"2W" 3257h Robe
+"3W" 3357h Robe
+"4W" 3457h Robe
+"AX" 4158h Axe
+"BW" 4257h Bow
+"CB" 4342h Crossbow
+"CL" 434Ch Club
+"D1" 4431h Buckler
+"D2" 4432h Shield (Small)
+"D3" 4433h Shield (Medium)
+"D4" 4434h Shield (Large)
+"DD" 4444h Dagger
+"FL" 464Ch Flail
+"FS" 4653h Flame Sword
+"H0" 4830h Helm #1 (Standard)
+"H1" 4831h Helm #2
+"H2" 4832h Helm #3 (Bronze Winged)
+"H3" 4833h Helm #4 (Gold Winged)
+"H4" 4834h Helm #5
+"H5" 4835h Helm #6 (Red Feathers?)
+"H6" 4836h Helm #7
+"HB" 4842h Halberd
+"MC" 4D43h Mace
+"MS" 4D53h Morning Star
+"QS" 5153h Quarter Staff (Metal)
+"S1" 5331h Sword 1-Handed
+"S2" 5332h Sword 2-Handed
+"SL" 534Ch Sling
+"SP" 5350h Spear
+"SS" 5353h Short Sword
+"WH" 5748h War Hammer
+"S3" 5333h Katana #
+"SC" 5343h Scimitar #
+
+MinimumLevel:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0024 1 MinimumLevel Byte  
+
+This field sets the minimum level needed to be able to use this item.
+ 
+
+MinimumStrength:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0026 1 MinimumStr Byte  
+
+This field sets the minimum strength needed to be able to use this item.
+ 
+
+MinimumStrengthBonus:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0028 1 MinimumStrBonus Byte  
+
+This field sets the minimum strength bonus (i.e. 50 for 18/50) needed to be able to use this item.
+ 
+
+MinimumIntelligence:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x002A 1 MinimumInt Byte  
+
+This field sets the minimum intelligence needed to be able to use this item.
+ 
+
+MinimumDexterity:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x002C 1 MinimumDex Byte  
+
+This field sets the minimum dexterity needed to be able to use this item.
+ 
+
+MinimumWisdom:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x002E 1 MinimumWis Byte  
+
+This field sets the minimum wisdom needed to be able to use this item.
+ 
+
+MinimumConstitution:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0030 1 MinimumCon Byte  
+
+This field sets the minimum constitution needed to be able to use this item.
+ 
+
+MinimumCharisma:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0032 1 MinimumCha Byte  
+
+This field sets the minimum charisma needed to be able to use this item.
+ 
+
+KitRestrictions:
+ 
+
+ 
+Offset Size Data Type Default Data 
+Various 4 KitRestrictions Array Of Bitmasks  
+
+The Kit Restriction fields are a set of bitmasked bytes holding information about setting which kits can use the item. If the bit is set on then the corresponding kit can not use the item:
+
+ 
+Byte 01 Offset 0029h
+
+ 
+Bit Data Description
+0 Cleric of Talos  
+1 Cleric of Helm  
+2 Cleric of Lathander  
+3 Totemic Druid  
+4 Shapeshifter Druid  
+5 Beast Friend (Avenger) Druid  
+6 Barbarian  
+7 Wildmage  
+
+ 
+Byte 02 Offset 002Bh
+
+ 
+Bit Data Description
+0 Stalker Ranger  
+1 Beastmaster Ranger  
+2 Assassin Thief  
+3 Bounty Hunter Thief  
+4 Swashbuckler Thief  
+5 Blade Bard  
+6 Jester Bard  
+7 Skald Bard  
+
+ 
+Byte 03 Offset 002Dh
+
+ 
+Bit Data Description
+0 Diviner  
+1 Enchanter  
+2 Illusionist  
+3 Invoker  
+4 Necromancer  
+5 Transmuter  
+6 All (no kit)  
+7 Ferlain  
+
+ 
+Byte 04 Offset 002Fh
+
+ 
+Bit Data Description
+0 Beserker Fighter  
+1 Wizardslayer Fighter  
+2 Kensai Fighter  
+3 Cavalier Paladin  
+4 Inquisitor Paladin  
+5 Undead Hunter Paladin  
+6 Abjurer  
+7 Conjurer  
+
+Bit 0 is the LSB, Bit 7 the MSB
+ 
+
+WeaponProdiciency:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0031 1 WeaponProficiency Byte  
+
+This field specifies the weapon proficiency used by the item:
+ 
+
+ 
+Value(Hex) Description
+00h None
+59h Bastard Sword
+5Ah Long Sword
+5Bh Short Sword
+5Ch Axe
+5Dh Two-Handed Sword
+5Eh Katana
+5Fh Scimitar/Wakizashi/Ninja-To
+60h Dagger
+61h War Hammer
+62h Spear
+63h Halberd
+64h Flail/Morningstar
+65h Mace
+66h Quarterstaff
+67h Crossbow
+68h Long Bow
+69h Short Bow
+6Ah Darts
+6Bh Sling
+6Ch Blackjack
+6Dh Gun
+6Eh Martial Arts
+6Fh Two-Handed Weapon Skill
+70h Sword and Shield Skill
+71h Single Weapon Skill
+72h Two Weapon skill
+73h Club
+74h Extra Proficiency 2
+75h Extra Proficiency 3
+76h Extra Proficiency 4
+77h Extra Proficiency 5
+78h Extra Proficiency 6
+79h Extra Proficiency 7
+7Ah Extra Proficiency 8
+7Bh Extra Proficiency 9
+7Ch Extra Proficiency 10
+7Dh Extra Proficiency 11
+7Eh Extra Proficiency 12
+7Fh Extra Proficiency 13
+80h Extra Proficiency 14
+81h Extra Proficiency 15
+82h Extra Proficiency 16
+83h Extra Proficiency 17
+84h Extra Proficiency 18
+85h Extra Proficiency 19
+86h Extra Proficiency 20
+
+ItemPrice:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0034 4 ItemPrice dword  
+
+Contains the base price of the item in gold pieces. A price of one GP has to be written as a 0. If it is written as a 1 then it might get rounded down to 0 after the multiplication from the reputation factor.
+ 
+
+ItemStack:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0038 2 ItemStack Word  
+
+Contains the number of items that are allowed to be stacked by the player in one inventory slot. Any number greater than 0 will display the StackedItemsCountNumber in the game. The system may stack more items than this field allows. For example to avoid the display of the StackedItemsCountNumber on wands (Charges Of A Wand = Stacked Wands) set this value to 0.
+ 
+
+InventoryIcon:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x003A 8 InventoryIcon Array[0..7] Of Char  
+
+Filename of the BAM file that contains the graphics shown to represent this item in inventory.
+ 
+
+LoreToIdentify:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0042 2 LoreToIdentify Word  
+
+Lore needed to Identify this item.
+ 
+
+GroundIcon:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0044 8 GroundIcon Array[0..7] Of Char  
+
+Filename of the BAM file that contains the graphics to use for this item when on the ground.
+ 
+
+ItemWeight:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x004C 4 ItemWeight dword  
+
+Weight of the item.
+ 
+
+DescriptionReference(UnIdentified):
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0050 4 DescriptionReference dword FFFFh for none
+
+This is the StrRef to the description of the (Unidentified) item. The StrRef is the index to the string contained in Dialog.tlk file for the specific game.
+ 
+
+DescriptionReference(Identified):
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0054 4 DescriptionReference dword FFFFh for none
+
+This is the StrRef to the description of the (Identified) item. The StrRef is the index to the string contained in Dialog.tlk file for the specific game.
+ 
+
+DescriptionIcon:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0058 8 DescriptionIcon Array[0..7] Of Char  
+
+Filename of the BAM file that contains the graphics used on the description screen for the item..
+ 
+
+ItemMagicalPlusToAffectCreatures:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0060 4 ItemMagicalPlus dword 0 for normal items
+
+This field sets the magical plus of the item for its ability to affect individuals. This means that if the individual is immune to +3 or lower weapons, then this field would need to be 4 or greater to affect them.
+ 
+
+ExtendedHeaderOffset:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0064 4 ExtendedHeaderOffset dword  
+
+Offset in the item file itself to the first Extended Header.
+ 
+
+ExtendedHeaderCount:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0068 2 ExtdendedHeaderCount Word  
+
+Number of Extended Headers in this item.
+ 
+
+FeatureTableOffset:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x006A 4 FeatureTableOffset dword  
+
+Offset in the item file itself to the first Feature Block. If there is no Features Blocks at all in the item, this still points to where they would begin which is after the last Extended Header.
+ 
+
+EquiptFeatureBlockOffset:
+
+ 
+Offset Size Data Type Default Data 
+0x006E 2 EquiptFeatureBlockOffset Word  
+
+This field contains the beginning offset of the Feature Blocks that affect the user of the item upon it being equipped.
+ 
+
+EquiptFeatureBlockCount:
+
+ 
+Offset Size Data Type Default Data 
+0x0070 2 EquiptFeatureBlockCount Word  
+
+This field contains the number of Feature Blocks that affect the user of the item upon it being equipped.
+ 
+Extended Header:
+
+AttackType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0000 1 AttackType Byte  
+
+This field determines the type af the ability contained in the ExtendedHeader:
+ 
+
+ 
+Value Data
+00h -
+01h Melee Attack(Sword,Axe.....)
+02h Projectile Attack(Arrow, Bolt, Bullet)
+03h Magic Attack / Magic / Default (Wand, Potion, Gem....)
+04h Launcher (Bow, Sling, X-Bow)
+
+ForceIdentify:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0001 1 ForceIdentify Byte  
+
+Set whether an item has to be identified before the ability can be used.
+
+ 
+Value Data
+00h No identification required
+01h Identification required
+02h Identification forbidden (this extended header works when the item is unidentified)
+
+ 
+
+AbilityUseLocation:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0002 1 UseLocation Byte  
+
+This field determines the location of the icon to use the ability contained in the Extended Header:
+ 
+
+ 
+Value Data
+01h Melee Location (weapon slots)
+03h Item Location (item use slot)
+04h Gem/Scalp (Gems and Bandit Scaps)
+
+UseIcon:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0004 8 UseIcon Array[0..7] Of Char  
+
+Filename of the BAM file that contains the graphics shown to represent this item in its use location.
+ 
+
+Target:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000C 1 Target Byte  
+
+Specifies the target of this Extension Header:
+ 
+
+ 
+Value Data
+01h Creature
+02h Inventory
+03h Dead Character
+04h Area
+05h Self
+
+TargetNumber:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000D 1 TargetNumber Byte  
+
+Specifies the number of specific targets of this Extended Header.
+ 
+
+EffectRadius/AttackRange:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000E 2 EffectRadius/AttackRange Word  
+
+Specifies the effect radius or the attack range of this Extended Header.
+ 
+
+ProjectileType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x002A 2 ProjectileType Word  
+
+If the item is a projectile, this field specifies it's type:
+ 
+
+ 
+Value Data
+00h none (melee)
+01h Arrow
+02h Bolt
+03h Bullet
+28h Spear
+64h Throwing Axe
+
+SpeedFactor:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0012 2 SpeedFactor Word  
+
+Specifies the speed factor, i.e. how long it takes to activate, of this Extended Header.
+ 
+
+THAC0 Bonus:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0014 2 THAC0 Bonus Word  
+
+Specifies the bonus to the user's THAC0 for this Extended Header.
+ 
+
+DamageDice:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0016 2 DamageDice Word  
+
+Specifies the number of sides of the damage dice for this Extended Header. For example set to 6 for d6 or 1-6 damage per dice, 12 for d12 or 1-12 damage per dice, etc.
+ 
+
+DamageThrows:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0018 2 DamageThrows Word  
+
+Specifies the number of dice to use for the damage for this Extended Header. For example set to 2 for two dice thrown, 4 for four dice thrown, etc.
+ 
+
+DamageBonus:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001A 2 DamageBonus Word  
+
+Specifies the the bonus to the damage dice and throws for this Extended Header. For example set to 2 to add two points to the dice damage and throws, 4 to add four points, etc.
+ 
+
+DamageType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001C 2 DamageType Word  
+
+This field specifies the type of the damage done:
+ 
+
+ 
+Value Data
+00h none
+01h Piercing (Default for Magic)
+02h Blunt
+03h Slashing
+04h Ranged
+05h Fists
+
+ExtHeaderFeatureBlockCount:
+
+ 
+Offset Size Data Type Default Data 
+0x001E 2 ExtHeaderFeatureBlockCount Word  
+
+This field contains the number of Feature Blocks that this Extension Header uses.
+ 
+
+ExtHeaderFeatureBlockOffset:
+
+ 
+Offset Size Data Type Default Data 
+0x0020 2 ExtHeaderFeatureBlockOffset Word  
+
+This field contains the beginning offset of the Feature Blocks that this Extension Header uses.
+ 
+
+Charges:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0022 2 Charges Word  
+
+Specifies the default number of charges this Extension Header has.
+ 
+
+ItemDrainability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0024 1 ItemDrainability Byte  
+
+Specifies whether the charges of this Extension Header is per day or just total charges:
+ 
+
+ 
+Value Data
+0001h Item Disappears When Drained
+0003h Item Remains When Drained
+
+AllowStrengthBonus:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0026 1 AllowStrBonus Byte  
+
+Specifies whether the user's Strength Damage Bonus is used or not with this Extension Header:
+ 
+
+ 
+Value Data
+0000h No Strength Bonus Added to Damage
+0001h Strength Bonus Added to Damage
+
+ItemRecharability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0027 1 ItemRecharability Byte  
+
+Specifies whether the charges of this Extension Header is per day or just total charges:
+ 
+
+ 
+Value Data
+0001h Item Doesn't Recharge After Resting
+0008h Item Recharges After Resting
+
+EffectAnimation:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x002A 2 EffectAnimation Word  
+
+EffectAnimation is the animation that will start when this Extension Header is used and is dependent on the specific game: Graphics Effects
+
+ 
+
+MeleeAnimation:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x002C 2 MeleeAnimation 3 sets of Words  
+
+The exact meaning of these three sets of numbers are not exactly known, but it seems they deal with the melee attack animation for a weapon. The three values must add up to 64h(100d) for all items except missile weapons to work correctly. Here is the general known values for various items:
+ 
+
+ 
+Value Word 1 Value Word 2 Value Word 3 Data
+00h 14h 50h Dagger
+0Ah 19h 41h Short Sword
+32h 32h 00h Long Sword, Bastard Sword, Scimitar, Battle Axe, Warhammer, Club, Mace, Flail, Morning Star
+3Ch 28h 00h Two-Handed Sword
+00h 23h 41h Halberd
+00h 00h 64h Spear
+0Ah 46h 14h Staff
+00h 00h 00h Any Missile Weapon (Bow, Arrow, CrossBow, Bolt, Sling, Bullet, Throwing Axe, Dart, Throwing Dagger, etc.)
+22h 21h 21h Any Non-Weapon Item (Amulets, Rings, Wands, etc.)
+
+BowArrowQualifier:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0032 2 BowArrowQualifier Word  
+
+ 
+Value Data
+00h Not a Bow or an Arrow
+01h Is a Bow or an Arrow
+
+Sets whether an item is a Bow or an Arrow.
+ 
+
+CrossBowBoltQualifier:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0034 2 CrossBowBoltQualifier Word  
+
+ 
+Value Data
+00h Not a CrossBow or a Bolt
+01h Is a CrossBow or a Bolt
+
+Sets whether an item is a CrossBow or a Bolt.
+ 
+
+MiscMissileQualifier:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0036 2 MiscMissileQualifier Word  
+
+ 
+Value Data
+00h Not a Miscellaneous Missile Item
+01h Is a Miscellaneous Missile Item
+
+Sets whether an item is a Miscellaneous Missile Item such as a Sling, Bullet, Throwing Axe, Throwing Dagger, or a Throwing Hammer.
+ 
+
+ 
+Feature Block:
+
+Feature/Effect:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0000 2 Feature/Effect Word  
+
+This field sets the specific effect of this feature block and is dependent on the specific game: Effects in feature sections
+ 
+
+TargetIdentifier:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0002 1 TargetIdentifier Byte  
+
+TargetIdentifier determines the target of this effect:
+ 
+
+ 
+Value Data
+01h Self
+02h Pre-Target
+03h Party
+04h Global
+05h Global without Party
+
+
+Power:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0003 1 Power Byte  
+
+Power sets the strength of the effect for purposes of dispelling and similiar.
+ 
+
+Parameter 1:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0004 4 Parameter 1 dword  
+
+Parameter 1 is the first parameter passed to the Feature/Effect. Alot of the time it contains the Modification Value for the Feature/Effect, however the exact functioning of this Parameter changes with the Feature/Effect and the Struct List itself should be checked for specifics.
+ 
+
+Parameter 2:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0008 4 Parameter 2 dword/Bitfield  
+
+Parameter 2 is the second parameter passed to the Feature/Effect. The exact functioning of this Parameter changes with the Feature/Effect and the Struct List itself should be checked for specifics.
+ 
+
+EffectTimeMode:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000C 1 EffectTimeMode Byte  
+
+This field sets the timemode of the item and the EffectTimeField
+ 
+
+ 
+Value Start of Effect Duration
+0 Instantly For [EffecTime] Seconds
+1 Instantly Permanent
+2 Instantly While equiped
+4 After [EffecTime] Seconds Permanent
+9 Instantly Permanent After Bonuses
+
+Resistance & Dispellability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000D 1 Resistance & Dispellability Byte  
+
+This field sets whether the effect is dispellable and if it can bypass the proper resistance or not.
+ 
+
+ 
+Value Meaning
+0 Not Dispellable & Will Bypass Resistance
+1 Dispellable & Will not Bypass Resistance
+2 Unknown
+3 Dispellable & Will Bypass Resistence
+
+EffectTime:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x000E 4 EffectTime dword  
+
+EffectTime contains a time value for this effect.
+
+Game Time In Rounds = EffectTime / 60
+ 
+
+Probability:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0012 1 High Probability Byte  
+0x0013 1 Low Probability Byte  
+
+These two fields contain the Probability this Effect will happen. Values can go from 0 to 100 on each setting. When the Extension Header is called to be used a random value from 1 to 100 will be chosen. If this number is with in the range set by the Low to High Probability then it will occur. Therefore if you set the Low to 0 and the High to 100 then it will occur 100% of the time, and likewise Low to 0 and High to 0 will occur 0% of the time.
+ 
+
+Resource Key:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0014 8 ResourceKey Array[0..7] Of Char  
+
+Resource Key is another Paremeter passed to the Effect/Feature. Some functions use it to specify a filename of some type (i.e. BAM, CRE, EFF, etc.).
+ 
+
+Throws:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x001C 4 Throws dword  
+
+This field only matters for dice based Effects and sets the number of dice to use.
+ 
+
+DiceSides:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0020 4 DiceSides dword  
+
+This field only matters for dice based Effects and sets the number of sides on each die.
+ 
+
+SavingThrowType:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0024 4 SavingThrowType dword  
+
+This field determines the type of saving throw that must be made to avoid the Effect.
+ 
+
+ 
+Value Data
+00h No Saving Throw
+01h Save vs. Spells
+02h Save vs. Breath Weapon
+04h Save vs. Death/Poison
+08h Save vs. Wands
+16h Save vs. Petrification/Polymorph
+
+SavingThrowBonus:
+ 
+
+ 
+Offset Size Data Type Default Data 
+0x0028 4 SavingThrowBonus dword  
+
+This field determines the bonus to the saving throw that must be made to avoid the Effect
+
+ 
+
+ITM V1.1
+FileExtension : ITM
+Content : Item Definitions (Version 1.1 ONLY)
+History : File done by IEFFHP
+
+Note: This structure is mostly the same as the V1.0 structure. There may still be a few more changes which need to be made.
+
+Overall structure
+
+    * Header
+    * Abilities
+    * Effects
+
+ITM V1.1 Header
+Offset Size (datatype) Description
+0x0000 4 (char array) Signature ('ITM ')
+0x0004 4 (char array) Version ('V1.1')
+0x0008 4 (strref) Item name (generic)
+0x000c 4 (strref) Item name (identified)
+0x0010 8 (resref) "Used Up Item" -- (i.e. what does this become when it breaks or is used up?)
+0x0018 4 (dword) Flags:
+
+    * bit 0: indestructible
+    * bit 1: two-handed
+    * bit 2: droppable
+    * bit 3: displayable
+    * bit 4: cursed
+    * bit 5: copyable (scroll)
+    * bit 6: magical
+    * bit 7: (set iff item is a bow?)
+    * bit 8: silver
+    * bit 9: cold iron
+
+0x001c 2 (word) Item category index, as specified in this table
+0x001e 4 (dword) Item usability bitmap:
+
+    * bit 0: Unusable by Chaotic
+    * bit 1: Unusable by Evil
+    * bit 2: Unusable by Good
+    * bit 3: Unusable by Good-Evil Neutral
+    * bit 4: Unusable by Lawful
+    * bit 5: Unusable by Lawful-Chaotic Neutral
+    * bit 6: Unusable by Sensates
+    * bit 7: Unusable by Priest
+    * bit 8: Unusable by Godsmen
+    * bit 9: ???
+    * bit 10: Unusable by Chaosmen
+    * bit 11: Unusable by Fighter
+    * bit 12: ???
+    * bit 13: Unusable by ???
+    * bit 14: Unusable by Dustmen
+    * bit 15: ???
+    * bit 16: Unusable by Indeps
+    * bit 17: ???
+    * bit 18: Unusable by Mage
+    * bit 19: Unusable by ???
+    * bit 20: Unusable by Dak'kon
+    * bit 21: Unusable by Fall-From-Grace
+    * bit 22: Unusable by Thief
+    * bit 23: Unusable by Vhailor
+    * bit 24: Unusable by Ignus
+    * bit 25: Unusable by Morte
+    * bit 26: Unusable by Nordom
+    * bit 27: ???
+    * bit 28: Unusable by Annah
+    * bit 29: ???
+    * bit 30: Unusable by Nameless One
+    *  
+    * bit 31: ???
+
+0x0022 2 (chars) Chars for inventory portrait BAM resource index. The BAM resource used on the inventory screen is determined as follows: If these characters are spaces, no resource is used. Otherwise, depending on whether the character is Small, Medium, or Large, WPS, WPM, or WPL is prepended to the characters. This is then used as a BAM resource name for graphics which are superposed on top of the character portrait. To accommodate hands and the like, empty spaces are left in these graphics. Similar procedures are used to choose animation resources for other graphics and animations which need to be specific to particular equipment types and/or character types.
+0x0024 2 (word) Minimum level requirement
+0x0026 2 (word) Minimum strength requirement
+0x0028 2 (word) Minimum strength bonus requirement
+0x002a 2 (word) Minimum intelligence requirement
+0x002c 2 (word) Minimum dexterity requirement
+0x002e 2 (word) Minimum wisdom requirement
+0x0030 2 (word) Minimum constitution requirement
+0x0032 2 (word) Minimum charisma requirement
+0x0034 4 (dword) Base value (i.e. before modification, this is the market value of a single unit of this item)
+0x0038 2 (word) Max stackable
+0x003a 8 (resref) Item Icon
+0x0042 2 (word) Lore (i.e. Lore skill required to identify this item)
+0x0044 8 (resref) Ground Icon
+0x004c 4 (dword) Base weight (i.e. weight for a single unit of this item)
+0x0050 4 (strref) Item description (generic)
+0x0054 4 (strref) Item description (identified)
+0x0058 8 (resref) Carried Icon (i.e. graphic as it appears in your hand when you are walking).
+0x0060 4 (dword) "Enchantment"
+0x0064 4 (dword) Ability structs offset
+0x0068 2 (word) Ability structs count
+0x006a 4 (dword) Effect structs offset
+0x006e 2 (word) Unknown. Could be index of first "global" (i.e. not attached to a specific ability) effect structs
+0x0070 2 (word) Count of "global" (i.e. not attached to a specific ability) effect structs
+0x0072 4 (dword) These appear to be more flags, similar to the flags appearing earlier in the header. It is unclear what their function may be; they appear to be highly correlated with the earlier flags. Notably, many "important" items, like "Celestial Fire" have different flags here.
+0x0076 4*6 (dword array) These are still completely mysterious. (There are only a few data points which have these set to a non-zero value, which means that it is very difficult to establish any real meaning behind these fields; I'm looking into the purpose of these fields.
+
+ITM V1.1 Abilities
+
+Roughly speaking, each "ability" (I believe this to be the terminology used in the Bioware tools) corresponds to a different way to use the item. For instance, in BG, there is an item which can be either a melee (hand-to-hand) axe, or a throwing axe. Or the "wand of fire" which fires either fireballs or "aganazzar's scorcher". To choose which, you click on the item while it is selected, and you are given a menu to choose the ammunition type -- the same procedure used for selecting different missile types for a missile weapon. (Note, also, that it is possible to get an info screen for a bow, for instance, in which all of the "abilities" of the bow are listed -- namely the different types of ammunition it fires. I suspect that it is no coincidence that the same interfaces are used to select "abilities" of an item, and differing ammunition types of a launcher; likely the game internally handles different ammunition types via the same interface it uses for abilities.).
+Offset Size (datatype) Description
+0x0000 1 (byte) Ability "type":
+
+    * 0: default type? (mostly potions and miscellaneous items)
+    * 1: melee attack (non-ranged attacks)
+    * 2: ranged attack (both for ammunition and for throw weapon types)
+    * 3: magical effect?
+    * 4: launcher -- enables use of some "ranged attack" items which require a launcher
+
+0x0001 1 (byte) 1 if item must be identified before this ability can be used, 0 otherwise
+0x0002 2 (word) Unknown!
+0x0004 8 (resref) icon to represent this ability wherever it needs to be displayed in the GUI
+0x000c 2 (word) Selectable target type for this ability:
+
+    * 1: living actor
+    * 2: inventory
+    * 3: dead actor
+    * 4: any point within range
+    * 5: caster
+    * other values?
+
+0x000e 2 (word) Range for this ability
+0x0010 2 (word) Launcher type required for this ability:
+
+    * 0: None
+    * 1: bow
+    * 2: crossbow
+    * 3: sling
+
+0x0012 2 (word) Speed factor for this ability
+0x0014 2 (word) To-hit bonus when using this ability
+0x0016 2 (word) Number of sides on damage dice to be rolled for this ability
+0x0018 2 (word) Number of damage dice to be rolled for this ability
+0x001a 2 (word) "Enchanted" (i.e. bonus to damage -- constant bonus added to hit dice)
+0x001c 2 (word) Damage type:
+
+    * 0: none?
+    * 1: piercing (also appears to be set for some magical attacks, though it is likely ignored in these cases -- i.e. damage specified as 0d6+0)
+    * 2: crushing
+    * 3: slashing
+    * 4: missile
+
+0x001e 2 (word) Number of attached Effect structs for this ability. Note that not all abilities are designed in terms of effects. For instance, standard weapon damage doesn't require any effects, since it is just a to-hit bonus, a die specification, a damage bonus, and a damage type.
+0x0020 2 (word) Index of first attached Effect structs for this ability.
+0x0022 2 (word) Number of times this ability can be used before it is exhausted
+0x0024 2 (word) Unknown. Appears that it might be related to the previous field...
+0x0026 2 (word) Unknown.
+0x0028 2 (word) Unknown.
+0x002a 2 (word) Unknown.
+0x002c 2*3 (word array) Unknown. This appears to be three percentages, though. For missile weapons they are all 0, and for all other types of items, they add up to exactly 100, each being in the range 0-100. It is unknown what these code for.
+0x0032 2 (word) 1 if this is an "arrow" type projectile, 0 else
+0x0034 2 (word) 1 if this is an "bolt" type projectile, 0 else
+0x0036 2 (word) 1 if this is a miscellaneous missile weapon (thrown, or launched from a sling). 0 else
+

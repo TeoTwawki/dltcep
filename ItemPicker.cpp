@@ -1,0 +1,346 @@
+// ItemPicker.cpp : implementation file
+//
+
+#include "stdafx.h"
+#include "chitem.h"
+#include "options.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+// CItemPicker dialog
+
+CItemPicker::CItemPicker(CWnd* pParent /*=NULL*/)
+	: CDialog(CItemPicker::IDD, pParent)
+{
+	//{{AFX_DATA_INIT(CItemPicker)
+	m_text = _T("");
+	//}}AFX_DATA_INIT
+  m_restype=-1;
+  m_oldrestype=-1;
+}
+
+void CItemPicker::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CItemPicker)
+	DDX_Control(pDX, IDC_PICK, m_pick_control);
+	DDX_Text(pDX, IDC_TEXT, m_text);
+	//}}AFX_DATA_MAP
+}
+
+BEGIN_MESSAGE_MAP(CItemPicker, CDialog)
+	//{{AFX_MSG_MAP(CItemPicker)
+	ON_LBN_DBLCLK(IDC_PICK, OnDblclkPick)
+	ON_BN_CLICKED(IDC_SEARCH, OnSearch)
+	ON_BN_CLICKED(IDC_RESOLVE, OnResolve)
+	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
+	ON_LBN_SELCHANGE(IDC_PICK, OnSelchangePick)
+	ON_BN_CLICKED(IDC_PLAY, OnPlay)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CItemPicker message handlers
+
+void CItemPicker::OnOK()
+{
+  int sel;
+  int x;
+
+  UpdateData(UD_RETRIEVE);
+  sel=m_pick_control.GetCurSel();
+  if(sel==-1) OnSearch();
+  sel=m_pick_control.GetCurSel();
+  if(sel>=0 && sel<m_pick_control.GetCount())
+  {
+    m_pick_control.GetText(sel,m_picked);
+    x=m_picked.Find(" ");
+    if(x>0) m_picked=m_picked.Left(x);
+    CDialog::OnOK();
+  }
+  else OnCancel();
+}
+void CItemPicker::OnDblclkPick() 
+{
+  OnOK();
+}
+
+void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
+{
+  CString tmpstr;
+  int fhandle;
+  int fc;
+
+  switch(restype)
+  {
+  case REF_BMP:
+  case REF_BAM:
+  case REF_ITM:
+  case REF_SPL:
+    if(editflg&PREVIEW)
+    {
+      m_preview.ShowWindow(false);
+      return;
+    }
+    m_preview.SetWindowText(key);
+    switch(restype)
+    {
+    case REF_ITM: case REF_SPL:
+      fhandle=locate_file(fileloc, 0);
+      if(restype==REF_ITM) tmpstr=my_item.RetrieveResourceRef(fhandle);
+      else tmpstr=my_spell.RetrieveResourceRef(fhandle);
+      break;
+    case REF_BMP: case REF_BAM:
+      tmpstr=key;
+      break;
+    }
+    if(restype==REF_BMP) fc=read_bmp(tmpstr, &my_bam);
+    else fc=read_bam(tmpstr,&my_bam);
+    if(!fc)
+    {
+      fc=my_bam.GetFrameIndex(0,0);
+      if(restype!=REF_SPL) my_bam.MakeBitmap(fc,RGB(32,32,32),m_preview.m_bm,BM_RESIZE,32,32);
+      else my_bam.MakeBitmap(fc,RGB(255,198,128),m_preview.m_bm,BM_RESIZE,32,32);
+    }
+    else
+    {
+      if(m_preview.m_bm)
+      {
+        DeleteObject(m_preview.m_bm);
+        m_preview.m_bm=0;
+      }
+    }
+    m_preview.InitView(0); //don't add the 'back' button
+    m_preview.RedrawContent();
+    m_preview.ShowWindow(true);
+    break;
+  case REF_ARE:
+  case REF_MOS:
+    if(editflg&PREVIEW)
+    {
+      m_preview.ShowWindow(false);
+      return;
+    }
+    m_preview.SetWindowText(key);
+    if(restype==REF_ARE)
+    {
+      fhandle=locate_file(fileloc, 0);
+      tmpstr=my_area.RetrieveMosRef(fhandle);
+    }
+    else tmpstr=key;
+    if(read_mos(tmpstr,&the_mos,true))
+    {
+      the_mos.new_mos();
+    }
+    else
+    {
+      if(m_preview.m_bm)
+      {
+        DeleteObject(m_preview.m_bm);
+        m_preview.m_bm=0;
+      }
+    }
+    m_preview.InitView(IW_ENABLEBUTTON); //don't add the 'back' button
+    m_preview.RedrawContent();
+    m_preview.ShowWindow(true);
+    break;
+  }
+}
+
+void CItemPicker::ResolveKey(CString &key, loc_entry &fileloc, int restype)
+{
+  long nameref;
+  CString tmpstr;
+  int fhandle;
+
+  if(editflg&RESOLVE) return;
+  switch(restype)
+  {
+  case REF_ITM:
+    {
+      fhandle=locate_file(fileloc, 0);
+      nameref=my_item.RetrieveNameRef(fhandle);
+    }
+    break;
+  case REF_CRE:
+    {
+      fhandle=locate_file(fileloc, 0);
+      nameref=my_creature.RetrieveNameRef(fhandle);
+    }
+    break;
+  case REF_SPL:
+    {
+      fhandle=locate_file(fileloc, 0);
+      nameref=my_spell.RetrieveNameRef(fhandle);
+    }
+    break;
+  case REF_STO:
+    {
+      fhandle=locate_file(fileloc, 0);
+      nameref=my_store.RetrieveNameRef(fhandle);
+    }
+    break;
+  default:
+    return;
+  }
+  if(nameref<=0) tmpstr=" (?)";
+  tmpstr=CString(" (")+resolve_tlk_text(nameref)+")";
+  key+=tmpstr;
+}
+
+void CItemPicker::FillList(int restype, CListBox &list)
+{
+  POSITION pos;
+  CString key;
+  loc_entry fileloc;
+  int idx;
+  
+  list.ResetContent();
+  idx=determinetype(restype);
+  if(!idx)
+  {
+    MessageBox("Internal error (no method for filling listbox)","Error",MB_OK);
+    return;
+  }
+  else pos=resources[idx]->GetStartPosition();
+  while(pos)
+  {
+    resources[idx]->GetNextAssoc(pos,key,fileloc);
+    ResolveKey(key,fileloc,restype);
+    list.AddString(key);
+  }
+}
+
+void CItemPicker::RefreshDialog()
+{
+  CString tmp;
+  CRect rect;
+  int flg;
+
+  tmp.LoadString(idstrings[determinetype(m_restype)]);
+  tmp="Pick "+tmp;
+  if(readonly) tmp+=" (read only)";
+  SetWindowText(tmp);
+  FillList(m_restype,m_pick_control);
+  flg=!(editflg&RESOLVE);
+  ((CButton *) GetDlgItem(IDC_RESOLVE))->SetCheck(flg);
+  flg=!(editflg&PREVIEW);
+  ((CButton *) GetDlgItem(IDC_PREVIEW))->SetCheck(flg);
+}
+
+BOOL CItemPicker::OnInitDialog() 
+{
+  CString tmp;
+  CRect rect;
+
+	CDialog::OnInitDialog();
+  switch(m_restype)
+  {
+  case REF_BMP:
+  case REF_BAM:
+  case REF_ITM:
+  case REF_SPL:
+  case REF_ARE:
+  case REF_MOS:
+    GetDlgItem(IDC_PREVIEW)->ShowWindow(true);
+    m_preview.Create(IDD_IMAGEVIEW,this);
+    GetWindowRect(rect);
+    m_preview.SetWindowPos(0,rect.right+rect.Width(),rect.top,0,0,SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
+    break;
+  case REF_WAV:
+  case REF_ACM:
+    GetDlgItem(IDC_PLAY)->ShowWindow(true);
+    break;
+  }
+  RefreshDialog();
+  m_pick_control.SelectString(0,m_picked);
+  OnSelchangePick();
+  return TRUE;
+}
+
+void CItemPicker::OnSearch() 
+{
+  CString tmpstr;
+  int cnt;
+  int i;
+
+	UpdateData(UD_RETRIEVE);
+	if(m_pick_control.SelectString(m_pick_control.GetCurSel(),m_text)==-1)
+  {
+    cnt=m_pick_control.GetCount();
+    i=m_pick_control.GetCurSel()+1;
+    if(m_text.GetLength())
+    {
+      m_text.MakeLower();
+      if(m_text.GetAt(0)=='*') m_text=m_text.Mid(1);
+      for(i=m_pick_control.GetCurSel()+1;i<cnt;i++)
+      {
+        m_pick_control.GetText(i,tmpstr);
+        tmpstr.MakeLower();
+        if(tmpstr.Find(m_text)!=-1)
+        {
+          break;
+        }
+      }
+    }
+    if(i==cnt)
+    {
+      m_pick_control.SetCurSel(0);
+    }
+    else
+    {
+      m_pick_control.SetCurSel(i);
+    }
+  }
+  OnSelchangePick();
+}
+
+void CItemPicker::OnResolve() 
+{
+	editflg^=RESOLVE;
+  RefreshDialog();
+}
+
+void CItemPicker::OnPreview() 
+{
+	editflg^=PREVIEW;
+  OnSelchangePick();
+}
+
+void CItemPicker::OnPlay() 
+{
+  int sel;
+  CString key;
+
+  sel=m_pick_control.GetCurSel();
+  if(sel>=0 && sel<m_pick_control.GetCount())
+  {
+    m_pick_control.GetText(sel,key);
+  }
+	play_acm(key,m_restype==REF_ACM,0);
+}
+
+void CItemPicker::OnSelchangePick() 
+{
+  int sel;
+  int x;
+  int idx;
+  CString key;
+  loc_entry fileloc;
+
+  sel=m_pick_control.GetCurSel();
+  if(sel>=0 && sel<m_pick_control.GetCount())
+  {
+    m_pick_control.GetText(sel,key);
+    x=key.Find(" ");
+    if(x>0) key=key.Left(x);
+  }
+  idx=determinetype(m_restype);
+  resources[idx]->Lookup(key,fileloc);
+  Preview(key,fileloc,m_restype);	
+}

@@ -1,0 +1,62 @@
+MOS V1
+
+Overall structure
+
+    * Header
+    * Palettes
+    * Tile offsets
+    * Tile data
+
+MOS V1 Header
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('MOS ')
+0x0004 4 (char array) Version ('V1 ')
+0x0008 2 (word) width (pixels)
+0x000a 2 (word) height (pixels)
+0x000c 2 (word) columns (blocks)
+0x000e 2 (word) rows (blocks)
+0x0010 4 (dword) block size (in pixels)
+0x0014 4 (dword) offset of palettes from start of file
+MOS V1 Palettes
+
+As in all of the BG files which contain palettes, these palettes are arrays of 256 RGBQUAD structures, which means they take 4 bytes per color. The first three are the ones of interest, though, because they code for blue, green, and red components respectively. The palette blocks are found in the same order as the pixel blocks they correspond to (i.e. by increasing column number, then by increasing row number).
+MOS V1 Tile offsets
+
+This section immediately follows the palettes. This is just an array of columns*rows dwords, which are the offsets from the beginning of the file to each tile's pixel data. These pointers are in the same order as the palette data.
+MOS V1 Tile data
+
+These tiles are ordered in a left-to-right, top-to-bottom order, just as the palettes. The blocks on the right side and the bottom row are only as large as they need to be (i.e. width modulo 64 and height modulo 64) based on the width in pixels and the blocksize of 64 pixels. In general, the block layout looks like:
+Image
+Block 0,0
+64*64 pixels Block 1,0
+64*64 pixels Block 2,0
+64x64 pixels ... Block (n-1),0
+64*64 pixel Block n,0
+x*64 pixels
+Block 0,1
+64*64 pixels Block 1,1
+64*64 pixels Block 2,1
+64x64 pixels ... Block (n-1),1
+64*64 pixel Block n,1
+x*64 pixels
+... ... ... ... ... ...
+Block 0,m
+64*y pixels Block 1,m
+64*y pixels Block 2,m
+64*y pixels ... Block (n-1),m
+64*y pixels Block n,m
+x*y pixels
+MOSC V1
+
+Overall structure
+
+    * Header
+    * zlib compressed data
+
+MOSC V1 Header
+
+The MOSC V1 data is an entire MOS V1 resource compressed with zlib and with a 12-byte header prepended, as seen below.
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('MOSC')
+0x0004 4 (char array) Version ('V1 ')
+0x0008 4 (dword) Uncompressed data length

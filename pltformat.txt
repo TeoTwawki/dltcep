@@ -1,0 +1,47 @@
+PLT format description
+FileExtension : PLT
+Content : Description of PLT , paperdolls fileV.1.0
+History : Preliminary description by Manveru (09.07.2001)
+Correction and update : Glenn Flansburg (20.08.2001)
+Correction and update : Drish (09.09.2001)
+
+ This format describes the appearance of paperdolls.
+
+Header :
+
+It has 24 bytes.
+Offset Size (Data type) Description
+0x00000 4 (ASCIIZ string) Signature 'PLT '
+0x00004 4 (ASCIIZ string) Version 'V1  '
+0x00008 2 (word) unknown
+0x0000a 2 (word) unknown
+0x0000c 2 (word) unknown
+0x0000e 2 (word) unknown
+0x00010 4 (word) Width (128 in all the ones I've seen)
+0x00014 4 (word) Height (160 in all the ones I've seen)
+
+The body
+
+It consist of the pair of bytes that describes the colors of bitmap.
+Offset Size (Data type) Description
+0x00000 1 (byte) colour ?
+0x00001 1 (byte) intensity ?
+
+Another discovery by Drish  (verified and checked by Manveru) :
+
+It is found out what this PLT file is: BMPs with 16 bits color / no compression
+There may be just added this header to a PLT and it opened in any graphics program (of course there was deleted the original header and file was renamed to *.BMP)
+
+42 4d 36 a0 00 00 00 00 00 00 36 00 00 00 28 00 
+
+00 00 80 00 00 00 a0 00 00 00 01 00 10 00 00 00 
+
+00 00 00 00 00 00 c3 0e 00 00 c3 0e 00 00 00 00 
+
+00 00 00 00 00 00
+
+All 54 bytes
+ 
+Or maybe they are 2 BMPs in one (8 bits color / internal BG ???palette / one byte for each) 
+
+ 

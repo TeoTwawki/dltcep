@@ -1,0 +1,425 @@
+DLG file format
+
+ FileExtension :
+                       DLG
+ Content :
+                       Description of dialogue references file DLG V1 and DLG V1.09
+ History :
+                       File done by IEFFHP
+ Updated :
+                       CatTeamBG (entered to IESDP 19.08.2001)
+
+
+Description
+
+Each actor in the game that has any amount of dialog (whether they be player characters, monsters, or items) will have a
+.dlg file associated with them. A DLG file basically represents a state machine. Implicit in the workings of the dialog system
+are two concepts which, because of their obvious similarities to the analogous concepts in the AI scripts, I will refer to as
+"triggers" and "actions". A trigger is essentially the same as a trigger from AI scripting; i.e. several conditions AND-ed
+together, each condition being a boolean-valued function. The functions which are usable as conditions are listed in the
+trigger.ids file (which is in default.bif under BG, and idsfiles.bif under PS: Torment).
+
+In keeping with the "dialog-as-state-machine" line of thinking, the current "state" of the dialog determines which dialog
+options are available to you. In turn, which dialog option you choose helps to determine the next state of the dialog. Now,
+each dialog state can have a trigger associated with it; each dialog option can have a trigger associated with it. If the
+trigger associated with a state fails, you are silently passed to the next state. If the trigger associated with a dialog option
+fails, the dialog option is not available. The latter requires little explanation, but the former may not be entirely clear, so
+an example will be provided:
+
+state 0:
+    trigger: NumTimesTalkedTo(0)
+    Text: "Hello, sailor!"
+
+state 1:
+    trigger: NumTimesTalkedToGT(5)
+    Text: "Go away, already!"
+
+state 2:
+    Text: "Hail and well met, yada yada yada."
+
+Dialog always tries to start at state 0. The first time you enter this dialog, the trigger in state 0 is true, so the character
+responds "Hello, sailor!". If you leave and try to talk to them again, the trigger in state 0 will be false, and you will be
+passed silently to state 1; this trigger also fails, so you are passed to state 2, and get the associated message. If you talk to
+the person 5 more times, the trigger in state 1 will be true, and they will start to respond with the string in that state.
+
+Now, one last detail. Each dialog option that is offered to the user can have several things associated with it. First off, and
+most obvious, is the text they speak. Second, a journal entry (i.e. text to be added to your journal) can be associated with a
+transition. An "action" (i.e. scripted sequence) can be associated with a transition, which can be used, for instance, to start
+a store. And a transition has a "DLG" resource associated with it, for conversations which involve multiple people. (i.e. You
+talk to somebody and then a 3rd part interrupts you, etc.) That takes care of the preliminary details. Now, on to the
+format.
+
+DLG file versions
+
+     V1: Baldur's Gate, Planescape: Torment, Icewind Dale, Baldur's Gate 2 
+     V1.09 : Baldur's Gate 2 , Throne of Bhaal 
+
+DLG V1
+
+Overall structure
+
+     Header 
+     State table (actor responses) 
+     Transition table (player dialog options) 
+     State triggers (actor response conditions) 
+     Transition triggers (player dialog option conditions) 
+     Action table 
+
+DLG V1 Header
+
+    Offset
+                 Size (data type)
+                                                             Description
+ 0x0000
+            4 (char array)
+                                 Signature ('DLG ')
+ 0x0004
+            4 (char array)
+                                 Version ('V1.0')
+ 0x0008
+            4 (dword)
+                                 Number of states
+ 0x000c
+            4 (dword)
+                                 Offset of state table from start of file
+ 0x0010
+            4 (dword)
+                                 Number of transitions
+ 0x0014
+            4 (dword)
+                                 Offset of transition table from start of file
+ 0x0018
+            4 (dword)
+                                 Offset of state trigger table from start of file
+ 0x001c
+            4 (dword)
+                                 Number of state triggers
+ 0x0020
+            4 (dword)
+                                 Offset of transition trigger table from start of file
+ 0x0024
+            4 (dword)
+                                 Number of transition triggers
+ 0x0028
+            4 (dword)
+                                 Offset of action table from start of file
+ 0x002c
+            4 (dword)
+                                 Number of actions
+
+
+DLG V1 State table (actor responses)
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        4 (Strref)
+                     Actor response text (i.e. what the non-player
+                     character says to the party)
+ 0x0004
+        4 (dword)
+                     Index of the first transition corresponding to this
+                     state (i.e. the index in the transition table of the first
+                     potential response the party can make in this state).
+ 0x0008
+        4 (dword)
+                     Number of transitions corresponding to this state (i.e.
+                     how many possible responses are there to this
+                     state). A consecutive range of transitions in the
+                     transition table are assigned to this state, starting
+                     from 'first', as given by the previous field, ranging
+                     up to (but not including) 'first'+'count'.
+ 0x000c
+        4 (dword)
+                     Trigger for this state (as index into the state trigger
+                     table), or 0xffffffff if no trigger is used for this state.
+
+
+DLG V1 Transition table (player dialog options)
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        4 (dword)
+                     Flags: 
+
+                          bit 0: 1=associated text, 0=no associated text
+                          bit 1: 1=trigger, 0=no trigger 
+                          bit 2: 1=action, 0=no action 
+                          bit 3: 1=terminates dialog, 0=has "next node"
+                          information 
+                          bit 4: 1=journal entry, 0=no journal entry 
+ 0x0004
+        4 (strref)
+                     If flags bit 0 was set, this is the text associated with
+                     the transition (i.e. what the player character says)
+ 0x0008
+        4 (strref)
+                     If flags bit 4 was set, this is the text that goes into
+                     your journal after you have spoken.
+ 0x000c
+        4 (dword)
+                     If flags bit 1 was set, this is the index of this
+                     transition's trigger within the transition trigger table.
+ 0x0010
+        4 (dword)
+                     If flags bit 2 was set, this is the index of this
+                     transition's action within the action table.
+ 0x0014
+        8 (resref)
+                     If flags bit 3 was set, this is the resource name of
+                     the DLG resource which contains the next state in the
+                     conversation.
+ 0x001c
+        4 (dword)
+                     If flags bit 3 was set, this is the index of the next
+                     state within the DLG resource specified by the
+                     previous field. Control transfers to that state after
+                     the party has followed this transition.
+
+
+DLG V1 State triggers (actor response conditions)
+
+This section is a series of pairs of (offset,count) of string data within the DLG file. This string data is composed of the state
+triggers. Note that the strings referenced by this section are NOT zero terminated. Also, the strings are typically at the very
+end of the file. For information on triggers, see the BG documents on writing AI scripts.
+
+    Offset
+                 Size (data type)
+                                                             Description
+ 0x0000
+             4 (dword)
+                                offset from start of file to state trigger string.
+ 0x0004
+             4 (dword)
+                                length in bytes of the state trigger string.
+
+
+DLG V1 Transition triggers (player dialog option conditions)
+
+This section is a series of pairs of (offset,count) of string data within the DLG file. This string data is composed of the
+transition triggers. Note that the strings referenced by this section are NOT zero terminated. Also, the strings are typically
+at the very end of the file. For information on triggers, see the BG documents on writing AI scripts.
+
+    Offset
+               Size (data type)
+                                                           Description
+ 0x0000
+            4 (dword)
+                              offset from start of file to transition trigger string.
+ 0x0004
+            4 (dword)
+                              length in bytes of the transition trigger string.
+
+
+DLG V1 Action table
+
+This section is a series of pairs of (offset,count) of string data within the DLG file. This string data is composed of the
+actions. Note that the strings referenced by this section are NOT zero terminated. Also, the strings are typically at the very
+end of the file. For information on actions, see the BG documents on writing AI scripts; specifically, see the section on
+"responses".
+
+     Offset
+                 Size (data type)
+                                                             Description
+ 0x0000
+             4 (dword)
+                                 offset from start of file to the action string.
+ 0x0004
+             4 (dword)
+                                 length in bytes of the action string.
+
+
+ 
+
+DLG V1.09
+
+Overall structure
+
+     Header 
+     State table (actor responses) 
+     Transition table (player dialog options) 
+     State triggers (actor response conditions) 
+     Transition triggers (player dialog option conditions) 
+     Action table 
+
+DLG V1.09 Header
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        4 (char array)
+                     Signature ('DLG ')
+ 0x0004
+        4 (char array)
+                     Version ('V1.09')
+ 0x0008
+        4 (dword)
+                     Number of states
+ 0x000c
+        4 (dword)
+                     Offset of state table from start of file
+ 0x0010
+        4 (dword)
+                     Number of transitions
+ 0x0014
+        4 (dword)
+                     Offset of transition table from start of file
+ 0x0018
+        4 (dword)
+                     Offset of state trigger table from start of file
+ 0x001c
+        4 (dword)
+                     Number of state triggers
+ 0x0020
+        4 (dword)
+                     Offset of transition trigger table from start of file
+ 0x0024
+        4 (dword)
+                     Number of transition triggers
+ 0x0028
+        4 (dword)
+                     Offset of action table from start of file
+ 0x002c
+        4 (dword)
+                     Number of actions
+ 0x0030
+        4 (dword)
+                     The flags DWORD needs exploration. the flags
+                     determine when a dialog pauses all action in the
+                     game, and when it does not. There are 3 separate
+                     flags, and all of them unset (i.e. 0) apparently
+                     makes the game always pause. Legal values for
+                     this DWORD should be 0 through 7.
+
+
+DLG V1.09 State table (actor responses)
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        4 (Strref)
+                     Actor response text (i.e. what the non-player
+                     character says to the party)
+ 0x0004
+        4 (dword)
+                     Index of the first transition corresponding to this
+                     state (i.e. the index in the transition table of the first
+                     potential response the party can make in this state).
+ 0x0008
+        4 (dword)
+                     Number of transitions corresponding to this state (i.e.
+                     how many possible responses are there to this
+                     state). A consecutive range of transitions in the
+                     transition table are assigned to this state, starting
+                     from 'first', as given by the previous field, ranging
+                     up to (but not including) 'first'+'count'.
+ 0x000c
+        4 (dword)
+                     Trigger for this state (as index into the state trigger
+                     table), or 0xffffffff if no trigger is used for this state.
+
+
+DLG V1.09 Transition table (player dialog options)
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        4 (dword)
+                     Flags: 
+
+                          bit 0: 1=associated text, 0=no associated text
+                          bit 1: 1=trigger, 0=no trigger 
+                          bit 2: 1=action, 0=no action 
+                          bit 3: 1=terminates dialog, 0=has "next node"
+                          information 
+                          bit 4: 1=journal entry, 0=no journal entry 
+ 0x0004
+        4 (strref)
+                     If flags bit 0 was set, this is the text associated with
+                     the transition (i.e. what the player character says)
+ 0x0008
+        4 (strref)
+                     If flags bit 4 was set, this is the text that goes into
+                     your journal after you have spoken.
+ 0x000c
+        4 (dword)
+                     If flags bit 1 was set, this is the index of this
+                     transition's trigger within the transition trigger table.
+ 0x0010
+        4 (dword)
+                     If flags bit 2 was set, this is the index of this
+                     transition's action within the action table.
+ 0x0014
+        8 (resref)
+                     If flags bit 3 was set, this is the resource name of
+                     the DLG resource which contains the next state in the
+                     conversation.
+ 0x001c
+        4 (dword)
+                     If flags bit 3 was set, this is the index of the next
+                     state within the DLG resource specified by the
+                     previous field. Control transfers to that state after
+                     the party has followed this transition.
+
+
+DLG V1.09 State triggers (actor response conditions)
+
+This section is a series of pairs of (offset,count) of string data within the DLG file. This string data is composed of the state
+triggers. Note that the strings referenced by this section are NOT zero terminated. Also, the strings are typically at the very
+end of the file. For information on triggers, see the BG documents on writing AI scripts.
+
+    Offset
+                 Size (data type)
+                                                             Description
+ 0x0000
+             4 (dword)
+                                offset from start of file to state trigger string.
+ 0x0004
+             4 (dword)
+                                length in bytes of the state trigger string.
+
+
+DLG V1 Transition triggers (player dialog option conditions)
+
+This section is a series of pairs of (offset,count) of string data within the DLG file. This string data is composed of the
+transition triggers. Note that the strings referenced by this section are NOT zero terminated. Also, the strings are typically
+at the very end of the file. For information on triggers, see the BG documents on writing AI scripts.
+
+    Offset
+               Size (data type)
+                                                           Description
+ 0x0000
+            4 (dword)
+                              offset from start of file to transition trigger string.
+ 0x0004
+            4 (dword)
+                              length in bytes of the transition trigger string.
+
+
+DLG V1.09 Action table
+
+This section is a series of pairs of (offset,count) of string data within the DLG file. This string data is composed of the
+actions. Note that the strings referenced by this section are NOT zero terminated. Also, the strings are typically at the very
+end of the file. For information on actions, see the BG documents on writing AI scripts; specifically, see the section on
+"responses".
+
+     Offset
+                 Size (data type)
+                                                             Description
+ 0x0000
+             4 (dword)
+                                 offset from start of file to the action string.
+ 0x0004
+             4 (dword)
+                                 length in bytes of the action string.
+
+
+ 
+
+

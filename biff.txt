@@ -1,0 +1,194 @@
+BIFF file format
+
+ FileExtension :
+                       BIF/CBF
+ Content :
+                       Description of archive format BIF V.1/CBF V1/BIFC V1.0
+ History :
+                       File done by IEFFHP
+
+
+Description
+
+This is a simple archive format, used both to simplify organization of the files, as well as to group together entire areas.
+Some BIF files are grouped together because of common functionality; for instance, all the .dlg files are gathered together
+into a single BIF file in Planescape: Torment. Other bif files, such as AR4800.BIF represent the entirety of an area's
+terrain (i.e. not its containers, actors, or items). These BIF files contain, typically:
+
+     at least one .wed file, detailing how the tiles are to be drawn to the screen (i.e. which are animated, which are
+     linked to the opening of which door, etc.) and where walls are (for clipping of actor graphics) 
+     at least one .tis file, which contains all the tile data for the area 
+     a .mos file which is the overhead map of the region 
+     3 or 4 small bitmap files which contain one pixel for each tile needed to cover the region. 
+
+The three (or four) bitmaps, are named xxxxxxHT.BMP, xxxxxxLM.BMP, xxxxxxSR.BMP, and (when there are four
+bitmaps) xxxxxxLN.BMP.
+
+     xxxxxxHT.BMP: Height-map, which gives the altitude of each tile cell in the associated wed file 
+     xxxxxxLM.BMP: Light-map, giving the level of illumination (or shadow) of each tile cell on the map. (Called a
+     LUM-map by the developers.) 
+     xxxxxxLN.BMP: When present, this is the same as xxxxxxLM.BMP, but for night-time only. When present, there will
+     also be a second wed file to be used only at night. 
+     xxxxxxSR.BMP: This file has been confirmed to be a "search map", used in the path-finding algorithms 
+
+BIFF file versions
+
+     V1: Baldur's Gate, Planescape: Torment, Icewind Dale, Baldur's Gate 2 
+     V1 (compressed): Icewind Dale only 
+     BIFC V1.0 (compressed): Baldur's Gate 2 only 
+
+BIFF V1
+
+Overall structure
+
+     Header 
+     File entries 
+     Tileset entries 
+     Data for the contained files 
+
+BIFF V1 Header
+
+ Offset        Size (data type)                   Description
+ 0x0000        4 (char array)                     Signature ('BIFF')
+ 0x0004        4 (char array)                     Version ('V1 ')
+ 0x0008        4 (dword)                          Number of file entries
+ 0x000c        4 (dword)                          Number of tileset entries
+ 0x0010        4 (dword)                          Offset of file entries (from start of file). Tileset entries, if
+                                                  any, immediately follow the file entries.
+
+
+BIFF V1 File Entries
+
+ Offset        Size (data type)                 Description
+ 0x0000        4 (dword)                        Resource locator (Note: On disk, only bits 0-13 are
+                                                matched upon. They are matched against the file
+                                                index in the "resource locator" field from the KEY file
+                                                resource entries which claim to exist in this BIFF.
+ 0x0004        4 (dword)                        Offset to resource data from start of file
+ 0x0008        4 (dword)                        Size (in bytes) of this resource (file).
+ 0x000c        2 (word)                         Type of this resource. (See the table of resTypes for a
+                                                list of which values are applicable to this field
+ 0x000e        2 (word)                         Unknown. Part of the previous field? (Or only used
+                                                in the memory image?)
+
+
+BIFF V1 Tileset Entries
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        4 (dword)
+                     Resource locator (Note: On disk, only bits 14-19 are
+                     matched upon. They are matched against the tileset
+                     index in the "resource locator" field from the KEY file
+                     resource entries which claim to exist in this BIFF.
+ 0x0004
+        4 (dword)
+                     Offset to resource data from start of file
+ 0x0008
+        4 (dword)
+                     Number of tiles in this resource (file).
+ 0x000c
+        4 (dword)
+                     Size (in bytes) of each tile in this resource (file).
+ 0x0010
+        2 (word)
+                     Type of this resource. (These resources are always
+                     type 0x3eb -- .tis files, but see the table of resTypes
+                     for a list of which values are applicable to this field
+ 0x0012
+        2 (word)
+                     Unknown. Part of the previous field? (Or only used
+                     in the memory image?)
+
+
+BIFF V1 (compressed)
+
+Overall structure
+
+     Header 
+     Compressed file data 
+
+This format is idential to the SAV file format, except for the first 8 bytes, which are 'BIF V1.0' for these files, and 'SAV
+V1.0' for SAV files. The data, once uncompressed, is formatted as a normal BIF file, as seen above. Note that the SAV files
+can hold more than one compressed file. It is unknown whether this occurs also in CBF files. The compressed format is as
+follows:
+
+Compressed BIFF V1
+
+         Offset
+                           Size (data type)
+                                                  Description
+ 0x0000
+                      4 (char array)
+                                           Signature ('BIF ')
+ 0x0004
+                      4 (char array)
+                                           Version ('V1.0')
+ 0x0008
+                      4 (dword)
+                                           Length of filename
+ 0x000c
+                      variable (ASCIIZ char
+                      array)
+                                           Filename (length
+                                           specified by previous
+                                           field)
+ sizeof(filename)+0x0010
+                      4 (dword)
+                                           uncompressed data
+                                           length
+ sizeof(filename)+0x0014
+                      4 (dword)
+                                           compressed data length
+ sizeof(filename)+0x0018
+                      variable (raw data)
+                                           compressed data (length
+                                           in bytes specified by
+                                           previous field)
+
+
+BIFC V1.0 (compressed)
+
+Overall structure
+
+     Header 
+     zlib-compressed blocks 
+
+The file is broken up into blocks (typically 8192 bytes apiece), which are compressed separately. The blocks are stored
+one right after another, immediately after the header. Each block consists of an uncompressed size and a compressed
+size, and then the data, compressed by zlib.
+
+BIFC V1.0 header
+
+    Offset
+             Size (data type)
+                                         Description
+ 0x0000
+            4 (char array)
+                         Signature ('BIFC')
+ 0x0004
+            4 (char array)
+                         Version ('V1.0')
+ 0x0008
+            4 (dword)
+                         Uncompressed BIF size
+
+
+BIFC V1.0 compressed blocks
+
+     Offset
+              Size (data type)
+                                         Description
+ 0x0000
+             4 (dword)
+                          Decompressed size
+ 0x0004
+             4 (dword)
+                          Compressed size
+ 0x0008
+             varies (bytes)
+                          Compressed data
+
+

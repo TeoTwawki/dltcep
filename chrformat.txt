@@ -1,0 +1,10 @@
+CHR V.1.0 file header
+Header is 100 (64h) bytes long.
+Offset Size (data type) Description
+0x0000 4(char array) Signature ('CHR ')
+0x0004 4(char array) Version ('V1.0')
+0x0008 32(string) Name of protagonist/player
+0x0028 4 (dword) indicates the offset where starts the internal CRE structure.
+0x002c 4 (dword) Length of the CRE v1.0 file embedded within the character file
+0x0030 13*4 (dwords) unknown, different value
+

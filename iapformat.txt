@@ -1,0 +1,37 @@
+IAP V1.0 Header
+Offset Size (datatype) Description
+0x0000 4 (Char Array) IAP Identifier ("IAP ")
+0x0004 4 (dword) Null
+0x0008 4 (dword) TBG File Header Count
+0x000c 4 (dword) Other File Header Count
+0x0010 1 (Byte) Infinity Engine Identification:
+
+    * value 0x01- Baldur's Gate
+    * value 0x02- Planescape: Torment
+    * value 0x03- Icewind Dale
+    * value 0x04- Baldur's Gate II: Shadows of Amn
+    * value 0x05- Icewind Dale II
+0x0011 4 (dword) Total IAP File Length
+0x0015 ----- End of Structure
+IAP V1.0 File Header
+
+This header is used for both TBG and Other files present in the IAP.
+These header are in the order of all TBG files are first then all Other files are next
+and the numbers of each is defined by the parameters in the IAP V1.0 Header itself.
+Offset Size (datatype) Description
+0x0000 4 (dword) Offset to FileName (from beginning of File)
+0x0004 4 (dword) Length of FileName
+0x0008 4 (dword) File Launch on IAP Completion (TXT or RTF files only):
+
+    * value 0x00- No
+    * value 0x01- Yes
+
+0x000C 4 (dword) Offset to File (from beginning of File)
+0x0010 4 (dword) Length of File
+0x0014 ----- End of Structure
+IAP V1.0 File Names
+
+This is the actual text for the file names of the individual files themselves.
+IAP V1.0 Files
+
+This is the actual files themselves.

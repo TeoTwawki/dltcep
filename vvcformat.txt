@@ -1,0 +1,63 @@
+ 
+
+VVC files format
+FileExtension : VVC
+Content : The description of VVC - VEF Video Cell files
+History : Description by Manveru (09.07.2001)
+Update : Manveru (26.07.2001)
+  Malnefein (major update 03.08.2001)
+
+ 
+
+Visual 'spell casting' effects with sounds attached. This kind of file call a BAM file and sometimes a sound one for playing 3D graphical effect. They are called by some script actions like CreateVisualEffect or CreateVisualEffectObject - they are not hardcoded in exe and could be simply made and put in override to use even without chitin.key reference. VVCs are used in the "Play 3D effect" in spells and items.
+
+These files have constant length 1ECh bytes.
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('VVC ')
+0x0004 4 (char array) Version ('V1.0')
+0x0008 8 (resref) Reference to the BAM file - the animation of spell (in BG2 SPELAnim.bif) usually
+0x0010 8 (resref ?) unknown
+0x0018 2 (word) Transparency (00 is Not Transparent, 08 is Transparent)
+0x001a 2 (word) value 20h gives a white tint to the BAM
+0x001c 4 (dword) unknown, always 0, Useless?
+0x0020 4 (dword) This field indicates the following :
+
+    * 00= Play only the first sound (0x0078 , no graphic or second sound (0x0080)
+    * 01= Play both sounds (repeat the second for the duration of the effect) but without graphic
+    * 02= Play both sounds, one after the other, for the duration of the effect (without graphic)
+    * 03= same as 01
+    * 04= same as 02
+    * 05= same as 01
+    * 06= same as 02
+    * 07= same as 01
+    * 08= Play the BAM sequence only once with both sounds, ignore Y and Z positions and repeat this for the duration of the effect.
+    * 09= Play the BAM sequence with both sound, the first only once and the other for the duration of the effect, ignore Y and Z positions.
+    * 0A=same as 08
+    * 0B=same as 09
+    * 0C= Play the BAM sequence only once with both sounds, use Y and Z positions and repeat this for the duration of the effect.
+    * 0D= Play the BAM sequence with both sound, the first only once and the other for the duration of the effect, use Y and Z positions.
+
+0x0024 4 (dword) unknown
+0x0028 4 (dword) X position (used with 0x0020 if it is set to 0C or 0D, as Y and Z). 00 is the smallest.
+0x002c 4 (dword) Distance between the feets of the character and the BAM. 00 is the highest and FF is the lowest. Y position.
+0x0030 4 (dword) unknown, Useless?
+0x0034 4 (dword) Frame rate. 01 is the slowest. I would suggest you to not go above 20, a too high fame rate crash the game. Usually 0Fh in original game files
+0x0038 4 (dword) unknown
+0x003c 4 (dword) unknown
+0x0040 4 (dword) unknown
+0x0044 4 (dword) unknown
+0x0048 4 (dword) unknown
+0x004c 4 (dword) Distance between the head of the character and the BAM. 00 is the lowest and FF is the highest. (Almost as 0x002c) Z position.
+0x0050 4 (dword) unknown
+0x0054 8 (resref ?) unknown
+0x005c 4 (dword) duration, default set to FFFF FFFF
+0x0060 8 (resref ?) unknown, always 0
+0x0068 4 (dword) First sequence of the BAM to play.
+0x006c 4 (dword) Second sequence of the BAM to play.
+0x0070 8 (resref ?) unknown
+0x0078 8 (resref) resref to the WAVC file (usually from SFXSound.bif in BG2) - sound of starting sequences of animation
+0x0080 8 (resref) resref to the WAVC file (usually from SFXSound.bif in BG2) - sound of animation in its duration
+0x0088 356 (bytes) unknown, unused
+
+ 
+

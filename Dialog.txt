@@ -1,0 +1,97 @@
+TLK file format
+
+ FileExtension :
+                       TLK (Talk Table)
+ Content :
+                       Description of TLK V.1
+ History :
+                       File done by IEFFHP
+ Update :
+                       Manveru 06.09.2001 
+
+
+Description
+
+Each Infinity Engine game has at least one TLK file with it. Only one of these files will be used at a time. These files
+contain several strings (with some associated information) which are looked up by a 32-bit identifier called a "Strref"
+(String Reference). If the designer wishes to replace all the dialog (for instance, to translate to another language), it is a
+very simple matter of replacing just one file, (sound files not included). Anyway, this is a very straightforward file format.
+To find a particular string, use the Strref as a 0-based index into the table of entries.
+
+According to the BioWare developers this kind of file was named there as "Talk Table"
+
+TLK file versions
+
+     V1: Baldur's Gate, Planescape: Torment, Icewind Dale 
+
+TLK V1
+
+Overall structure
+
+     Header 
+     Entries 
+     Strings section 
+
+TLK V1 Header
+
+     Offset
+                     Size (data type)
+                                                                Description
+ 0x0000
+               4 (char array)
+                                       Signature ('TLK ')
+ 0x0004
+               4 (char array)
+                                       Version ('V1 ')
+ 0x0008
+               2 (word)
+                                       unknown (always 0?)
+ 0x000a
+               4 (dword)
+                                       Number of Strref entries in this file.
+ 0x000e
+               4 (dword)
+                                       Offset to string data
+
+
+TLK V1 Entries
+
+This section is hardcoded to start at byte 18 from the beginning of the file. The string offsets are relative to the strings
+section.
+
+  Offset
+         Size (data type)
+                                       Description
+ 0x0000
+        2 (word)
+                          00 - No message data 
+                          01 - Text exists
+                          02 - Sound exists
+                          03 - Standard message 
+                          07 - Message with tags (for instance
+                          <CHARNAME>) 
+ 0x0002
+        8 (resref)
+                     resource name of the associated sound, if any
+ 0x000a
+        4 (dword)
+                     Volume variance.
+ 0x000e
+        4 (dword)
+                     Pitch variance.
+ 0x0012
+        4 (dword)
+                     offset of this string relative to the strings section
+ 0x0016
+        4 (dword)
+                     length of this string
+
+
+TLK V1 Strings
+
+This section is entirely composed of ASCIIZ strings. All the indexing for these strings is done in the strref entries section.
+
+
+text: 0A = (crlf)
+change all 0d0a to 0a (remove 0d)
+

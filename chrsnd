@@ -1,0 +1,43 @@
+xxxxx01.wav: Morale break 1 :none :none :xxxxx01.wav
+xxxxx02.wav: Morale break 2 :none :none :xxxxx02.wav
+xxxxx03.wav: Battle Cry 1 :XXXXXXXa.wav :XXXXXXXa.wav :xxxxx03.wav
+xxxxx04.wav: Battle Cry 2 :XXXXXXX8.wav :none :xxxxx04.wav
+xxxxx05.wav: Battle Cry 3 :XXXXXXX9.wav :none :xxxxx05.wav
+xxxxx06.wav: Battle Cry 4 :none :none :xxxxx06.wav
+xxxxx07.wav: Battle Cry 5 :none :none :xxxxx07.wav
+xxxxx08.wav: Leader 1 :XXXXXXXb.wav :XXXXXXXb.wav :xxxxx08.wav
+xxxxx09.wav: Leader 2 :none :none :xxxxx09.wav
+xxxxx10.wav: Tired 1 :XXXXXXXc.wav :XXXXXXXc.wav :xxxxx10.wav
+xxxxx11.wav: Tired 2 :none :none :xxxxx11.wav
+xxxxx12.wav: Bored 1 :XXXXXXXd.wav :XXXXXXXd.wav :xxxxx12.wav
+xxxxx13.wav: Bored 2 :none :none :xxxxx13.wav
+xxxxx14.wav: Wounded 1 :XXXXXXXe.wav :XXXXXXXe.wav :xxxxx14.wav
+xxxxx15.wav: Wounded 2 :none :none :xxxxx15.wav
+xxxxx16.wav: Select common 1 :XXXXXXXf.wav :XXXXXXXf.wav :xxxxx16.wav
+xxxxx17.wav: Select common  2 :XXXXXXXg.wav :XXXXXXXg.wav :xxxxx17.wav
+xxxxx18.wav: Select common 3 :XXXXXXXh.wav :XXXXXXXh.wav :xxxxx18.wav
+xxxxx19.wav: Select common 4 :none :none :xxxxx19.wav
+xxxxx20.wav: Select common 5 :none :none :xxxxx20.wav
+xxxxx21.wav: Select common 6 :XXXXXXX0.wav :xxxxx21.wav
+xxxxx22.wav: Select common 7 :none :none :xxxxx22.wav
+xxxxx23.wav: Select action 1 :XXXXXXXi.wav :XXXXXXXi.wav :xxxxx23.wav
+xxxxx24.wav: Select action  2 :XXXXXXXj.wav :XXXXXXXj.wav :xxxxx24.wav
+xxxxx25.wav: Select action  3 :XXXXXXXk.wav :XXXXXXXk.wav :xxxxx25.wav
+xxxxx26.wav: Select action  4 :XXXXXXXs.wav :none :xxxxx26.wav
+xxxxx27.wav: Select action  5 :XXXXXXXt.wav :none :xxxxx27.wav
+xxxxx28.wav: Select action  6 :XXXXXXXu.wav :none :xxxxx28.wav
+xxxxx29.wav: Select action  7 :XXXXXXXv.wav :none :xxxxx29.wav
+xxxxx30.wav: Select rare 1 :XXXXXXXx.wav :XXXXXXXs.wav :xxxxx30.wav
+xxxxx31.wav: Select rare  2 :XXXXXXXy.wav :XXXXXXXt.wav :xxxxx31.wav
+xxxxx32.wav: Select rare  3 :none :XXXXXXXu.wav :none :xxxxx32.wav
+xxxxx33.wav: Select rare  4 :none :XXXXXXXv.wav :none :xxxxx33.wav
+xxxxx34.wav: Hited 1 :XXXXXXXl.wav :XXXXXXXl.wav :none :xxxxx34.wav
+xxxxx35.wav: Hited 2 :none :none :xxxxx35.wav
+xxxxx36.wav: Hited 3 :none :none :xxxxx36.wav
+xxxxx37.wav: Dying 1 :XXXXXXXm.wav :none :xxxxx37.wav
+xxxxx38.wav: Dying 2 :none :none :xxxxx38.wav
+xxxxx39.wav: Reaction to party member death 1 :XXXXXXXw.wav :XXXXXXXw.wav :xxxxx39.wav
+xxxxx40.wav: Reaction to party member death 2 :none :none :xxxxx40.wav
+xxxxx41.wav: Critical Hit 1 (optional) :XXXXXXXz.wav :none :none
+xxxxx42.wav: Critical Hit 2 (optional) :none :none :none
+xxxxx43.wav: Death (optional) :none :XXXXXXXm.wav :none 

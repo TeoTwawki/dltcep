@@ -1,0 +1,114 @@
+WMAP file format
+
+ FileExtension :
+                       WMAP
+ Content :
+                       Description of world map V.1.0 file
+ History :
+                       File done by IEFFHP
+  
+                       Updated by Manveru (22.08.2001)
+
+
+Description
+
+This describes the top-level map structure of the game. It tells which areas are located at which coordinates on the
+worldmap, and it tells which MOS and BAM files to use to visually display the worldmap. It appears to also encode which
+areas are visited, which areas are visible, and possibly which areas are visitable. NOTE: while area link counts and offsets are ordered north,west,south,east
+they are saved in the north,east,south,west order. 
+
+The areas may be also put on the worldmap in ToB using specified 2DA files :
+
+     XNEWAREA.2DA  (Area entries section of wmp ) 
+     2DA file specified in XNEWAREA.2DA (Area links section) for example XL3000.2DA 
+
+These files also explains WMP issues in the mentioned sections.
+
+WMAP file versions
+
+     V1.0: Baldur's Gate, Planescape: Torment, Icewind Dale, Baldur's Gate 2 
+
+WMAP V1.0
+
+Overall structure
+
+     Header 
+     Worldmap entries 
+     Area entries 
+     Area link entries 
+
+WMAP V1.0 Header
+
+     Offset
+                   Size (datatype)
+                                                              Description
+ 0x0000             4 (char array)                                   Signature ('WMAP')
+ 0x0004             4 (char array)                                   Version ('V1.0')
+ 0x0008             4 (dword)                                   Count of worldmap entries.
+ 0x000c             4 (dword)                                   Offset of worldmap entries from start of file.
+
+
+WMAP V1.0 Worldmap entry
+
+   Offset          Size (datatype)                                                        Description
+ 0x0000         8 (resref)                     Map resource name (i.e. MOS file for background graphics of this worldmap).
+ 0x0008         4 (dword)                      Width
+ 0x000c         4 (dword)                      Height
+ 0x0010         4 (dword)                      Count of map ?
+ 0x0014         4 (strref)                     Name of the area (for tooltips?)
+ 0x0018         4 (dword)                      Unknown
+ 0x001c         4 (dword)                      Unknown
+ 0x0020         4 (dword)                      Count of area entries in this worldmap.
+ 0x0024         4 (dword)                      Offset of first area entry for this worldmap.
+ 0x0028         4 (dword)                      Offset of first area link entries in this worldmap.
+ 0x002c         4 (dword)                      Count of area link entries for this worldmap.
+ 0x0030         8 (resref)                     Resource name of the BAM file containing the map icons for the areas.
+ 0x0038         128 (bytes)                    Probably reserved for future expansion
+
+
+WMAP V1.0 Area entry
+
+  Offset           Size (datatype)                Description
+ 0x0000         8 (resref)                        name of this area (as referenced by area links?)
+ 0x0008         8 (resref)                        AREA resref for this area
+ 0x0010         32 (char array)                   Area long name (probably only used for editing purposes?)
+ 0x0030         4 (dword)                        Bitmap indicating status of area: 
+
+                             bit 0: is area visible? 
+                             bit 1: unknown 
+                             bit 2: set if area can be visited 
+                             bit 3: set if area has been visited 
+                             bits 4-31: unused? 
+ 0x0034         4 (dword)                        Sequence within BAM file for the icons for this area.
+ 0x0038         4 (dword)                        X coordinate of this area within the world map
+ 0x003c         4 (dword)                        Y coordinate of this area within the world map
+ 0x0040         4 (strref)                        Name of this location (as seen on captions)
+ 0x0044         4 (strref)                        Same as field at 0x40? (or perhaps name for tooltips?)
+ 0x0048         8 (resref)                        Resref of MOS file to be shown while this area is loading.
+ 0x0050         4 (dword)                        Index of the first entry in the first group (North) of area links from this area.
+ 0x0054         4 (dword)                        Count of entries in the first group (North) of area links from this area.
+ 0x0058         4 (dword)                        Index of the first entry in the second group (East) of area links from this area.
+ 0x005c         4 (dword)                        Count of entries in the second group (East) of area links from this area.
+ 0x0060         4 (dword)                        Index of the first entry in the third group (South) of area links from this area.
+ 0x0064         4 (dword)                        Count of entries in the third group (South) of area links from this area.
+ 0x0068         4 (dword)                        Index of the first entry in the fourth group (West) of area links from this area.
+ 0x006c         4 (dword)                        Count of entries in the fourth group (West) of area links from this area.
+ 0x0070         128 (bytes)                        Reserved for future expansion?)
+
+
+WMAP V1.0 Area Link entry
+
+  Offset         Size (datatype)                                      Description
+ 0x0000        4 (dword)                     index of the area to which this link leads
+ 0x0004        32 (char array)                     Name of the entry point in the destination area
+ 0x0024        4 (dword)                     Described as DISTANCE_SCALE , maybe multipier of
+                     the FLAGS value ?
+ 0x0028        4 (dword)                     Unknown, somehow related with the travel time ,
+                     described as FLAGS
+ 0x002c        8 (resref)                     area of random encounter (ENCOUNTER0)
+ 0x0034        8 (resref)                     area of random encounter (ENCOUNTER1)
+ 0x003c        8 (resref)                     area of random encounter (ENCOUNTER2)
+ 0x0044        8 (resref)                     area of random encounter (ENCOUNTER3)
+ 0x004c        8 (resref)                     area of random encounter (ENCOUNTER4)
+ 0x0054        4 (dword)                     probability of random encounter
+ 0x0058        128 (bytes)                     Unknown/reserved

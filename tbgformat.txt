@@ -1,0 +1,248 @@
+    *  *.TBG - Item TBG Files
+    * *-A.TBG - Area TBG Files
+    * *-B.TBG - Script TBG Files
+    * *-C.TBG - Creature TBG Files
+    * *-D.TBG - Dialog TBG Files
+    * *-H.TBG - CHUI TBG Files
+    * *-N.TBG - NPC TBG Files
+    * *-P.TBG - SRC TBG Files
+    * *-S.TBG - Spell TBG Files
+    * *-T.TBG - Store TBG Files
+
+ 
+TBG Naming Conventions Future Possible Additions
+
+    * *-K.TBG - Chitin.Key TBG Files
+    * *-R.TBG - 2DA TBG Files
+    * *-W.TBG - World Map TBG Files
+
+Additional TBG Naming Conventions in DLTCEP
+
+    * *-E.TBG - Effect TBG Files 
+ 
+TBG file versions
+
+    * V1.0 - Original format devised and used by oldest programs and made for item (ITM) files only.
+    * V2.0 - First format revision made to work better for two file types: item (ITM) and spells (SPL).
+    * V3.0 - Format revision to try to be usable for almost any possible file type with StrRefs. Specifically targeted for item (ITM), spell (SPL), and creature (CRE).
+    * V4.0 - Next revision after some limitations of last version were discovered. Specifically targeted for item (ITM), spell (SPL), creature (CRE), dialog (DLG), and area (ARE) files.
+    * N V1.0 - Revision specifically made to house NPC information for updating GAM files allowing new NPCs to be added.
+
+
+
+
+TBG V1.0
+
+Overall structure
+
+    * Header
+    * File
+    * Text Entries
+
+TBG V1.0 Header
+Offset Size (datatype) Description
+0x0000 4 (dword) File Offset
+0x0004 4 (dword) File Length
+0x0008 4 (dword) Unidentified Name Offset
+0x000c 4 (dword) Unidentified Name Length
+0x0010 4 (dword) Identified Name Offset
+0x0014 4 (dword) Identified Name Length
+0x0018 4 (dword) Unidentified Description Offset
+0x001c 4 (dword) Unidentified Description Length
+0x0020 4 (dword) Identified Description Offset
+0x0024 4 (dword) Identified Description Length
+0x0028 ----- End of Structure
+TBG V1.0 File
+
+This is simply the entire file itself that is to be transferred via this file format.
+TBG V1.0 Text Entries
+
+This is all the actual text that will be actually imported into the Infinity Engine game.
+
+
+
+TBG V2.0
+
+Overall structure
+
+    * Header
+    * File
+    * Text Entries
+
+TBG V2.0 Header
+Offset Size (datatype) Description
+0x0000 4 (dword) File Offset
+0x0004 4 (dword) File Length
+0x0008 4 (dword) Unidentified Name Offset
+0x000c 4 (dword) Unidentified Name Length
+0x0010 4 (dword) Identified Name Offset
+0x0014 4 (dword) Identified Name Length
+0x0018 4 (dword) Unidentified Description Offset
+0x001c 4 (dword) Unidentified Description Length
+0x0020 4 (dword) Identified Description Offset
+0x0024 4 (dword) Identified Description Length
+0x0028 12 (char array) Filename with Extension of file
+0x0034 1 (byte) Infinity Engine Game TBG is for:
+
+    * value 0x01- Baldur's Gate
+    * value 0x02- Planescape: Torment
+    * value 0x03- Icewind Dale
+    * value 0x04- Baldur's Gate II: Shadows of Amn
+
+0x0035 ----- End of Structure
+TBG V2.0 File
+
+This is simply the entire file itself that is to be transferred via this file format.
+TBG V2.0 Text Entries
+
+This is all the actual text that will be actually imported into the Infinity Engine game.
+
+
+
+TBG V3.0
+
+Overall structure
+
+    * Header
+    * Text Headers
+    * File
+    * Text Entries
+
+TBG V3.0 Header
+Offset Size (datatype) Description
+0x0000 4 (char array) TBG Identifier ("TBG3")
+0x0004 4 (dword) Null fields
+0x0008 12 (char array) Filename with Extension of file
+0x0014 4 (dword) File Offset
+0x0018 4 (dword) File Length
+0x001C 4 (dword) Infinity Engine Game TBG is for:
+
+    * value 0x01- Baldur's Gate
+    * value 0x02- Planescape: Torment
+    * value 0x03- Icewind Dale
+    * value 0x04- Baldur's Gate II: Shadows of Amn
+
+0x0020 4 (dword) Text Entries Offset
+0x0024 4 (dword) Number of Text Headers
+0x0028 4 (dword) Text Headers Offset
+0x002C ----- End of Structure
+TBG V3.0 Text Header
+Offset Size (datatype) Description
+0x0000 4 (dword) Offset to Text (from beginning of Text Entries)
+0x0004 4 (dword) Length of Text
+0x0008 4 (dword) Offset in data file where the strref should be inserted, or -1 (FFFF FFFF) if the strref should not be inserted into the data file
+0x000C 8 (char array) Associated sound file name
+0x0014 ----- End of Structure
+TBG V3.0 File
+
+This is simply the entire file itself that is to be transferred via this file format.
+TBG V3.0 Text Entries
+
+This is all the actual text that will be actually imported into the Infinity Engine game.
+
+
+
+TBG V4.0
+
+Overall structure
+
+    * Header
+    * Text Headers
+    * StrRef Locations
+    * ASCII Locations
+    * File
+    * Text Entries
+
+TBG V4.0 Header
+Offset Size (datatype) Description
+0x0000 4 (char array) TBG Identifier ("TBG4")
+0x0004 4 (dword) Null fields
+0x0008 12 (char array) Filename with Extension of file
+0x0014 4 (dword) File Offset
+0x0018 4 (dword) File Length
+0x001C 4 (dword) Infinity Engine Game TBG is for:
+
+    * value 0x01- Baldur's Gate
+    * value 0x02- Planescape: Torment
+    * value 0x03- Icewind Dale
+    * value 0x04- Baldur's Gate II: Shadows of Amn
+
+0x0020 4 (dword) Text Entries Offset
+0x0024 4 (dword) Number of Text Headers
+0x0028 4 (dword) Text Headers Offset
+0x002C 4 (dword) Number of StrRefs Locations
+0x0030 4 (dword) StrRefs Locations Offset
+0x0034 4 (dword) Number of ASCII Locations
+0x0038 4 (dword) ASCII Locations Offset
+0x003C ----- End of Structure
+TBG V4.0 Text Header
+Offset Size (datatype) Description
+0x0000 4 (dword) Offset to Text (from beginning of Text Entries)
+0x0004 4 (dword) Length of Text
+0x0008 8 (char array) Associated sound file name
+0x0010 4 (dword) Volume variance of sound file
+0x0014 4 (dword) Pitch variance of sound file
+0x0018 2 (word) Entry type into dialog.tlk file:
+
+    * value 0x00- unused entry
+    * value 0x02- unused entry
+    * value 0x03- normal text
+    * value 0x07- Parse special character strings in text (BG2 only all others auto-parse with a value of 0x03)
+
+0x001A 4 (dword) Offest in StrRefs Locations for text entry (Long) in File:
+
+    * value 0xFFFFFFFF- No StrRefs Locations
+
+0x001E 4 (dword) Number of StrRefs Locations for text entry (Long) in File
+0x0022 4 (dword) Offest in StrRefs Locations for text entry (ASCII) in File:
+
+    * value 0xFFFFFFFF- No StrRefs Locations
+
+0x0026 4 (dword) Number of StrRefs Locations for text entry (ASCII) in File
+0x002A 4 (dword) Offest in ASCII Locations for length incremenataion in File:
+
+    * value 0xFFFFFFFF- No ASCII Locations
+
+0x002E 4 (dword) Number of ASCII locations for length incremenataion in File
+0x0032 ----- End of Structure
+TBG V4.0 StrRef Locations
+
+This is simply a group of dwords holding the offsets for the locations in the File to put the new StrRef values from the imported Text Entries.
+TBG V4.0 ASCII Locations
+
+This is simply a group of dwords holding the offsets for the locations in the File to increment by the length of the new StrRef values from the imported Text Entries.
+TBG V4.0 File
+
+This is simply the entire file itself that is to be transferred via this file format.
+TBG V4.0 Text Entries
+
+This is all the actual text that will be actually imported into the Infinity Engine game.
+TBGN V1.0
+
+Overall structure
+
+    * Header
+    * NPC Headers
+
+TBGN V1.0 Header
+Offset Size (datatype) Description
+0x0000 4 (char array) TBG Identifier ("TBGN")
+0x0004 4 (dword) Null fields
+0x000C 4 (dword) NPC Header Count
+0x0008 4 (dword) NPC Header Offset
+0x0010 2 (word) Infinity Engine Game TBG is for:
+
+    * value 0x01- Baldur's Gate
+    * value 0x02- Planescape: Torment
+    * value 0x03- Icewind Dale
+    * value 0x04- Baldur's Gate II: Shadows of Amn
+
+0x0012 ----- End of Structure
+TBGN V1.0 NPC Header
+Offset Size (datatype) Description
+0x0000 8 (char array) NPC FileName (minus CRE extension)
+0x0008 8 (char array) Area FileName NPC starts at
+0x0010 2 (word) X Coordinate in Area NPC starts at
+0x0012 2 (word) Y Coordinate in Area NPC starts at
+0x0014 ----- End of Structure
+

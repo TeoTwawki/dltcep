@@ -1,0 +1,122 @@
+Animations with the g1 scheme (nonattack)
+
+AEAG - 0xd000 - eagle
+AGUL - 0xd100 - seagull
+AVUL - 0xd200 - vulture
+ABIR - 0xd300 - bird
+ABIR - 0xd400 - bird inside
+
+static animations
+
+SNOMC   0x4000 - noble man chair
+SNOWC   0x4010 - noble woman chair
+SNOMM   0x4002 - noble man matte
+SNOWM   0x4012 - noble woman matte
+SSIMC   0x4100 - peasant man chair
+SSIWC   0x4110 - peasant woman chair
+SSIMS   0x4101 - peasant man stool
+SSIMM   0x4102 - peasant man matte
+SSIWM   0x4112 - peasant woman matte
+SHMCM   0x4200 - human cleric chair
+MSPLG1  0x4300 - spider woman
+LHMC    0x4400 - sleeping man human
+LHFC    0x4410 - sleeping woman human
+LFAM    0x4500 - sleeping fat man
+LDMF    0x4600 - sleeping dwarf
+LEMF    0x4700 - sleeping man elf
+LEFF    0x4710 - sleeping woman elf
+LIMC    0x4800 - sleeping halfling
+
+static rotating animations (g1/g1e)
+
+ACOW    0xb000 - cow
+AHRS    0xb100 - horse
+NBEGL   0xB200 - beggar
+NPROL   0xB210 - harlot
+NBOYL   0xB300 - boy
+NGRLL   0xB310 - girl
+NFAML   0xB400 - fat man
+NFAWL   0xB410 - fat woman
+NSIML   0xB500 - peasant man
+NSIWL   0xB510 - peasant woman
+NNOML   0xB600 - noble man
+NNOWL   0xB610 - noble woman
+NSLVL   0xB700 - slave
+
+walking rotating animations (g1/g1e)
+
+ABAT    0xc000 - bat inside
+ACAT    0xc100 - cat
+ACHK    0xc200 - chicken
+ARAT    0xc300 - rat
+ASQU    0xc400 - squirrel
+ABAT    0xc500 - bat
+NBEGH   0xc600 - beggar
+NPROH   0xc610 - harlot
+NBOYH   0xc700 - boy
+NGRLH   0xc710 - girl
+NFAMH   0xc800 - fat man
+NFAWH   0xc810 - fat woman
+NSIMH   0xc900 - peasant man
+NSIWH   0xc910 - peasant woman
+NNOMH   0xca00 - noble man
+NNOWH   0xca10 - noble woman
+NSLVH   0xcb00 - slave
+
+walking attacking animations (g1/g2e) 8 phases, colored animation
+
+MOGH    0x7000 - half ogre
+MOGN    0x7001 - ogrillon
+
+Suspected walking attacking animations (g1/g2e) 8 phases
+
+MBAS    0x7100 - basilisk
+MBAS_GR 0x7101 - greater basilisk (coloration)
+
+walking attacking animations (g1/g2e) 8 phases
+
+MBER    0x7200 - bear
+MBER_BL 0x7201 - black (coloration)
+MBER_CA 0x7202 - cave  (coloration)
+MBER_PO 0x7203 - polar (coloration)
+
+Animations with the g1-g26 scheme (full movement, attack)
+
+prefix ID       name
+meae - 0x7300 - earth elemental
+meas - 0x7301 - small earth elemental
+MEAE_SH - ?   - ? (coloration)
+mfie - 0x7310 - fire elemental
+mfis - 0x7311 - fire elemental small
+/possible other variations/
+mair - 0x7320 - air elemental
+mais - 0x7321 - small air elemental
+ader - 0x7f18 - deer 
+agro - 0x7f20 - groundhog
+amoo - 0x7f16 - moose
+aphe - 0x7f21 - pheasant
+arab - 0x7f17 - rabbit
+masg - ?????  - ?????
+masl - 0x7f3c - antisolar (not in anisnd)
+mbes - 0x7f15 - small beholder
+mdji - 0x7f05 - djinni
+mdjl - 0x7f06 - djinni w. legs
+mdli - 0x7f0e - demilich
+mdro - 0x7f27 - drow
+mdsw - 0x7f19 - dancing sword
+mfdr - 0x7f29 - drow female
+mgcl - 0x7f0b - leopard
+mgcp - 0x7f0a - panther
+mgit - 0x7f14 - githyanki (githzerai)
+mglc - 0x7f07 - clay golem
+migo - 0x7f04 - iron golem
+mimp - 0x7f03 - imp
+mkul - 0x7f28 - large kuo-toa
+mkuo - 0x7f0c - kuo-toa
+mlic - 0x7f0d - lich
+mmin - 0xe070 - minotaur (also with the other scheme)
+mmis - 0x7f35 - mist
+moty - 0x7f08 - otyugh
+mrak - 0x7f10 - rakshasa
+mrav - 0x7f2e - raver
+msah - 

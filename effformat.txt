@@ -1,0 +1,57 @@
+EFF file format
+FileExtension : EFF
+Content : Description of effects files EFF V2.0
+History : File done by IEFFHP
+Update: Avenger (01.08.2003)
+ 
+Description
+
+The EFF file is an effect description. The size of an EFF file is (I believe) constant. The EFF format is to replace the old effect structs that appear in CRE, ITM, and SPL files. At least in CRE files, whether EFF V2.0 or the old structs appear is indicated by a flag in the header. Sorry, I don't have time right now to go into more detail, or to figure out exactly what is going on. 
+EFF file (versions)
+
+    * EFF V2.0: ToTSC, Icewind Dale, Baldur's Gate 2
+
+EFF V2.0
+
+Overall structure
+
+    * Header
+    * Body
+
+EFF V2.0 Header
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('EFF ')
+0x0004 4 (char array) Version ('V2.0')
+EFF V2.0 Body
+Offset Size (data type) Description
+0x0000 4 (char array) For on disk effects, this is a copy of the Signature field from the header. For embedded EFF V2.0 structures, this is zeroed out.
+0x0004 4 (char array) For on disk effects, this is a copy of the Version field from the header. For embedded EFF V2.0 structures, this is zeroed out.
+0x0008 4 (dword) Effect type
+0x000c 4 (dword) Target type
+0x0010 4 (dword) Unknown
+0x0014 4 (dword) NP1
+0x0018 4 (dword) NP2
+0x001c 4 (dword) Flags
+0x0020 4 (dword) Time
+0x0024 2 (word) Probability 1
+0x0026 2 (word) Probability 2
+0x0028 8 (resref) resource
+0x0030 4 (dword) die sides
+0x0034 4 (dword) dice count
+0x0038 4 (dword) save type
+0x003c 4 (dword) save bonus
+0x0040 4 (dword) Unknown (same as 0x2c in EFF V1.0)
+0x0044 4 (dword) Spell School
+0x0048 4*3 (dword) Unknown
+0x0054 4 (dword) Resistance Type
+0x0058 4 (dword) NP3
+0x005c 4*3 (dword) unknown
+0x0068 8 (resref) VVC
+0x0070 8 (resref) 3. resource
+0x0078 4*5 (dword) unknown
+0x008c 8 (resref) Source of Effect
+0x0094 4*3 (dword) unknown
+0x00a0 32 (bytes) variable
+0x00c0 4*2 (dword) unknown
+0x00c8 4 (dword) Secondary Type
+0x00cc 4*15 (dword) unknown

@@ -1,0 +1,183 @@
+
+PRO file format
+FileExtension : PRO
+Content : Description of projectiles V.1.0
+History : Format breakdown by Maltanar (22.06.2001)
+Update : Manveru (24.10.2001)
+  Malnefein (18.07.2001)
+  Maltanar (09.09.2001)
+Description
+
+There is not one single PRO file in BG, TotSC, PST, IWD, and HoW, thus they are available only in BG2 SoA and ToB. The other games have this setting in the executable.
+
+Extension: *.pro
+File size: 512 bytes (single target) or 768 bytes (area of effect) byte
+
+IDS file entry: PROJECTL.ids
+
+
+*.pro files are used for "projectiles" in game. They have no effect as a standalone file, .pro filenames are given a number in PROJECTL.ids. This number plus one (zero entry) is used as the animation reference in items or spells, which must be corrected using a hex editor. Projectile files can control:
+-Projectile graphics
+-Projectile speed
+-Projectile area of effect
+-Projectile sound
+
+a little tip: NEVER add colors to an already colored graphic... It makes it look like the old Game Boy graphs... (BG2 only, the BG1 fireball and some other works)
+Offset Size (Data type) Description
+0x00000 4 (ASCIIZ string) Signature 'PRO '
+0x00004 4 (ASCIIZ string) Version 'V1.0'
+0x00008 2 (word) Specifies projectile type. 03 is area of effect. 02 is one target
+0x0000a 2 (word) Speed of the projectile (01 is the slowest, FF is the fastest)
+0x0000c 2 (word) Show or not the little sparks (03 is Show, others are all Do Not Show) ?
+0x0000e 2 (word) unknown
+0x00010 8 (resref) Wavc file resource to the sound attached to the projectile
+0x00018 8 (resref) Wavc file resource to the sound attached to the projectile
+0x00020 8 (resref) Another Wavc file resource to the sound attached to the projectile ? I haven't seen this field to be filled by anything
+0x00028 4 (dword) Controls the color of the sparks (0x000C set to 03).
+
+    * 00= WARNING: CRASH COMPUTER!!
+    * 01= Black
+    * 02= Blue
+    * 03= Purple and amber
+    * 04= Amber
+    * 05= Pale green
+    * 06= Purple
+    * 07= Pink
+    * 08= Grey
+    * 09= Pale blue (aqua)
+    * 0A= White
+    * 0B= Pale pink
+    * 0C= Gold
+
+0x0002c 212 (byte) unknown, unused ?
+0x00100 4 (dword) some sort of flags, not decoded values (not rewritten in bit flags form) :
+
+    * 80 the game seems to ignore the BAM coloring offset (0x0124 and the rest). Ignores smoke and light spot settings, even if they are not set to zero, disabled BAM coloring and singlely displays the original BAM file.
+    * 47 Enables BAM coloring, and uses light spot and smoke.
+    * C8 display the light spot on the ground, ignore colors 
+    * 1F display the smoke that follows the missile and do not ignore the colors
+    * 20 crash computer, disables all
+    * 45= do not ignore the colors but display nothing
+    * 1D= same as 45
+
+0x01 - bam colour
+0x02 - smoke
+0x04 - ?
+0x08 - brightness removed
+0x10 - ?
+0x20 - shadow
+0x40 - light spot
+0x80 - shadow colour
+0x100 - ?
+0x200 - ?
+
+0x00104 8 (resref)  BAM name for projectile going. (ie, the fireball itself in fireball)
+0x0010c 8 (resref)  BAM name for the shadow
+0x00114 1 (byte) Sequence of the BAM to display as the main projectile (00 is the first, etc...)*
+0x00115 1 (byte) Sequence of the BAM to display as the shadow of the projectile (00 is the first, etc...)*
+0x00116 2 (word) 80 shows the light spot on the ground (under the missile)
+0x00118 1 (byte) Controls the size of the light spot (on the ground, under the projectile). X axis
+0x00119 1 (byte) If set to any other value than 00, it makes the projectile invisible. Only the smoke and/or the sparks are visible.
+0x0011a 2 (word) Controls the size of the light spot (on the ground, under the projectile). Y axis
+0x0011c 8 (resref) This is the reference to the BMP files ( for example in Spklaror file there is reference to the STTRAVL8.bmp..
+
+It is used in TRAVEL type BAMs (hold, etc...) and dragon's breath BAMs. 
+
+Color of a TRAVEL type projectile: 
+
+    * STTRAVL1= Blue
+    * STTRAVL2= Yellow
+    * STTRAVL3= Green
+    * STTRAVL4= Purple
+    * STTRAVL5= Pale purple
+    * STTRAVL6= Pink
+    * STTRAVL7= Blue (ice, like Necromancy spells)
+    * STTRAVL8= Gold
+
+0x00124 6 (bytes) Colors to cover that going BAM. Indexed from the color gradients given with IEEP. It does not control the color from the outline to the inner edges, but it seems to have something to do with the color gradient of the graphic - if a color is pale or dark.
+
+This offset adds "coloring" to the BAM file. Usually, all those six bytes are set to same value (0x100 is h47) or only the first byte is set (0x100 is h09).
+0x0012a 1 (byte) Unknown
+0x0012b 1 (byte) Set the amount of time between each smoke puff behind the missile
+0x0012c 1 (byte) Set the color of the "smoke".
+0x0012d 6 (bytes) probably, they are color gradients as well (perhaps, they control the smoke's colors as well?)
+0x00133 1 (byte) If the projectile will aim in the direction of its target (as an arrow) or not (as a Stinking Cloud). 01 is Not and 05 is Aim.
+0x00134 2 (word) Smoke animation from animate.ids
+
+0x00136 8 (resref) Name of trail BAM1 file that follows the main missile (if 0x0014e is set to something other than 00)
+0x0013e 8 (resref) Name of trail BAM2 file that follows the main missile (if 0x00150 is set to something other than 00)
+0x00146 8 (resref) Name of trail BAM3 file that follows the main missile (if 0x00152 is set to something other than 00)
+
+0x0014e 2 (word) Frequency of trail BAM1 following the main missile
+0x00150 2 (word) Frequency of trail BAM2 following the main missile
+0x00152 2 (word) Frequency of trail BAM3 following the main missile
+ 
+0x00154 172 (bytes) Unknown, unused ? 
+ 
+
+In case if projectile is area affecting then there is additional section in this file. It has 100h (256) bytes.
+0x00200 1 (byte) Who the AOE will affect (enemies, allies, enemies/allies). 
+
+    * 50 is Enemies Only
+    * 00 is Affect Allies/Enemies
+    * 01 is Fire spell on Targets Until Deads (Allies/Enemies)
+    * 49 is Do Nothing           
+    * 80 is Affect Allies Only
+    * 2D is "Stay at Position Until Someone Comes Too Close"
+
+0x80 - do not affect enemies
+0x40 - do not affect self
+0x20 - fragment graphics
+0x10 - do not affect allies
+0x08 - don't start new explosion in middle of another (used in traps)
+0x04 - triggering on condition enabled
+0x02 - triggered by inanimate objects (if set)
+0x01 - trap visible
+
+0x00201 1 (byte) Type of AOE:
+
+    * 00= round (like Fireball), hit everyone in the AOE
+    * 01= strange version (do multiple hits) of 00
+    * 02= same as 00, but with a bigger AOE (possibility)
+	* 04= use VVC on 0x21c
+    * 08= cone-shaped (as Color Spray)
+
+0x00202 2 (word) Unknown
+0x00204 2 (word) Trigger radius
+0x00206 2 (word) Area of Effect. 256 is 30' radius.
+0x00208 8 (resref) Seems to be the name of the sound file when the projectile explode (perhaps only if 0x00200 is set to 2D ?)
+0x00210 2 (word) Delay between explosions
+0x00212 2 (word) Fragment graphic, comes from animate.ids
+0x00214 2 (word) Unknown, from projectl.ids ?
+0x00216 1 (byte) Trigger count 
+0x00217 1 (byte) 1st explosion projectile. (ie, flame circle for fireball). Known values are :
+
+    * 00 Fireball
+    * 01 Stinking C.
+    * 02 Cloudkill
+    * 03 Ice Storm
+    * 04 Grease
+    * 05 Web
+    * 06 Meteor
+    * 07 Abi-Dalzim's Horrid Wilting
+    * 08 Teleport Field
+    * 09 Entangle
+    * 0A Color spray 360'
+    * 0B Cone of Cold 360'
+    * 0C Holy Smite
+    * 0D Unholy Blight
+    * 0E Prismatic Spray
+    * 0F Big flame
+
+For Throne of Bhaal only :
+
+    * 10= Storm of Vengence
+    * 11= Purple fireball blast
+    * 12= Green dragon breath blast (almost same as 0F)
+
+0x000218 1 (byte) Color of explosion animation 1st. Not all of the explosion graphics are affected by this offset.
+0x000219 1 (byte) Unknown
+0x00021a 2 (bytes) Explosion projectile //see projectl.ids
+0x00021c 8 (bytes) VVC at explosion (if 0x00201 is set to 04)
+0x000224 2 (word) Width of the cone (if 0x00201 is set to 08). 00 is the smallest, ff is the largest (round).
+0x000226 218 (bytes) Unknown, unused ?

@@ -1,0 +1,119 @@
+0,50443C,Red Tinted Black
+1,957140,Dark Bronze
+2,794C18,Dark Gold
+3,BAAA71,Light Gold
+4,A55020,Auburn
+5,999D8D,Light Silver
+6,999D8D,Dark Silver
+7,716D61,Light Metallic Green
+8,8D6140,Dark Muddish Brown
+9,A17955,Light Muddish Brown
+10,B2956D,Light Pure Gold
+11,C28171,Light Rose Red
+12,D2A18D,Light Carnation Pink
+13,C6AA99,Light Pinkish Silver
+14,AEA1A1,Dark Pure Silver
+15,85A18D,Pastel Green
+16,B2A569,Silverish Gold
+17,799DAE,Light Blue
+18,3C507D,Dark Blue
+19,B24828,Dark Rose Red
+20,2C5924,Dark Moldy Green
+21,595959,Dark Iron Gray
+22,996D50,Dark Brown
+23,795D4C,Light Copper
+24,9D6524,Dark Gold
+25,CAA15D,Dark Pure Gold
+26,D2894C,Wood
+27,858589,Gray
+28,7D8185,Bluish Silver
+29,4C3C34,Red Tinted Black
+30,656565,Light Iron Gray
+31,48858D,Light Sea Blue
+32,108544,Dark Sea Green
+33,C23461,Magenta
+34,71954C,Light:Green/Dark:Blue
+35,DA8150,Light:Yellow/Dark:Purple
+36,757520,Light Dirty Yellow
+37,595518,Dark Dirty Yellow
+38,8D7161,Light Dirt Brown
+39,715040,Dark Dirt Brown
+40,815D28,Dark Dirty Copper
+41,754424,Dark Brown
+42,7D7561,Beige
+43,655548,Dark Beige
+44,954C6D,Purple
+45,7D3055,Dark Purple
+46,AE2C1C,Red
+47,750000,Pure Dark Red
+48,BA7934,Light Bronze
+49,955018,Dark Bronze
+50,9D8D00,Dark Yellow
+51,756900,Dark Olive Green
+52,5D8538,Light Green
+53,406D28,Green
+54,1C5910,Dark Green
+55,148D6D,Turquoise
+56,0C6148,Dark Turquoise
+57,407595,Light Blue
+58,1C487D,Dark Blue
+59,797189,Light Purple
+60,504C6D,Dark Purple
+61,75616D,Lavender
+62,615555,Dark Lavender
+63,8D8D8D,Light Gray
+64,656565,Dark Gray
+65,4C504C,Really Dark Gray
+66,343438,Faded Black
+67,F6C650,Shiny Gold
+68,69D6FF,Shiny Blue
+69,A5E26D,Shiny Green
+70,C6615D,Light Metallic Red
+71,C2E2FF,Frost Blue
+72,959195,Steel Gray
+73,14A14C,Christmas Green
+74,FFFFFF,Solid White (no gradient)
+75,000000,Solid Black (no gradient)
+76,FF0000,Solid Red (no gradient)
+77,00FF00,Solid Green (no gradient)
+78,0000FF,Solid Blue (no gradient)
+79,BAB6BA,Light Silver
+80,DA9100,Saturated Bronze
+81,C69D30,Faded Gold
+82,34A1CE,Dark Metallic Blue
+83,55555D,Dark Bluish Gray
+84,C68559,Peach
+85,B6814C,21 Carat Gold
+86,75950C,Chrome Green
+87,714C24,Dark Poopy Brown
+88,BE5975,Chrome Pink
+89,DE8185,Metallic Pink
+90,917D10,Moldy Gold
+91,755028,Dark Chocolate
+92,A17544,Light Chocolate
+93,69594C,Dark Cement Gray
+94,8D5944,Rhubarb
+95,AA8155,Light Dirtish Brown
+96,485D91,Chrome Blue
+97,7599AE,Light Minty Blue
+98,998D69,Leaf Green
+99,956524,Dark Gold
+100,615548,Dark Iron Gray
+101,B25040,Light Metallic Red
+102,79898D,Sea Blue
+103,406150,Pine Green
+104,794C81,Dark Chrome Purple
+105,BEC6CE,Off White
+106,AA8D8D,Pale Pink
+107,756961,Khaki
+108,CA9999,Pinkish Gray
+109,C67965,Terra Cotta
+110,9D9DAE,Ash
+111,D28969,Burnt Sienna
+112,717D65,Sea Foam
+113,AE9D95,Fog
+114,855530,Yet Another Brown
+115,FFEE8D,Sunkissed
+116,DADADA,Solid Gray (no gradient)
+117,DADADA,Solid Gray (no gradient)
+118,DADADA,Solid Gray (no gradient)
