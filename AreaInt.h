@@ -36,6 +36,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
   void RefreshInt();
 	// Generated message map functions

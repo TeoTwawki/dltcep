@@ -106,6 +106,7 @@ protected:
 	afx_msg void OnToolsDuration();
 	afx_msg void OnKillfocusText2();
 	afx_msg void OnToolsIdsbrowser();
+	afx_msg void OnDefaultKillfocus();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

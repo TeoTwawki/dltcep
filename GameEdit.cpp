@@ -241,7 +241,7 @@ CString ResolveName(char *customname, creature_header *creatureheader)
   {
     ret=CString(customname);
   }
-  if(ret.IsEmpty()) ret=resolve_tlk_text(creatureheader->longname);
+  if(ret.IsEmpty() && creatureheader) ret=resolve_tlk_text(creatureheader->longname);
   return ret;
 }
 

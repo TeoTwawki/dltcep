@@ -51,6 +51,7 @@ public:
   int PasteRow(int row);
   void OrderByColumn(int column, int integers);
   CString GetValue(int row, int col);
+  CString FindValue(CString key, int col);
   void inline killcopyrow()
   {
     if(copyrow) delete [] copyrow;

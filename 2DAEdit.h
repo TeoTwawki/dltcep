@@ -60,7 +60,7 @@ protected:
 	afx_msg void OnColumn();
 	afx_msg void OnRemove();
 	afx_msg void OnRemove2();
-	afx_msg void OnRclick2da(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnRClick2da(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnCopy2();
 	afx_msg void OnCopy();
 	afx_msg void OnPaste2();
@@ -185,8 +185,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnClickMus(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnEndlabeleditMus(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnRclickMus(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnRClickMus(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnPlaywhole();
+  afx_msg void OnRClickCmd();
 	//}}AFX_MSG
 	afx_msg void OnKillfocusEditlink();
   afx_msg void OnCustomdrawMyList ( NMHDR* pNMHDR, LRESULT* pResult );

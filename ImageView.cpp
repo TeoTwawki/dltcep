@@ -221,8 +221,8 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int fram
     if(m_clipy>tmpw) m_clipy-=tmpw;
     else m_clipy=0;
   }
-  m_mousepoint.x=orgx-m_clipx*m_mos->mosheader.dwBlockSize;
-  m_mousepoint.y=orgy-m_clipy*m_mos->mosheader.dwBlockSize;
+  m_mousepoint.x=orgx;//-m_clipx*m_mos->mosheader.dwBlockSize;
+  m_mousepoint.y=orgy;//-m_clipy*m_mos->mosheader.dwBlockSize;
   m_confirmed=m_mousepoint;
   m_oladjust=point;
 }
@@ -594,10 +594,10 @@ void CImageView::DrawGrid()
     dcBmp.SelectObject(&mypen2);
 
     rect.TopLeft()=GetPoint(GP_TILE);
+    rect.left-=m_clipx;
+    rect.top-=m_clipy;
     rect.left*=m_mos->mosheader.dwBlockSize;
     rect.top*=m_mos->mosheader.dwBlockSize;
-//    rect.left-=m_clipx*m_mos->mosheader.dwBlockSize;
-//    rect.top-=m_clipy*m_mos->mosheader.dwBlockSize;
     rect.bottom=rect.top+m_mos->mosheader.dwBlockSize;
     rect.right=rect.left+m_mos->mosheader.dwBlockSize;
     dcBmp.DrawFocusRect(rect);
@@ -619,18 +619,18 @@ CPoint CImageView::GetPoint(int frame)
   switch(frame)
   {
   case GP_BLOCK:
-    ret.x=m_confirmed.x+m_clipx*m_mos->mosheader.dwBlockSize;
-    ret.y=m_confirmed.y+m_clipy*m_mos->mosheader.dwBlockSize;
+    ret.x=m_confirmed.x;//+m_clipx*m_mos->mosheader.dwBlockSize;
+    ret.y=m_confirmed.y;//+m_clipy*m_mos->mosheader.dwBlockSize;
     ret.x/=GR_WIDTH;
     ret.y/=GR_HEIGHT;
     break;
   case GP_TILE:
-    ret.x=m_confirmed.x/m_mos->mosheader.dwBlockSize+m_clipx;
-    ret.y=m_confirmed.y/m_mos->mosheader.dwBlockSize+m_clipy;
+    ret.x=m_confirmed.x/m_mos->mosheader.dwBlockSize;//+m_clipx;
+    ret.y=m_confirmed.y/m_mos->mosheader.dwBlockSize;//+m_clipy;
     break;
   case GP_POINT:
-    ret.x=m_confirmed.x+m_clipx*m_mos->mosheader.dwBlockSize;
-    ret.y=m_confirmed.y+m_clipy*m_mos->mosheader.dwBlockSize;
+    ret.x=m_confirmed.x;//+m_clipx*m_mos->mosheader.dwBlockSize;
+    ret.y=m_confirmed.y;//+m_clipy*m_mos->mosheader.dwBlockSize;
     break;
   }
   return ret;
@@ -727,8 +727,8 @@ void CImageView::RedrawContent()
     m_button.SetWindowPos(0,adjusty*2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
     m_spinx.SetWindowPos(0,/*adjusty*2+brect.Width()+*/25,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
     m_spiny.SetWindowPos(0,/*adjusty*2+brect.Width()+*/60,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_spinx.SetRange32(0,rect.Width());
-    m_spiny.SetRange32(0,rect.Height());
+    m_spinx.SetRange32(0,m_mos->mosheader.wWidth);
+    m_spiny.SetRange32(0,m_mos->mosheader.wWidth);
     m_spinx.SetPos(m_confirmed.x);
     m_spiny.SetPos(m_confirmed.y);
   }
@@ -972,6 +972,8 @@ void CImageView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	m_mousepoint=point;
   ScreenToClient(&m_mousepoint);
+  m_mousepoint.x+=m_clipx*m_mos->mosheader.dwBlockSize;
+  m_mousepoint.y+=m_clipy*m_mos->mosheader.dwBlockSize;
   CDialog::OnMouseMove(nFlags, point);
 }
 
@@ -1014,7 +1016,8 @@ void CImageView::RefreshDialog()
     if(m_enablebutton&IW_MATCH) nReplaced=BM_OVERLAY|BM_MATCH;
     else nReplaced=BM_OVERLAY;
     point=m_confirmed-m_animbam->GetFramePos(m_frame);
-
+    point.x-=m_clipx*m_mos->mosheader.dwBlockSize;
+    point.y-=m_clipy*m_mos->mosheader.dwBlockSize;
     nReplaced=m_animbam->MakeBitmap(m_frame,GREY,m_bm,nReplaced,point.x, point.y);
     tmpbm=m_bitmap.GetBitmap();
     if(tmpbm) ::DeleteObject(tmpbm);
@@ -1249,6 +1252,8 @@ BOOL CImageView::PreTranslateMessage(MSG* pMsg)
       m_mousepoint=pMsg->pt;
       ScreenToClient(&m_mousepoint);
       m_mousepoint-=m_oladjust;
+      m_mousepoint.x+=m_clipx*m_mos->mosheader.dwBlockSize;
+      m_mousepoint.y+=m_clipy*m_mos->mosheader.dwBlockSize;
     }
     else if(pMsg->message==WM_LBUTTONUP)
     {

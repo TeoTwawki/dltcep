@@ -2463,7 +2463,7 @@ bool CChitemDlg::match_area()
   bool found;
   search_data tmpdata;
 
-#ifdef _DEBUG
+#if 0
 
   int i;
 
@@ -2517,6 +2517,15 @@ bool CChitemDlg::match_area()
   }
   if(searchflags&MI)
   {
+    for(idx=0;idx<the_area.triggercount;idx++)
+    {
+      if(!strnicmp(the_area.triggerheaders[idx].key, searchdata.itemname, 8) )
+      {
+        log("Using key: %.8s in trigger #%d",the_area.triggerheaders[idx].key, idx);
+        break;
+      }
+    }
+
     found=false;
     for(idx=0;idx<the_area.itemcount;idx++)
     {
@@ -2596,6 +2605,15 @@ bool CChitemDlg::match_area()
         }
       }
     }
+    for(actp=0;actp<the_area.triggercount;actp++)
+    {
+      if(!strnicmp(the_area.triggerheaders[actp].destref,searchdata.resource,8) )
+      {
+        log("Using destination: %.8s in trigger #%d",the_area.triggerheaders[actp].destref, actp);
+        break;
+      }
+    }
+
     for(actp=0;actp<the_area.overlaycount;actp++)
     {
       if(!strnicmp(the_area.overlayheaders[actp].tis,searchdata.resource,8) )
@@ -2648,7 +2666,6 @@ bool CChitemDlg::match_dialog()
   trigger trigger;
   action action;
   
-  
   if(searchflags&MS)
   {
     ret=0;
@@ -2688,6 +2705,7 @@ bool CChitemDlg::match_dialog()
       for(k=0;k<linecnt;k++)
       {
         if(compile_trigger(lines[k],trigger)) continue;
+
         if(searchflags&MI)
         {
           //cutting the weird flags from the trigger
@@ -2705,7 +2723,7 @@ bool CChitemDlg::match_dialog()
             ret=true;
             log("Found %s in state trigger #%d",trigger.var1,i+1);
           }
-          if(!strnicmp(trigger.var2,searchdata.variable,32))
+          if(!strnicmp(trigger.var2+6,searchdata.variable,32))
           {
             ret=true;
             log("Found %s in state trigger #%d",trigger.var2,i+1);
@@ -2713,7 +2731,7 @@ bool CChitemDlg::match_dialog()
         }
         if(searchflags&MR)
         {
-          if(!strnicmp(trigger.trobj.var,searchdata.resource,32))
+          if(!strnicmp(trigger.trobj.var,searchdata.resource,8))
           {
             ret=true;
             log("Found %s in state trigger #%d",trigger.trobj.var,i+1);
@@ -2748,17 +2766,17 @@ bool CChitemDlg::match_dialog()
           if(!strnicmp(trigger.var1+6,searchdata.variable,32))
           {
             ret=true;
-            log("Found %s in transition trigger #%d",trigger.var1,i+1);
+            log("Found %s in transition trigger #%d",trigger.var1+6,i+1);
           }
-          if(!strnicmp(trigger.var2,searchdata.variable,32))
+          if(!strnicmp(trigger.var2+6,searchdata.variable,32))
           {
             ret=true;
-            log("Found %s in transition trigger #%d",trigger.var2,i+1);
+            log("Found %s in transition trigger #%d",trigger.var2+6,i+1);
           }
         }
         if(searchflags&MR)
         {
-          if(!strnicmp(trigger.trobj.var,searchdata.resource,32))
+          if(!strnicmp(trigger.trobj.var,searchdata.resource,8))
           {
             ret=true;
             log("Found %s in transition trigger #%d",trigger.trobj.var,i+1);
@@ -2799,17 +2817,27 @@ bool CChitemDlg::match_dialog()
             ret=true;
             log("Found %s in action #%d",action.var1,i+1);
           }
-          if(!strnicmp(action.var2,searchdata.variable,32))
+          if(!strnicmp(action.var2+6,searchdata.variable,32))
           {
             ret=true;
-            log("Found %s in action #%d",action.var2,i+1);
+            log("Found %s in action #%d",action.var2+6,i+1);
           }
         }
         if(searchflags&MR)
         {
+          if(!strnicmp(action.var1,searchdata.resource,8))
+          {
+            ret=true;
+            log("Found %s in action #%d",action.var1,i+1);
+          }
+          if(!strnicmp(action.var2,searchdata.resource,8))
+          {
+            ret=true;
+            log("Found %s in action #%d",action.var2,i+1);
+          }
           for(j=0;j<3;j++)
           {
-            if(!strnicmp(action.obj[j].var,searchdata.resource,32))
+            if(!strnicmp(action.obj[j].var,searchdata.resource,8))
             {
               ret=true;
               log("Found %s in action #%d ob #%d",action.obj[j].var,i+1, j+1);

@@ -26,7 +26,7 @@ double approx_len (int max, int plus_max) {
 		case 5: return 7.0/2;
 		default: plus_max++;
 			if (max < plus_max) max = plus_max;
-			return (ceil (log (max)/log (2)) + 1);
+			return (ceil (log ((double) max)/log ((double) 2)) + 1);
 	}
 }
 
@@ -108,7 +108,7 @@ void CValuePacker::granulate (int val) {
 		if (n > max) max = n;
 	}
 
-	int pwr = (int)ceil (log (max)/log (2));
+	int pwr = (int)ceil (log ((double) max)/log ((double) 2));
 #ifdef FULL_IP_COMPAT
 // In Interplay's ACMs the pwr is not less than 3:
 	if (pwr < 3) pwr = 3;
@@ -187,7 +187,7 @@ void CValuePacker::pack_column (int col) {
 		default:
 			max_plus_amp++;
 			if (max_amp < max_plus_amp) max_amp = max_plus_amp;
-			int pwr = (int)ceil (log (max_amp)/log (2));
+			int pwr = (int)ceil (log ((double) max_amp)/log ((double) 2));
 			make_linear (pwr+1, col);
 	}
 }

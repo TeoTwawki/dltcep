@@ -83,12 +83,21 @@ int Cgame::insert_npc_header(int pos)
   memcpy(newextensions,npcextensions,pos*sizeof(gam_npc_extension) );
   memcpy(newextensions+pos+1, npcextensions+pos,(npccount-pos)*sizeof(gam_npc_extension) );
   memset(newextensions+pos,0,sizeof(gam_npc_extension) );
-  delete [] npcextensions;
+  if(npcextensions)
+  {
+    delete [] npcextensions;
+  }
   npcextensions = newextensions;
-  delete [] npcs;
+  if(npcs)
+  {
+    delete [] npcs;
+  }
   memset(newnpcs+pos,0,sizeof(gam_npc));
   npcs=newnpcs;
-  delete [] npcstructs;
+  if(npcstructs)
+  {
+    delete [] npcstructs;
+  }
   newstructs[pos]=0;
   npcstructs=newstructs;
   npccount++;

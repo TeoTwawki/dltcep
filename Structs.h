@@ -209,8 +209,10 @@ typedef struct//1
   char mos1[8];
   char mos2[8];
   char bam[8];
-  short jumpcount;
-  short cycle;
+  short jumpcount;    //if this is 0 then the bam is a mos, and its width is the jumpcount
+  short cycle;        //this is zero if the progressbar is a mos
+  short xpos, ypos;   //the position of the progressbar 'bam' if it is a mos
+  short xposcap, yposcap; //the position of the cap 'bam' if it is a mos
 } chui_progress;
 
 typedef struct//2
@@ -593,7 +595,8 @@ typedef struct
   long u3,u4,u5;
   long resist;
   long par3;
-  unsigned char unused2[12];
+  long par4;
+  unsigned char unused2[8];
   char vvc[8];
   char resource3[8];
   unsigned char unused3[20];
@@ -1518,9 +1521,9 @@ typedef struct {
   short unknowna0; //1000
   short unknowna2; //1000
   short maxnumber; //??
-  short unknowna6;
-  short unknowna8;
-  short unknownaa;
+  short minnumber; //??
+  short day;
+  short night;
   short unknownac;
   short unknownae;
   char unused[52];
@@ -1990,7 +1993,7 @@ typedef struct
 {
   int bytes[14]; //iwd2 12, others 6
   int area[4];   //only in pst, iwd
-  char var[32];
+  char var[8+32+1];
   int bytes2[2]; //only in iwd2
 } object;
 
@@ -2001,7 +2004,7 @@ public:
   object obj[3];
   int bytes[5];
   char var1[8+32+1];
-  char var2[32+1];
+  char var2[8+32+1];
   void Reset()
   {
     int i;

@@ -40,12 +40,13 @@ Offset Size (data type) Description
 0x0034 4 (dword) dice count
 0x0038 4 (dword) save type
 0x003c 4 (dword) save bonus
-0x0040 4 (dword) Unknown (same as 0x2c in EFF V1.0)
+0x0040 4 (dword) Is Variable? (same as 0x2c in EFF V1.0)
 0x0044 4 (dword) Spell School
 0x0048 4*3 (dword) Unknown
 0x0054 4 (dword) Resistance Type
 0x0058 4 (dword) NP3
-0x005c 4*3 (dword) unknown
+0x005c 4 (dword) NP4
+0x0060 4*2 (dword) unknown
 0x0068 8 (resref) VVC
 0x0070 8 (resref) 3. resource
 0x0078 4*5 (dword) unknown

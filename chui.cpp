@@ -182,6 +182,7 @@ int Cchui::ReadChuiFromFile(int fh, long ml)
     minsize=ChuiControlSize(controls[i].controltype);
     if(esize!=minsize)
     {//unknown control or bad length stored
+      controltable[i].y=minsize+sizeof(chui_control_common);
       ret|=2;
     }
     

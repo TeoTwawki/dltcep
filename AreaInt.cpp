@@ -43,6 +43,15 @@ BOOL CAreaInt::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 	RefreshInt();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
+  }
+
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -75,9 +84,9 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_UNKNOWNA0, the_area.intheader.unknowna0);
   DDX_Text(pDX, IDC_UNKNOWNA2, the_area.intheader.unknowna2);
   DDX_Text(pDX, IDC_MAX, the_area.intheader.maxnumber);
-  DDX_Text(pDX, IDC_MIN, the_area.intheader.unknowna6);
-  DDX_Text(pDX, IDC_UNKNOWNA8, the_area.intheader.unknowna8);
-  DDX_Text(pDX, IDC_UNKNOWNAA, the_area.intheader.unknownaa);
+  DDX_Text(pDX, IDC_MIN, the_area.intheader.minnumber);
+  DDX_Text(pDX, IDC_DAY, the_area.intheader.day);
+  DDX_Text(pDX, IDC_NIGHT, the_area.intheader.night);
   DDX_Text(pDX, IDC_UNKNOWNAC, the_area.intheader.unknownac);
   DDX_Text(pDX, IDC_UNKNOWNAE, the_area.intheader.unknownae);
 }
@@ -286,16 +295,15 @@ void CAreaInt::OnClear()
   }
   the_area.intheader.difficulty=2;
   the_area.intheader.unknown9c=the_area.intheader.unknowna0=the_area.intheader.unknowna2=1000;
-  the_area.intheader.unknowna6=1;
+  the_area.intheader.minnumber=1;
   the_area.intheader.maxnumber=1;
-  the_area.intheader.unknowna8=the_area.intheader.unknownaa=10;
+  the_area.intheader.day=the_area.intheader.night=10;
   RefreshInt();
 	UpdateData(UD_DISPLAY);
 }
 
 BOOL CAreaInt::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }

@@ -875,20 +875,20 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
         switch(itemtype)
         {
         case FLG_MVAR:
-          memcpy(finddata.variable,trigger->var1+6,32-6);
+          memcpy(finddata.variable,trigger->var1+6,32);
           finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
-            if(!strnicmp(finddata.variable,searchdata.variable,32-6))
+            if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               return 1;
             }
           }
-          memcpy(finddata.variable,trigger->var2+6,32-6);
+          memcpy(finddata.variable,trigger->var2+6,32);
           finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
-            if(!strnicmp(finddata.variable,searchdata.variable,32-6))
+            if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               return 1;
             }
@@ -944,20 +944,20 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
         switch(itemtype)
         {
         case FLG_MVAR:
-          memcpy(finddata.variable,action->var1+6,32-6);
+          memcpy(finddata.variable,action->var1+6,32);
           finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
-            if(!strnicmp(finddata.variable,searchdata.variable,32-6))
+            if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               return 1;
             }
           }
-          memcpy(finddata.variable,action->var2-6,32+6);
+          memcpy(finddata.variable,action->var2+6,32);
           finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
-            if(!strnicmp(finddata.variable,searchdata.variable,32-6))
+            if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               return 1;
             }

@@ -182,6 +182,7 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
   StoreResref(tmpstr, the_effect.header.source);
 
   DDX_Text(pDX, IDC_PAR3, the_effect.header.par3);
+  DDX_Text(pDX, IDC_PAR4, the_effect.header.par4);
   DDX_Text(pDX, IDC_U3, the_effect.header.u3);
   DDX_Text(pDX, IDC_U4, the_effect.header.u4);
   DDX_Text(pDX, IDC_U5, the_effect.header.u5);
@@ -291,8 +292,8 @@ void CEffEdit::RefreshDialog()
 }
 
 static int limiteffboxids[]={IDC_VVC, IDC_BROWSE2, IDC_VARNAME,IDC_SCHOOL,
- IDC_PAR3, IDC_U3, IDC_U4, IDC_U5, IDC_UNKNOWN, IDC_SECTYPE, IDC_SOURCE,
- IDC_RESOURCE3, IDC_BROWSE3, IDC_BROWSE4,
+ IDC_PAR3, IDC_PAR4, IDC_U3, IDC_U4, IDC_U5, IDC_UNKNOWN, IDC_SECTYPE, 
+ IDC_SOURCE, IDC_RESOURCE3, IDC_BROWSE3, IDC_BROWSE4,
 0};
 
 BOOL CEffEdit::OnInitDialog() 
@@ -430,7 +431,8 @@ BOOL CEffEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_SOURCE), IDS_SOURCE);
     m_tooltip.AddTool(GetDlgItem(IDC_VARNAME), IDS_VARNAME);
     m_tooltip.AddTool(GetDlgItem(IDC_PAR3), IDS_PAR3);
-    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN2C), IDS_UNKNOWN);
+    m_tooltip.AddTool(GetDlgItem(IDC_PAR4), IDS_PAR3);
+    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN2C), IDS_2C);
     m_tooltip.AddTool(GetDlgItem(IDC_U3), IDS_UNKNOWN);
     m_tooltip.AddTool(GetDlgItem(IDC_U4), IDS_UNKNOWN);
     m_tooltip.AddTool(GetDlgItem(IDC_U5), IDS_UNKNOWN);
@@ -482,6 +484,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
 	ON_COMMAND(ID_TOOLS_DURATION, OnToolsDuration)
 	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
+	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	ON_CBN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EFFTARGET, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
@@ -514,7 +517,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_CBN_KILLFOCUS(IDC_EFFOPCODE2, OnKillfocusEffopcode)
 	ON_CBN_SELCHANGE(IDC_EFFOPCODE2, OnSelchangeEffopcode)
-	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
+	ON_EN_KILLFOCUS(IDC_PAR4, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -824,139 +827,7 @@ void CEffEdit::OnKillfocusPar2()
 endofquest:
   RefreshDialog();
 }
-/*
-void CEffEdit::OnKillfocusPar3() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
 
-void CEffEdit::OnKillfocusU3() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusU4() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusU5() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusUnknown()  //part of timing
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusProb1() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusProb2() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusRoll2() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusDie2() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusPower() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusSavetype() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusSavebonus() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusResource() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusVvc() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusSource() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusResource3()  //used in sequencer
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusResist() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusVarname() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CEffEdit::OnKillfocusSchool() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CEffEdit::OnKillfocusSectype() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CEffEdit::OnKillfocusUnknown2c() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CEffEdit::OnKillfocusUnknown3() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-*/
 void CEffEdit::Explode(int *boxids, int parid, int buttonid) 
 {
   CButton *cb;
@@ -1173,4 +1044,10 @@ BOOL CEffEdit::PreTranslateMessage(MSG* pMsg)
 {
   m_tooltip.RelayEvent(pMsg);
   return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CEffEdit::OnDefaultKillfocus() 
+{
+	// TODO: Add your control notification handler code here
+	
 }

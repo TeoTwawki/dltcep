@@ -37,7 +37,7 @@ CAPTION "WeiDU options"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_FILENAME,9,17,275,16,ES_AUTOHSCROLL | ES_READONLY,
-                    WS_EX_ACCEPTFILES,HIDC_FILENAME
+                    WS_EX_ACCEPTFILES,0x80bf03eb
     DEFPUSHBUTTON   "&P",IDC_OPENFILE,288,17,16,16,BS_BITMAP
     EDITTEXT        IDC_DECOMPILED,9,48,199,14,ES_AUTOHSCROLL
     CONTROL         "Do not emit .D header comments (NOHEADER)",IDC_FLAG1,
@@ -52,7 +52,7 @@ BEGIN
     LTEXT           "Additional parameters",IDC_STATIC,9,119,68,8
     EDITTEXT        IDC_PARAM,9,129,199,14,ES_AUTOHSCROLL
     CONTROL         "Show log",IDC_LOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    265,131,45,10
+                    229,131,45,10
     EDITTEXT        IDC_COMMAND,9,162,299,38,ES_MULTILINE | ES_READONLY
     DEFPUSHBUTTON   "OK",IDOK,7,205,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,260,205,50,14
@@ -60,6 +60,8 @@ BEGIN
     LTEXT           "Sample command",IDC_STATIC,9,150,57,8
     LTEXT           "Subfolder in your game directory for decompiled files",
                     IDC_STATIC,9,36,164,8
+    CONTROL         "Set script style",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,229,48,61,10
 END
 
 IDD_IMAGEVIEW DIALOG DISCARDABLE  160, 0, 122, 82
@@ -105,7 +107,7 @@ IDD_CHITEM_DIALOG DIALOGEX 0, 0, 319, 274
 STYLE DS_MODALFRAME | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "BG2 ITM Checker"
+CAPTION "DLTCEP"
 MENU IDR_MENUBAR
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
@@ -133,7 +135,8 @@ BEGIN
     DEFPUSHBUTTON   "Setup",IDC_COMPAT,7,253,57,14
     PUSHBUTTON      "Exit",IDOK,260,253,47,14
     EDITTEXT        IDC_EVENT,13,105,295,144,ES_MULTILINE | ES_AUTOVSCROLL | 
-                    ES_NOHIDESEL | ES_WANTRETURN | WS_VSCROLL,0,0x80660401
+                    ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | WS_VSCROLL,
+                    0,0x80660401
     LTEXT           "Event log",IDC_EVENT_TYPE,15,95,58,8
     GROUPBOX        "Check",IDC_STATIC,194,7,110,93,BS_FLAT
     GROUPBOX        "Find",IDC_STATIC,85,7,110,93,BS_FLAT
@@ -922,6 +925,7 @@ BEGIN
     EDITTEXT        IDC_PROB2,157,76,23,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_UNKNOWN,199,76,23,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_TEXT,7,104,112,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT2,123,104,112,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_PAR2,7,133,70,14,ES_AUTOHSCROLL
     CONTROL         "Explode",IDC_EXPLODE2,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | WS_TABSTOP,80,136,38,10
@@ -956,9 +960,10 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_VARNAME,7,253,141,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_PAR3,151,253,23,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U3,202,253,23,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U4,236,253,23,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U5,270,253,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAR4,187,253,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U3,223,253,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U4,253,253,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U5,283,253,23,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_SOURCE,314,253,49,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE3,370,253,28,14
     DEFPUSHBUTTON   "Load Effect",IDC_LOAD,7,279,42,14
@@ -1003,13 +1008,12 @@ BEGIN
                     WS_TABSTOP
     LTEXT           "Variable?",IDC_STATIC,210,121,30,8
     LTEXT           "Timing ?",IDC_STATIC,199,63,28,8
-    LTEXT           "Parameter 3",IDC_STATIC,151,242,39,8
+    LTEXT           "Parameters 3 && 4",IDC_STATIC,151,242,54,8
     LTEXT           "Spell school",IDC_STATIC,314,185,39,8
     LTEXT           "Secondary type",IDC_STATIC,314,212,50,8
     LTEXT           "Source of this effect",IDC_STATIC,314,242,64,8
     LTEXT           "3. Resource",IDC_STATIC,223,213,40,8
-    LTEXT           "Unknowns",IDC_STATIC,202,241,35,8
-    EDITTEXT        IDC_TEXT2,123,104,112,14,ES_AUTOHSCROLL
+    LTEXT           "Unknowns",IDC_STATIC,223,241,35,8
     LTEXT           "Efftext entry (opcode based)",IDC_STATIC,123,93,90,8
 END
 
@@ -1123,7 +1127,8 @@ BEGIN
     LTEXT           "Game type",IDC_STATIC,213,11,35,8
     EDITTEXT        IDC_DESCPATH,13,87,269,16,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "Button1",IDC_DESCOPEN,292,87,16,16,BS_BITMAP
-    LTEXT           "IEEP effect descriptions",IDC_STATIC,13,76,76,8
+    LTEXT           "Location of IEEP effect descriptions (.dat file)",
+                    IDC_STATIC,13,76,142,8
     CONTROL         "IWD2 style structures (additional bytes in header)",
                     IDC_IWD2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,157,
                     169,10
@@ -3013,7 +3018,7 @@ BEGIN
                     106,139,24,10
     CONTROL         "Reset trap",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,148,93,49,10
-    CONTROL         "Internal ?",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Internal?",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,148,104,41,10
     CONTROL         "Found it",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,148,115,41,10
@@ -3708,29 +3713,30 @@ CAPTION "Edit 2da:"
 MENU IDR_2DA
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    EDITTEXT        IDC_DEFAULT,60,7,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DEFAULT,11,19,43,14,ES_AUTOHSCROLL
+    CONTROL         "Integers:",IDC_INT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,11,38,43,10,WS_EX_RIGHT
+    PUSHBUTTON      "Order by column",IDC_ORDER,71,7,56,14
     PUSHBUTTON      "Copy column",IDC_COPY2,131,7,50,14
     PUSHBUTTON      "Paste column",IDC_PASTE2,185,7,50,14
     PUSHBUTTON      "Delete column",IDC_REMOVE2,239,7,50,14
     PUSHBUTTON      "Add column",IDC_COLUMN,293,7,50,14
     PUSHBUTTON      "Insert column",IDC_COLUMN2,347,7,50,14
-    CONTROL         "Integers:",IDC_INT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,24,31,43,10,WS_EX_RIGHT
     PUSHBUTTON      "Copy row",IDC_COPY,131,31,50,14
     PUSHBUTTON      "Paste row",IDC_PASTE,185,31,50,14
     PUSHBUTTON      "Delete row",IDC_REMOVE,239,31,50,14
     PUSHBUTTON      "Add row",IDC_ROW,293,31,50,14
     PUSHBUTTON      "Insert row",IDC_ROW2,347,31,50,14
-    CONTROL         "List1",IDC_2DA,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | 
-                    LVS_AUTOARRANGE | LVS_EDITLABELS | WS_BORDER | 
-                    WS_TABSTOP,7,54,392,148
     DEFPUSHBUTTON   "Load 2DA",IDC_LOAD,7,207,50,14
     PUSHBUTTON      "Load external 2DA",IDC_LOADEX,82,207,76,14
     PUSHBUTTON      "Save 2DA As...",IDC_SAVEAS,183,207,66,14
     PUSHBUTTON      "New 2DA",IDC_NEW,274,207,50,14
     PUSHBUTTON      "Exit",IDCANCEL,349,207,50,14
-    LTEXT           "Default value:",IDC_STATIC,11,9,45,8
+    CONTROL         "List1",IDC_2DA,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOLABELWRAP | 
+                    LVS_AUTOARRANGE | LVS_EDITLABELS | WS_BORDER | 
+                    WS_TABSTOP,7,54,392,148
+    LTEXT           "Default value",IDC_STATIC,11,8,43,8
 END
 
 IDD_IDSEDIT DIALOG DISCARDABLE  0, 0, 301, 205
@@ -4413,8 +4419,6 @@ CAPTION "Edit User Interface:"
 MENU IDR_CHUI
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "RGB1                                          RGB2",
-                    IDC_TEXTAREA2,90,177,124,8
     COMBOBOX        IDC_WINDOWPICKER,7,21,50,215,CBS_DROPDOWNLIST | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_ID,88,21,40,14,ES_AUTOHSCROLL
@@ -4439,11 +4443,15 @@ BEGIN
     COMBOBOX        IDC_TYPE,7,105,75,97,CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | 
                     WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_LENGTH,7,133,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT,238,133,149,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_U3,7,161,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Select control",IDC_PREVIEW,7,192,50,14
     EDITTEXT        IDC_BAM,90,133,63,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE2,159,133,32,14
     EDITTEXT        IDC_CYCLE,193,133,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_BAM2,238,133,63,14,ES_AUTOHSCROLL
+    LTEXT           "RGB1                                          RGB2",
+                    IDC_TEXTAREA2,90,177,124,8
     PUSHBUTTON      "Browse",IDC_BROWSE3,308,133,32,14
     EDITTEXT        IDC_BAMFRAME1,90,161,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_BAMFRAME2,138,161,40,14,ES_AUTOHSCROLL
@@ -4487,7 +4495,6 @@ BEGIN
     LTEXT           "Slider background",IDC_SLIDERMOS,90,122,58,8
     LTEXT           "Slider knob",IDC_SLIDERBAM,240,122,36,8
     LTEXT           "Knob cycle",IDC_SLIDERCYCLE,193,122,36,8
-    PUSHBUTTON      "Select control",IDC_PREVIEW,7,192,50,14
     LTEXT           "Released",IDC_SLIDERFRAME1,90,150,31,8
     LTEXT           "Grabbed",IDC_SLIDERFRAME2,140,150,28,8
     EDITTEXT        IDC_UNKNOWN1,90,189,26,14,ES_AUTOHSCROLL
@@ -4516,7 +4523,6 @@ BEGIN
                     IDC_TEXTAREA1,90,122,199,8
     EDITTEXT        IDC_UNKNOWN9,363,189,25,14,ES_AUTOHSCROLL
     LTEXT           "Scrollbar ID",IDC_TEXTAREA3,193,122,38,8
-    EDITTEXT        IDC_TEXT,238,133,149,14,ES_AUTOHSCROLL
     LTEXT           "Label strref && text",IDC_LABEL1,193,122,55,8
     LTEXT           "Font BAM",IDC_LABEL2,90,122,32,8
     LTEXT           "RGB3",IDC_TEXTAREA4,295,177,20,8
@@ -5584,8 +5590,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,3,4,0
- PRODUCTVERSION 6,3,4,0
+ FILEVERSION 6,3,7,0
+ PRODUCTVERSION 6,3,7,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5603,14 +5609,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "TeamBG (www.teambg.com)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 3, 4, 0\0"
+            VALUE "FileVersion", "6, 3, 7, 0\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2004 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 3, 4, 0\0"
+            VALUE "ProductVersion", "6, 3, 7, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6847,7 +6853,7 @@ BEGIN
     IDS_PIDS                "Resolve IDS targeting"
     IDS_PCOLOR              "Resolve gradients"
     IDS_UNDEFINED           "Use explode/implode to see the parameters in a different format."
-    IDS_PAR3                "Rarely used parameter, only #178/#179 are known to use it."
+    IDS_PAR3                "Parameter 3 and 4 are rarely used."
     IDS_VARNAME             "Local variable names are stored here. Used in #187."
     IDS_SOURCE              "The spell or item which have set this effect. Only in embedded effects."
     IDS_SECTYPE             "The secondary type of the spell. Could be targeted by dispelling effects."
@@ -6872,6 +6878,7 @@ BEGIN
     IDS_TOB                 "Tob engine specific features."
     IDS_DELOVER             "Removes the selected overlay."
     IDS_TILES               "Manage tiles of this overlay."
+    IDS_2C                  "Marks local variables."
 END
 
 #endif    // English (U.S.) resources

@@ -40,9 +40,9 @@ static int colourorder(const void *a, const void *b)
   for(i=0;i<3;i++)
   {
     tmp=*(((BYTE *) a)+i);
-    asum+=tmp*tmp;
+    asum+=squares[tmp];
     tmp=*(((BYTE *) b)+i);
-    bsum+=tmp*tmp;
+    bsum+=squares[tmp];
   }
   if(asum>bsum) return -1;
   return asum<bsum;
@@ -1533,21 +1533,22 @@ int Cmos::FlipTile(DWORD nFrameWanted)
 }
 
 //this doesn't adjust alternate tiles bigger than the removed one
-int Cmos::RemoveTile(DWORD original)
+int Cmos::RemoveTile(DWORD tile)
 {
   INF_MOS_FRAMEDATA *newframedata;
   DWORD i;
 
-  if(original>=tisheader.numtiles) return -1;
+  if(tile>=tisheader.numtiles) return -1;
   newframedata=new INF_MOS_FRAMEDATA[--tisheader.numtiles];
   if(!newframedata)
   {
     tisheader.numtiles++;
     return -3;
   }
-  memcpy(newframedata,m_pFrameData,original*sizeof(INF_MOS_FRAMEDATA));
-  memcpy(newframedata+original,m_pFrameData+original+1,(tisheader.numtiles-original)*sizeof(INF_MOS_FRAMEDATA));
-  delete m_pFrameData[original].pFrameData;  //delete the removed frame
+  
+  memcpy(newframedata,m_pFrameData,tile*sizeof(INF_MOS_FRAMEDATA));
+  memcpy(newframedata+tile,m_pFrameData+tile+1,(tisheader.numtiles-tile)*sizeof(INF_MOS_FRAMEDATA));
+  delete m_pFrameData[tile].pFrameData;  //delete the removed frame
   //detach pixel pointers so they don't get freed!
   for(i=0;i<=tisheader.numtiles;i++)
   {
@@ -1570,7 +1571,7 @@ int Cmos::SetFrameData(DWORD nFrameWanted, INF_MOS_FRAMEDATA *oldframe)
   return 0;
 }
 
-int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, bool deepen)
+int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, int flags)
 {
   INF_MOS_FRAMEDATA *newframedata;
   DWORD i;
@@ -1586,10 +1587,10 @@ int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, bool deepen
   }
   memcpy(newframedata,m_pFrameData,tisheader.numtiles*sizeof(INF_MOS_FRAMEDATA));
   newframedata[tisheader.numtiles].TakePaletteData((unsigned char *) newframedata[original].Palette);
-  if(optionalpixels)
+  if(optionalpixels || (flags&2) )
   {
     newframedata[tisheader.numtiles].TakeMosData(optionalpixels,
-      newframedata[original].nWidth,newframedata[original].nHeight, deepen);
+      newframedata[original].nWidth,newframedata[original].nHeight, flags&1);
   }
   else
   {
@@ -1597,7 +1598,12 @@ int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, bool deepen
       newframedata[original].nWidth,newframedata[original].nHeight,false);
   }
   //create transparent green color on 0. palette entry
-  newframedata[tisheader.numtiles].AllocateTransparency();
+  if(flags&2)
+  {
+    newframedata[tisheader.numtiles].Palette[255]=newframedata[tisheader.numtiles].Palette[0];
+    newframedata[tisheader.numtiles].Palette[0]=TRANSPARENT_GREEN;
+  }
+  else newframedata[tisheader.numtiles].AllocateTransparency();
   //detach pixel pointers so they don't get freed!
   for(i=0;i<tisheader.numtiles;i++)
   {

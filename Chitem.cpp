@@ -2432,7 +2432,7 @@ CString get_par2_label(int opcode)
   return opcodes[opcode].par2;
 }
 //                       0 button, 1 gemrb progress,2 slider, 3 editbox,4 unknown, 5 scrolltext,
-static char chuicontrolsizes[CCNUM]={18,       28,       38,       92,       -1,        32,
+static char chuicontrolsizes[CCNUM]={18,       36,       38,       92,       -1,        32,
 //6 label, 7 scrollbar
 22,      26};
 static CString chuicontrolnames[CCNUM]={"Button","Progressbar","Slider","EditBox","Unknown 4",

@@ -128,8 +128,9 @@ public:
   int GetImageHeight(int clipy, int maxclipy);
   DWORD GetColor(DWORD x, DWORD y);
   int FlipTile(DWORD nFrameWanted);
-  int RemoveTile(DWORD original);
-  int AddTileCopy(DWORD original, unsigned char *optionalpixels = NULL, bool deepen=false);
+  int RemoveTile(DWORD tile);
+  //flags = 1 deepen, 2 = empty tile
+  int AddTileCopy(DWORD original, unsigned char *optionalpixels = NULL, int flags=0);
   int SetFrameData(DWORD nFrameWanted, INF_MOS_FRAMEDATA *oldframe);
   int SaturateTransparency(DWORD tile, bool createcopy = false, bool deepen=false);
 

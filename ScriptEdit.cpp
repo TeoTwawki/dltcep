@@ -337,20 +337,23 @@ void CScriptEdit::OnLoad()
         res=-1;
       }
     }
-    if(!res) res=filelength(fhandle);
-    if(res>=0)
+    if(!res)
     {
-      pos=m_text.GetBufferSetLength(res);
-      if(pos)
+      res=filelength(fhandle);
+      if(res>=0)
       {
-        if(read(fhandle,pos,res)!=res) res=-1;
-        else res=0;
+        pos=m_text.GetBufferSetLength(res);
+        if(pos)
+        {
+          if(read(fhandle,pos,res)!=res) res=-1;
+          else res=0;
+        }
+        else res=-1;
+        m_text.ReleaseBuffer();
+        m_text_control.SetWindowText(m_text);
       }
-      else res=-1;
-      m_text.ReleaseBuffer();
-      m_text_control.SetWindowText(m_text);
+      close(fhandle);
     }
-    close(fhandle);
     switch(res)
     {
     case 0:

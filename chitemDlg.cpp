@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.3d"
+#define PRG_VERSION "6.3g"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -2834,7 +2834,7 @@ void CChitemDlg::OnFindScript()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0x4000fc;
+  dlg.mask=0x40007c;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find scripts";

@@ -999,9 +999,13 @@ int CWedEdit::RemoveOverlay(int x, int y, area_vertex *polygon, int size, int ti
     {
       if(PointInPolygon(polygon, size, tmp ) )
       {
-        *framebuffer=*originalbuffer;
+        if(*originalbuffer) *framebuffer=*originalbuffer;
+        else *framebuffer=255;
       }
-      if(*framebuffer!=*originalbuffer) opaque=0;
+      else
+      {
+        if(*framebuffer!=*originalbuffer) opaque=0;
+      }
       framebuffer++;
       originalbuffer++;
       tmp.x++;
@@ -1100,8 +1104,8 @@ void CWedEdit::OnClear()
       {
         //the tile isn't overlaid at all?
         if(!the_area.overlaytileheaders[tilenum].flags) continue; 
-        //this tile is fully overlaid, create overlay now
-        tile=the_area.overlaytileheaders[tilenum].alternate=(short) the_mos.AddTileCopy(original);
+        //this tile is (was) fully overlaid, create overlay now (fully transparent)
+        tile=the_area.overlaytileheaders[tilenum].alternate=(short) the_mos.AddTileCopy(original,NULL,2);
       }
       //prepare the tile
       if(RemoveOverlay(x*64, y*64, polygon, size, tile, original))

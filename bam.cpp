@@ -1826,6 +1826,7 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
 //    memcpy(m_pclrDIBits,bm.bmBits,nColumn*nRow*sizeof(COLORREF) ); //doesn't work. bm.bmbits isn't set
     nOffset=nWidth+nHeight*nColumn;
     nLimit=min(m_pFrames[nFrameWanted].wHeight,nRow-nHeight);
+    if(m_pFrames[nFrameWanted].wWidth+nWidth>nColumn) nOffset=-1; //hack 
   }
   else
   {
@@ -1836,7 +1837,7 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
     nOffset=0;
   }
 
-  if(nOffset>=0)
+  if(nOffset>=0 && nWidth>=0 && nHeight>=0 )
   {
     nReplaced=m_pFrameData[nFrameWanted].ExpandBamBits(m_header.chTransparentIndex,clrTrans,
       m_pclrDIBits+nOffset,bIsCompressed,nColumn,m_palette,

@@ -1032,7 +1032,7 @@ CString Carea::RetrieveMosRef(int fh)
   CString tmpstr;
   int required;
 
-  if(fh<1) return -1;
+  if(fh<1) return "";
   required=(BYTE *) &header.wed-(BYTE *) &header+8;
   if(read(fh, &header, required)!=required)
   {
@@ -2260,7 +2260,10 @@ int Carea::RemoveWedDoor(char *doorid)
         weddoorheaders[i].countpolygonclose--;
       }
       pos=doortilelist.FindIndex(i);
-      doortilelist.RemoveAt(pos);
+      if(pos)
+      {
+        doortilelist.RemoveAt(pos);
+      }
     }
   }
   wedchanged=true;

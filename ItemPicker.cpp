@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "chitem.h"
 #include "options.h"
+#include "2da.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -163,29 +164,25 @@ void CItemPicker::ResolveKey(CString &key, loc_entry &fileloc, int restype)
   if(editflg&RESOLVE) return;
   switch(restype)
   {
+  case REF_ARE:
+    if(!the_2da.rows) return;    
+    nameref=atoi(the_2da.FindValue(key,1));
+    break;
   case REF_ITM:
-    {
-      fhandle=locate_file(fileloc, 0);
-      nameref=my_item.RetrieveNameRef(fhandle);
-    }
+    fhandle=locate_file(fileloc, 0);
+    nameref=my_item.RetrieveNameRef(fhandle);
     break;
   case REF_CRE:
-    {
-      fhandle=locate_file(fileloc, 0);
-      nameref=my_creature.RetrieveNameRef(fhandle);
-    }
+    fhandle=locate_file(fileloc, 0);
+    nameref=my_creature.RetrieveNameRef(fhandle);
     break;
   case REF_SPL:
-    {
-      fhandle=locate_file(fileloc, 0);
-      nameref=my_spell.RetrieveNameRef(fhandle);
-    }
+    fhandle=locate_file(fileloc, 0);
+    nameref=my_spell.RetrieveNameRef(fhandle);
     break;
   case REF_STO:
-    {
-      fhandle=locate_file(fileloc, 0);
-      nameref=my_store.RetrieveNameRef(fhandle);
-    }
+    fhandle=locate_file(fileloc, 0);
+    nameref=my_store.RetrieveNameRef(fhandle);
     break;
   default:
     return;
@@ -243,11 +240,13 @@ BOOL CItemPicker::OnInitDialog()
 	CDialog::OnInitDialog();
   switch(m_restype)
   {
+  case REF_ARE:
+    read_2da("MAPNAME");
+    //falling through
   case REF_BMP:
   case REF_BAM:
   case REF_ITM:
   case REF_SPL:
-  case REF_ARE:
   case REF_MOS:
     GetDlgItem(IDC_PREVIEW)->ShowWindow(true);
     m_preview.Create(IDD_IMAGEVIEW,this);

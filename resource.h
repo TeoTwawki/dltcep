@@ -293,6 +293,7 @@
 #define IDS_TOB                         267
 #define IDS_DELOVER                     268
 #define IDS_TILES                       269
+#define IDS_2C                          270
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -1489,6 +1490,7 @@
 #define IDC_CTRLCNT                     2201
 #define IDC_PAR3                        2202
 #define IDC_DOLEVELS                    2203
+#define IDC_PAR4                        2203
 #define IDC_LEVELINC                    2204
 #define IDC_DODAMAGES                   2205
 #define IDC_REVISION                    2206

@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 StaticZlib.lib winmm.lib /nologo /subsystem:windows /machine:I386 /nodefaultlib:"libc" /out:"Release/DLTCEP.exe"
+# ADD LINK32 winmm.lib StaticZlib.lib jpeg.lib /nologo /subsystem:windows /machine:I386 /nodefaultlib:"libc" /out:"Release/DLTCEP.exe"
 
 !ELSEIF  "$(CFG)" == "chitem - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib StaticZlib.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"libc" /out:"Debug/DLTCEP.exe" /pdbtype:sept
+# ADD LINK32 winmm.lib StaticZlib.lib jpeg.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"libc" /out:"Debug/DLTCEP.exe" /pdbtype:sept
 # SUBTRACT LINK32 /incremental:no
 
 !ENDIF 
@@ -229,6 +229,10 @@ SOURCE=.\GameEdit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GameStatistics.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\IapDialog.cpp
 # End Source File
 # Begin Source File
@@ -250,6 +254,10 @@ SOURCE=.\ItemPicker.cpp
 # Begin Source File
 
 SOURCE=.\ItemProperties.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\jpegcompress.cpp
 # End Source File
 # Begin Source File
 
@@ -290,6 +298,10 @@ SOURCE=.\packer.cpp
 # Begin Source File
 
 SOURCE=.\PaletteEdit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Polygon.cpp
 # End Source File
 # Begin Source File
 
@@ -386,11 +398,23 @@ SOURCE=.\tbg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TextView.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TisDialog.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\tispack.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\tlkhandler.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TormentCre.cpp
 # End Source File
 # Begin Source File
 
@@ -566,6 +590,10 @@ SOURCE=.\GameEdit.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\GameStatistics.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\general.h
 # End Source File
 # Begin Source File
@@ -591,6 +619,22 @@ SOURCE=.\ItemPicker.h
 # Begin Source File
 
 SOURCE=.\ItemProperties.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\jconfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\jmorecfg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\jpegcompress.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\jpeglib.h
 # End Source File
 # Begin Source File
 
@@ -638,6 +682,10 @@ SOURCE=.\PaletteEdit.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Polygon.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\progressbar.h
 # End Source File
 # Begin Source File
@@ -655,6 +703,10 @@ SOURCE=.\readers.h
 # Begin Source File
 
 SOURCE=.\Resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\resource.hm
 # End Source File
 # Begin Source File
 
@@ -730,11 +782,23 @@ SOURCE=.\tbg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\TextView.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TisDialog.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\tispack.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\tlkhandler.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TormentCre.h
 # End Source File
 # Begin Source File
 

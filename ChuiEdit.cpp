@@ -52,7 +52,7 @@ IDC_BUTTONFRAME1,IDC_BUTTONFRAME2, IDC_BUTTONFRAME3,IDC_BUTTONFRAME4,
 
 static int progressboxids[]={IDC_SLIDERMOS, IDC_BAM, IDC_BROWSE2,
 IDC_BAM2, IDC_BROWSE3, IDC_CYCLE, IDC_BUTTONCYCLE, IDC_BAM3, IDC_BROWSE4, 
-IDC_BAMFRAME3, IDC_STEPS,
+IDC_BAMFRAME3, IDC_STEPS, IDC_UNKNOWN1, IDC_UNKNOWN2, IDC_UNKNOWN3, IDC_UNKNOWN4,
 0};
 
 static int sliderboxids[]={IDC_BAM, IDC_BROWSE2, IDC_BAM2, IDC_BROWSE3,
@@ -161,6 +161,10 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     StoreResref(tmpstr,cc->bam);
     DDX_Text(pDX, IDC_CYCLE, cc->cycle);
     DDX_Text(pDX, IDC_BAMFRAME3, cc->jumpcount);
+    DDX_Text(pDX, IDC_UNKNOWN1, cc->xpos);
+    DDX_Text(pDX, IDC_UNKNOWN2, cc->ypos);
+    DDX_Text(pDX, IDC_UNKNOWN3, cc->xposcap);
+    DDX_Text(pDX, IDC_UNKNOWN4, cc->yposcap);
     }
     break;
   case CC_SLIDER:
@@ -567,6 +571,11 @@ restart:
     {
     case -4:
       MessageBox("User interface loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+      itemname=m_getfiledlg.GetFileTitle();
+      itemname.MakeUpper();
+      break;
+    case 2: case 3:
+      MessageBox("User interface is crippled (size corrected).","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
@@ -1233,7 +1242,14 @@ void CChuiEdit::OnBrowse4()
     {
     chui_progress *cc=(chui_progress *) the_chui.extensions[pos2];
 
-    pickerdlg.m_restype=REF_BAM;
+    if(cc->jumpcount)
+    {
+      pickerdlg.m_restype=REF_BAM;
+    }
+    else
+    {
+      pickerdlg.m_restype=REF_MOS;
+    }
     RetrieveResref(pickerdlg.m_picked,cc->bam);
     if(pickerdlg.DoModal()==IDOK)
     {
@@ -1433,6 +1449,11 @@ void CChuiEdit::OnPreview()
         if(!read_mos(tmpstr, &tmp_mos, true))
         {
           tmp_mos.MakeBitmap(TRANSPARENT_GREEN,the_mos,mode,the_chui.controls[pos2].xpos,the_chui.controls[pos2].ypos);
+        }
+        RetrieveResref(tmpstr,cc->mos2);
+        if(!read_mos(tmpstr, &tmp_mos, true))
+        {
+          tmp_mos.MakeBitmap(TRANSPARENT_GREEN,the_mos,mode,the_chui.controls[pos2].xpos+cc->xpos,the_chui.controls[pos2].ypos+cc->ypos);
         }
       }
       break;

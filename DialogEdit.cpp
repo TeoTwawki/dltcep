@@ -573,21 +573,27 @@ void CDialogEdit::DisplayText()
     switch(m_activesection)
     {
     case FL_TEXT:
+      m_label="Actor text";
       m_strref=the_dialog.dlgstates[key].actorstr; 
       m_text=resolve_tlk_text(m_strref);
       m_sound=resolve_tlk_soundref(m_strref);
       m_tagcontrol.SetCheck(resolve_tlk_tag(m_strref));
-      m_label="Actor text";
       break;
     case FL_CONDITION:
+      m_label="Trigger condition";
+      if(tmpidx>=the_dialog.sttriggercount)
+      {
+        the_dialog.dlgstates[key].stindex=-1;
+        m_text="<invalid reference>";
+        break;
+      }
       m_text=the_dialog.sttriggers[tmpidx];
       m_text.Replace("\r","");
       m_text.Replace("\n","\r\n");
-      m_label="Trigger condition";
       break;
     default:
-      m_text="";
       m_label="";
+      m_text="";
     }
     return;
   }
@@ -599,32 +605,44 @@ void CDialogEdit::DisplayText()
     switch(m_activesection)
     {
     case FL_OPTION:
+      m_label="Player text";
       m_strref=the_dialog.dlgtrans[key].playerstr;
       m_text=resolve_tlk_text(m_strref);
       m_sound=resolve_tlk_soundref(m_strref);
       m_tagcontrol.SetCheck(resolve_tlk_tag(m_strref));
-      m_label="Player text";
       break;
     case FL_CONDITION:
+      m_label="Enable condition";
       tmpidx=the_dialog.dlgtrans[key].trtrindex;
+      if(tmpidx>=the_dialog.trtriggercount)
+      {
+        the_dialog.dlgtrans[key].trtrindex=-1;
+        m_text="<invalid reference>";
+        break;
+      }
       m_text=the_dialog.trtriggers[tmpidx];
       m_text.Replace("\r","");
       m_text.Replace("\n","\r\n");
-      m_label="Enable condition";
       break;
     case FL_ACTION:
+      m_label="Action";
       tmpidx=the_dialog.dlgtrans[key].actionindex;
+      if(tmpidx>=the_dialog.actioncount)
+      {
+        m_text="<invalid reference>";
+        the_dialog.dlgtrans[key].actionindex=-1;
+        break;
+      }
       m_text=the_dialog.actions[tmpidx];
       m_text.Replace("\r","");
       m_text.Replace("\n","\r\n");
-      m_label="Action";
       break;
     case FL_JOURNAL:
+      m_label="Journal entry";
       m_strref=the_dialog.dlgtrans[key].journalstr;
       m_text=resolve_tlk_text(m_strref);
       m_sound=resolve_tlk_soundref(m_strref);
       m_tagcontrol.SetCheck(resolve_tlk_tag(m_strref));
-      m_label="Journal entry";
       break;
     default:
       m_text="";

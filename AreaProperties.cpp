@@ -5107,6 +5107,7 @@ int CAreaDoor::AddWedDoor(CString doorid)
   wed_door *newweddoors;
   wed_polygon *newpolygonheaders;
   area_vertex *newvertex;
+  short *newtiles;
 
   if(!the_area.WedAvailable())
   {
@@ -5169,6 +5170,9 @@ int CAreaDoor::AddWedDoor(CString doorid)
   the_area.wedvertexheaderlist.AddTail(newvertex);  
 
   the_area.weddoorcount=the_area.wedheader.doorcnt;
+
+  newtiles=new short[0];
+  the_area.doortilelist.AddTail(newtiles);
   return 0;
 }
 

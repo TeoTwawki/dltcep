@@ -175,17 +175,20 @@ void CWedTile::RefreshFields()
   DWORD i;
   DWORD tilenum;
 
-  if(m_overlay==-1) tilenum=m_pdooridx[m_tilenum];
-  else tilenum=m_tilenum;
   m_firstindex=m_indexpicker.GetCurSel();
   if(m_firstindex<0) m_firstindex=0;
   m_indexpicker.ResetContent();
-  for(i=0;i<m_ptileheader[tilenum].counttileprimary;i++)
+  if(m_tilenum!=-1)
   {
-    tmpstr.Format("%d %d",i+1, m_ptileidx[i+m_ptileheader[tilenum].firsttileprimary]);
-    m_indexpicker.AddString(tmpstr);
+    if(m_overlay==-1) tilenum=m_pdooridx[m_tilenum];
+    else tilenum=m_tilenum;
+    for(i=0;i<m_ptileheader[tilenum].counttileprimary;i++)
+    {
+      tmpstr.Format("%d %d",i+1, m_ptileidx[i+m_ptileheader[tilenum].firsttileprimary]);
+      m_indexpicker.AddString(tmpstr);
+    }
+    if(m_firstindex<0 || m_firstindex>=(int) i) m_firstindex=0;
   }
-  if(m_firstindex<0 || m_firstindex>=(int) i) m_firstindex=0;
   m_indexpicker.SetCurSel(m_firstindex);
   RefreshDialog();
 }

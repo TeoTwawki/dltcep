@@ -44,9 +44,6 @@ public:
   wed_polygon *wallpolygonheaders;
   short *polygonindices; //wallgroup polygon indices
   area_vertex *wedvertices; //a wed vertex is the same as an area vertex (POINTS)
-  //CleanupVertices will separate wedvertices into these parts
-//  area_vertex *wallgroupvertices;
-//  area_vertex *doorvertices; 
 
   unsigned short m_width, m_height;
   unsigned char *searchmap;

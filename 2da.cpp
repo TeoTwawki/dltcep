@@ -2553,10 +2553,10 @@ void C2da::OrderByColumn(int column, int numeric)
 
   data2=new CPtrList;
   if(!data2) return; //can't order it due to low memory
-  pos=the_2da.data->GetHeadPosition();
+  pos=data->GetHeadPosition();
   while(pos)
   {
-    tmppoi=(CString *) the_2da.data->GetNext(pos);
+    tmppoi=(CString *) data->GetNext(pos);
     if(numeric)
     {
       val=strtonum(tmppoi[column]);
@@ -2584,18 +2584,36 @@ void C2da::OrderByColumn(int column, int numeric)
     if(pos3) data2->InsertAfter(pos3,tmppoi);
     else data2->AddHead(tmppoi);
   }
-  delete the_2da.data; //we must not delete referenced data members
-	the_2da.data=data2;
+  delete data; //we must not delete referenced data members
+	data=data2;
 }
 
 CString C2da::GetValue(int row, int col)
 {
   CString *tmppoi;
 
+  if(!data) return defvalue;
   if(rows<=row) return defvalue;
   if(cols<=col) return defvalue;
-  tmppoi=(CString *) the_2da.data->GetAt(the_2da.data->FindIndex(row));
+  tmppoi=(CString *) data->GetAt(data->FindIndex(row));
   return tmppoi[col];
+}
+
+CString C2da::FindValue(CString key, int col)
+{
+  CString *tmppoi;
+  POSITION pos;
+  int i;
+
+  if(!data) return defvalue;
+  if(cols<=col) return defvalue;
+  pos=data->GetHeadPosition();
+  for(i=0;i<rows;i++)
+  {
+    tmppoi=(CString *) data->GetNext(pos);
+    if(tmppoi[0]==key) return tmppoi[col];
+  }
+  return defvalue;
 }
 
 int C2da::Write2DAToFile(int fhandle)
