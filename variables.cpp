@@ -64,8 +64,8 @@ int add_death_variable(char *varname)
 
   if(pst_compatible_var())
   {
-    varmax=32;
-    format="KAPUTZ%.32s";
+    varmax=27;
+    format="KAPUTZ%.27s_dead";
   }
   else
   {
@@ -370,7 +370,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     if(chkflg&NODVARCH) return 0;
     if(pst_compatible_var())
     {
-      varname="KAPUTZ"+varname;
+      varname="KAPUTZ"+varname+"_dead";
     }
     else
     {

@@ -543,7 +543,7 @@ void CWeiDUOpt::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_PARAM, weiduextra);
   DDX_Text(pDX, IDC_DECOMPILED, weidudecompiled);
   j=1;
-  for(i=0;i<4;i++)
+  for(i=0;i<5;i++)
   {
     cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
     cb->SetCheck(!!(weiduflg&j));
@@ -556,11 +556,12 @@ void CWeiDUOpt::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CWeiDUOpt, CDialog)
 	//{{AFX_MSG_MAP(CWeiDUOpt)
 	ON_EN_KILLFOCUS(IDC_PARAM, OnKillfocusParam)
+	ON_BN_CLICKED(IDC_OPENFILE, OnOpenfile)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
-	ON_BN_CLICKED(IDC_OPENFILE, OnOpenfile)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
 	ON_BN_CLICKED(IDC_LOG, OnLog)
 	ON_EN_KILLFOCUS(IDC_DECOMPILED, OnKillfocusDecompiled)
 	//}}AFX_MSG_MAP
@@ -654,6 +655,12 @@ void CWeiDUOpt::OnFlag3()
 void CWeiDUOpt::OnFlag4() 
 {
 	weiduflg^=WEI_TEXT;
+  Refresh();
+}
+
+void CWeiDUOpt::OnFlag5() 
+{
+	weiduflg^=WEI_GAMETYPE;
   Refresh();
 }
 

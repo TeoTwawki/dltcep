@@ -521,7 +521,6 @@ void CChitemDlg::log(CString format, ...)
   if(logtype==LOG_SCREEN)
   {
     m_etitle="Event log:";
-    m_event_control.SetReadOnly(true);
   }
   if(format.IsEmpty())
   {
@@ -4445,18 +4444,19 @@ void CChitemDlg::OnLookupstrref()
 }
 
 /////////////////////////////////////
-#define IE_ANI_CODE_MIRROR		0
-#define IE_ANI_ONE_FILE		  	1
-#define IE_ANI_TWO_FILES		  2
+#define IE_ANI_CODE_MIRROR		0   //9 orientations +7 software mirrored (characters)
+#define IE_ANI_ONE_FILE		  	1   //all 16 orientations in one file
+#define IE_ANI_TWO_FILES		  2   //all 16 orientations in one file plus walking
 #define IE_ANI_FOUR_FILES		  3
 #define IE_ANI_CODE_MIRROR_2	4
 #define IE_ANI_ONE_FILE_2		  5 
-#define IE_ANI_TWO_FILES_2		6
+#define IE_ANI_TWENTYFOUR 		6   //24 files, including east files G1 contains more states
 #define IE_ANI_CODE_MIRROR_3	7
 #define IE_ANI_ONE_FILE_3		  8
 #define IE_ANI_TWO_FILES_3		9
-#define IE_ANI_PST_ANIMATION_1	10
-#define IE_ANI_PST_GHOST		  11
+#define IE_ANI_PST_ANIMATION_1	16
+#define IE_ANI_PST_GHOST		  17
+#define IE_ANI_PST_STAND		  18
 
 //technical types
 #define IE_ANI_ONE_FILEG1	  	1001
@@ -4465,16 +4465,36 @@ int DetermineMirrorType(CString prefix, CString &resref)
 {
   loc_entry tmploc;
 
+  if(icons.Lookup(resref=prefix+"1W2E", tmploc) ) //old bg anims like uelm, usar, udrz
+  {//anims are mirrored, and split into many parts, there is also armor level1 used
+   //casting, shooting anims may miss
+   //a1, a3, a5 - two handed attacks (slash, backslash, jab)
+   //a2 - slash
+   //a4 - backslash
+   //a6 - jab
+   //ca - cast
+   //sa - bow shot
+   //sl - sling shot
+   //sx - xbow shot
+   //w2 - only walking anim
+   //g1 - 0-7 walk, 8-15 fidget, 16-23 head-turn, 24 - stand, 32 - stand,  40 -  get hit, 48 - die, 56 - twitch
+    return IE_ANI_TWENTYFOUR; //charanim, with mirrors premade, 8 orientations in one file
+  }
+  if(icons.Lookup(resref=prefix+"2W2E",tmploc))
+  {
+    return IE_ANI_TWENTYFOUR; //charanim, with mirrors premade
+  }
+
   if(icons.Lookup(resref=prefix+"1CA",tmploc))
   {
-    return IE_ANI_CODE_MIRROR; //character animation type
+    return IE_ANI_CODE_MIRROR; //character animation type, 9 orientations
   }
   if(icons.Lookup(resref=prefix+"2CA",tmploc))
   {
     return IE_ANI_CODE_MIRROR; //character animation type (missing first armourlevel)
   }
 
-  if(icons.Lookup(resref=prefix+"G14",tmploc))
+  if(icons.Lookup(resref=prefix+"G15",tmploc)) //death animation for this anim type
   {
     return IE_ANI_CODE_MIRROR_2;
   }
@@ -4484,7 +4504,7 @@ int DetermineMirrorType(CString prefix, CString &resref)
     return IE_ANI_FOUR_FILES;
   }
 
-  if(icons.Lookup(resref=prefix+"GUE", tmploc) )
+  if(icons.Lookup(resref=prefix+"WKE", tmploc) )
   {
     return IE_ANI_TWO_FILES_3;
   }
@@ -4503,9 +4523,22 @@ int DetermineMirrorType(CString prefix, CString &resref)
     return IE_ANI_ONE_FILE;
   }
 
-  if(icons.Lookup(resref="DSTD"+prefix, tmploc) )
+  if(icons.Lookup(resref="CWLK"+prefix, tmploc) )
   {
     return IE_ANI_PST_ANIMATION_1;
+  }
+  if(icons.Lookup(resref="DWLK"+prefix, tmploc) )
+  {
+    return IE_ANI_PST_ANIMATION_1;
+  }
+
+  if(icons.Lookup(resref="CSTD"+prefix, tmploc) )
+  {
+    return IE_ANI_PST_STAND;
+  }
+  if(icons.Lookup(resref="DSTD"+prefix, tmploc) )
+  {
+    return IE_ANI_PST_STAND;
   }
   return -1;
 }
@@ -4531,41 +4564,71 @@ CString ArmourLevel(CString prefix, int armortype, int armourlevel)
   return prefix;
 }
 
-// this is just a hack, but should be effective
-int Orient(int mirrortype)
-{
-  if(mirrortype==1) return 16;
-  if(mirrortype==2) return 5;
-  return 9;
-}
-
 //this will try to determine the size of the image
-int Space(CString prefix, int /*mt*/)
+//it will also alter the animation type
+int Space(CString prefix, int &mt)
 {
   loc_entry tmploc;
   int fhandle;
   int space;
+  int cc, goodcc;
+  CString resref;
+  CPoint dim;
 
+  switch(mt)
+  {
+  case IE_ANI_CODE_MIRROR:
+    resref=prefix+"2G11";  //walking character animations (bg2)
+    goodcc=99;
+    break;
+  case IE_ANI_TWO_FILES_3:
+    resref=prefix+"WK"; //walking anim (iwd)
+    goodcc=5;
+    break;
+  case IE_ANI_TWENTYFOUR:
+    resref=prefix+"1W2"; //walking anim (old npcs in bg2)
+    goodcc=8;
+    break;
+  case IE_ANI_CODE_MIRROR_2:
+    resref=prefix+"G11"; // walking anim
+    goodcc=54; //9*6
+    break;
+  case IE_ANI_ONE_FILE:
+  case IE_ANI_TWO_FILES:
+  case IE_ANI_FOUR_FILES:
+    resref=prefix+"G1";
+    goodcc=48;
+    break;
+  default:
+    goodcc=1;
+  }
   space=0;
+  cc=0;
   the_bam.new_bam();
-  if(!icons.Lookup(prefix,tmploc) )
+  if(!icons.Lookup(resref,tmploc) )
   {
     return -1;
   }
   fhandle=locate_file(tmploc,0);
   if(fhandle>0)
   {
-    if(the_bam.ReadBamFromFile(fhandle,tmploc.size,true))
+    if(the_bam.ReadBamFromFile(fhandle,tmploc.size,false)==0)
     {
-      //the_bam.m_header.chCycleCount;
+      cc=the_bam.m_header.chCycleCount;
     }
     close(fhandle);
+    if(cc!=goodcc)
+    {
+      return 0;
+    }
+    dim=the_bam.GetFrameSize(the_bam.GetFrameIndex(0,0) );
+    space=dim.x/24+1;
     return space;
   }
   return -1;
 }
 
-//this function tries to build avatars.2da, but it depends on a rather clumsy file
+//this function tries to build avatars.2da, but it depends on a rather unreliable file
 //called anisnd.ids. It is by no means correct. For example MSLM instead of MSLI
 void CChitemDlg::OnAvatars() 
 {
@@ -4592,9 +4655,10 @@ void CChitemDlg::OnAvatars()
 void CChitemDlg::CheckPrefix(CString key, int value)
 {
   CString prefix, output, resref;
-  int mt, space;
+  int mt, space, nopal;
 
   if(value<0x1000) return;
+  nopal=0;
   resref.Empty();
   mt=key.Find(' ');
   if(mt<4 || mt>5) return;
@@ -4639,11 +4703,14 @@ void CChitemDlg::CheckPrefix(CString key, int value)
     mt=IE_ANI_ONE_FILE;
     prefix+="G1";
   }
-  space=Space(resref,mt); //also loads the_bam
+  space=Space(prefix,mt); //also loads the_bam
   //                   1  2 3  4 mt ori sp
-  output.Format("0x%04X %s %s %s %s %d %d %d", value, ArmourLevel(prefix,mt,1), ArmourLevel(prefix,mt,2),
-    ArmourLevel(prefix,mt,3), ArmourLevel(prefix,mt,4), mt, Orient(mt), space);
-  log("%s",output);
+  if(mt!=-1)
+  {
+    output.Format("0x%04X %s %s %s %s %d %d %d", value, ArmourLevel(prefix,mt,1), ArmourLevel(prefix,mt,2),
+      ArmourLevel(prefix,mt,3), ArmourLevel(prefix,mt,4), mt, space, nopal);
+    log("%s",output);
+  }
 }
 
 void CChitemDlg::OnCancel() 

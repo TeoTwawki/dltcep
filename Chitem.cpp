@@ -2311,7 +2311,7 @@ int feature_resource(int feature)
     return REF_WAV;
   case 177: case 248: case 249: case 272: case 283:
     return REF_EFF;
-  case 214: case 298:
+  case 127: case 214: case 298:
     return REF_2DA;
   case 187:  //in PST this used to be some BAM resource
   case 191:  //PST
@@ -2864,74 +2864,80 @@ CString get_compile_error(int ret)
   switch(ret)
   {
     //didn't pass the raw base level parsing
-  case -1:
+  case CE_MISSING_FUNCTION_NAME:
     return "Missing opening bracket or empty function name";
-  case -2:
+  case CE_MISSING_CLOSING_BRACKET:
     return "No closing bracket";
-  case -3:
+  case CE_MISSING_CLOSING_PARENTHESES:
+    return "No closing parentheses";
+  case CE_NON_EXISTENT_FUNCTION:
     return "Non existent function";
-  case -4:
+  case CE_WRONG_ARGUMENT_NUMBER:
     return "Argument number doesn't match definition";
-  case -5:
+  case CE_WRONG_ARGUMENT_TYPE:
     return "Argument type doesn't match definition";
-  case -6:
+  case CE_WRONG_QUOTES:
     return "Missing quotes or invalid string value";
-  case -7:
+  case CE_EXTRA_CLOSING_BRACKET:
     return "Too many closing brackets";
-  case -8:
+  case CE_EXTRA_CLOSING_PARENTHESES:
+    return "Too many closing parentheses";
+  case CE_TOO_MANY_ARGUMENTS:
     return "Too many arguments";
     //didn't pass argument type matching
-  case -9:
+  case CE_FUNCTION_NOT_TERMINATED:
     return "Function is not properly terminated";
-  case -10:
+  case CE_INVALID_OBJECT:
     return "Not an object";    //complex :)
-  case -11:
+  case CE_INVALID_POINT:
     return "Not a point";     //two numbers enclosed in square brackets and separated by comma
-  case -12:
+  case CE_INVALID_IDS_SYMBOL:
     return "Not a valid IDS value"; //listed in IDS
-  case -13:
+  case CE_INVALID_STRING:
     return "Not a string";    //enclosed in double quotes
-  case -14:
+  case CE_INVALID_SCOPE:
     return "Not an area";     //not equal with 6
-  case -15:
+  case CE_INVALID_RESOURCE:
     return "Not a resource";  //longer than 8
-  case -16:
+  case CE_INVALID_VARIABLE:
     return "Not a variable";  //longer than 32
-  case -17:
+  case CE_INVALID_INTEGER:
     return "Not an integer";  //may be missing IDS table in action/trigger
-  case -18:
+  case CE_MISSING_IDS_FILE:
     return "No such IDS file"; //may be a missing IDS file
-  case -19:
+  case CE_TOO_MANY_STRINGS:
     return "Too many string arguments"; //1 area+2 variables or 1 resource, or 2 resources
     //didn't pass range checks
-  case -20:
+  case CE_INVALID_TLK_REFERENCE:
     return "Invalid tlk reference"; //strref >= tlk_entrynum
     //didn't pass recursive matching of nested actions or objects
-  case -22:
+  case CE_INVALID_OBJECT_SYMBOL:
     return "Not a valid object.ids value"; //listed in IDS
-  case -30:
+  case CE_MAXIMUM_FUNCTION_NESTING:
     return "Maximum function nesting level exceeded";
-  case -31:
+  case CE_MAXIMUM_OBJECT_NESTING:
     return "Maximum object nesting level exceeded";
+  case CE_INVALID_ARGUMENT_TYPE:
+    return "Invalid argument type";
     //action or trigger sequencing is incorrect
-  case -40:
+  case CE_TRIGGERS_AFTER_FALSE:
     return "Triggers after False()";
-  case -41:
+  case CE_EXCESS_TRUE:
     return "No need of this True() trigger";
-  case -42:
+  case CE_INCOMPLETE_OR:
     return "Not enough triggers after Or(x)";
-  case -43:
+  case CE_ACTIONS_AFTER_CONTINUE:
     return "Actions after Continue()";
-  case -44:
+  case CE_EMPTY_TOP_LEVEL:
     return "Empty top level condition, use True()";
 
-  case -100:
+  case CE_BAD_IF:
     return "Bad IF";
-  case -110:
+  case CE_BAD_RESPONSE:
     return "Bad RESPONSE";
-  case -120:
+  case CE_BAD_THEN:
     return "Bad THEN";
-  case -130:
+  case CE_BAD_END:
     return "Bad END";
   default:
     return "Unknown error";
@@ -2982,7 +2988,7 @@ CString *explode2(const CString &array, int &count)
       if(quotes==ST_TILDE) break;
       if(quotes)
       {
-        count=-6;  //comma in quotes ???
+        count=CE_WRONG_QUOTES;  //comma in quotes ???
         return 0;
       }
       if(!bracketlevel && !bracketlevel2)
@@ -2995,13 +3001,13 @@ CString *explode2(const CString &array, int &count)
       if(quotes==ST_TILDE) break;
       if(quotes)
       {
-        count=-6;  //bracket in quotes ???
+        count=CE_WRONG_QUOTES;  //bracket in quotes ???
         return 0;
       }
       if(bracketlevel2) bracketlevel2--;
       else
       {
-        count=-7; //error with bracket level2
+        count=CE_EXTRA_CLOSING_BRACKET; //error with bracket level2
         return 0;
       }
       break;
@@ -3009,12 +3015,12 @@ CString *explode2(const CString &array, int &count)
       if(quotes==ST_TILDE) break;
       if(quotes)
       {
-        count=-6;  //bracket in quotes ???
+        count=CE_WRONG_QUOTES;  //bracket in quotes ???
         return 0;
       }
       if(bracketlevel2)
       {
-        count=-2; //no nested square brackets are allowed
+        count=CE_MISSING_CLOSING_BRACKET; //no nested square brackets are allowed
         return 0;
       }
       bracketlevel2++;
@@ -3023,13 +3029,13 @@ CString *explode2(const CString &array, int &count)
       if(quotes==ST_TILDE) break;
       if(quotes)
       {
-        count=-6;  //bracket in quotes ???
+        count=CE_WRONG_QUOTES;  //bracket in quotes ???
         return 0;
       }
       if(bracketlevel) bracketlevel--;
       else
       {
-        count=-7; //error with bracket level
+        count=CE_EXTRA_CLOSING_BRACKET; //error with bracket level
         return 0;
       }
       break;
@@ -3037,26 +3043,31 @@ CString *explode2(const CString &array, int &count)
       if(quotes==ST_TILDE) break;
       if(quotes)
       {
-        count=-6;  //bracket in quotes ???
+        count=CE_WRONG_QUOTES;  //bracket in quotes ???
         return 0;
       }
       if(bracketlevel2)
       {
-        count=-2; //no brackets are allowed in square brackets
+        count=CE_MISSING_CLOSING_BRACKET; //no brackets are allowed in square brackets
         return 0;
       }
       bracketlevel++;
       break;
     }
   }
-  if(bracketlevel || bracketlevel2)
+  if(bracketlevel)
   {
-    count=-2;
+    count=CE_MISSING_CLOSING_PARENTHESES;
+    return 0;
+  }
+  if(bracketlevel2)
+  {
+    count=CE_MISSING_CLOSING_BRACKET;
     return 0;
   }
   if(quotes)
   {
-    count=-6;
+    count=CE_WRONG_QUOTES;
     return 0;
   }
   if(array.GetAt(p2-1)!=',')
@@ -3065,7 +3076,7 @@ CString *explode2(const CString &array, int &count)
   }
   else
   {
-    count=-3;  //, at the end ???
+    count=CE_FUNCTION_NOT_TERMINATED;  //, at the end ???
     return 0;
   }
   
@@ -5196,7 +5207,14 @@ int fill_destination(CString key, CComboBox *cb)
   return -1;
 }
 
-char *weiduflags[]={"--noheader ","--nofrom ","--nocom ","--text "};
+char *weiduflags[]={"--noheader ","--nofrom ","--nocom ","--text ","--script-style "};
+
+CString WeiduGametype()
+{
+  if(pst_compatible_var()) return "PST ";
+  if(iwd2_structures()) return "IWD2 ";
+  return "BG ";
+}
 
 CString AssembleWeiduCommandLine(CString filename, CString outpath)
 {
@@ -5206,11 +5224,12 @@ CString AssembleWeiduCommandLine(CString filename, CString outpath)
 
   flags=weiduextra+" ";
   j=1;
-  for(i=0;i<4;i++)
+  for(i=0;i<5;i++)
   {
     if(weiduflg&j) flags+=weiduflags[i];
     j<<=1;
   }
+  if(weiduflg&WEI_GAMETYPE) flags+=WeiduGametype();
   syscommand.Format("\"%s\" %s--out \"%s\" --tlkout dialog.tlk \"%s\"", weidupath, flags, outpath, filename);
   if(weiduflg&WEI_LOGGING) syscommand+=" --log "+WEIDU_LOG;
   return syscommand;

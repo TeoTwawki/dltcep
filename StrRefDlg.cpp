@@ -532,10 +532,11 @@ void CStrRefDlg::OnKillfocusStrref()
 
 	if(m_strref>tlk_headerinfo.entrynum)
   {
-    old="0";
-    GetDlgItem(IDC_STRREF)->SetWindowText(old);
-    UpdateData(UD_DISPLAY);
+    m_strref=0;
   }
+  old.Format("%d",m_strref);
+  GetDlgItem(IDC_STRREF)->SetWindowText(old);
+  UpdateData(UD_DISPLAY);
 }
 
 void CStrRefDlg::OnChecksound() 

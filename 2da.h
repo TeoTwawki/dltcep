@@ -49,6 +49,7 @@ public:
   int CopyRow(int row);
   int PasteColumn(int col);
   int PasteRow(int row);
+  void OrderByColumn(int column, int integers);
   CString GetValue(int row, int col);
   void inline killcopyrow()
   {
@@ -72,7 +73,7 @@ public:
   CString *copycol;
   int ccols;
   CString *collabels;
-  CPtrList data;
+  CPtrList *data;
 };
 
 class Cids

@@ -70,6 +70,7 @@ protected:
 	afx_msg void OnSave();
 	afx_msg void OnToolsCapitalize();
 	afx_msg void OnToolsLookupstrref();
+	afx_msg void OnOrder();
 	//}}AFX_MSG
 	afx_msg void OnKillfocusEditlink();
   afx_msg void OnCustomdrawMyList ( NMHDR* pNMHDR, LRESULT* pResult );

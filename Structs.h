@@ -1989,7 +1989,7 @@ typedef struct {
 typedef struct
 {
   int bytes[14]; //iwd2 12, others 6
-  int area[4];   //only in iwd2
+  int area[4];   //only in pst, iwd
   char var[32];
   int bytes2[2]; //only in iwd2
 } object;
@@ -2043,7 +2043,7 @@ class trigger
 {
 public:
   int opcode;
-  int bytes[4];
+  int bytes[6]; //PST triggers got 2 extra bytes (points)
   char var1[6+32+1];
   char var2[6+32+1];
   object trobj;

@@ -97,12 +97,13 @@ BEGIN_MESSAGE_MAP(C2DAEdit, CDialog)
 	ON_BN_CLICKED(IDC_ROW2, OnRow2)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_TOOLS_CAPITALIZEENTRIES, OnToolsCapitalize)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	ON_EN_KILLFOCUS(IDC_DEFAULT, DefaultKillfocus)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
+	ON_BN_CLICKED(IDC_ORDER, OnOrder)
 	//}}AFX_MSG_MAP
   ON_EN_KILLFOCUS(IDC_EDITLINK,OnKillfocusEditlink)
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_2DA, OnCustomdrawMyList)
@@ -295,10 +296,10 @@ void C2DAEdit::RefreshDialog()
     if(width<50) width=50;
     m_2da_control.InsertColumn(i,the_2da.collabels[i],LVCFMT_LEFT,width);
   }
-  pos=the_2da.data.GetHeadPosition();
+  pos=the_2da.data->GetHeadPosition();
   for(i=0;i<the_2da.rows;i++)
   {
-    tmppoi=(CString *) the_2da.data.GetNext(pos);
+    tmppoi=(CString *) the_2da.data->GetNext(pos);
     m_2da_control.InsertItem(i, tmppoi[0]);
     for(j=1;j<the_2da.cols;j++)
     {
@@ -347,7 +348,7 @@ void C2DAEdit::OnEndlabeledit2da(NMHDR* pNMHDR, LRESULT* pResult)
   {
     tmpstr=pDispInfo->item.pszText;
 	  m_2da_control.SetItemText(pDispInfo->item.iItem, 0, tmpstr);
-    tmppoi=(CString *) the_2da.data.GetAt(the_2da.data.FindIndex(pDispInfo->item.iItem));
+    tmppoi=(CString *) the_2da.data->GetAt(the_2da.data->FindIndex(pDispInfo->item.iItem));
     tmppoi[0]=tmpstr;
   }
 	*pResult = 0;
@@ -526,12 +527,12 @@ void C2DAEdit::OnKillfocusEditlink()
       goto escape;
     }
     m_edit.GetWindowText(tmpstr);
-    pos=the_2da.data.FindIndex(m_item);
+    pos=the_2da.data->FindIndex(m_item);
     if(!pos)
     {
       goto escape;
     }
-    row=(CString *)the_2da.data.GetAt(pos);
+    row=(CString *)the_2da.data->GetAt(pos);
     if(!row)
     {
       goto escape;
@@ -583,10 +584,10 @@ escape:
         }
         else
         {
-          pos=the_2da.data.FindIndex(m_item);
+          pos=the_2da.data->FindIndex(m_item);
           if(pos)
           {
-            row=(CString *)the_2da.data.GetAt(pos);
+            row=(CString *)the_2da.data->GetAt(pos);
             if(row)
             {
               row[m_subitem]=tmpstr;
@@ -610,8 +611,8 @@ void C2DAEdit::OnRow2()
   if(m_item<0) m_item=the_2da.rows;
   tmpstr.Format("Row%d",m_item);
   the_2da.AddRow(m_item, tmpstr, the_2da.defvalue);
-  pos=the_2da.data.FindIndex(m_item);
-  row=(CString *)the_2da.data.GetAt(pos);
+  pos=the_2da.data->FindIndex(m_item);
+  row=(CString *)the_2da.data->GetAt(pos);
   m_2da_control.InsertItem(m_item, tmpstr);
   for(i=0;i<the_2da.cols;i++)
   {
@@ -722,20 +723,31 @@ void C2DAEdit::OnPaste2()
   RefreshDialog();
 }
 
+void C2DAEdit::OnOrder() 
+{
+	if(m_subitem<0)
+  {
+    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+	the_2da.OrderByColumn(m_subitem, m_integer);
+  RefreshDialog();
+}
+
 void C2DAEdit::OnToolsCapitalize() 
 {
   POSITION pos;
   int i,j;
   CString *tmppoi;
 
-  pos=the_2da.data.GetHeadPosition();
+  pos=the_2da.data->GetHeadPosition();
   for(j=0;j<the_2da.cols;j++)
   {
     the_2da.collabels[j].MakeUpper();
   }
 	for(i=0;i<the_2da.rows;i++)
   {
-    tmppoi=(CString *) the_2da.data.GetNext(pos);
+    tmppoi=(CString *) the_2da.data->GetNext(pos);
     for(j=0;j<the_2da.cols;j++)
     {
       tmppoi[j].MakeUpper();

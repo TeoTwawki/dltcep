@@ -899,6 +899,43 @@ extern unsigned long *squares;
 
 int ChiSquare(BYTE *a,BYTE *b);
 
+//return values from compile
+#define CE_MISSING_FUNCTION_NAME    -1
+#define CE_MISSING_CLOSING_PARENTHESES  -2
+#define CE_NON_EXISTENT_FUNCTION    -3
+#define CE_WRONG_ARGUMENT_NUMBER    -4
+#define CE_WRONG_ARGUMENT_TYPE      -5
+#define CE_WRONG_QUOTES             -6
+#define CE_EXTRA_CLOSING_PARENTHESES    -7
+#define CE_TOO_MANY_ARGUMENTS       -8
+#define CE_FUNCTION_NOT_TERMINATED  -9
+#define CE_INVALID_OBJECT           -10
+#define CE_INVALID_POINT            -11
+#define CE_INVALID_IDS_SYMBOL       -12
+#define CE_INVALID_STRING           -13
+#define CE_INVALID_SCOPE            -14
+#define CE_INVALID_RESOURCE         -15
+#define CE_INVALID_VARIABLE         -16
+#define CE_INVALID_INTEGER          -17
+#define CE_MISSING_IDS_FILE         -18
+#define CE_TOO_MANY_STRINGS         -19
+#define CE_INVALID_TLK_REFERENCE    -20
+#define CE_MISSING_CLOSING_BRACKET  -21
+#define CE_EXTRA_CLOSING_BRACKET    -22
+#define CE_INVALID_OBJECT_SYMBOL    -23
+#define CE_MAXIMUM_FUNCTION_NESTING -30
+#define CE_MAXIMUM_OBJECT_NESTING   -31
+#define CE_INVALID_ARGUMENT_TYPE    -32
+#define CE_TRIGGERS_AFTER_FALSE     -40
+#define CE_EXCESS_TRUE              -41
+#define CE_INCOMPLETE_OR            -42
+#define CE_ACTIONS_AFTER_CONTINUE   -43
+#define CE_EMPTY_TOP_LEVEL          -44
+#define CE_BAD_IF                   -100
+#define CE_BAD_RESPONSE             -110
+#define CE_BAD_THEN                 -120
+#define CE_BAD_END                  -130
+
 int compile_trigger(CString line, trigger &trigger);
 int compile_action(CString line, action &action, bool inoverride);
 int handle_trigger(int opcode);

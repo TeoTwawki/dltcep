@@ -11,7 +11,8 @@
 #define WEI_NOFROM   2
 #define WEI_NOCOM    4
 #define WEI_TEXT     8
-#define WEI_LOGGING 0x8000
+#define WEI_GAMETYPE 16
+#define WEI_LOGGING  0x8000
 
 #define NOREFCHK 1    //string ref
 #define NOITEMCH 2    //broken item reference
@@ -252,6 +253,7 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnLog();
 	afx_msg void OnKillfocusDecompiled();
+	afx_msg void OnFlag5();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
