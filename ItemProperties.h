@@ -136,6 +136,7 @@ protected:
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
+	afx_msg void OnBrowse();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -438,36 +439,24 @@ protected:
 	afx_msg void OnExtcopy();
 	afx_msg void OnExtadd();
 	afx_msg void OnExtremove();
-	afx_msg void OnKillfocusExttype();
-	afx_msg void OnKillfocusLoc();
-	afx_msg void OnKillfocusTarget();
-	afx_msg void OnKillfocusRange();
-	afx_msg void OnKillfocusProjframe();
-	afx_msg void OnKillfocusSpeed();
 	afx_msg void OnKillfocusUnknown1();
 	afx_msg void OnSelchangeExtheadnum();
-	afx_msg void OnKillfocusIdentify();
 	afx_msg void OnKillfocusThac0();
 	afx_msg void OnKillfocusRoll();
 	afx_msg void OnKillfocusDamagetype();
 	afx_msg void OnKillfocusDie();
 	afx_msg void OnKillfocusAdd();
-	afx_msg void OnKillfocusTargetnum();
 	afx_msg void OnKillfocusTooltiptext();
 	afx_msg void OnKillfocusTooltipref();
 	afx_msg void OnKillfocusStrbonus();
-	afx_msg void OnKillfocusPerday();
+	afx_msg void OnDefaultKillfocus();
 	afx_msg void OnKillfocusAnim1();
 	afx_msg void OnKillfocusAnim2();
 	afx_msg void OnKillfocusAnim3();
-	afx_msg void OnKillfocusCharges();
-	afx_msg void OnKillfocusUnknown2();
-	afx_msg void OnKillfocusUnknown3();
 	afx_msg void OnBow();
 	afx_msg void OnXbow();
 	afx_msg void OnMisc();
 	afx_msg void OnKillfocusExtuseicon();
-	afx_msg void OnKillfocusProjid();
 	afx_msg void OnUseicon();
 	afx_msg void OnEdit();
 	afx_msg void OnId();
@@ -475,6 +464,8 @@ protected:
 	afx_msg void OnSelchangeMelee();
 	afx_msg void OnFlag1();
 	afx_msg void OnFlag2();
+	afx_msg void OnRecharges();
+	afx_msg void OnStrbonus();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

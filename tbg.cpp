@@ -669,6 +669,7 @@ int Ctbg::collect_itemrefs()
     return -3;
   }
   strrefcount=count;
+
   strrefs[pos]=calc_offset(the_item.header, unidref);
   if(!resolve_tbg_entry(the_item.header.unidref,tlkentries[pos])) pos++;
   strrefs[pos]=calc_offset(the_item.header, idref);
@@ -717,6 +718,7 @@ int Ctbg::collect_spellrefs()
     return -3;
   }
   strrefcount=count;
+
   strrefs[pos]=calc_offset(the_spell.header, desc);
   if(!resolve_tbg_entry(the_spell.header.desc,tlkentries[pos])) pos++;
   strrefs[pos]=calc_offset(the_spell.header, spellname);
@@ -757,6 +759,7 @@ int Ctbg::collect_storerefs()
     return -3;
   }
   strrefcount=count;
+
   strrefs[pos]=calc_offset(the_store.header, strref);
   if(!resolve_tbg_entry(the_store.header.strref,tlkentries[pos])) pos++;
   for(i=0;i<the_store.header.drinkcount;i++)
@@ -796,6 +799,7 @@ int Ctbg::collect_effectrefs()
     return -3;
   }
   strrefcount=count;
+
   strrefs[0]=calc_offset(the_effect.header,par1.parl);
   if(!resolve_tbg_entry(the_effect.header.par1.parl,tlkentries[0])) pos=1;
   header.tlkentrycount=pos;   //logical size
@@ -822,6 +826,7 @@ int Ctbg::collect_arearefs()
     return -3;
   }
   strrefcount=count;
+
   for(i=0;i<the_area.containercount;i++)
   {
     strrefs[pos]=the_area.header.containeroffset+calc_offset2(the_area.containerheaders[0],the_area.containerheaders[i].strref);
@@ -877,6 +882,7 @@ int Ctbg::collect_creaturerefs(int alternate)
     return -3;
   }
   strrefcount=count;
+
   if(!alternate)
   {
     strrefs[pos]=calc_offset(the_creature.header, longname);
@@ -946,6 +952,7 @@ int Ctbg::collect_worldmaprefs()
     return -3;
   }
   strrefcount=count;
+
   for(i=0;i<the_map.mapcount;i++)
   {
     strrefs[pos]=sizeof(map_mainheader)+calc_offset2(the_map.headers[0],the_map.headers[i].mapname);
@@ -988,6 +995,7 @@ int Ctbg::collect_chuirefs()
     return -3;
   }
   strrefcount=count;
+
   for(i=0;i<the_chui.controlcnt;i++)
   {
     if(the_chui.controls[i].controltype!=CC_LABEL) continue;
@@ -1020,11 +1028,48 @@ int Ctbg::collect_srcrefs()
     delete [] tlkentries;
     return -3;
   }
+  strrefcount=count;
   for(i=0;i<the_src.m_cnt;i++)
   {
     strrefs[pos]=i*2+sizeof(long);
     if(!resolve_tbg_entry(the_src.m_slots[i],tlkentries[pos]) ) pos++;
   }
+  header.tlkentrycount=pos;   //logical size
+  header.strrefcount=pos;
+  return 0;
+}
+
+int Ctbg::collect_dlgrefs()
+{
+  int pos;
+  int count;
+  int i;
+
+  pos=0;
+  count=the_dialog.statecount+the_dialog.transcount*2;
+  tlkentries=new tbg_tlk_reference[count];
+  if(!tlkentries) return -3;
+  tlkentrycount=count;
+  strrefs=new unsigned long[count];
+  if(!strrefs)
+  {
+    delete [] tlkentries;
+    return -3;
+  }
+
+  for(i=0;i<the_dialog.statecount;i++)
+  {
+    strrefs[pos]=the_dialog.header.offstates+calc_offset2(the_dialog.dlgstates[0],the_dialog.dlgstates[i].actorstr);
+    if(!resolve_tbg_entry(the_dialog.dlgstates[i].actorstr,tlkentries[pos]) ) pos++;
+  }
+  for(i=0;i<the_dialog.transcount;i++)
+  {
+    strrefs[pos]=the_dialog.header.offtrans+calc_offset2(the_dialog.dlgtrans[0],the_dialog.dlgtrans[i].playerstr);
+    if(!resolve_tbg_entry(the_dialog.dlgtrans[i].playerstr,tlkentries[pos]) ) pos++;
+    strrefs[pos]=the_dialog.header.offtrans+calc_offset2(the_dialog.dlgtrans[0],the_dialog.dlgtrans[i].journalstr);
+    if(!resolve_tbg_entry(the_dialog.dlgtrans[i].journalstr,tlkentries[pos]) ) pos++;
+  }
+
   header.tlkentrycount=pos;   //logical size
   header.strrefcount=pos;
   return 0;
@@ -1096,6 +1141,10 @@ int Ctbg::ExportFile(int filetype, CString outfilepath)
   case REF_SRC:
     header.filelength=the_src.WriteStringToFile(0,1);
     ret=collect_srcrefs();
+    break;
+  case REF_DLG:
+    header.filelength=the_dialog.WriteDialogToFile(0,1);
+    ret=collect_dlgrefs();
     break;
   default:
     ret=-99;
@@ -1182,6 +1231,7 @@ int Ctbg::ExportFile(int filetype, CString outfilepath)
   case REF_WMP: the_map.WriteMapToFile(fhandle,0); break;
   case REF_CHU: the_chui.WriteChuiToFile(fhandle,0); break;
   case REF_SRC: the_src.WriteStringToFile(fhandle,0); break;
+  case REF_DLG: the_dialog.WriteDialogToFile(fhandle,0); break;
   default: ret=-99;
   }
   for(i=0;i<header.tlkentrycount;i++)
@@ -1375,6 +1425,9 @@ restart:
     res=the_tbg.ExportFile(filetype, filepath);
     switch(res)
     {
+    case -99:
+      MessageBox(pwnd->m_hWnd, "DLTCEP doesn't support this format.","Error",MB_ICONSTOP|MB_OK);
+      break;
     case -3:
       MessageBox(pwnd->m_hWnd, "Out of memory","Error",MB_ICONSTOP|MB_OK);
       break;

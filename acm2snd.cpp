@@ -1,10 +1,7 @@
 #include "stdafx.h"
 //acm2snd.cpp
 // Acm to Wav conversion
-#include <iostream.h>
-#include <stdio.h>
 #include <io.h>
-#include <string.h>
 #include "readers.h"
 #include "general.h"
 #include "riffhdr.h"

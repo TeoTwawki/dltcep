@@ -787,6 +787,7 @@ protected:
 	afx_msg void OnUndo();
 	afx_msg void OnPalette();
 	afx_msg void OnSpecial();
+	afx_msg void OnRefresh();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

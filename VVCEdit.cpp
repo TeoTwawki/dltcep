@@ -28,7 +28,7 @@ CVVCEdit::CVVCEdit(CWnd* pParent /*=NULL*/)
 
 static int tranboxid1[]={0,IDC_TRANSPARENT,0,IDC_BRIGHTEST,IDC_MIRROR,IDC_MIRROR2,0,0};
 static int tranboxid2[]={0,0,0,0,0,0,0,0};
-static int tranboxid3[]={0,0,0,IDC_GREY,0,IDC_GLOW,0,0};
+static int tranboxid3[]={IDC_BLEND,0,0,IDC_GREY,0,IDC_GLOW,0,0};
 static int tranboxid4[]={0,IDC_TINT,0,0,0,0,0,0};
 
 void CVVCEdit::checkflags(int *boxids, int value)
@@ -228,6 +228,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_U2, OnU2)
 	ON_BN_CLICKED(IDC_U3, OnU3)
 	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
+	ON_BN_CLICKED(IDC_MIRROR2, OnMirror2)
 	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG2, DefaultKillfocus)
@@ -265,7 +266,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN40, OnKillfocusSequencing)
-	ON_BN_CLICKED(IDC_MIRROR2, OnMirror2)
+	ON_BN_CLICKED(IDC_BLEND, OnBlend)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -644,9 +645,9 @@ void CVVCEdit::OnMirror2()
   UpdateData(UD_DISPLAY);
 }
 
-void CVVCEdit::OnTint() 
+void CVVCEdit::OnBlend() 
 {
-	the_videocell.header.col2^=2;
+	the_videocell.header.colouring^=1;
   UpdateData(UD_DISPLAY);
 }
 
@@ -659,6 +660,12 @@ void CVVCEdit::OnGlow()
 void CVVCEdit::OnGrey() 
 {
 	the_videocell.header.colouring^=8;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnTint() 
+{
+	the_videocell.header.col2^=2;
   UpdateData(UD_DISPLAY);
 }
 

@@ -90,6 +90,7 @@ public:
   area_variable *variableheaders;
   area_door *doorheaders;
   area_mapnote *mapnoteheaders;
+  pst_area_mapnote *pstmapnoteheaders;
   area_tile *tileheaders;
   char *explored;
   char **credatapointers;
@@ -104,6 +105,8 @@ public:
   int WriteWedToFile(int fh);
   int WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize);
   int ReadActorData();
+  void ConvertFromPstMapnote();
+  void ConvertToPstMapnote();
   int ReadAreaFromFile(int fh, long ml);
   int getotc(int overlay);
   int getfoti(int overlay);
@@ -372,6 +375,11 @@ public:
     {
       delete[] mapnoteheaders;
       mapnoteheaders=NULL;
+    }
+    if(pstmapnoteheaders)
+    {
+      delete[] pstmapnoteheaders;
+      pstmapnoteheaders=NULL;
     }
     mapnotecount=0;
   }

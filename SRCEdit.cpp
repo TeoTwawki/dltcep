@@ -112,7 +112,7 @@ void CSRCEdit::RefreshControl()
     m_text="";
     m_soundref="";
   }
-  m_spincontrol.SetRange(1,the_src.m_cnt);
+  m_spincontrol.SetRange32(1,the_src.m_cnt);
   UpdateData(UD_DISPLAY);
 }
 

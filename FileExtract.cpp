@@ -322,7 +322,8 @@ CFileExtract3::CFileExtract3(CWnd* pParent /*=NULL*/)
 	m_filename = _T("");
 	m_filemask = _T("");
 	//}}AFX_DATA_INIT
-  cbf_or_sav=0;  //sav=0, cbf=1
+  cbf_or_sav=false;  //sav=0, cbf=1
+  skim_sav=false;    //skim = 1
 }
 
 
@@ -390,7 +391,7 @@ void CFileExtract3::OnSelchangeFiletype()
   idx=m_filetype_control.GetCurSel();
   if(idx>=0)
   {
-    m_filetype=objexts[idx];
+    m_filetype_control.GetLBText(idx, m_filetype);
   }
   else m_filetype="";
 }
@@ -400,7 +401,7 @@ void CFileExtract3::OnOK()
   CString tmpstr;
   char header[8];
   int maxlen;
-  int finput;
+  int finput, fhandle;
   int ret;
 
   UpdateData(UD_RETRIEVE);
@@ -428,11 +429,35 @@ void CFileExtract3::OnOK()
     goto endofquest;
   }
 
+  if(skim_sav)
+  {
+    fhandle = open(m_filename+".tmp",O_BINARY|O_RDWR|O_TRUNC|O_CREAT|O_SEQUENTIAL,
+      S_IREAD|S_IWRITE);
+    if(fhandle<1)
+    {
+      goto endofquest;
+    }
+    if(write(fhandle,"SAV V1.0",8)!=8)
+    {
+      goto endofquest;
+    }
+  }
+  else
+  {
+    fhandle=0;
+  }
   maxlen=filelength(finput)-sizeof(header);
   if(m_filetype==".*") m_filetype.Empty();
   do
   {
-    ret=extract_from_cbf(m_filemask, m_filetype, finput, m_override,maxlen);
+    if(skim_sav)
+    {
+      ret=remove_from_sav(m_filemask, m_filetype, finput, maxlen, fhandle);
+    }
+    else
+    {
+      ret=extract_from_cbf(m_filemask, m_filetype, finput, m_override,maxlen);
+    }
     switch(ret)
     {
     case 3:
@@ -464,11 +489,20 @@ void CFileExtract3::OnOK()
     }
   }
   while(!ret);
-	
-  if(m_num_extract) tmpstr.Format("Extracted %d file(s)",m_num_extract);
-  else tmpstr.Format("Couldn't find any files to exact.");
+
+  if(skim_sav)
+  {
+    if(m_num_extract) tmpstr.Format("Copied %d file(s)",m_num_extract);
+    else tmpstr.Format("Couldn't find any files to spare.");
+  }
+  else
+  {
+    if(m_num_extract) tmpstr.Format("Extracted %d file(s)",m_num_extract);
+    else tmpstr.Format("Couldn't find any files to exact.");
+  }
   MessageBox(tmpstr,"Extract",MB_ICONINFORMATION|MB_OK);
 endofquest:
+  if(fhandle>0) close(fhandle);
   close(finput);
 }
 
@@ -477,21 +511,27 @@ BOOL CFileExtract3::OnInitDialog()
   int i;
 
 	CDialog::OnInitDialog();
-	SetWindowText(CString("Search&extract from ")+(cbf_or_sav?".CBF":".SAV") );
+	if(skim_sav) SetWindowText("Search&remove from .SAV");
+  else SetWindowText(CString("Search&extract from ")+(cbf_or_sav?".CBF":".SAV") );
   m_openfile.SetBitmap(theApp.m_bbmp);
 
   m_filetype_control.ResetContent();
+  if(skim_sav)
+  {
+    m_filetype_control.AddString(".are");
+    m_filetype_control.AddString(".sto");
+    GetDlgItem(IDC_OVERRIDE)->ShowWindow(false);
+    return TRUE;
+  }
   if(cbf_or_sav)
   {
     m_filetype_control.AddString(".*");
     m_filetype_control.AddString(".bif");
+    return TRUE;
   }
-  else
+  for(i=0;i<=NUM_OBJTYPE;i++)
   {
-    for(i=0;i<=NUM_OBJTYPE;i++)
-    {
-      m_filetype_control.AddString(objexts[i]);
-    }
+    m_filetype_control.AddString(objexts[i]);
   }
 	return TRUE;
 }

@@ -1636,7 +1636,6 @@ int compile_trigger(CString line, trigger &trigger)
   int j;
   int p1,p2;
   compiler_data compiler_data;
-//  int chkflag;
   char tmparea[8];
   int ret;
 

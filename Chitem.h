@@ -462,8 +462,8 @@ extern CString DELETED_REFERENCE;
 #define MERGE_VARS 0xff
 
 //store type flags
-#define ST_BUY   1
-#define ST_SELL  2
+#define ST_SELL  1
+#define ST_BUY   2
 #define ST_ID    4
 #define ST_STEAL 8
 #define ST_CURE  16
@@ -797,6 +797,7 @@ long file_date(CString filename);
 bool dir_exists(CString filename);
 int my_system(CString syscommand);
 int copy_file(int finput, int fhandle, int size, int decrypt); //copying data from bifs
+int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhandle);
 int extract_from_cbf(CString key, CString ext, int finput, int override, int &maxlen);
 int decompress_bif(CString bifname, CString cdpath); //this must be a cd bifname
 int write_tis_header(int fhandle, loc_entry fileloc);

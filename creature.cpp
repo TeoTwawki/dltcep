@@ -109,7 +109,6 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
     memcpy(&iwd2header.intstat,&header.intstat,5);
     memcpy(iwd2header.scripts,header.scripts,sizeof(iwd2header.scripts) );
     memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
-    memcpy(&iwd2header.itemslots,&header.itemslots,(IWD2_SLOT_COUNT+2)*sizeof(short) );
     break;
   case 90:
     fullsize=sizeof(creature_iwd_header);
@@ -189,6 +188,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   switch(revision)
   {
   case 22:
+    memcpy(&iwd2header.itemslots,&header.itemslots,5*sizeof(long)+8);
     if(write(fhandle,&iwd2header,sizeof(creature_iwd2_header) )!=sizeof(creature_iwd2_header) )
     { 	
    	  return -2; // short file, invalid item
@@ -533,13 +533,7 @@ int Ccreature::calculate_iwd2(int &fullsize)
 {
   int flg, ret;
   int i,j,k;
-//IWD2_SPELLCOUNT
-  //copying the last part which is common
-//  KillIwd2Spells();
-  memcpy(&iwd2header,&header,((char *) &iwd2header.sfort)-(char *) &iwd2header);
-  memcpy(iwd2header.scripts,header.scripts,sizeof(iwd2header.scripts) );
-  memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
-  memcpy(&iwd2header.itemslots,&header.itemslots,5*sizeof(long)+8);
+
   k=0;
   flg=0;
   for(i=0;i<IWD2_SPSLOTNUM;i++) //7
@@ -594,14 +588,23 @@ redo:
   {
     if(!memcmp(header.filetype,"CHR ",4) )
     {
-      memcpy(&chrheader,header.filetype,8);
-      read(fhandle, ((BYTE *) &chrheader)+8,sizeof(chrheader)-8);
-      maxlen-=sizeof(chrheader);
+      if(memcmp(header.revision,"V2.2",4) )
+      {
+        memcpy(&chrheader,header.filetype,8);
+        read(fhandle, ((BYTE *) &chrheader)+8,sizeof(chrheader)-8);
+        maxlen-=sizeof(chrheader);
+      }
+      else
+      {
+        memcpy(&chriwd2header,header.filetype,8);
+        read(fhandle, ((BYTE *) &chriwd2header)+8,sizeof(chriwd2header)-8);
+        maxlen-=sizeof(chriwd2header);
+      }
       startpoint=tell(fhandle);
       ischr=1;
       goto redo;
     }
-	  return -2;
+    return -2;
   }
 
   //pst: v1.2,  iwd: v9.0 iwd2: v2.2

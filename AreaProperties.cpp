@@ -1157,7 +1157,7 @@ static int triggerboxids[]={IDC_TRIGGERPICKER, IDC_REGIONTYPE, IDC_POS1X, IDC_PO
 IDC_POS2X, IDC_POS2Y, IDC_RECALCBOX, IDC_EDITPOLYGON, IDC_CURSORIDX, IDC_STRREF,
 IDC_DESTAREA, IDC_PARTY, IDC_ENTRANCENAME, IDC_TPOSX, IDC_TPOSY,
 IDC_KEY,IDC_DETECT, IDC_REMOVAL, IDC_SCRIPT, IDC_TRAPPED,IDC_DETECTED, IDC_DIALOG,
-IDC_UNKNOWN30, IDC_INFOSTR, IDC_POS1X2, IDC_POS1Y2,IDC_POS2X2, IDC_POS2Y2,
+IDC_UNKNOWN30, IDC_INFOSTR, IDC_POS1X2, IDC_POS1Y2,
 IDC_FLAGS, IDC_TUNDET, IDC_TRESET, IDC_PARTY, IDC_TDETECT,IDC_TUNK1, IDC_TUNK2,
 IDC_TNPC, IDC_TUNK3, IDC_TDEACTIVATED, IDC_NONPC,
 IDC_TOVERRIDE, IDC_TDOOR, IDC_TUNK4,IDC_TUNK5,IDC_TUNK6,IDC_TUNK7,
@@ -1273,11 +1273,8 @@ void CAreaTrigger::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr, the_area.triggerheaders[m_triggernum].dialogref);
 
-    DDX_Text(pDX, IDC_POS1X2, the_area.triggerheaders[m_triggernum].ovrp1x);
-    DDX_Text(pDX, IDC_POS1Y2, the_area.triggerheaders[m_triggernum].ovrp1y);
-    DDX_Text(pDX, IDC_POS2X2, the_area.triggerheaders[m_triggernum].ovrp2x);
-    DDX_Text(pDX, IDC_POS2Y2, the_area.triggerheaders[m_triggernum].ovrp2y);
-
+    DDX_Text(pDX, IDC_POS1X2, the_area.triggerheaders[m_triggernum].pointx);
+    DDX_Text(pDX, IDC_POS1Y2, the_area.triggerheaders[m_triggernum].pointy);
   }
 }
 #pragma warning(default:4706)   
@@ -1296,7 +1293,7 @@ void CAreaTrigger::RefreshTrigger()
   }
   if(IsWindow(m_triggerpicker) )
   {
-    m_spin_control.SetRange(0,the_bam.GetFrameCount()-1 );
+    m_spin_control.SetRange32(0,the_bam.GetFrameCount()-1 );
     if(m_triggernum<0) m_triggernum=0;
     m_triggerpicker.ResetContent();
     for(i=0;i<the_area.triggercount;i++)
@@ -1371,6 +1368,7 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
 	ON_CBN_KILLFOCUS(IDC_REGIONTYPE, OnKillfocusRegiontype)
 	ON_BN_CLICKED(IDC_EDITPOLYGON, OnEditpolygon)
+	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
@@ -1391,9 +1389,6 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_POS2X2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_POS2Y2, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3899,6 +3894,10 @@ void CAreaContainer::OnSet()
   CPoint point;
 
   if(SetupSelectPoint(0)) return;
+  dlg.SetMapType(MT_CONTAINER, (LPBYTE) &the_area.vertexheaderlist);
+  dlg.m_max=the_area.containercount;
+  dlg.m_value=m_containernum;
+
   dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
   dlg.SetupAnimationPlacement(&the_bam,  //the cursors are loaded in 'the_bam' now
     the_area.containerheaders[m_containernum].posx,
@@ -4085,7 +4084,16 @@ void CAreaVariable::RefreshVariable()
 
 BOOL CAreaVariable::OnInitDialog() 
 {
+  CComboBox *cb;
+
 	CPropertyPage::OnInitDialog();
+  if(pst_compatible_var())
+  {
+    cb = (CComboBox *) GetDlgItem(IDC_COLOR);
+    cb->ResetContent();
+    cb->AddString("0 - User note");
+    cb->AddString("1 - Read only");
+  }
   RefreshVariable();
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -4491,7 +4499,7 @@ void CAreaDoor::RefreshDoor()
   {
 //    m_doornum=m_doorpicker.GetCurSel();
     if(m_doornum<0) m_doornum=0;
-    m_spin_control.SetRange(0,the_bam.GetFrameCount()-1 );
+    m_spin_control.SetRange32(0,the_bam.GetFrameCount()-1 );
     m_doorpicker.ResetContent();
     for(i=0;i<the_area.doorcount;i++)
     {
@@ -6159,6 +6167,7 @@ BEGIN_MESSAGE_MAP(CAreaMap, CPropertyPage)
 	ON_BN_CLICKED(IDC_UNDO, OnUndo)
 	ON_BN_CLICKED(IDC_PALETTE, OnPalette)
 	ON_BN_CLICKED(IDC_SPECIAL, OnSpecial)
+	ON_COMMAND(ID_REFRESH, OnRefresh)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -6341,6 +6350,17 @@ void CAreaMap::OnEdit()
   UpdateData(UD_DISPLAY);
 }
 
+void CAreaMap::OnRefresh() 
+{
+  nop();
+  /*
+  point=GetPoint(GP_TILE);
+  pos=point.y*the_mos.mosheader.wColumn+point.x;
+  the_map[pos].flags^=the_mos.m_overlay;
+  the_area.wedchanged=true;
+  */
+}
+
 void CAreaMap::OnUndo() 
 { 
   the_area.ReadMap("TMP",the_map, the_palette, m_maptype==MT_LIGHT?256*4:16*4);
@@ -6461,3 +6481,4 @@ BEGIN_MESSAGE_MAP(CAreaPropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CAreaPropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+

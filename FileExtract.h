@@ -111,6 +111,7 @@ public:
 	CString m_savname;
   int m_num_extract;
   bool cbf_or_sav;
+  bool skim_sav;
 
 // Overrides
 	// ClassWizard generated virtual function overrides

@@ -437,12 +437,12 @@ BEGIN
     CONTROL         "???",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     307,115,28,10
     EDITTEXT        IDC_CONV,213,143,65,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CONVREF,286,143,33,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DIALOG,328,143,50,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_CONVREF,282,143,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIALOG,214,171,50,14,ES_UPPERCASE | ES_AUTOHSCROLL
     CONTROL         "Cannot equip simultaneously with the same kind (itemexcl)",
                     IDC_ITEMEXCL,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | 
-                    WS_TABSTOP,213,169,106,22
-    EDITTEXT        IDC_FLAGS,330,177,40,14,ES_AUTOHSCROLL
+                    WS_TABSTOP,307,162,86,29
+    EDITTEXT        IDC_FLAGS,319,143,40,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_INVICON1,"Static",SS_BITMAP | SS_NOTIFY | 
                     SS_SUNKEN,113,7,15,14
     CONTROL         "",IDC_INVICON2,"Static",SS_BITMAP | SS_NOTIFY | 
@@ -455,7 +455,7 @@ BEGIN
     LTEXT           "Ground:",IDC_STATIC,7,51,26,8
     LTEXT           "Description:",IDC_DESCICON,7,99,38,8
     LTEXT           "Destructed item",IDC_DESTRUCTED,7,147,50,8
-    LTEXT           "Unknown attributes",IDC_STATIC,330,164,62,8
+    LTEXT           "Unknown attributes",IDC_STATIC,320,130,62,8
     LTEXT           "Conversation label",IDC_STATIC,213,130,59,8
     CONTROL         "",IDC_DESCICON2,"Static",SS_BITMAP | SS_NOTIFY,173,127,
                     15,13
@@ -463,8 +463,9 @@ BEGIN
                     15,13
     CONTROL         "",IDC_DESCICON4,"Static",SS_BITMAP | SS_NOTIFY,173,150,
                     15,13
-    LTEXT           "Dialog",IDC_STATIC,328,130,21,8
+    LTEXT           "Dialog",IDC_STATIC,214,158,21,8
     PUSHBUTTON      "Browse",IDC_BROWSE4,7,177,43,14
+    PUSHBUTTON      "Browse",IDC_BROWSE,267,171,35,14
 END
 
 IDD_ITEMEQUIP DIALOG DISCARDABLE  0, 0, 400, 199
@@ -508,7 +509,7 @@ BEGIN
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_RANGE,292,43,30,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_SPEED,324,43,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_IDENTIFY,259,68,30,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_IDENTIFY,209,68,30,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN1,356,43,30,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_THAC0,7,68,40,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_ROLL,50,68,18,12,ES_AUTOHSCROLL | ES_NUMBER
@@ -516,9 +517,8 @@ BEGIN
     EDITTEXT        IDC_ADD,112,68,17,12,ES_AUTOHSCROLL
     COMBOBOX        IDC_DAMAGETYPE,131,68,74,107,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_STRBONUS,209,68,30,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TOOLTIPTEXT,7,95,128,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TOOLTIPREF,139,95,39,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TOOLTIPTEXT,7,95,93,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TOOLTIPREF,106,95,39,12,ES_AUTOHSCROLL
     CONTROL         "Bow",IDC_BOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
                     112,30,10
     CONTROL         "Xbow",IDC_XBOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
@@ -528,11 +528,10 @@ BEGIN
     EDITTEXT        IDC_ANIM1,162,122,30,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_ANIM2,201,122,30,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_ANIM3,240,122,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_CHARGES,182,94,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    COMBOBOX        IDC_PERDAY,216,94,77,123,CBS_DROPDOWN | WS_VSCROLL | 
+    EDITTEXT        IDC_CHARGES,149,94,30,12,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_PERDAY,183,94,77,123,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    EDITTEXT        IDC_UNKNOWN2,297,94,43,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_UNKNOWN3,344,94,41,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FLAGS,264,94,43,12,ES_AUTOHSCROLL
     COMBOBOX        IDC_PROJID,279,122,114,137,CBS_DROPDOWN | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_EXTEFFNUM,44,145,319,121,CBS_DROPDOWNLIST | 
@@ -542,12 +541,12 @@ BEGIN
     PUSHBUTTON      "Add",IDC_EXTEFFADD,269,177,35,14
     PUSHBUTTON      "Copy",IDC_EXTEFFCOPY,312,177,35,14
     PUSHBUTTON      "Paste",IDC_EXTEFFPASTE,355,177,35,14
-    LTEXT           "Extended Header:",IDC_STATIC,7,16,58,8
+    LTEXT           "Extended header:",IDC_STATIC,7,16,57,8
     LTEXT           "Effect #",IDC_STATIC,7,147,26,8
     LTEXT           "Tooltip:",IDC_STATIC,7,84,24,8
     LTEXT           "Attack type:",IDC_STATIC,7,31,39,8
     LTEXT           "Use location:",IDC_STATIC,66,31,42,8
-    LTEXT           "ID flags",IDC_STATIC,258,58,25,8
+    LTEXT           "ID flags",IDC_STATIC,208,58,25,8
     LTEXT           "Speed",IDC_STATIC,324,32,22,8
     LTEXT           "Range",IDC_STATIC,292,32,22,8
     LTEXT           "Target number && type",IDC_STATIC,123,31,68,8
@@ -556,34 +555,36 @@ BEGIN
     LTEXT           "+",IDC_STATIC,104,69,8,8
     LTEXT           "Damage rolls",IDC_STATIC,57,58,42,8
     LTEXT           "Thac0 +",IDC_STATIC,7,58,28,8
-    LTEXT           "Damagetype",IDC_STATIC,131,58,41,8
+    LTEXT           "Damage type",IDC_STATIC,131,58,43,8
     LTEXT           "/",IDC_STATIC,368,146,8,8
     LTEXT           "00",IDC_EFFNUM,377,146,9,8
     LTEXT           "/",IDC_STATIC,99,16,8,8
     LTEXT           "0",IDC_HEADNUM,109,16,8,8
-    LTEXT           "Charges",IDC_STATIC,187,84,27,8
-    LTEXT           "Use Strength",IDC_STATIC,209,58,42,8
+    LTEXT           "Charges",IDC_STATIC,149,84,27,8
     LTEXT           "Melee animation:",IDC_STATIC,44,112,54,8
     LTEXT           "Projectile animation:",IDC_STATIC,279,112,64,8
     LTEXT           "0x3",IDC_STATIC,356,32,12,8
-    LTEXT           "Keen (IWD2)",IDC_KEEN,346,84,42,8
-    LTEXT           "Tooltip strref",IDC_STATIC,140,84,40,8
-    LTEXT           "Recharges",IDC_STATIC,298,84,36,8
-    LTEXT           "Charge removal",IDC_STATIC,219,84,50,8
+    LTEXT           "Tooltip strref",IDC_STATIC,106,84,40,8
+    LTEXT           "Charge removal",IDC_STATIC,183,84,50,8
     LTEXT           "Use icon",IDC_STATIC,134,4,29,8
     CONTROL         "Need ID",IDC_ID,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    292,58,43,10
+                    242,60,43,10
     CONTROL         "Mustn't ID",IDC_NOID,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,292,70,48,10
+                    WS_TABSTOP,242,72,48,10
     COMBOBOX        IDC_MELEE,44,122,109,69,CBS_DROPDOWNLIST | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Overhand",IDC_STATIC,162,112,32,8
     LTEXT           "Backhand",IDC_STATIC,201,112,34,8
     LTEXT           "Thrust",IDC_STATIC,240,112,21,8
-    CONTROL         "Ignore shield",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,337,58,56,10
-    CONTROL         "Keen",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    360,70,33,10
+    CONTROL         "Ignore shield (IWD2)",IDC_FLAG1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,319,83,81,10
+    CONTROL         "Keen (IWD2)",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,319,96,57,10
+    LTEXT           "Functional  flags",IDC_STATIC,264,84,52,8
+    CONTROL         "Recharges",IDC_RECHARGES,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,319,72,51,10
+    CONTROL         "Use strength",IDC_STRBONUS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,319,60,56,10
 END
 
 IDD_ITEMPICKER DIALOG DISCARDABLE  0, 0, 160, 217
@@ -655,11 +656,11 @@ BEGIN
     CONTROL         "Brightest",IDC_BRIGHTEST,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,122,28,43,10
     CONTROL         "Greyscale",IDC_GREY,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,182,15,47,10
+                    WS_TABSTOP,182,28,47,10
     CONTROL         "Glowing",IDC_GLOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    182,28,41,10
+                    182,41,41,10
     CONTROL         "Red tint",IDC_TINT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,182,41,41,10
+                    WS_TABSTOP,182,54,41,10
     CONTROL         "Looping",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     122,97,41,10
     EDITTEXT        IDC_UNKNOWN10,241,25,40,14,ES_AUTOHSCROLL
@@ -735,6 +736,8 @@ BEGIN
                     WS_TABSTOP,122,41,40,10
     CONTROL         "Mirror X",IDC_MIRROR2,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,122,54,40,10
+    CONTROL         "Darken",IDC_BLEND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    182,15,39,10
 END
 
 IDD_CFB DIALOGEX 0, 0, 324, 236
@@ -806,10 +809,10 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_BROWSE,181,122,28,14
     EDITTEXT        IDC_DIALOGRES,125,140,54,14,ES_UPPERCASE | 
                     ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse",IDC_BROWSE1,181,140,28,14
+    PUSHBUTTON      "Browse",IDC_BROWSE1,181,158,28,14
     EDITTEXT        IDC_RUMOURRES,125,158,54,14,ES_UPPERCASE | 
                     ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse",IDC_BROWSE2,181,158,28,14
+    PUSHBUTTON      "Browse",IDC_BROWSE2,181,140,28,14
     EDITTEXT        IDC_PRICECHANGE,215,50,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_CAPACITY,215,68,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_IDPRICE,215,86,40,14,ES_AUTOHSCROLL
@@ -842,8 +845,8 @@ BEGIN
     LTEXT           "Buying markup %",IDC_STATIC,63,53,55,8
     LTEXT           "Unknown dialog",IDC_STATIC,66,143,52,8
     LTEXT           "Difficulty %",IDC_STATIC,83,107,35,8
-    LTEXT           "Price change",IDC_STATIC,170,53,43,8
-    LTEXT           "Temple lore %",IDC_STATIC,73,89,45,8
+    LTEXT           "Depreciation",IDC_STATIC,172,53,41,8
+    LTEXT           "Identify %",IDC_STATIC,87,89,31,8
     LTEXT           "ID price",IDC_STATIC,187,89,26,8
     LTEXT           "Tavern rumours",IDC_STATIC,68,161,50,8
     LTEXT           "Temple rumours",IDC_STATIC,67,126,51,8
@@ -1452,7 +1455,7 @@ BEGIN
     LTEXT           "0x28",IDC_STATIC,230,106,16,8
     LTEXT           "0x2C",IDC_STATIC,285,106,17,8
     LTEXT           "0x30",IDC_STATIC,340,106,16,8
-    LTEXT           "0x38",IDC_STATIC,139,134,16,8
+    LTEXT           "0x38 (stack)",IDC_STATIC,139,134,40,8
     LTEXT           "0x42",IDC_STATIC,194,134,16,8
     LTEXT           "0x44",IDC_STATIC,230,134,16,8
     LTEXT           "0x48",IDC_STATIC,285,134,16,8
@@ -2244,10 +2247,8 @@ BEGIN
     EDITTEXT        IDC_DIALOG,214,119,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     CONTROL         "Override?",IDC_TOVERRIDE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,142,140,47,10
-    EDITTEXT        IDC_POS1X2,140,154,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POS1Y2,170,154,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POS2X2,140,172,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POS2Y2,170,172,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POS1X2,139,166,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POS1Y2,176,166,24,14,ES_AUTOHSCROLL
     CONTROL         "Invisible trap",IDC_TUNDET,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,287,42,55,10
     CONTROL         "Reset trap",IDC_TRESET,"Button",BS_AUTOCHECKBOX | 
@@ -2306,6 +2307,7 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_BROWSE,256,59,28,14
     PUSHBUTTON      "Browse",IDC_BROWSE2,256,88,28,14
     PUSHBUTTON      "Browse",IDC_BROWSE3,256,119,28,14
+    LTEXT           "Unknown point",IDC_STATIC,139,157,49,8
 END
 
 IDD_AREASPAWN DIALOG DISCARDABLE  0, 0, 420, 199
@@ -4076,7 +4078,8 @@ BEGIN
 END
 
 IDD_PANICBUTTON DIALOGEX 0, 0, 119, 31
-STYLE DS_SYSMODAL | DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_CAPTION
+STYLE DS_SYSMODAL | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION
 EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_TOOLWINDOW
 CAPTION "Press Button To Abort Process"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
@@ -4641,15 +4644,17 @@ BEGIN
     EDITTEXT        IDC_DRINKNAME,105,123,147,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_DRINKPRICE,259,123,40,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_DRINKSTRENGTH,316,123,34,14,ES_AUTOHSCROLL
-    LTEXT           "Available Spells",-1,7,7,50,8
-    LTEXT           "Available Drinks",-1,7,87,52,8
-    LTEXT           "Resource ?",-1,7,113,38,8
-    LTEXT           "Strength",-1,316,113,28,8
-    LTEXT           "Price",-1,259,113,17,8
-    LTEXT           "Drink name (reference && tlk entry)",-1,59,113,106,8
-    LTEXT           "Spell",-1,7,33,16,8
-    LTEXT           "Price",-1,305,33,17,8
-    LTEXT           "Cure name (reference && tlk entry)",-1,61,33,104,8
+    LTEXT           "Available Spells",IDC_STATIC,7,7,50,8
+    LTEXT           "Available Drinks",IDC_STATIC,7,87,52,8
+    LTEXT           "Resource ?",IDC_STATIC,7,113,38,8
+    LTEXT           "Rumor %",IDC_STATIC,316,113,29,8
+    LTEXT           "Price",IDC_STATIC,259,113,17,8
+    LTEXT           "Drink name (reference && tlk entry)",IDC_STATIC,59,113,
+                    106,8
+    LTEXT           "Spell",IDC_STATIC,7,33,16,8
+    LTEXT           "Price",IDC_STATIC,305,33,17,8
+    LTEXT           "Cure name (reference && tlk entry)",IDC_STATIC,61,33,
+                    104,8
 END
 
 IDD_POLYGON DIALOG DISCARDABLE  0, 0, 228, 185
@@ -5590,8 +5595,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,3,7,0
- PRODUCTVERSION 6,3,7,0
+ FILEVERSION 6,3,10,0
+ PRODUCTVERSION 6,3,10,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5607,16 +5612,16 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
-            VALUE "CompanyName", "TeamBG (www.teambg.com)\0"
+            VALUE "CompanyName", "GemRB (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 3, 7, 0\0"
+            VALUE "FileVersion", "6, 3, 10, 0\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2004 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro\0"
-            VALUE "ProductVersion", "6, 3, 7, 0\0"
+            VALUE "ProductVersion", "6, 3, 10, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -5733,6 +5738,8 @@ BEGIN
         MENUITEM "&Uncompress BIF",             ID_UNCOMPRESSBIF
         MENUITEM "U&ncompress SAV",             ID_UNCOMPRESSSAV
         MENUITEM "Uncompress &CBF",             ID_UNCOMPRESSCBF
+        MENUITEM SEPARATOR
+        MENUITEM "Skim SAV",                    ID_SKIMSAV
     END
     POPUP "&Bif"
     BEGIN
@@ -5866,11 +5873,14 @@ BEGIN
         MENUITEM "&Save",                       ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVEAS
         MENUITEM SEPARATOR
-        MENUITEM "&Export using WeiDU",         ID_EXPORT_WEIDU
-        MENUITEM "Export using TBG",            ID_EXPORT_TBG, GRAYED
+        MENUITEM "&Export WeiDU",               ID_EXPORT_WEIDU
+        MENUITEM "Export TBG",                  ID_EXPORT_TBG
+        MENUITEM "Export Shorthand",            ID_FILE_EXPORTUSINGSHORTHAND
+        , GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "&Import using WeiDU",         ID_IMPORT_WEIDU
-        MENUITEM "Import using TBG",            ID_IMPORT_TBG, GRAYED
+        MENUITEM "&Import WeiDU",               ID_IMPORT_WEIDU
+        MENUITEM "Import Shorthand",            ID_FILE_IMPORTSHORTHAND
+        , GRAYED
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -5896,6 +5906,11 @@ BEGIN
         MENUITEM "Order &weights (by states)",  ID_TOOLSORDER
         MENUITEM "Order &states (by weights)",  ID_TOOLSORDER2
         MENUITEM "&Quote actor text",           ID_TOOLSPST
+    END
+    POPUP "Options", GRAYED
+    BEGIN
+        MENUITEM "&Shorthand",                  ID_OPTIONS_SWITCHTOSHORTHAND
+        MENUITEM "&Tree edit",                  ID_OPTIONS_TREEEDIT, CHECKED
     END
 END
 

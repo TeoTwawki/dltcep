@@ -73,7 +73,7 @@ void CSubbandDecoder::sub_4d3fcc (short* memory, long* buffer, int sb_size, int 
 	} else {
 		for (i=0; i<sb_size; i++) {
 			long* buff_ptr = buffer;
-			if ((blocks >> 1) & 1 != 0) {
+			if (blocks &2) {
 				row_0 = buff_ptr[0];
 				row_1 = buff_ptr[sb_size];
 

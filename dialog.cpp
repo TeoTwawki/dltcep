@@ -47,7 +47,7 @@ void Cdialog::new_dialog()
   KillActions();
 }
 
-int Cdialog::WriteDialogToFile(int fh)
+int Cdialog::WriteDialogToFile(int fh, int calculate)
 {
   int fullsize;
   int esize;
@@ -70,6 +70,22 @@ int Cdialog::WriteDialogToFile(int fh)
   fullsize+=sizeof(offset_length)*header.numtrtrigger;
   header.offaction=fullsize;
   fullsize+=sizeof(offset_length)*header.numaction;
+  if(calculate)
+  {
+    for(i=0;i<header.numsttrigger;i++)
+    {
+      fullsize+=sttriggers[i].GetLength();
+    }
+    for(i=0;i<header.numtrtrigger;i++)
+    {
+      fullsize+=trtriggers[i].GetLength();
+    }
+    for(i=0;i<header.numaction;i++)
+    {
+      fullsize+=actions[i].GetLength();
+    }
+    return fullsize;
+  }
 
   memcpy(&header,"DLG V1.0",8);
   if(write(fh,&header,oldpos )!=oldpos)

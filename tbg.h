@@ -82,6 +82,7 @@ private:
   int collect_worldmaprefs();
   int collect_chuirefs();
   int collect_srcrefs();
+  int collect_dlgrefs();
 
   int AddToFile(int fhandle, CString filename, CString internalname, int ml);
   int ImportFile();

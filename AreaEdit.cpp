@@ -270,6 +270,7 @@ gotname:
       RetrieveResref(tmpstr,the_area.header.wed);
       if(tmpstr.GetLength()!=6 || tmpstr.Find(" ",0)!=-1 )
       {
+	MessageBox("The WED name must be 6 characters long, preferably the same as the area name.","Warning",MB_OK);
         res = -2;
         goto endofquest;
       }
@@ -410,12 +411,8 @@ void CAreaEdit::OnToolsMirrorareavertically()
     minx=the_area.m_width-the_area.triggerheaders[i].p2x;
     maxx=the_area.m_width-the_area.triggerheaders[i].p1x;
     the_area.triggerheaders[i].p1x=(short) minx;
-    the_area.triggerheaders[i].p2x=(short) maxx;
-    //this is rather a point not a box
-    if(the_area.triggerheaders[i].infoflags&1024)
-    {
-      the_area.triggerheaders[i].ovrp1x=(short) (the_area.m_width-the_area.triggerheaders[i].ovrp1x);
-    }
+    the_area.triggerheaders[i].p2x=(short) maxx;    
+    the_area.triggerheaders[i].pointx=(short) (the_area.m_width-the_area.triggerheaders[i].pointx);
     the_area.FlipVertex(i,the_area.triggerheaders[i].vertexcount,the_area.m_width);
   }
   for(i=0;i<the_area.containercount;i++)

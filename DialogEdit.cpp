@@ -13,6 +13,7 @@
 #include "options.h"
 #include "compat.h"
 #include "WeiduLog.h"
+#include "tbg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -755,15 +756,14 @@ BEGIN_MESSAGE_MAP(CDialogEdit, CDialog)
 	ON_COMMAND(ID_ADDTOP, OnAddtop)
 	ON_COMMAND(ID_EXPORT_WEIDU, OnExportWeidu)
 	ON_COMMAND(ID_IMPORT_WEIDU, OnImportWeidu)
-	ON_COMMAND(ID_IMPORT_TBG, OnImportTbg)
 	ON_COMMAND(ID_EXPORT_TBG, OnExportTbg)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_TOOLSPST, OnToolspst)
+	ON_BN_CLICKED(IDC_NEWVALUE, OnNewvalue)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
-	ON_BN_CLICKED(IDC_NEWVALUE, OnNewvalue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -885,9 +885,9 @@ int CDialogEdit::SaveDialog(CString filepath, CString newname)
     MessageBox("Can't write file!","Error",MB_ICONEXCLAMATION|MB_OK);
     return -99;
   }
-  //WritedialogToFile needs itemname!!!
+  //WritedialogToFile needs itemname to resolve self-references !!!
   itemname=newname;
-  res=the_dialog.WriteDialogToFile(fhandle);
+  res=the_dialog.WriteDialogToFile(fhandle, 0);
   close(fhandle);
   lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
   switch(res)
@@ -2957,16 +2957,9 @@ void CDialogEdit::OnNewvalue()
   UpdateData(UD_DISPLAY);	
 }
 
-void CDialogEdit::OnImportTbg() 
-{
-	// TODO: Add your command handler code here
-	
-}
-
 void CDialogEdit::OnExportTbg() 
 {
-	// TODO: Add your command handler code here
-	
+	ExportTBG(this, REF_DLG);
 }
 
 void CDialogEdit::OnCancel() 

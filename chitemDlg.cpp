@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.3g"
+#define PRG_VERSION "6.3j"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -219,6 +219,7 @@ ON_COMMAND(ID_CHECK_PROJECTILE, OnCheckProjectile)
 	ON_COMMAND(ID_COMPRESSBIF, OnCompressbif)
 	ON_COMMAND(ID_COMPRESSCBF, OnCompresscbf)
 	ON_COMMAND(ID_TISPACK, OnTispack)
+	ON_COMMAND(ID_HELP_README, OnHelpReadme)
 ON_COMMAND(ID_COMPAT, OnCompat)
 ON_COMMAND(ID_SEARCH_ITEM, OnFinditem)
 ON_COMMAND(ID_SEARCH_SPELL, OnFindspell)
@@ -243,7 +244,7 @@ ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
 	ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
 	ON_BN_CLICKED(IDC_CHECKPROJ, OnCheckArea)
-	ON_COMMAND(ID_HELP_README, OnHelpReadme)
+	ON_COMMAND(ID_SKIMSAV, OnSkimsav)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1199,7 +1200,7 @@ int CChitemDlg::gather_override(CString folder, int where)
         fileloc.index=-2;
         fileloc.cdloc=0;  //not found in chitin, we should initialize it
         ovrnum[type]++;
-        if(chkflg&NOMISS)
+        if((chkflg&NOMISS) && !where) //don't scream about files in music
         {
           filename.LoadString(idstrings[type]);
           log("%s is an extra %s not found in chitin.key.",ref, filename);
@@ -1330,24 +1331,27 @@ int CChitemDlg::rescan_only_storeitems()
   }
   end_progress();
   
-  log("Searching store items...");
-  pos=items.GetStartPosition();
-  while(pos)
+  if(!pst_compatible_var() && !bg1_compatible_area()) //pst and bg1 has no store items
   {
-    items.GetNextAssoc(pos,key,fileloc);
-    
-    changeitemname(key);
-    ret=read_next_item(fileloc);
-    if(ret>=0)
+    log("Searching store items...");
+    pos=items.GetStartPosition();
+    while(pos)
     {
-      if(the_item.header.itemtype==IT_BAG)
+      items.GetNextAssoc(pos,key,fileloc);
+      
+      changeitemname(key);
+      ret=read_next_item(fileloc);
+      if(ret>=0)
       {
-        storeitems[key]=""; //validating store item
+        if(the_item.header.itemtype==IT_BAG)
+        {
+          storeitems[key]=""; //validating store item
+        }
       }
     }
+    newitem=FALSE;
+    log("Found %d containers.",storeitems.GetCount());
   }
-  newitem=FALSE;
-  log("Found %d containers.",storeitems.GetCount());
   log("Searching cure names...");
   pos=spells.GetStartPosition();
   while(pos)
@@ -1729,6 +1733,8 @@ int CChitemDlg::process_stores(bool check_or_search)
   UpdateData(UD_DISPLAY);
   gret=0;
   
+  minsell=999;
+  maxbuy=0;
   storeitems.RemoveAll();
   rescan_only_storeitems(); // storeitems are gathered by itemcheck too
   
@@ -1790,11 +1796,38 @@ int CChitemDlg::process_stores(bool check_or_search)
     if(ret>=0)
     {
       if(check_or_search) ret=match_store();
-      else ret=check_store();
+      else
+      {
+        ret=check_store();
+        if(the_store.header.type<STT_IWDCONT)
+        {
+          if(the_store.header.flags&ST_SELL)
+          {
+            if(minsell>the_store.header.selling)
+            {
+              minsell=the_store.header.selling;
+              minsellkey=key;
+            }
+          }
+          if(the_store.header.flags&ST_BUY)
+          {
+            if(maxbuy<the_store.header.buying)
+            {
+              maxbuy=the_store.header.buying;
+              maxbuykey=key;
+            }
+          }
+        }
+      }
     }
     newitem=FALSE;
     if(ret) gret=1;
   } 
+  if(!check_or_search && (minsell<maxbuy) )
+  {
+    log("Cheat possibility: %s sells for %d%% while %s buys for %d%%", 
+      minsellkey, minsell, maxbuykey, maxbuy);
+  }
   end_panic();
   log("Done.");
   return gret;
@@ -3420,11 +3453,21 @@ restart:
   }	
 }
 
+void CChitemDlg::OnSkimsav() 
+{
+	CFileExtract3 dlg;
+	
+  dlg.cbf_or_sav=false;
+  dlg.skim_sav=true;
+  dlg.DoModal();
+}
+
 void CChitemDlg::OnUncompresssav() 
 {
 	CFileExtract3 dlg;
 	
-  dlg.cbf_or_sav=0;
+  dlg.cbf_or_sav=false;
+  dlg.skim_sav=false;
   dlg.DoModal();
 }
 
@@ -3432,7 +3475,8 @@ void CChitemDlg::OnUncompresscbf()
 {
 	CFileExtract3 dlg;
 
-  dlg.cbf_or_sav=1;
+  dlg.cbf_or_sav=true;
+  dlg.skim_sav=false;
   dlg.DoModal();
   OnRescan(); //most likely there is a new .bif
 }
@@ -4728,3 +4772,4 @@ void CChitemDlg::OnHelpReadme()
   dlg.m_file="readme.txt";
   dlg.DoModal();
 }
+

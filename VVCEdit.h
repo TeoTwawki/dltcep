@@ -71,6 +71,7 @@ protected:
 	afx_msg void OnU3();
 	afx_msg void OnMirror();
 	afx_msg void OnMirror2();
+	afx_msg void OnBlend();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

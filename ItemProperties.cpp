@@ -543,6 +543,7 @@ void CItemIcons::RefreshIcons()
   {
     m_convref=-1;
     dial_references.Lookup(itemname, m_convref); //sets convref
+    StoreResref(itemname, the_item.pstheader.dialog);
   }
   m_conv=resolve_tlk_text(m_convref);
   if(!m_hWnd) return;
@@ -561,6 +562,8 @@ void CItemIcons::RefreshIcons()
     if(cb) cb->ShowWindow(false);
     cb=GetDlgItem(IDC_DIALOG);
     if(cb) cb->EnableWindow(true);
+    cb=GetDlgItem(IDC_BROWSE);
+    if(cb) cb->EnableWindow(true);
     break;
   default:
     cb=GetDlgItem(IDC_DESCICON);
@@ -574,6 +577,8 @@ void CItemIcons::RefreshIcons()
     cb=GetDlgItem(IDC_ITEMEXCL);
     if(cb) cb->ShowWindow(true);
     cb=GetDlgItem(IDC_DIALOG);
+    if(cb) cb->EnableWindow(false);
+    cb=GetDlgItem(IDC_BROWSE);
     if(cb) cb->EnableWindow(false);
     break;
   }
@@ -615,11 +620,12 @@ BEGIN_MESSAGE_MAP(CItemIcons, CPropertyPage)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
 	ON_BN_CLICKED(IDC_INVICON2, OnInvicon)
 	ON_BN_CLICKED(IDC_DESCICON2, OnDescicon)
 	ON_BN_CLICKED(IDC_DESCICON3, OnDescicon)
 	ON_BN_CLICKED(IDC_DESCICON4, OnDescicon)
-	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1017,6 +1023,17 @@ void CItemIcons::OnDescicon()
 void CItemIcons::OnKillfocusDialog() 
 {
 	UpdateData(UD_RETRIEVE);	
+	UpdateData(UD_DISPLAY);	
+}
+
+void CItemIcons::OnBrowse() 
+{
+  pickerdlg.m_restype=REF_DLG;
+  RetrieveResref(pickerdlg.m_picked,the_item.pstheader.dialog);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_item.pstheader.dialog);
+  }
 	UpdateData(UD_DISPLAY);	
 }
 
@@ -2052,7 +2069,10 @@ CItemExtended::~CItemExtended()
 
 static int forceidboxids[8]={IDC_ID, IDC_NOID,0,0,0,0,0,0};
 
-static int keenboxids[8]={IDC_FLAG1, IDC_FLAG2,0,0,0,0,0,0};
+static int keenboxids[32]={IDC_STRBONUS,0,0,0,0,0,0,0,
+0,0,0,IDC_RECHARGES,0,0,0,0,
+IDC_FLAG1, IDC_FLAG2,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0};
 
 void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
 {
@@ -2122,7 +2142,6 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     tmpstr=get_damage_type(the_item.extheaders[extheadnum].damtype);
     DDX_Text(pDX, IDC_DAMAGETYPE, tmpstr);
 
-  	DDX_Text(pDX, IDC_STRBONUS, the_item.extheaders[extheadnum].str_bonus);
     if(extheadnum<3)
     {
   	  DDX_Text(pDX, IDC_TOOLTIPREF, m_tooltipref.data[extheadnum]);
@@ -2147,15 +2166,14 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     tmpstr=get_charge_type(the_item.extheaders[extheadnum].drained);
     DDX_Text(pDX, IDC_PERDAY, tmpstr);
 
-   	DDX_Text(pDX, IDC_UNKNOWN2, the_item.extheaders[extheadnum].recharged);
-    tmp=the_item.extheaders[extheadnum].keen;
-   	DDX_Text(pDX, IDC_UNKNOWN3,tmp);
+    tmpstr.Format("0x%08x",the_item.extheaders[extheadnum].flags);
+   	DDX_Text(pDX, IDC_FLAGS, tmpstr);
 
     j=1;
-    for(i=0;i<8;i++)
+    for(i=0;i<32;i++)
     {
       cb=(CButton *) GetDlgItem(keenboxids[i]);
-      if(cb) cb->SetCheck(!!(tmp&j) );
+      if(cb) cb->SetCheck(!!(the_item.extheaders[extheadnum].flags&j) );
       j<<=1;
     }
 
@@ -2202,7 +2220,7 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     DDX_Text(pDX, IDC_DAMAGETYPE, tmpstr);
     the_item.extheaders[extheadnum].damtype=(unsigned char) strtonum(tmpstr);
 
-  	DDX_Text(pDX, IDC_STRBONUS, the_item.extheaders[extheadnum].str_bonus);
+//  	DDX_Text(pDX, IDC_STRBONUS, the_item.extheaders[extheadnum].str_bonus);
     if(extheadnum<3)
     {
   	  DDX_Text(pDX, IDC_TOOLTIPREF, m_tooltipref.data[extheadnum]);
@@ -2224,9 +2242,8 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     DDX_Text(pDX, IDC_PERDAY, tmpstr);
     the_item.extheaders[extheadnum].drained=(unsigned short) strtonum(tmpstr);
 
-   	DDX_Text(pDX, IDC_UNKNOWN2, the_item.extheaders[extheadnum].recharged);
-   	DDX_Text(pDX, IDC_UNKNOWN3,tmpstr);
-    the_item.extheaders[extheadnum].keen=(unsigned short) strtonum(tmpstr);
+   	DDX_Text(pDX, IDC_FLAGS,tmpstr);
+    the_item.extheaders[extheadnum].flags=strtonum(tmpstr);
 
    	DDX_Text(pDX, IDC_PROJID,tmpstr);
     the_item.extheaders[extheadnum].proref=(unsigned short) strtonum(tmpstr);
@@ -2432,10 +2449,11 @@ static int extids[]={
   IDC_EXTUSEICON, IDC_USEICON,
   IDC_EXTHEADNUM, IDC_EXTTYPE, IDC_LOC, IDC_TARGETNUM, IDC_TARGET,
   IDC_PROJFRAME, IDC_RANGE, IDC_SPEED, IDC_IDENTIFY, IDC_UNKNOWN1,
-  IDC_THAC0, IDC_ROLL, IDC_DIE, IDC_ADD, IDC_DAMAGETYPE, IDC_STRBONUS,
+  IDC_THAC0, IDC_ROLL, IDC_DIE, IDC_ADD, IDC_DAMAGETYPE, 
   IDC_BOW, IDC_XBOW, IDC_MISC, IDC_ANIM1, IDC_ANIM2, IDC_ANIM3,
-  IDC_CHARGES, IDC_PERDAY, IDC_UNKNOWN2, IDC_UNKNOWN3, IDC_PROJID,
-  IDC_ID, IDC_NOID, IDC_MELEE, IDC_FLAG1, IDC_FLAG2,
+  IDC_CHARGES, IDC_PERDAY, 
+  IDC_FLAGS, IDC_STRBONUS, IDC_RECHARGES, IDC_FLAG1, IDC_FLAG2,
+  IDC_PROJID,  IDC_ID, IDC_NOID, IDC_MELEE, 
   //buttons
   //last button really belongs here!
   IDC_EXTREMOVE, IDC_EXTCOPY, IDC_EXTPASTE, IDC_EXTEFFADD,
@@ -2470,44 +2488,45 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_BN_CLICKED(IDC_EXTCOPY, OnExtcopy)
 	ON_BN_CLICKED(IDC_EXTADD, OnExtadd)
 	ON_BN_CLICKED(IDC_EXTREMOVE, OnExtremove)
-	ON_CBN_KILLFOCUS(IDC_EXTTYPE, OnKillfocusExttype)
-	ON_CBN_KILLFOCUS(IDC_LOC, OnKillfocusLoc)
-	ON_CBN_KILLFOCUS(IDC_TARGET, OnKillfocusTarget)
-	ON_EN_KILLFOCUS(IDC_RANGE, OnKillfocusRange)
-	ON_CBN_KILLFOCUS(IDC_PROJFRAME, OnKillfocusProjframe)
-	ON_EN_KILLFOCUS(IDC_SPEED, OnKillfocusSpeed)
+	ON_CBN_KILLFOCUS(IDC_EXTTYPE, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_PROJFRAME, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SPEED, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN1, OnKillfocusUnknown1)
 	ON_CBN_SELCHANGE(IDC_EXTHEADNUM, OnSelchangeExtheadnum)
-	ON_EN_KILLFOCUS(IDC_IDENTIFY, OnKillfocusIdentify)
 	ON_EN_KILLFOCUS(IDC_THAC0, OnKillfocusThac0)
 	ON_EN_KILLFOCUS(IDC_ROLL, OnKillfocusRoll)
 	ON_CBN_KILLFOCUS(IDC_DAMAGETYPE, OnKillfocusDamagetype)
 	ON_EN_KILLFOCUS(IDC_DIE, OnKillfocusDie)
 	ON_EN_KILLFOCUS(IDC_ADD, OnKillfocusAdd)
-	ON_EN_KILLFOCUS(IDC_TARGETNUM, OnKillfocusTargetnum)
+	ON_EN_KILLFOCUS(IDC_TARGETNUM, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_TOOLTIPTEXT, OnKillfocusTooltiptext)
 	ON_EN_KILLFOCUS(IDC_TOOLTIPREF, OnKillfocusTooltipref)
 	ON_EN_KILLFOCUS(IDC_STRBONUS, OnKillfocusStrbonus)
-	ON_CBN_KILLFOCUS(IDC_PERDAY, OnKillfocusPerday)
+	ON_CBN_KILLFOCUS(IDC_PERDAY, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_ANIM1, OnKillfocusAnim1)
 	ON_EN_KILLFOCUS(IDC_ANIM2, OnKillfocusAnim2)
 	ON_EN_KILLFOCUS(IDC_ANIM3, OnKillfocusAnim3)
-	ON_EN_KILLFOCUS(IDC_CHARGES, OnKillfocusCharges)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN2, OnKillfocusUnknown2)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN3, OnKillfocusUnknown3)
+	ON_EN_KILLFOCUS(IDC_CHARGES, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_BOW, OnBow)
 	ON_BN_CLICKED(IDC_XBOW, OnXbow)
 	ON_BN_CLICKED(IDC_MISC, OnMisc)
 	ON_EN_KILLFOCUS(IDC_EXTUSEICON, OnKillfocusExtuseicon)
-	ON_CBN_KILLFOCUS(IDC_PROJID, OnKillfocusProjid)
+	ON_CBN_KILLFOCUS(IDC_PROJID, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_USEICON, OnUseicon)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_BN_CLICKED(IDC_ID, OnId)
 	ON_BN_CLICKED(IDC_NOID, OnNoid)
 	ON_CBN_SELCHANGE(IDC_MELEE, OnSelchangeMelee)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
-	ON_CBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
+	ON_BN_CLICKED(IDC_STRBONUS, OnStrbonus)
+	ON_EN_KILLFOCUS(IDC_FLAGS, OnDefaultKillfocus)
+	ON_CBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
+	ON_EN_KILLFOCUS(IDC_IDENTIFY, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2550,50 +2569,9 @@ void CItemExtended::OnUseicon()
   UpdateData(UD_DISPLAY);	
 }
 
-void CItemExtended::OnKillfocusExttype() 
+void CItemExtended::OnDefaultKillfocus() 
 {
   UpdateData(UD_RETRIEVE);  
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusLoc() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusTargetnum() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusTarget() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusProjframe() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusRange() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusSpeed() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-void CItemExtended::OnKillfocusIdentify() 
-{
-  UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
@@ -2614,14 +2592,28 @@ void CItemExtended::OnNoid()
 void CItemExtended::OnFlag1() 
 {
   UpdateData(UD_RETRIEVE);
-  the_item.extheaders[extheadnum].keen^=1;
+  the_item.extheaders[extheadnum].flags^=1<<16;
   UpdateData(UD_DISPLAY);
 }
 
 void CItemExtended::OnFlag2() 
 {
   UpdateData(UD_RETRIEVE);
-  the_item.extheaders[extheadnum].keen^=2;
+  the_item.extheaders[extheadnum].flags^=2<<16;
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemExtended::OnRecharges() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=8<<8;
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemExtended::OnStrbonus() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=1;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2772,36 +2764,6 @@ void CItemExtended::OnKillfocusAnim3()
   UpdateData(UD_DISPLAY);	
 }
 
-void CItemExtended::OnKillfocusCharges() 
-{
-  UpdateData(UD_RETRIEVE);	
-  UpdateData(UD_DISPLAY);	
-}
-
-void CItemExtended::OnKillfocusPerday() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusUnknown2() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusUnknown3() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusProjid() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
 ///// feature blocks
 
 void CItemExtended::OnExtremove() 
@@ -2941,7 +2903,7 @@ void CItemExtended::OnExtadd()
     case IT_FLAIL: case IT_AXE: case IT_SPEAR:
     case IT_HALBERD:case IT_CLUB: case IT_SWORD: 
       new_extheaders[insertpos].attack_type=A_MELEE;  //melee
-      new_extheaders[insertpos].str_bonus=1;
+      new_extheaders[insertpos].flags|=1;
       new_extheaders[insertpos].range=1;
       break;
     default:

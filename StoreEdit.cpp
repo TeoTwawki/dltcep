@@ -45,7 +45,7 @@ void CStoreEdit::NewStore()
   the_store.KillHeaders();
   the_store.KillItemTypes();
   memset(&the_store.header,0,sizeof(store_header));
-  if(iwd2_structures())
+  if(has_xpvar()) //both iwd and iwd2
   {
     the_store.revision=90;
   }

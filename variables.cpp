@@ -863,7 +863,7 @@ int CChitemDlg::check_dialog(int check_or_scan)
         {
           if((check_or_scan==JOURNAL))
           {
-            if(num_or&(HAS_QUEST|HAS_SOLVED)==HAS_QUEST)
+            if((num_or&(HAS_QUEST|HAS_SOLVED))==HAS_QUEST)
             {
               if(journals.Lookup(strref,tmp))
               {

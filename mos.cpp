@@ -357,11 +357,9 @@ int Cmos::RetrieveTisFrameCount(int fhandle, int ml)
 {
   if(ml<0)
   {
-    ml=filelength(fhandle);
-    SetTisParameters(ml-24);
-    return tisheader.numtiles;
+    read(fhandle,&tisheader,sizeof(tis_header) );
   }
-  read(fhandle,&tisheader,sizeof(tis_header) );
+  else SetTisParameters(ml);
   return tisheader.numtiles;
 }
 
@@ -1196,7 +1194,7 @@ int Cmos::ReadTisFromFile(int fhandle, int ml, int header)
   if(header)
   {
     read(fhandle,&tisheader,sizeof(tis_header) );
-    ml-=sizeof(tis_header);
+//    ml-=sizeof(tis_header);
     mosheader.wRow=(WORD) tisheader.numtiles;
     mosheader.wColumn=1;
     mosheader.wHeight=(WORD) (tisheader.pixelsize*tisheader.numtiles);

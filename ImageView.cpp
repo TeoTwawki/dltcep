@@ -854,7 +854,7 @@ void CImageView::DrawLine(CPoint source, CPoint destination, unsigned char color
   if(abs(diffx)>=abs(diffy))
   {
     //vertical
-    double elevationy =fabs(diffx)/diffy;
+    double elevationy =fabs((double) diffx)/diffy;
     if(source.x>destination.x)
     {
       for(startx=source.x;startx>destination.x;startx--)
@@ -872,7 +872,7 @@ void CImageView::DrawLine(CPoint source, CPoint destination, unsigned char color
   }
   else
   {
-    double elevationx = fabs(diffy)/diffx;
+    double elevationx = fabs((double) diffy)/diffx;
     if(source.y>destination.y)
     {
       for(starty=source.y;starty>destination.y;starty--)
@@ -907,7 +907,7 @@ void CImageView::OnBitmap()
     m_sourcepoint=GetPoint(GP_TILE); //again???
     if(GetParent())
     {
-      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0);
+      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0 );
     }
     else RefreshDialog();
     return;
@@ -917,7 +917,7 @@ void CImageView::OnBitmap()
     m_sourcepoint=GetPoint(GP_TILE);
     if(GetParent())
     {
-      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0);
+      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0 );
     }
     return;
   }
@@ -972,8 +972,11 @@ void CImageView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	m_mousepoint=point;
   ScreenToClient(&m_mousepoint);
-  m_mousepoint.x+=m_clipx*m_mos->mosheader.dwBlockSize;
-  m_mousepoint.y+=m_clipy*m_mos->mosheader.dwBlockSize;
+  if(m_mos)
+  {
+    m_mousepoint.x+=m_clipx*m_mos->mosheader.dwBlockSize;
+    m_mousepoint.y+=m_clipy*m_mos->mosheader.dwBlockSize;
+  }
   CDialog::OnMouseMove(nFlags, point);
 }
 

@@ -745,6 +745,14 @@ int Cbam::ExplodeBamData(bool onlyheader)
 	  else
 		  bIsCompressed = true;
     ret=m_pFrameData[nFrame].TakeBamData(m_pData+nOffset, m_pFrames[nFrame].wWidth, m_pFrames[nFrame].wHeight, m_header.chTransparentIndex, bIsCompressed, (int) (m_nDataSize-nOffset) );
+#ifdef _DEBUG
+    if(ret==-1)
+    {
+      CString tmpstr;
+      tmpstr.Format("Invalid frame: %d\n",nFrame);
+      MessageBox(0,tmpstr,"Bam editor",MB_OK);
+    }
+#endif
     if(ret<gret) gret=ret;
   }
   order[3]=(m_nMinFrameOffset<<2)|3;

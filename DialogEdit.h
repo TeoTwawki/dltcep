@@ -195,7 +195,6 @@ protected:
 	afx_msg void OnAddtop();
 	afx_msg void OnExportWeidu();
 	afx_msg void OnImportWeidu();
-	afx_msg void OnImportTbg();
 	afx_msg void OnExportTbg();
 	afx_msg void OnSave();
 	afx_msg void OnCheck();

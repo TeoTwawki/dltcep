@@ -229,7 +229,7 @@ This section details how many spells the creature can memorize, and how many it 
 Offset Size (data type) Description
 0x0000 2 (word) Spell level (less 1)
 0x0002 2 (word) Number of spells memorizable
-0x0004 2 (word) Number of spells memorizable (how does this differ from the field at 2?)
+0x0004 2 (word) Number of spells memorizable (with static bonus, like mxsplbon)
 0x0006 2 (word) Spell type (as above in Known Spells, 0=Priest, 1=Wizard, 2=Innate, other values are either unknown or invalid).
 0x0008 4 (dword) Index into memorized spells array of first memorized spell of this type in this level.
 0x000c 4 (dword) Count of memorized spell entries in memorized spells array of memorized spells of this type in this level.

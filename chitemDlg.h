@@ -27,6 +27,7 @@
 #define BAD_USE       2048
 #define BAD_INDEX     4096
 #define BAD_COMPRESS  8192
+#define BAD_VERTEX    16384
 /////////////////////////////////////////////////////////////////////////////
 // CChitemDlg dialog
 enum logtype_vals {LOG_NO, LOG_SCREEN, LOG_FILE};
@@ -91,6 +92,9 @@ protected:
   unsigned long searchflags;
   search_data searchdata;
   CMapStringToString storeitems; //valid containers (empty string if store not found yet)
+  int minsell, maxbuy;
+  CString minsellkey;
+  CString maxbuykey;
 
   bool newitem;
 
@@ -314,6 +318,7 @@ protected:
 	afx_msg void OnCompresscbf();
 	afx_msg void OnTispack();
 	afx_msg void OnHelpReadme();
+	afx_msg void OnSkimsav();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

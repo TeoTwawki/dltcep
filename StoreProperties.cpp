@@ -208,12 +208,12 @@ void CStoreGeneral::OnKillfocusStoretype()
 
 void CStoreGeneral::OnSelling() 
 {
-	the_store.header.flags^=ST_SELL;
+	the_store.header.flags^=ST_BUY;
 }
 
 void CStoreGeneral::OnBuying() 
 {
-	the_store.header.flags^=ST_BUY;
+	the_store.header.flags^=ST_SELL;
 }
 
 void CStoreGeneral::OnIdentify() 
@@ -699,16 +699,12 @@ void CStoreItems::DoDataExchange(CDataExchange* pDX)
   int i,j;
   CButton *cb;
 
-  RefreshItems();
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CStoreItems)
 	DDX_Control(pDX, IDC_REMALLITEM, m_itemtype_button);
 	DDX_Control(pDX, IDC_STOREDITEMS, m_stored_control);
 	DDX_Control(pDX, IDC_ITEMTYPE, m_itemtype_picker_control);
 	DDX_Control(pDX, IDC_ALLOWEDITEMS, m_itemtype_control);
-	DDX_Text(pDX, IDC_STRREF, m_strref);
-	DDX_Text(pDX, IDC_SCRIPT, m_trigger);
-	DDV_MaxChars(pDX, m_trigger, 1023);
 	//}}AFX_DATA_MAP
   if(pDX->m_bSaveAndValidate==UD_DISPLAY)
   {
@@ -737,6 +733,13 @@ void CStoreItems::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_USE1+i,m_usages[i]);
     DDV_MinMaxInt(pDX, m_usages[i],0,65535);
   }
+	DDX_Text(pDX, IDC_STRREF, m_strref);
+	DDX_Text(pDX, IDC_SCRIPT, m_trigger);
+	DDV_MaxChars(pDX, m_trigger, 1023);
+  if(pst_compatible_var())
+  {
+    GetDlgItem(IDC_SCRIPT)->EnableWindow(m_strref!=0);
+  }
 }
 
 static int pstcontrols[]={IDC_STRREF, IDC_SCRIPT, IDC_NEW,0};
@@ -759,7 +762,6 @@ BOOL CStoreItems::OnInitDialog()
   {
     m_itemtype_picker_control.AddString(format_itemtype(x) );
   }
-  updateflags=-1;
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -979,7 +981,6 @@ void CStoreItems::OnSelchangeAlloweditems()
 void CStoreItems::OnKillfocusItemtype() 
 {
 	UpdateData(UD_RETRIEVE);
-//  UpdateData(UD_DISPLAY);
 }
 
 void CStoreItems::OnAdditem() 
@@ -1009,7 +1010,6 @@ void CStoreItems::OnAdditem()
   the_store.itemtypes=newitemtypes;
   the_store.header.pitemcount=the_store.itemtypenum;
   RefreshItems();
-  updateflags|=1;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1043,7 +1043,6 @@ void CStoreItems::OnRemoveitem()
   the_store.itemtypes=newitemtypes;
   the_store.header.pitemcount=the_store.itemtypenum;
   RefreshItems();
-  updateflags|=1;
   UpdateData(UD_DISPLAY);
 }
 
@@ -1085,7 +1084,7 @@ void CStoreItems::DisplayEntry(int count)
   m_infinite=the_store.entries[count].infinite;
   m_unknown=the_store.entries[count].unknown08;
   m_strref=the_store.entries[count].trigger;
-  m_trigger=resolve_tlk_text(m_strref);
+  if(m_strref!=0) m_trigger=resolve_tlk_text(m_strref);
   memcpy(m_usages,the_store.entries[count].usages,sizeof(m_usages));
 }
 
@@ -2231,7 +2230,7 @@ CStorePropertySheet::CStorePropertySheet(CWnd* pWndParent)
   AddPage(&m_PageRental);
   AddPage(&m_PageItems);
   AddPage(&m_PageDrinks);
-  if(iwd2_structures())
+  if(has_xpvar()) //both iwd and iwd2
   {
     AddPage(&m_PageExtra);
   }
@@ -2249,7 +2248,7 @@ void CStorePropertySheet::RefreshDialog()
   m_PageRental.RefreshRental();
   m_PageItems.RefreshItems();
   m_PageDrinks.RefreshDrinks();
-  if(iwd2_structures())
+  if(has_xpvar()) //both iwd and iwd2
   {
     m_PageExtra.RefreshExtra();
   }

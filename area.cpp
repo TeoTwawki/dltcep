@@ -36,6 +36,7 @@ Carea::Carea()
   doorheaders=NULL;
   animheaders=NULL;
   mapnoteheaders=NULL;
+  pstmapnoteheaders=NULL;
   tileheaders=NULL;
   vertexheaders=NULL;
   explored=NULL;
@@ -814,10 +815,21 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   }
   else
   {
+    if(pst_compatible_var()) //quick hack for shifting the mapnotes in place
+    {
+      header.pstmapnotecnt=header.mapnotecnt;
+      header.mapnotecnt=header.mapnoteoffset;
+      header.mapnoteoffset=~0;
+    }
     if(write(fh,&header,sizeof(area_header) )!=sizeof(area_header) )
     {	
       ret=-2;
       goto endofquest;
+    }
+    if(pst_compatible_var()) //quick hack for shifting the mapnotes in place
+    {
+      header.mapnoteoffset=header.mapnotecnt;
+      header.mapnotecnt=header.pstmapnotecnt;
     }
   }
 //actor
@@ -939,11 +951,28 @@ int Carea::WriteAreaToFile(int fh, int calculate)
     }
   }
   
-  esize=header.mapnotecnt*sizeof(area_mapnote);
-  if(write(fh,mapnoteheaders,esize )!=esize )
+  if(pst_compatible_var())
   {
-    ret=-2;
-    goto endofquest;
+    ConvertToPstMapnote();
+    esize=header.mapnotecnt*sizeof(pst_area_mapnote);
+    if(write(fh,pstmapnoteheaders,esize )!=esize )
+    {
+      delete[] pstmapnoteheaders;
+      pstmapnoteheaders=NULL;
+      ret=-2;
+      goto endofquest;
+    }
+    delete[] pstmapnoteheaders;
+    pstmapnoteheaders=NULL;
+  }
+  else
+  {
+    esize=header.mapnotecnt*sizeof(area_mapnote);
+    if(write(fh,mapnoteheaders,esize )!=esize )
+    {
+      ret=-2;
+      goto endofquest;
+    }
   }
   
 endofquest:
@@ -1742,6 +1771,42 @@ int Carea::ReadActorData()
   return 0;
 }
 
+void Carea::ConvertToPstMapnote()
+{
+  int i;
+
+  if(pstmapnoteheaders) delete[] pstmapnoteheaders;
+  pstmapnoteheaders = new pst_area_mapnote[header.mapnotecnt];
+  for(i=0;i<header.mapnotecnt;i++)
+  {
+    pstmapnoteheaders[i].px=mapnoteheaders[i].px;
+    pstmapnoteheaders[i].py=mapnoteheaders[i].py;
+    CString tmpstr=resolve_tlk_text(mapnoteheaders[i].strref);
+    int len = tmpstr.GetLength();
+    if(len>256) len=256;
+    strncpy(pstmapnoteheaders[i].text, tmpstr, len);
+    pstmapnoteheaders[i].readonly=!!mapnoteheaders[i].colour;
+  }
+}
+
+void Carea::ConvertFromPstMapnote()
+{
+  int i;
+
+  if(mapnoteheaders) delete[] mapnoteheaders;
+  mapnoteheaders = new area_mapnote[header.mapnotecnt];
+  memset(mapnoteheaders,0,header.mapnotecnt*sizeof(area_mapnote) );
+  for(i=0;i<header.mapnotecnt;i++)
+  {
+    mapnoteheaders[i].px=(unsigned short) pstmapnoteheaders[i].px;
+    mapnoteheaders[i].py=(unsigned short) pstmapnoteheaders[i].py;
+    mapnoteheaders[i].strref=store_tlk_text(-1,pstmapnoteheaders[i].text);
+    mapnoteheaders[i].colour=(unsigned short) pstmapnoteheaders[i].readonly;
+  }
+  delete[] pstmapnoteheaders;
+  pstmapnoteheaders=NULL;
+}
+
 int Carea::ReadAreaFromFile(int fh, long ml)
 {
   int flg, ret;
@@ -1795,6 +1860,11 @@ int Carea::ReadAreaFromFile(int fh, long ml)
   if(read(fhandlea,&header.actoroffset,esize )!=esize )
   {	
   	return -2; // short file, invalid item
+  }
+  if(pst_compatible_var()) //quick hack for shifting the mapnotes in place
+  {
+    header.mapnoteoffset=header.mapnotecnt;
+    header.mapnotecnt=header.pstmapnotecnt;
   }
   //actors
   if(header.actorcnt)
@@ -2137,10 +2207,7 @@ int Carea::ReadAreaFromFile(int fh, long ml)
       ret=1;
     }
   }
-  if(header.mapnoteoffset==-1)
-  {
-    header.mapnotecnt=0; //hack to fix this inconsistency in saved pst areas
-  }
+
   if(header.mapnotecnt)
   {
     flg=adjust_actpointa(header.mapnoteoffset);
@@ -2148,17 +2215,36 @@ int Carea::ReadAreaFromFile(int fh, long ml)
     if(flg) ret|=flg;
   }
 
-  if(mapnotecount!=header.mapnotecnt)
+  if(pst_compatible_var())
   {
-    KillMapnotes();
-    mapnoteheaders=new area_mapnote[header.mapnotecnt];
-    if(!mapnoteheaders) return -3;
-    mapnotecount=header.mapnotecnt;
+    if(mapnotecount!=header.mapnotecnt)
+    {
+      KillMapnotes();
+      pstmapnoteheaders=new pst_area_mapnote[header.mapnotecnt];
+      if(!pstmapnoteheaders) return -3;
+      mapnotecount=header.pstmapnotecnt;
+    }
+    esize=header.mapnotecnt*sizeof(pst_area_mapnote);
+    if(read(fhandlea,pstmapnoteheaders,esize )!=esize )
+    {
+      return -2;
+    }
+    ConvertFromPstMapnote();
   }
-  esize=header.mapnotecnt*sizeof(area_mapnote);
-  if(read(fhandlea,mapnoteheaders,esize )!=esize )
+  else
   {
-    return -2;
+    if(mapnotecount!=header.mapnotecnt)
+    {
+      KillMapnotes();
+      mapnoteheaders=new area_mapnote[header.mapnotecnt];
+      if(!mapnoteheaders) return -3;
+      mapnotecount=header.mapnotecnt;
+    }
+    esize=header.mapnotecnt*sizeof(area_mapnote);
+    if(read(fhandlea,mapnoteheaders,esize )!=esize )
+    {
+      return -2;
+    }
   }
   fullsizea+=esize;
 

@@ -45,7 +45,7 @@ public:
   void new_dialog();
   int CheckExternalLink(int fh, int stateidx); //checks if stateidx state exists in dialog
   int ReadDialogFromFile(int fh, long ml);
-  int WriteDialogToFile(int fh);
+  int WriteDialogToFile(int fh, int calculate);
   inline void KillStates()
   {
     if(dlgstates)

@@ -1255,7 +1255,7 @@ int CChitemDlg::check_charges(int atype, int i)
   ret=0;
   ///
   ///
-  recharge=the_item.extheaders[i].recharged;
+  recharge=the_item.extheaders[i].flags;
   drain=the_item.extheaders[i].drained;
   charges=the_item.extheaders[i].charges;
   if(bg1_compatible_area())
@@ -1269,7 +1269,7 @@ int CChitemDlg::check_charges(int atype, int i)
     switch(drain)
     {
     case 0:
-      if(charges || (recharge&8) )
+      if(charges || (recharge&2048) )
       {
         log("Extended header #%d has charges or recharges but doesn't destruct item.",i+1);
         ret|=BAD_EXTHEAD;
@@ -1290,9 +1290,9 @@ int CChitemDlg::check_charges(int atype, int i)
       }
       break;
     case 3:
-      if(recharge&~8)
+      if(recharge&(~2049)) //add iwd2 flags too
       {
-        log("Extended header #%d has unknown recharge flag: %d.",i+1,recharge);
+        log("Extended header #%d has unknown recharge flag: %8x.",i+1,recharge);
         ret|=BAD_EXTHEAD;
       }
       break;
@@ -1303,7 +1303,7 @@ int CChitemDlg::check_charges(int atype, int i)
     }
     break;
   case A_MELEE:
-    if((drain==3) || charges || (recharge&8))
+    if((drain==3) || charges || (recharge&2048))
     {
       log("Melee extended header #%d has charges, recharges or 'per day' flag.",i+1);
       ret|=BAD_EXTHEAD;
@@ -3677,24 +3677,35 @@ int CChitemDlg::check_videocell()
   int ret;
 
 #ifdef _DEBUG
+
+  if(the_videocell.header.colouring&1)
+  {
+    log("darken");
+  }
+
   if(the_videocell.header.sequencing&2)
   {
     log("COVER!");
   }
 #endif  
   ret=0;
+  if(the_videocell.header.trans2&1)
+  {
+      ret|=BAD_ATTR;
+      log("0x1 in trans2 causes assertion failure in all known cases!");
+  }
   if(the_videocell.header.transparency&4)
   {
-    if(!the_videocell.header.unknown10)
+    if(!(the_videocell.header.unknown10&0xff) )
     {
       ret|=BAD_ATTR;
-      log("0x4 in transparency causes crash if unknown10 field isn't set!");
+      log("0x4 in transparency causes crash if unknown10 lowest byte isn't set!");
     }
   }
   if((the_videocell.header.transparency&10)==10)
   {
     ret|=BAD_ATTR;
-    log("Transparency+brightest flag causes crash!");
+    log("Transparency+brightest flag causes assetion failure!");
   }
   
   if(the_videocell.header.sequencing&8)
@@ -3953,6 +3964,8 @@ int CChitemDlg::check_area_container()
   CString contname;
   unsigned int maxx,maxy;
   unsigned int px,py;
+  unsigned int b1x,b1y;
+  unsigned int b2x,b2y;
 
   ret=0;
   maxx=the_area.overlayheaders[0].width*64;
@@ -3962,17 +3975,44 @@ int CChitemDlg::check_area_container()
     RetrieveVariable(contname,the_area.containerheaders[i].containername);
     px=the_area.containerheaders[i].posx;
     py=the_area.containerheaders[i].posy;
-    if(px>=maxx || py>=maxy)
+    if(!(ret&BAD_VERTEX) )
     {
-      ret|=BAD_ATTR;
-      log("Container #%d (%-.32s [%d.%d]) is out of map.",
+      if(px>=maxx || py>=maxy)
+      {
+        ret|=BAD_VERTEX;
+        log("Container #%d (%-.32s [%d.%d]) is out of map.",
           i+1,contname,px,py);
-    }
-    if(the_area.containerheaders[i].unknown56)
-    {
-      ret|=BAD_ATTR;
-      log("Container vertex count has high word set in container #%d (%-.32s [%d.%d])",
-        i+1,contname,px,py);
+      }
+      b1x=the_area.containerheaders[i].p1x;
+      b1y=the_area.containerheaders[i].p1y;
+      b2x=the_area.containerheaders[i].p2x;
+      b2y=the_area.containerheaders[i].p2y;
+      if((b1x>=b2x) || (b1y>=b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Container #%d (%-.32s [%d.%d]) has invalid bounding box, possibly damaged polygon.",
+          i+1,contname,px,py);
+      }
+      if((b1x+800<b2x) || (b1y+600<b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Container #%d (%-.32s [%d.%d]) has too large bounding box, possibly damaged polygon.",
+          i+1,contname,px,py);
+      }
+      b1x=(b1x+b2x)/2;
+      b1y=(b1y+b2y)/2;
+      if((px+800<b1x) || (py+600<b1y))
+      {
+        ret|=BAD_VERTEX;
+        log("Container #%d (%-.32s [%d.%d]) has its opening location too far away.",
+          i+1,contname,px,py);
+      }
+      if(the_area.containerheaders[i].unknown56)
+      {
+        ret|=BAD_VERTEX;
+        log("Container vertex count has high word set in container #%d (%-.32s [%d.%d])",
+          i+1,contname,px,py);
+      }
     }
     first=the_area.containerheaders[i].firstitem;
     last=first+the_area.containerheaders[i].itemcount;
@@ -4006,7 +4046,10 @@ int CChitemDlg::check_area_door()
   int ret;
   CString doorname;
   unsigned int maxx,maxy;
-  unsigned int px,py;
+  unsigned int p1x,p1y;
+  unsigned int p2x,p2y;
+  unsigned int b1x,b1y;
+  unsigned int b2x,b2y;
   int strref;
 
   ret=0;
@@ -4023,13 +4066,58 @@ int CChitemDlg::check_area_door()
   for(i=0;i<the_area.header.doorcnt;i++)
   {
     RetrieveVariable(doorname,the_area.doorheaders[i].doorname);
-    px=the_area.doorheaders[i].locp1x; //closed door, bounding rect
-    py=the_area.doorheaders[i].locp1y;
-    if(px>=maxx || py>=maxy)
+    p1x=the_area.doorheaders[i].locp1x; //location p1
+    p1y=the_area.doorheaders[i].locp1y;
+    p2x=the_area.doorheaders[i].locp2x; //location p2
+    p2y=the_area.doorheaders[i].locp2y;
+    if(!(ret&BAD_VERTEX) )
     {
-      ret|=BAD_ATTR;
-      log("Door #%d (%-.32s [%d.%d]) is out of map.",
-          i+1,doorname,px,py);
+      if(p1x>=maxx || p1y>=maxy)
+      {
+        ret|=BAD_VERTEX;
+        log("Door #%d (%-.32s [%d.%d]) open location is out of map.",
+          i+1,doorname,p1x,p1y);
+      }
+      if(p2x>=maxx || p2y>=maxy)
+      {
+        ret|=BAD_VERTEX;
+        log("Door #%d (%-.32s [%d.%d]) open location is out of map.",
+          i+1,doorname,p2x,p2y);
+      }
+      b1x=the_area.doorheaders[i].op1x; //open door, bounding rect
+      b1y=the_area.doorheaders[i].op1y;
+      b2x=the_area.doorheaders[i].op2x; 
+      b2y=the_area.doorheaders[i].op2y;
+      if((b1x>=b2x) || (b1y>=b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Door #%d (%-.32s [%d.%d]) has invalid open bounding box, possibly damaged polygon.",
+          i+1,doorname,p1x,p1y);
+      }
+      if((b1x+800<b2x) || (b1y+600<b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Door #%d (%-.32s [%d.%d]) has too large open bounding box, possibly damaged polygon.",
+          i+1,doorname,p1x,p1y);
+      }
+
+      b1x=the_area.doorheaders[i].cp1x; //closed door, bounding rect
+      b1y=the_area.doorheaders[i].cp1y;
+      b2x=the_area.doorheaders[i].cp2x; 
+      b2y=the_area.doorheaders[i].cp2y;
+      if((b1x>=b2x) || (b1y>=b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Door #%d (%-.32s [%d.%d]) has invalid closed bounding box, possibly damaged polygon.",
+          i+1,doorname,p1x,p1y);
+      }
+      if((b1x+800<b2x) || (b1y+600<b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Door #%d (%-.32s [%d.%d]) has too large closed bounding box, possibly damaged polygon.",
+          i+1,doorname,p1x,p1y);
+      }
+
     }
     strref=the_area.doorheaders[i].strref;
     switch(check_reference(strref) )
@@ -4037,12 +4125,12 @@ int CChitemDlg::check_area_door()
     case 1:
       ret|=BAD_STRREF;
       log("Invalid opening message (%d) in door #%d (%-.32s [%d.%d])",
-        strref,i+1,doorname,px,py);
+        strref,i+1,doorname,p1x,p1y);
       break;
     case 2:
       ret|=BAD_STRREF;
       log("Deleted opening message (%d) in door #%d (%-.32s [%d.%d])",
-        strref,i+1,doorname,px,py);
+        strref,i+1,doorname,p1x,p1y);
       break;
     }
     switch(check_dialogres(the_area.doorheaders[i].dlgref,false) )
@@ -4050,7 +4138,7 @@ int CChitemDlg::check_area_door()
     case -1:
       ret|=BAD_RESREF;
       log("Non existent dialog (%-.8s) for door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].dlgref,i+1,doorname,px,py);
+          the_area.doorheaders[i].dlgref,i+1,doorname,p1x,p1y);
     }
     if(the_area.doorheaders[i].dlgref[0]) //door has name only when there is a dialog
     {
@@ -4059,12 +4147,12 @@ int CChitemDlg::check_area_door()
       case 1:
         ret|=BAD_STRREF;
         log("Invalid doorname (%d) in door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].nameref,i+1,doorname,px,py);
+          the_area.doorheaders[i].nameref,i+1,doorname,p1x,p1y);
         break;
       case 2:
         ret|=BAD_STRREF;
         log("Deleted doorname (%d) in door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].nameref,i+1,doorname,px,py);
+          the_area.doorheaders[i].nameref,i+1,doorname,p1x,p1y);
         break;
       }
     }
@@ -4074,19 +4162,22 @@ int CChitemDlg::check_area_door()
     case -1:
       ret|=BAD_RESREF;
       log("Non existent open script (%-.8s) for door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].openscript,i+1,doorname,px,py);
+          the_area.doorheaders[i].openscript,i+1,doorname,p1x,p1y);
     }
-    if(the_area.doorheaders[i].firstvertexopen+the_area.doorheaders[i].countvertexopen>the_area.header.vertexcnt)
+    if(!(ret&BAD_VERTEX))
     {
-      ret|=BAD_ATTR;
-      log("Invalid vertex entries for opened door #%d (%-.32s [%d.%d])",
-        i+1,doorname,px,py);
-    }
-    if(the_area.doorheaders[i].firstvertexclose+the_area.doorheaders[i].countvertexclose>the_area.header.vertexcnt)
-    {
-      ret|=BAD_ATTR;
-      log("Invalid vertex entries for closed door #%d (%-.32s [%d.%d])",
-        i+1,doorname,px,py);
+      if(the_area.doorheaders[i].firstvertexopen+the_area.doorheaders[i].countvertexopen>the_area.header.vertexcnt)
+      {
+        ret|=BAD_VERTEX;
+        log("Invalid vertex entries for opened door #%d (%-.32s [%d.%d])",
+          i+1,doorname,p1x,p1y);
+      }
+      if(the_area.doorheaders[i].firstvertexclose+the_area.doorheaders[i].countvertexclose>the_area.header.vertexcnt)
+      {
+        ret|=BAD_VERTEX;
+        log("Invalid vertex entries for closed door #%d (%-.32s [%d.%d])",
+          i+1,doorname,p1x,p1y);
+      }
     }
   }
   return ret;
@@ -4308,15 +4399,47 @@ int CChitemDlg::check_area_trigger()
   int fhandle;
   loc_entry fileloc;
   CString infoname, destination, entrancename;
-  int px,py;
+  unsigned int maxx,maxy;
+  unsigned int px,py;
+  unsigned int b1x,b1y;
+  unsigned int b2x,b2y;
   Carea tmparea;
 
   ret=0;
+  maxx=the_area.overlayheaders[0].width*64;
+  maxy=the_area.overlayheaders[0].height*64;
   for(i=0;i<the_area.header.infocnt;i++)
   {
     RetrieveVariable(infoname,the_area.triggerheaders[i].infoname);
     px=the_area.triggerheaders[i].p1x; //bounding rect
     py=the_area.triggerheaders[i].p1y;
+    if(!(ret&BAD_VERTEX))
+    {
+      if(px>=maxx || py>=maxy)
+      {
+        ret|=BAD_VERTEX;
+        log("Trigger region #%d (%-.32s [%d.%d]) is out of map.",
+          i+1,infoname,px,py);
+      }
+
+      b1x=the_area.triggerheaders[i].p1x;
+      b1y=the_area.triggerheaders[i].p1y;
+      b2x=the_area.triggerheaders[i].p2x;
+      b2y=the_area.triggerheaders[i].p2y;
+      if((b1x>=b2x) || (b1y>=b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Trigger region #%d (%-.32s [%d.%d]) has invalid bounding box, possibly damaged polygon.",
+          i+1,infoname,px,py);
+      }
+      if((b1x+800<b2x) || (b1y+600<b2y))
+      {
+        ret|=BAD_VERTEX;
+        log("Trigger region #%d (%-.32s [%d.%d]) has too large bounding box, possibly damaged polygon.",
+          i+1,infoname,px,py);
+      }
+    }
+
     ttype=the_area.triggerheaders[i].triggertype;
     if(ttype>3)
     {
@@ -4324,6 +4447,7 @@ int CChitemDlg::check_area_trigger()
       log("Invalid trigger type in active region #%d (%-.32s [%d.%d])",
         i+1,infoname,px,py);
     }
+
     tmp=the_area.triggerheaders[i].cursortype;
     if((tmp&1) || (tmp>64) )
     {
@@ -4404,14 +4528,8 @@ int CChitemDlg::check_area_variable()
 
 int CChitemDlg::check_area_vertex()
 {
-  int i;
-  int ret;
-
-  ret=0;
-  for(i=0;i<the_area.header.vertexcnt;i++)
-  {
-  }
-  return ret;
+  //maybe this isn't needed
+  return 0;
 }
 
 int CChitemDlg::check_area_interrupt()

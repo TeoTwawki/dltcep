@@ -1365,7 +1365,7 @@ BEGIN_MESSAGE_MAP(CMUSEdit, CDialog)
 	ON_NOTIFY(LVN_ENDLABELEDIT, IDC_MUS, OnEndlabeleditMus)
 	ON_NOTIFY(NM_RCLICK, IDC_MUS, OnRClickMus)
 	ON_BN_CLICKED(IDC_PLAYWHOLE, OnPlaywhole)
-	ON_BN_CLICKED(IDC_PLAY, RClick)
+	ON_BN_CLICKED(IDC_PLAY, OnRClickCmd)
 	ON_COMMAND(ID_PLAY_PLAYWHOLE, OnPlaywhole)
 	ON_COMMAND(ID_PLAY_PLAYPART, OnRClickCmd)
 	ON_COMMAND(ID_ADD, OnRow)
@@ -1715,6 +1715,7 @@ void CMUSEdit::OnPlaywhole()
     poi=play_acm(convert_musiclist(filename, true), true, true);
     if(poi<1 && poi>-10) goto endofquest;
     memory2=(void *) poi;
+    BringWindowToTop();//this is needed so there is no crash when the window was hidden (braindead Windows)
     dlg.waitsound=true;
     ret=dlg.DoModal();
     sndPlaySound(NULL,SND_NODEFAULT);
@@ -1726,6 +1727,7 @@ void CMUSEdit::OnPlaywhole()
   {
     sndPlaySound((const char *) memory1,SND_MEMORY | SND_ASYNC);
   }
+  BringWindowToTop(); //this is needed so there is no crash when the window was hidden
   dlg.waitsound=true;
   dlg.DoModal();
   sndPlaySound(NULL,SND_NODEFAULT);

@@ -151,6 +151,7 @@ void CWedEdit::RefreshOverlay()
 {
   CString tisname;
   loc_entry fileloc;
+  Cmos tmpmos;
   int otc;
   int fhandle;
   int i;
@@ -184,7 +185,7 @@ void CWedEdit::RefreshOverlay()
     return;
   }
   tis.SetAt(tisname,fileloc);
-  if(!m_overlaynum && otc<the_mos.RetrieveTisFrameCount(fhandle,fileloc.size) )
+  if(!m_overlaynum && otc<tmpmos.RetrieveTisFrameCount(fhandle,fileloc.size) )
   {
     m_problem="Doesn't match area dimensions";
   }

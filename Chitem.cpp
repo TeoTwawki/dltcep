@@ -768,6 +768,97 @@ bool dir_exists(CString filename)
   return false;
 }
 
+//removes files from a sav and copies it
+int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhandle)
+{
+  sav_entry saventry;
+  CString filename;
+  CString tmpstr;
+  char *poi1;
+  long oflg;
+  int ret;
+
+  if(finput<1)
+  {
+    return -1;
+  }
+  if(fhandle<1)
+  {
+    return -1;
+  }
+  if(!maxlen) return 1; //end
+  if(maxlen<sizeof(oflg)) return -2;
+
+  if(read(finput,&oflg,sizeof(oflg) )!=sizeof(oflg) )
+  {
+    return -2;
+  }
+  if(oflg>200) return -2;
+  poi1=saventry.filename.GetBufferSetLength(oflg+1);
+  if(read(finput,poi1,oflg)!=oflg)
+  {
+    return -2;
+  }
+  saventry.filename.ReleaseBuffer(-1);
+
+  if(read(finput, &saventry.uncompressed, sizeof(long)*2 )!=sizeof(long)*2 )
+  {
+    return -2;
+  }
+  maxlen-=oflg+sizeof(oflg)+2*sizeof(long)+saventry.compressed;
+
+  itemname=saventry.filename.Left(saventry.filename.Find('.'));
+  if(!key.IsEmpty() && (itemname.Find(key,0)==-1) )
+  {
+    lseek(finput,saventry.compressed,SEEK_CUR);
+    return 2; //no match
+  }
+  if(!ext.IsEmpty() && !(saventry.filename.Right(4).CompareNoCase(ext)) )
+  {
+    lseek(finput,saventry.compressed,SEEK_CUR);
+    return 2; //no match
+  }
+  oflg=saventry.filename.GetLength();
+  //string length
+  if(write(fhandle,&oflg,sizeof(oflg) )!=sizeof(oflg) )
+  {
+    return -4;
+  }
+  //string
+  if(write(fhandle,saventry.filename,oflg)!=oflg)
+  {
+    return -4;
+  }
+  //sizes
+  if(write(fhandle,&saventry.uncompressed, sizeof(long)*2 )!=sizeof(long)*2 )
+  {
+    return -4;
+  }
+
+  poi1=new char[saventry.compressed];
+
+  if(!poi1)
+  {
+    ret=-3;
+    goto endofquest;
+  }
+  if(read(finput,poi1,saventry.compressed)!=saventry.compressed)
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  //file itself
+  if(write(fhandle,poi1,saventry.compressed)!=saventry.compressed)
+  {
+    ret=-4;
+    goto endofquest;
+  }
+  ret=0;
+endofquest:
+  if(poi1) delete [] poi1;
+  return ret;
+}
+
 //extracts a bif from a cbf
 int extract_from_cbf(CString key, CString ext, int finput, int override, int &maxlen)
 {
@@ -1765,7 +1856,7 @@ CString get_script_type(int i)
   return "Unknown";
 }
 
-CString storetypes[NUM_STORETYPE+1]={"00-Store","01-Tavern","02-Inn","03-Temple","04-Container (IWD2)","05-Container (BG2)","\?\?-Unknown"};
+CString storetypes[NUM_STORETYPE+1]={"00-Store","01-Tavern","02-Inn","03-Temple","04-Container (IWD)","05-Container (BG2)","\?\?-Unknown"};
 
 CString format_storetype(unsigned int storetype)
 {
@@ -2465,8 +2556,12 @@ char *idstype[NUM_IDS]={
 };
 
 char *idsname[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
+#define NUM_IDS_IWD  9
 char *idsname_iwd[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
+#define NUM_IDS_IWD2  9
 char *idsname_iwd2[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMNT"};
+#define NUM_IDS_PST  9
+char *idsname_pst[NUM_IDS_PST]={"EA","TEAM","FACTION","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
 
 CString IDSType(int ids, bool addtwo)
 {
@@ -2478,9 +2573,23 @@ CString IDSType(int ids, bool addtwo)
 CString IDSName(int ids, bool addtwo)
 {
   if(addtwo) ids-=2;
-  if(ids<0 || ids>6) return "unknown";
-  if(iwd2_structures()) return idsname_iwd2[ids];
-  if(has_xpvar()) return idsname_iwd[ids];
+  if(ids<0) return "unknown";
+  if(pst_compatible_var())
+  {
+    if(ids>=NUM_IDS_PST) return "unknown";
+    return idsname_pst[ids];
+  }
+  if(iwd2_structures())
+  {
+    if(ids>=NUM_IDS_IWD2) return "unknown";
+    return idsname_iwd2[ids];
+  }
+  if(has_xpvar())
+  {
+    if(ids>=NUM_IDS_IWD) return "unknown";
+    return idsname_iwd[ids];
+  }
+  if(ids>=NUM_IDS) return "unknown";
   return idsname[ids];
 }
 

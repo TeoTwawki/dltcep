@@ -423,9 +423,7 @@ typedef struct
   unsigned short fboffs;
   unsigned short charges;
   unsigned short drained;
-  unsigned char str_bonus;
-  unsigned char recharged;
-  unsigned short keen;         //0x28-29
+  unsigned long flags;
   unsigned short proref;       //projectl.ids reference
   unsigned short animation[3];
   unsigned short missile[3];
@@ -624,11 +622,11 @@ typedef struct
 typedef struct
 {
   char filetype[4]; //'CHR '
-  char revision[4]; //'V2.1'-bg2/tob,  v1.0 - iwd
+  char revision[4]; //'V2.2'-iwd2
   char name[32];
   long creoffset;
   long cresize;
-  char filler[0x1e2];
+  char filler[0x1f4];
 } character_iwd2_header;
 
 typedef struct
@@ -1217,7 +1215,8 @@ typedef struct
   long intoffset;
   long mapnoteoffset;
   long mapnotecnt;
-  char unused[80];
+  long pstmapnotecnt;
+  char unused[76];
 } area_header;
 
 typedef struct {
@@ -1329,10 +1328,9 @@ typedef struct {
   short detected;
   short launchx,launchy;
   char key[8];
-  char scriptref[8]; //script of this trigger
-  short ovrp1x, ovrp1y, ovrp2x, ovrp2y; //minimum bounding box for alternate location
-  char unknown[40];
-  long point;
+  char scriptref[8]; //script of this trigger  
+  char unknown[48];
+  short pointx, pointy;
   long unused2;
   char dialogref[8];
 } area_trigger;
@@ -1454,7 +1452,8 @@ typedef struct {
   char openscript[8];
   long locked;
   long lockremoval;
-  short locp1x, locp1y, locp2x, locp2y; //minimum bounding box for open location
+  short locp1x, locp1y;   //open location 1
+  short locp2x, locp2y;   //open location 2
   long strref;            //check this for missing strings STRREF!!!
   char regionlink[16];
   char unknowna8[8];
@@ -1489,6 +1488,13 @@ typedef struct {
 } area_mapnote;
 
 typedef struct {
+  long px, py;
+  char text[500];
+  long readonly;
+  long unused[5];
+} pst_area_mapnote;
+
+typedef struct {
   char tilename[32];
   char resref[8]; //script ?
   long unknown;
@@ -1496,7 +1502,7 @@ typedef struct {
   long prnum;
   long secstr;
   long secnum;
-  char unused[46];
+  char unused[48];
 } area_tile;
 
 typedef struct { //10 songrefs, day,night,battle, etc
