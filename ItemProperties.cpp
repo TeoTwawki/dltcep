@@ -8,6 +8,7 @@
 #include "ItemProperties.h"
 #include "EffEdit.h"
 #include "options.h"
+#include "compat.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -51,14 +52,18 @@ static CString ClassUsabilityBits11[26]=
  "22", "Annah", "24", "Nameless One", "26"
 };
 
-static CString ClassUsabilityBits[26]=
+static CString ClassUsabilityBits[58]=
 {
   "Bard","Cleric","Cleric-Mage","Cleric/Thief","Cleric/Ranger",
   "Fighter","Fighter/Druid","Fighter/Mage","Fighter/Cleric",
   "Fighter/Mage/Cleric","Fighter/Mage/Thief","Fighter/Thief","Mage",
-  "Mage/Thief","Paladin","Ranger","Thief",
-  "Elf","Dwarf","Half-Elf","Halfling",
-  "Human","Gnome","Monk","Druid","Half-Orc"
+  "Mage/Thief","Solamnic Knight","Ranger","Thief",
+  "Elf","Dwarf","Half-Elf","Kender",
+  "Human","Gnome","Monk","Druid","Minotaur",
+  "","","","","","","","",
+  "","","","","Handler","","","",
+  "Diviner","Enchanter","Evoker","Illusionist","Necromancer","Transmuter","Baseclass","",
+  "","","","","","","Abjurer","Conjurer"
 };
 
 //gets the starting feature block counter for this extended header
@@ -838,7 +843,7 @@ void CItemIcons::OnIcenter()
   center.x=center.x/2;
   center.y=center.y/2;
   the_bam.SetFramePos(frame,center.x,center.y);
-  write_bam(tmpstr);
+  write_bam(tmpstr,"",&the_bam);
   UpdateData(UD_DISPLAY);
 }
 
@@ -878,7 +883,7 @@ void CItemIcons::OnGcenter()
   center.x=center.x/2;
   center.y=center.y/2;
   the_bam.SetFramePos(frame,center.x,center.y);
-  write_bam(tmpstr);
+  write_bam(tmpstr,"",&the_bam);
   UpdateData(UD_DISPLAY);
 }
 
@@ -943,7 +948,7 @@ void CItemIcons::OnDcenter()
   case 1:
     center=the_bam.GetFrameSize(0);
     the_bam.SetFramePos(0,center.x/2,center.y/2);
-    write_bam(tmpstr);
+    write_bam(tmpstr,"",&the_bam);
     break;
   case 4:
     center=the_bam.GetFrameSize(0);
@@ -953,7 +958,7 @@ void CItemIcons::OnDcenter()
     center=the_bam.GetFrameSize(2);
     the_bam.SetFramePos(2,center.x,0);
     the_bam.SetFramePos(3,0,0);
-    write_bam(tmpstr);
+    write_bam(tmpstr,"",&the_bam);
     break;
   default:
     MessageBox("I can only center one or four pieces.","Item editor",MB_OK);
@@ -1185,11 +1190,12 @@ void CItemDescription::OnKillfocusShortname()
     {
       if(MessageBox("Do you want to update dialog.tlk?","Item editor",MB_YESNO)!=IDYES)
       {
-        return;
+        goto end;
       }
     }
     the_item.header.unidref=store_tlk_text(the_item.header.unidref, m_shortname);
   }
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -1206,11 +1212,12 @@ void CItemDescription::OnKillfocusLongname()
     {
       if(MessageBox("Do you want to update dialog.tlk?","Item editor",MB_YESNO)!=IDYES)
       {
-        return;
+        goto end;
       }
     }
     the_item.header.idref=store_tlk_text(the_item.header.idref, m_longname);
   }
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -1221,10 +1228,11 @@ void CItemDescription::OnShortnametag()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Item editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
   toggle_tlk_tag(the_item.header.unidref);
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -1235,10 +1243,11 @@ void CItemDescription::OnShortdesctag()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Item editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
   toggle_tlk_tag(the_item.header.uniddesc);
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -1249,10 +1258,11 @@ void CItemDescription::OnLongnametag()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Item editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
   toggle_tlk_tag(the_item.header.idref);
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -1263,10 +1273,11 @@ void CItemDescription::OnLongdesctag()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Item editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
   toggle_tlk_tag(the_item.header.iddesc);
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -1369,6 +1380,14 @@ void CItemUsability::DoDataExchange(CDataExchange* pDX)
           checkbox->SetWindowText(tmpstr);
         }
         break;
+      default:
+        if(optflg&COM_DLTC)
+        {
+          if(id>5)
+          {
+            checkbox->SetWindowText(ClassUsabilityBits[id-6]);
+          }
+        }
       }
     }
   }

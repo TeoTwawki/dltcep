@@ -7,6 +7,7 @@
 #include "chitem.h"
 #include "ImageView.h"
 #include "TisDialog.h"
+#include "options.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,6 +24,7 @@ CTisDialog::CTisDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTisDialog)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
+  m_graphics=false;
   m_overlaynum=0;
   m_tileheaders=NULL;
   m_tileindices=NULL;
@@ -70,7 +72,7 @@ void CTisDialog::setrange(CString tisname, int x, int y, int readnow)
   }
   if(the_mos.GetFrameCount()<x*y) //the tis framecount may be higher because of doors
   {
-    MessageBox("Corrupt Tileset","Tis Extractor",MB_ICONSTOP|MB_OK);
+    MessageBox("Corrupt Tileset","Tile editor",MB_ICONSTOP|MB_OK);
   }
 }
 
@@ -86,11 +88,13 @@ BEGIN_MESSAGE_MAP(CTisDialog, CDialog)
 	ON_BN_CLICKED(IDC_SAVETIS, OnSavetis)
 	ON_BN_CLICKED(IDC_TOP, OnTop)
 	ON_BN_CLICKED(IDC_BOTTOM, OnBottom)
-	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
 	ON_BN_CLICKED(IDC_MINIMAP, OnMinimap)
 	ON_BN_CLICKED(IDC_OPEN, OnOpen)
 	ON_BN_CLICKED(IDC_CLEARALL, OnClearall)
+	ON_BN_CLICKED(IDC_LOAD, OnLoad)
+	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
 	//}}AFX_MSG_MAP
+ON_COMMAND(ID_REFRESH, RefreshDialog)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -102,6 +106,31 @@ void CTisDialog::RefreshDialog()
   if(the_mos.m_drawclosed) cb->SetWindowText("Closed doors");
   else cb->SetWindowText("Open doors");
   cb->SetCheck(!the_mos.m_drawclosed);
+
+  if(m_preview.m_bm)
+  {
+    DeleteObject(m_preview.m_bm);
+    m_preview.m_bm=0;
+  }
+  if(editflg&LARGEWINDOW)
+  {
+    m_preview.m_maxextentx=m_preview.m_maxextenty=8;//maximum number of tiles fitting on screen
+  }
+  else
+  {
+    m_preview.m_maxextentx=m_preview.m_maxextenty=10;
+  }
+
+  m_preview.m_clipx=m_preview.m_minclipx=m_minx;
+  m_preview.m_clipy=m_preview.m_minclipy=m_miny;
+  m_preview.m_maxclipx=m_maxx+1;
+  m_preview.m_maxclipy=m_maxy+1;
+  if(m_graphics)
+  {
+    m_preview.RedrawContent();
+  }  
+  m_preview.ShowWindow(m_graphics);
+  UpdateData(UD_DISPLAY);
 }
 
 void CTisDialog::OnKillfocusPosx() 
@@ -122,7 +151,7 @@ void CTisDialog::OnKillfocusMaxx()
   if(m_maxx<0) m_maxx=0;
   else if(m_maxx>=m_posx) m_maxx=m_posx-1;
   if(m_maxx<m_minx) m_maxx=m_minx;
-	UpdateData(UD_DISPLAY);
+  RefreshDialog();
 }
 
 void CTisDialog::OnKillfocusMaxy() 
@@ -131,7 +160,7 @@ void CTisDialog::OnKillfocusMaxy()
   if(m_maxy<0) m_maxy=0;
   else if(m_maxy>=m_posy) m_maxy=m_posy-1;
   if(m_maxy<m_miny) m_maxy=m_miny;
-	UpdateData(UD_DISPLAY);
+  RefreshDialog();
 }
 
 void CTisDialog::OnKillfocusMinx() 
@@ -140,7 +169,7 @@ void CTisDialog::OnKillfocusMinx()
   if(m_minx<0) m_minx=0;
   else if(m_minx>=m_posx) m_minx=m_posx-1;
   if(m_maxx<m_minx) m_maxx=m_minx;
-	UpdateData(UD_DISPLAY);
+  RefreshDialog();
 }
 
 void CTisDialog::OnKillfocusMiny() 
@@ -149,7 +178,7 @@ void CTisDialog::OnKillfocusMiny()
   if(m_miny<0) m_miny=0;
   else if(m_miny>=m_posy) m_miny=m_posy-1;
   if(m_maxy<m_miny) m_maxy=m_miny;
-	UpdateData(UD_DISPLAY);
+  RefreshDialog();
 }
 
 void CTisDialog::OnBmp() 
@@ -204,7 +233,7 @@ restart:
     case 0:
       unlink(filepath);
       rename(filepath+".tmp",filepath);
-      MessageBox("Image exported","Tis extractor",MB_OK);
+      MessageBox("Image exported","Tile editor",MB_OK);
       break; //saved successfully
     case -2:
       MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
@@ -225,101 +254,41 @@ void CTisDialog::OnSavetis()
 
 void CTisDialog::OnTop() 
 {
-  CImageView dlg;
   CPoint point;
-  
-  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID|IW_MARKTILE, &the_mos);
-  dlg.m_maxclipx=m_maxx+1;
-  dlg.m_maxclipy=m_maxy+1;
-  dlg.m_clipx=m_maxx;
-  dlg.m_clipy=m_maxy;
-  if(dlg.m_maxclipx-dlg.m_minclipx<dlg.m_maxextentx)
-  {
-    dlg.m_maxextentx=dlg.m_maxclipx-dlg.m_minclipx;
-  }
-  if(dlg.m_maxclipy-dlg.m_minclipy<dlg.m_maxextenty)
-  {
-    dlg.m_maxextenty=dlg.m_maxclipy-dlg.m_minclipy;
-  }
-  dlg.m_showgrid=true;
 
-  if(dlg.DoModal()==IDOK)
+  point=m_preview.GetPoint(GP_TILE);
+  if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
+    point.y>=0 && point.y<=the_mos.mosheader.wRow)
   {
-    point=dlg.GetPoint(GP_TILE);
-    if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
-       point.y>=0 && point.y<=the_mos.mosheader.wRow)
-    {
-      m_minx=point.x;
-      m_miny=point.y;
-      if(m_maxx<m_minx) m_maxx=m_minx;
-      if(m_maxy<m_miny) m_maxy=m_miny;
-      UpdateData(UD_DISPLAY);
-    }
+    m_minx=point.x;
+    m_miny=point.y;
+    if(m_maxx<m_minx) m_maxx=m_minx;
+    if(m_maxy<m_miny) m_maxy=m_miny;
+    RefreshDialog();
   }
 }
 
 void CTisDialog::OnBottom() 
 {
-  CImageView dlg;
   CPoint point;
 
-  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID|IW_MARKTILE, &the_mos);
-  dlg.m_minclipx=m_minx;
-  dlg.m_minclipy=m_miny;
-  dlg.m_clipx=m_minx;
-  dlg.m_clipy=m_miny;
-  if(dlg.m_maxclipx-dlg.m_minclipx<dlg.m_maxextentx)
+  point=m_preview.GetPoint(GP_TILE);
+  if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
+    point.y>=0 && point.y<=the_mos.mosheader.wRow)
   {
-    dlg.m_maxextentx=dlg.m_maxclipx-dlg.m_minclipx;
-  }
-    if(dlg.m_maxclipy-dlg.m_minclipy<dlg.m_maxextenty)
-  {
-    dlg.m_maxextenty=dlg.m_maxclipy-dlg.m_minclipy;
-  }
-  dlg.m_showgrid=true;
-
-  if(dlg.DoModal()==IDOK)
-  {
-    point=dlg.GetPoint(GP_TILE);
-    if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
-       point.y>=0 && point.y<=the_mos.mosheader.wRow)
-    {
-      m_maxx=point.x;
-      m_maxy=point.y;
-      if(m_maxx<m_minx) m_minx=m_maxx;
-      if(m_maxy<m_miny) m_miny=m_maxy;
-      UpdateData(UD_DISPLAY);
-    }
+    m_maxx=point.x;
+    m_maxy=point.y;
+    if(m_maxx<m_minx) m_minx=m_maxx;
+    if(m_maxy<m_miny) m_miny=m_maxy;
+    RefreshDialog();
   }
 }
 
-void CTisDialog::OnPreview() 
-{
-	CImageView dlg;
-	
-  the_mos.SetOverlay(m_overlaynum?1<<m_overlaynum:0, m_tileheaders, m_tileindices);
-  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID, &the_mos);
-  //instead of initview we set the attributes manually
-  dlg.m_clipx=dlg.m_minclipx=m_minx;
-  dlg.m_clipy=dlg.m_minclipy=m_miny;
-  dlg.m_maxclipx=m_maxx+1;
-  dlg.m_maxclipy=m_maxy+1;
-  if(dlg.m_maxclipx-dlg.m_minclipx<dlg.m_maxextentx)
-  {
-    dlg.m_maxextentx=dlg.m_maxclipx-dlg.m_minclipx;
-  }
-    if(dlg.m_maxclipy-dlg.m_minclipy<dlg.m_maxextenty)
-  {
-    dlg.m_maxextenty=dlg.m_maxclipy-dlg.m_minclipy;
-  }
- 
-  dlg.DoModal();
-}
-
-int tisdialogids[]={IDC_SAVETIS, IDC_MINIMAP, IDC_OPEN,0};
+int tisdialogids[]={IDC_SAVETIS, IDC_MINIMAP, 0};
 
 BOOL CTisDialog::OnInitDialog() 
 {
+  CRect rect;
   int i;
 
 	CDialog::OnInitDialog();
@@ -333,11 +302,9 @@ BOOL CTisDialog::OnInitDialog()
   {
   case 5:
     SetWindowText("Select overlap");
-    RefreshDialog();
     break;
   case 1:
     SetWindowText("Tileset extraction: "+m_tisname);
-    RefreshDialog();
     break;
   case 0:
     SetWindowText("Mos extraction: "+m_tisname);
@@ -352,6 +319,13 @@ BOOL CTisDialog::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
     m_tooltip.AddTool(GetDlgItem(IDC_MINIMAP), IDS_MINIMAP);
   }
+
+  the_mos.SetOverlay(0,m_tileheaders, m_tileindices);
+  m_preview.InitView(IW_SHOWGRID|IW_MARKTILE, &the_mos); //initview must be before create
+  m_preview.Create(IDD_IMAGEVIEW,this);
+  GetWindowRect(rect);
+  m_preview.SetWindowPos(0,rect.right,rect.top,0,0,SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
+  RefreshDialog();
 	return TRUE;
 }
 
@@ -371,7 +345,54 @@ void CTisDialog::OnClearall()
 	m_minx=m_miny=0;
 	m_maxx=m_posx-1;
   m_maxy=m_posy-1;
-	UpdateData(UD_DISPLAY);
+  RefreshDialog();
+}
+
+void CTisDialog::OnLoad() 
+{
+  CString tmpstr;
+  Cmos tmpmos;
+  DWORD i,x,y;
+  DWORD nFrameWanted;
+
+  pickerdlg.m_restype=REF_TIS;
+  pickerdlg.DoModal();
+  if(read_tis(pickerdlg.m_picked,&tmpmos, false) )
+  {
+    MessageBox("Can't load overlay tileset.","Tile editor",MB_ICONWARNING|MB_OK);
+    return;
+  }
+  x=m_maxx-m_minx+1;
+  y=m_maxy-m_miny+1;
+  if(tmpmos.tisheader.numtiles!=x*y )
+  {
+    tmpstr.Format("The tileset dimension isn't %dx%d",x,y);
+    MessageBox(tmpstr,"Tile editor",MB_ICONWARNING|MB_OK);
+    return;
+  }
+  //reading in the new tileset as an alternate tile map
+  //also setting the doortileindices
+  i=0;  
+  for(y=m_miny;y<=m_maxy;y++)
+  {
+    for(x=m_minx;x<=m_maxx;x++)
+    {
+      nFrameWanted=y*m_posx+x;
+      if(m_tileheaders[nFrameWanted].alternate==-1)
+      {
+        m_tileheaders[nFrameWanted].alternate=(short) the_mos.AddTileCopy(m_tileindices[m_tileheaders[nFrameWanted].firsttileprimary]);
+      }
+      the_mos.SetFrameData(m_tileheaders[nFrameWanted].alternate, tmpmos.GetFrameData(i) );
+      i++;
+    }
+  }
+  RefreshDialog();
+}
+
+void CTisDialog::OnPreview() 
+{
+  m_graphics=!m_graphics;
+  RefreshDialog();
 }
 
 BOOL CTisDialog::PreTranslateMessage(MSG* pMsg) 

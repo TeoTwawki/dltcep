@@ -86,6 +86,9 @@ void CStrRefDlg::OnUpdateStrref()
   m_tag=resolve_tlk_tag(m_strref);
   m_text=resolve_tlk_text(m_strref);
   m_sound=resolve_tlk_soundref(m_strref);
+  strref="Edit TLK ";
+  if(global_changed) strref+="*";
+  SetWindowText(strref);
   UpdateData(UD_DISPLAY);
 }
 
@@ -100,7 +103,7 @@ void CStrRefDlg::OnKillfocusText()
   {
     if(MessageBox("Do you want to update dialog.tlk?","TLK editor",MB_ICONQUESTION|MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
 
@@ -115,6 +118,7 @@ void CStrRefDlg::OnKillfocusText()
   {
     m_strref=store_tlk_text(m_strref, m_text);
   }
+end:
   old.Format("%d",m_strref);
   GetDlgItem(IDC_STRREF)->SetWindowText(old);
   UpdateData(UD_DISPLAY);
@@ -478,6 +482,7 @@ void CStrRefDlg::OnSave()
   {
     MessageBox(tlkfilename+" wasn't saved, exit all other programs that might use it, and try again.","Warning",MB_ICONEXCLAMATION|MB_OK);
   }
+  OnUpdateStrref();
 }
 
 void CStrRefDlg::OnReload() 

@@ -228,7 +228,10 @@ bool INF_MOS_FRAMEDATA::ExpandMosBitsWhole(COLORREF clrReplace, COLORREF clrTran
     }
     else
     {
-      pDIBits[nPixelCount+nOffset]=clrTransparent;
+      if(clrTransparent!=TRANSPARENT_GREEN)
+      {
+        pDIBits[nPixelCount+nOffset]=clrTransparent;
+      }
     }
     nCount--;
     if(!nCount) //reached end of line
@@ -253,15 +256,49 @@ int INF_MOS_FRAMEDATA::SaturateTransparency()
     {
       if(x) pixel = pFrameData[y*nWidth+x-1];
       else pixel = pFrameData[y*nWidth+x+1];
-      if(pixel==0)
-      {
-        nop();
-      }
       pFrameData[y*nWidth+x]=pixel; //second attempt to remove transparency
       ret=1;
     }
   }
   return ret;
+}
+
+void INF_MOS_FRAMEDATA::AllocateTransparency()
+{
+  DWORD x,y;  
+
+  if(Palette[0]==TRANSPARENT_GREEN) return;
+  Palette[255]=Palette[0];
+  Palette[0]=TRANSPARENT_GREEN;
+  
+  for(y=0;y<nHeight;y++) for(x=0;x<nWidth;x++)
+  {
+    if(!pFrameData[y*nWidth+x])
+    {
+      pFrameData[y*nWidth+x]=255;
+    }
+  }
+  return;
+}
+
+void INF_MOS_FRAMEDATA::FlipTile()
+{
+  unsigned char *pos;
+  DWORD x,y;
+  unsigned char tmp;
+
+  if(!pFrameData) return;
+  pos=pFrameData;
+  for(y=0;y<nHeight;y++)
+  {
+    for(x=0;x<nWidth/2;x++)
+    {
+      tmp=pos[x];
+      pos[x]=pos[nWidth-x-1];
+      pos[nWidth-x-1]=tmp;
+    }
+    pos+=nWidth;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -311,7 +348,9 @@ void Cmos::new_mos()
   m_drawclosed=0;
   m_tileheaders=NULL;
   m_tileindices=NULL;
+  mosheader.dwBlockSize=64;
   m_name.Empty();
+  m_changed=false;
 }
 
 int Cmos::RetrieveTisFrameCount(int fhandle, int ml)
@@ -331,9 +370,18 @@ int Cmos::GetFrameCount()
   return tisheader.numtiles;
 }
 
-void Cmos::SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices)
+void Cmos::SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices, Cmos *overlaymos)
 {
-  m_overlay=overlay;
+  if(overlay>0 && overlay<10)
+  {
+    m_overlay=1<<overlay;
+    m_friend=overlaymos;
+  }
+  else
+  {
+    m_overlay=overlay;
+    m_friend=NULL;
+  }
   m_tileheaders=tileheaders;
   m_tileindices=tileindices;
 }
@@ -341,19 +389,21 @@ void Cmos::SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices)
 int Cmos::ResolveFrameNumber(int framenumber)
 {
   int idx;
-
+  
   if(!m_tileheaders) return framenumber;
-  if(m_overlay)
+  if(m_tileheaders[framenumber].flags&m_overlay)
   {
-    if(m_tileheaders[framenumber].flags&(1<<m_overlay))
+    if(m_overlay)
     {
-//      if(!bg1_compatible_area())
-      {
-        idx=m_tileheaders[framenumber].alternate;
-        return idx;
-      }
+      idx=m_tileheaders[framenumber].alternate;
+      m_overlaytile=0;
+      return idx;
     }
+    idx=m_tileheaders[framenumber].firsttileprimary;
+    if(m_tileindices) return m_tileindices[idx];  
+    return idx;
   }
+
   if(m_drawclosed)
   {
     idx=m_tileheaders[framenumber].alternate;
@@ -370,6 +420,14 @@ CPoint Cmos::GetFrameSize(DWORD nFrameWanted)
 		return (DWORD) -1;
   return CPoint(m_pFrameData[nFrameWanted].nWidth,m_pFrameData[nFrameWanted].nHeight);
 }
+
+unsigned char *Cmos::GetFrameBuffer(DWORD nFrameWanted)
+{
+	if (tisheader.numtiles <= nFrameWanted )  //not enough frames
+		return NULL;
+  return m_pFrameData[nFrameWanted].pFrameData;
+}
+
 COLORREF Cmos::GetPixelData(int x, int y)
 {
   int nFrameWanted;
@@ -451,12 +509,18 @@ bool Cmos::MakeBitmap(COLORREF clrTrans, Cmos &host, int nMode, int nXpos, int n
   for(nYpos=0;nYpos<mosheader.wRow && nYpos<nLimit;nYpos++)
   {
     nOffset=nBase+mosheader.dwBlockSize*nColumn*nYpos;
-    for(nXpos=0;nXpos<mosheader.wColumn ;nXpos++)
+    for(nXpos=0;nXpos<mosheader.wColumn;nXpos++)
     {
+      m_overlaytile=-1;
       nFrameWanted=ResolveFrameNumber(nYpos*mosheader.wColumn+nXpos);
-      if(nFrameWanted<tisheader.numtiles)
+      if(!m_friend) m_overlaytile=-1;
+      if(m_overlaytile!=-1)
       {
-        if (!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,host.GetDIB(),nOffset, nColumn))
+        m_friend->m_pFrameData[m_overlaytile].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,host.GetDIB(),nOffset, nColumn);
+      }
+      if(nFrameWanted<tisheader.numtiles)
+      {        
+        if(!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=-1?TRANSPARENT_GREEN:clrTrans,host.GetDIB(),nOffset, nColumn))
         {
           return false;
         }
@@ -536,10 +600,16 @@ bool Cmos::MakeBitmapWhole(COLORREF clrTrans, HBITMAP &hBitmap, int clipx, int c
     nOffset=mosheader.dwBlockSize*pixelwidth*nYpos;
     for(nXpos=0;(nXpos+clipx<maxclipx) /*&& (nXpos<VIEW_MAXEXTENT)*/;nXpos++)
     {
+      m_overlaytile=-1;
       nFrameWanted=ResolveFrameNumber((nYpos+clipy)*mosheader.wColumn+nXpos+clipx);
+      if(!m_friend) m_overlaytile=-1;
+      if(m_overlaytile!=-1)
+      {
+        m_friend->m_pFrameData[m_overlaytile].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits,nOffset, pixelwidth);
+      }
       if(nFrameWanted<tisheader.numtiles)
       {
-        if (!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,clrTrans,m_pclrDIBits,nOffset, pixelwidth))
+        if (!m_pFrameData[nFrameWanted].ExpandMosBitsWhole(TRANSPARENT_GREEN,m_overlaytile!=-1?TRANSPARENT_GREEN:clrTrans,m_pclrDIBits,nOffset, pixelwidth))
         {
           delete [] m_pclrDIBits;
           m_pclrDIBits=NULL;
@@ -1051,6 +1121,7 @@ int Cmos::WriteMosToFile(int fhandle)
     return -2;
   }
   KillData();
+  m_changed=false;
   return 0;
 }
 
@@ -1130,6 +1201,7 @@ int Cmos::ReadTisFromFile(int fhandle, int ml, int header)
     mosheader.wColumn=1;
     mosheader.wHeight=(WORD) (tisheader.pixelsize*tisheader.numtiles);
     mosheader.wWidth=(WORD) tisheader.pixelsize;
+    mosheader.dwBlockSize=tisheader.pixelsize;
   }
   else SetTisParameters(ml);
   m_pclrDIBits=new COLORREF[tisheader.pixelsize*tisheader.pixelsize];
@@ -1453,6 +1525,51 @@ DWORD Cmos::GetColor(DWORD x, DWORD y)
   return m_pFrameData[nFrameWanted].GetColor(x%mosheader.dwBlockSize,y%mosheader.dwBlockSize);
 }
 
+int Cmos::FlipTile(DWORD nFrameWanted)
+{
+  if(nFrameWanted>=tisheader.numtiles) return -1;
+  m_pFrameData[nFrameWanted].FlipTile();
+  return 0;
+}
+
+//this doesn't adjust alternate tiles bigger than the removed one
+int Cmos::RemoveTile(DWORD original)
+{
+  INF_MOS_FRAMEDATA *newframedata;
+  DWORD i;
+
+  if(original>=tisheader.numtiles) return -1;
+  newframedata=new INF_MOS_FRAMEDATA[--tisheader.numtiles];
+  if(!newframedata)
+  {
+    tisheader.numtiles++;
+    return -3;
+  }
+  memcpy(newframedata,m_pFrameData,original*sizeof(INF_MOS_FRAMEDATA));
+  memcpy(newframedata+original,m_pFrameData+original+1,(tisheader.numtiles-original)*sizeof(INF_MOS_FRAMEDATA));
+  delete m_pFrameData[original].pFrameData;  //delete the removed frame
+  //detach pixel pointers so they don't get freed!
+  for(i=0;i<=tisheader.numtiles;i++)
+  {
+    m_pFrameData[i].pFrameData=NULL;
+  }  
+  delete [] m_pFrameData;
+  m_pFrameData=newframedata;
+  return 0;
+}
+
+//this function replaces an existing tile with new palette/bitmap data
+//the tile comes from another tileset
+int Cmos::SetFrameData(DWORD nFrameWanted, INF_MOS_FRAMEDATA *oldframe)
+{
+  if(nFrameWanted>=tisheader.numtiles) return -1;
+  if(oldframe==NULL) return -1;
+  m_pFrameData[nFrameWanted].TakePaletteData((LPBYTE) oldframe->Palette);
+  m_pFrameData[nFrameWanted].TakeMosData(oldframe->pFrameData,oldframe->nWidth,oldframe->nHeight,false);
+  m_changed=true;
+  return 0;
+}
+
 int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, bool deepen)
 {
   INF_MOS_FRAMEDATA *newframedata;
@@ -1479,6 +1596,8 @@ int Cmos::AddTileCopy(DWORD original, unsigned char *optionalpixels, bool deepen
     newframedata[tisheader.numtiles].TakeMosData(newframedata[original].pFrameData,
       newframedata[original].nWidth,newframedata[original].nHeight,false);
   }
+  //create transparent green color on 0. palette entry
+  newframedata[tisheader.numtiles].AllocateTransparency();
   //detach pixel pointers so they don't get freed!
   for(i=0;i<tisheader.numtiles;i++)
   {

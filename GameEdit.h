@@ -105,6 +105,9 @@ protected:
 	afx_msg void OnKillfocusCreaturenum();
 	afx_msg void OnSave();
 	afx_msg void OnKillfocusScreen();
+	afx_msg void OnEditlink();
+	afx_msg void OnEdit2();
+	afx_msg void OnEditlink2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

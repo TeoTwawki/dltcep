@@ -168,7 +168,8 @@ int ReadIdsFromFile(int fhandle, CStringList &refs, int add, int length)
     read_string(fpoi, "\n"); //skipping crap
     prev=0;
     break;
-  default:    
+  default:
+    fclose(fpoi);
     return -2; //internal error
   }
   do
@@ -1073,6 +1074,42 @@ int Write2daArrayToFile(CString daname, CStringMapArray &refs, CString *columnam
   return 0;
 }
 
+void ReadBeastIni(CStringList &beasts)
+{
+  CString tmpstr;
+  FILE *fpoi;
+  int i;
+
+  tmpstr.Format(bgfolder+"beast.ini");
+	fpoi=fopen(tmpstr,"rt");
+	if(!fpoi) return;
+  beasts.RemoveAll();
+  memset(external,0,sizeof(external));
+  while(!feof(fpoi))
+  {
+    external[0]=0;
+    fgets(external,MAXBUFFSIZE-1,fpoi);
+    for(i=0;i<MAXBUFFSIZE;i++)
+    {
+      if(isspace(external[i]) )
+      {
+        external[i]=0;
+        break;
+      }
+    }
+    if(!memicmp(external,"killvar=kill_",13) )
+    {
+      tmpstr=CString(external+13);
+      tmpstr.MakeLower();
+      if(!beasts.Find(tmpstr) )
+      {
+        beasts.AddTail(tmpstr);
+      }
+    }
+  }
+  fclose(fpoi);
+}
+
 int read_until(char c, FILE *fpoi, CString &ret, int maxlength=65535)
 {
   int stop, act;
@@ -1113,7 +1150,7 @@ int read_until(char c, FILE *fpoi, CString &ret, int maxlength=65535)
 
 static CString validtypes="AIOPS0";
 //GG = sf(ADD_GLOBAL,ADD_GLOBAL)
-static int merged[]={0x0303,-1};
+//static int merged[]={0x0303,-1};
 
 int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, int trigger_or_action)
 {
@@ -1130,7 +1167,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
   int pointcnt;
   int intcnt;
   int actioncnt;
-  int speccnt;
+//  int speccnt;
   int stringcnt;
   int chkflag, flg;
 
@@ -1154,10 +1191,13 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
   compiler_data.parameters=NULL;
   compiler_data.parnum=0;
   compiler_data.opcode=cnt;
+  
   //hardcoded information
   if(trigger_or_action) flg=chkflag=handle_trigger(cnt);
   else flg=chkflag=handle_action(cnt);
-  if((flg&0xff00)==0xff00) flg=0x104; //special
+  //special cases
+  if((flg&0xffff)==0xff00) flg=0x105; 
+  if((flg&0xffff)==0xff01) flg=0x104; 
 
   parlist=prototype.Mid(p1+1, prototype.GetLength()-p1-2);
   params=explode(parlist, ',', compiler_data.parnum);
@@ -1181,7 +1221,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
     intcnt=0;
     actioncnt=0;
     stringcnt=0;
-    speccnt=0;
+//    speccnt=0;
     for(j=0;j<compiler_data.parnum;j++)
     {
       switch(params[j].GetAt(0))
@@ -1199,7 +1239,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
     }
 
     //special merged strings
-    if(member_array(chkflag,merged)==-1) speccnt=1;
+//    if(member_array(chkflag,merged)==-1) speccnt=1;
 
     objectcnt=0;
     pointcnt=0;
@@ -1306,12 +1346,23 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
             }
             goto endofcase;
           }
+          if((flg&0xff)==ADD_VAR2)
+          {
+            if(stringcnt==1)
+            {
+              parpoi->type=SPT_VAR1;
+            }
+            else if(stringcnt==3)
+            {
+              parpoi->type=SPT_VAR2;
+            }
+            goto endofcase;
+          }
           switch(flg&0xff)
           {
           case IS_VAR:
-            nop();
             break;
-          case ADD_GLOBAL: case ADD_LOCAL:
+          case ADD_GLOBAL: case ADD_LOCAL: case ADD_VAR3:
           case ADD_VAR2: case ADD_VAR: parpoi->type=SPT_VAR2; break;
           case CHECK_DEAD: parpoi->type=SPT_DEAD2; break;
           case CHECK_NUM: parpoi->type=SPT_NUMLIST2; break;
@@ -1352,10 +1403,13 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           switch(flg&0xff)
           {
           case IS_VAR:
-            nop();
             break;
           case ADD_GLOBAL: case ADD_LOCAL:
-          case ADD_VAR2: case ADD_VAR: parpoi->type=SPT_VAR1; flg<<=8; break;
+          case ADD_VAR: parpoi->type=SPT_VAR1; flg<<=8; break;
+          case ADD_VAR2:
+            parpoi->type=SPT_VAR3; flg<<=8; break;
+            break;
+          case CHECK_SCOPE: parpoi->type=SPT_AREA1; break;
           case ADD_DEAD: case CHECK_DEAD: parpoi->type=SPT_DEAD1; break;
           case CHECK_NUM: parpoi->type=SPT_NUMLIST1; break;
           case VALID_TAG:
@@ -1479,9 +1533,15 @@ int lookup_id(CString filename, CString token, int &value)
 
 int convert_strref(CString string)
 {
-  if(string.Left(1)!="~") return -13; //not a string
-  if(string.Right(1)!="~") return -13; //not a string
-  return 0;
+  if(!(editflg&WEIDUSTRING))
+  {
+    if(string.Left(1)=="~" && string.Right(1) =="~") return 0; //it's a string
+  }
+  if(!(editflg&IDUSTRING))
+  {
+    if(string.Left(1)=="\"" && string.Right(1) =="\"") return 0; //it's a string
+  }
+  return -13;
 }
 
 int convert_string(CString string, char *poi, int maxlength, int longerr)
@@ -1816,7 +1876,6 @@ int compile_action(CString line, action &action, bool inoverride)
   int p1,p2;
   compiler_data compiler_data;
   int ret;
-//  int chkflag;
   char tmparea[8];
 
   if(!inoverride) action.Reset();

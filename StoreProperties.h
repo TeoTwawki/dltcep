@@ -24,6 +24,7 @@ protected:
 	enum { IDD = IDD_STOREGENERAL };
 	CComboBox	m_storetype_control;
 	CString	m_storename;
+	BOOL	m_storenametag;
 	//}}AFX_DATA
 
 // Overrides

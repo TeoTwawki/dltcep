@@ -11,6 +11,8 @@ History : File done by IEFFHP
   Updated by DevArrah (entered 23.10.2001)
   Updated by M (entered 25.11.2001)
   Updated by Ghreyfain (entered 04.02.2002)
+  Updated by Avenger based on NI source and research
+
 Description
 
 This file format describes a "creature" (i.e. for lack of a better description, any object you are capable of attacking. Not all objects you can open a dialog with are creatures. Doors, for instance, can have associated dialogs, and could even talk to you, if they were so programmed.) Interestingly enough, the same format for this file is used in Baldur's Gate 2 and Baldur's Gate. The additional capabilities (such as new weapons proficiencies) are attached to the creature as long-lived effects. I will attempt to document this at some point in the future, but essentially, they are attached in EFF V2.0 formatted blocks (though with the header zeroed), and an effect type of 0xe9. The specific stats which are stored in the given structures are given by a mapping in one of the IDS or 2DA files. Details will be forthcoming when I get some more time.
@@ -409,7 +411,8 @@ This offset determine whether creature is multiclass or dualclass., 00- multi or
 
 ABJURER                        0x00400000
 CONJURER                        0x00800000
-DIVINER                        0x01000000 ENCHANTER                  0x02000000
+DIVINER                        0x01000000
+ENCHANTER                  0x02000000
 ILLUSIONIST                  0x04000000
 INVOKER                        0x08000000
 NECROMANCER                  0x10000000
@@ -421,10 +424,20 @@ Attention !: The values of this offset are written in big endian style.
 0x0258 8 (resref) creature script ("race" script?)
 0x0260 8 (resref) creature script ("general" script?)
 0x0268 8 (resref) creature script ("default" script?)
-0x0270 76 (bytes) TODO/UNKNOWN
-0x02bc 32 (char array) Name of this race?
-0x02dc 53 (bytes) TODO/UNKNOWN
-0x0311 1 (byte) Unknown, but this field is almost always the same as the "Race" field which occurs 5 bytes later
+0x0270 52 (bytes) Unknown
+0x02a4 2x10 (word*2) Internal variables
+0x02b8 4 (dword) Unknown
+0x02bc 32 (char array) Monstrous Compendium Entry
+0x02dc 1 (byte) Dialog activation radius
+0x02dd 1 (byte) Feet circle size
+0x02de 1 (byte) Unknown
+0x02df 1 (byte) Color #
+0x02e0 4 (dword) Appearance Flags (invulnerability, transparency)
+0x02e4 2x7 (word*7) Colors
+0x02f2 3 (bytes) Unknown
+0x02f5 7 (bytes) Color slots
+0x02fc 21 (bytes) Unknown
+0x0311 1 (byte) "Species" (see RACE.IDS)
 0x0312 1 (byte) "Team" type (see TEAM.IDS). This field and the next several require some explanation. It seems probable, due to the similar layout of these fields, that this is actually an object identifier. For reference, see the script compiler manual, but in short, it means that it has EA, GENERAL, RACE, CLASS, and SPECIFIC, among other things. This data could be used to explain the other unused fields. The only difficulty with this theory is that the byte which is currently listed as "gender" would normally be 'special case' according to the script compiler manual. On the other hand, the script compiler manual is poorly written and inaccurate in places, probably the result of a quick edit of an internal specification which was hacked into a public document.
 0x0313 1 (byte) "Faction" type (see FACTION.IDS).
 0x0314 1 (byte) "Enemy-Ally" type (see EA.IDS).
@@ -625,7 +638,8 @@ Offset Size (data type) Description
 
 ABJURER                        0x00400000
 CONJURER                     0x00800000
-DIVINER                         0x01000000 ENCHANTER                  0x02000000
+DIVINER                         0x01000000
+ENCHANTER                  0x02000000
 ILLUSIONIST                  0x04000000
 INVOKER                        0x08000000
 NECROMANCER                  0x10000000

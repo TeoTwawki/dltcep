@@ -133,9 +133,9 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
       tmpstr=my_area.RetrieveMosRef(fhandle);
     }
     else tmpstr=key;
-    if(read_mos(tmpstr,&the_mos,true))
+    if(read_mos(tmpstr,&my_mos,true))
     {
-      the_mos.new_mos();
+      my_mos.new_mos();
     }
     else
     {
@@ -146,8 +146,8 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
       }
     }
     m_preview.m_maxextentx=m_preview.m_maxextenty=8;
-    m_preview.InitView(0, &the_mos);
-//    the_mos.MakeBitmapWhole(GREY,m_preview.m_bm,0,0,m_preview.m_maxextentx,m_preview.m_maxextenty);
+    my_mos.m_tileheaders=NULL;
+    m_preview.InitView(0, &my_mos);
     m_preview.RedrawContent();
     m_preview.ShowWindow(true);
     break;
@@ -345,4 +345,11 @@ void CItemPicker::OnSelchangePick()
   idx=determinetype(m_restype);
   resources[idx]->Lookup(key,fileloc);
   Preview(key,fileloc,m_restype);	
+}
+
+void CItemPicker::PostNcDestroy() 
+{
+	my_bam.new_bam();
+	my_mos.new_mos();
+	CDialog::PostNcDestroy();
 }

@@ -202,7 +202,7 @@ void save_variables(HWND parent, CStringMapInt &vars)
   close(fhandle);
 }
 
-static int scanned_types[]={ADD_DEAD,ADD_DEAD2,ADD_GLOBAL, ADD_LOCAL, ADD_VAR, ADD_VAR2,
+static int scanned_types[]={ADD_DEAD,ADD_DEAD2,ADD_GLOBAL, ADD_LOCAL, ADD_VAR, ADD_VAR2, ADD_VAR3,
 -1};
 
 int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int trigger, int block)
@@ -377,6 +377,19 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
       varname="GLOBALsprite_is_dead"+varname;
     }
     break;
+  case CHECK_SCOPE:    
+    if(areas.Lookup(varname, dummyloc))
+    {
+      varname2=varname; //storing area
+      return 0;
+    }
+    if(varname!="LOCALS" && varname!="GLOBAL" && varname !="MYAREA")
+    {
+      log("Invalid scope: %s",varname);
+      return 1;
+    }
+    varname2=varname;
+    return 0;
   case CHECK_AREA2:
     if(varname.IsEmpty()) return 0; // may be empty (spellres actions are polymorph)
   case CHECK_AREA:
@@ -411,12 +424,15 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     break;
   case ADD_VAR:
     break;
-  case ADD_VAR2:
+  case ADD_VAR2: //merge variables 
     if(varname[6]==':')
     {
       varname.Delete(6); //removing .
       break; //break for variable
     }
+    break;
+  case ADD_VAR3:
+    varname=varname2+varname;
     break;
   default:
     log("Internal error for %s (cmd:%d)",tmp, storeflags);

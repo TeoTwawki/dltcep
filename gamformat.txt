@@ -6,6 +6,8 @@ This format is used for the save game files. It doesn't store area specific info
 GAME file versions
 
     * V1.1: Baldur's Gate, Planescape: Torment, Icewind Dale
+    * V2.0: Baldur's Gate 2
+    * V9.0: Icewind Dale 2
 
 GAME V1.1
 
@@ -81,7 +83,7 @@ GAME V1.1 NPCs (both in-party and out-of-party NPCs)
 
 This structure represents data about any character who can possibly be in your party.
 Offset Size (data type) Description
-0x0000 2 (word) Unknown
+0x0000 2 (word) PC selected
 0x0002 2 (word) Party order (0-5, or 0xffff if not in party)
 0x0004 4 (dword) Offset from start of file to CRE resource data for this character.
 0x0008 4 (dword) Size of CRE resource data for this character.
@@ -93,28 +95,38 @@ Offset Size (data type) Description
 0x0024 2 (word) X coordinate of viewing rectangle. possibly this is stored per character so that multi-player games allow the characters to have different saved view rects?
 0x0026 2 (word) Y coordinate of viewing rectangle
 0x0028 100 (bytes) Unknown
-0x008c 16 (bytes) Unknown
-0x009c 3*8 (resref array) Unknown
-0x00b4 12 (bytes) Unknown
+0x008c 2*4 (word*4) QuickWeapon Slots
+0x0094 8 (resref) Unknown
+0x009c 3*8 (resref array) QuickSpell Slots
+0x00b4 2*3 (word*3) QuickItem Slots
+0x00ba 6 (bytes) Unknown
 
 For BG/TotSC:
 0x00c0 32 (bytes) Name
-0x00e0 4 (dword) Unknown
+0x00e0 4 (dword) Talkcount
 0x00e4 116 bytes (Char stats) stats for this character
 0x0158 8 bytes Unknown
 
 For Torment:
-0x00c0 32 (bytes) Unknown
-0x00e0 3*4 (dword) Unknown
+0x00c0 32 (bytes) Name
+0x00e0 2*4 (dword) Unknown
+0x00e8 4 (dword) Talkcount
 0x00ec 116 bytes (Char stats) stats for this character
 0x0160 8 bytes Unknown
 
 For Icewind Dale:
 0x00c0 32 (bytes) Name
-0x00e0 4 (dword) Unknown
+0x00e0 4 (dword) Talkcount
 0x00e4 116 bytes (Char stats) stats for this character
 0x0158 8 bytes Unknown
 0x0160 32 (bytes) Unknown
+
+For Icewind Dale 2:
+0x00c0 254 (bytes) Unknown
+0x01be 32 (bytes) Name
+0x01de 4 (dword) Talkcount
+0x01e2 116 bytes (Char stats) stats for this character
+0x0256 8 bytes Unknown
 
 GAME V1.1 Character stats (i.e. most powerful vanquished, etc)
 Offset Size (data type) Description

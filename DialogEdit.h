@@ -201,6 +201,7 @@ protected:
 	afx_msg void OnCheck();
 	afx_msg void OnToolspst();
 	virtual void OnCancel();
+	afx_msg void OnNewvalue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

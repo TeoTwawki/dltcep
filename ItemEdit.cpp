@@ -143,6 +143,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_item.ReadItemFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -4:
@@ -234,17 +235,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    /*
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_item.WriteItemToFile(fhandle,0);
-    close(fhandle);
-    */
-    res = write_item(newname);
+    
+    res = write_item(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:

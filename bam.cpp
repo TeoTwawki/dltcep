@@ -50,6 +50,25 @@ static char THIS_FILE[]=__FILE__;
 // INF_BAM_FRAMEDATA helper class
 //////////////////////////////////////////////////////////////////////
 
+void INF_BAM_FRAMEDATA::FlipFrame(int nWidth, int nHeight)
+{
+  unsigned char *poi;
+  unsigned char tmp;
+  int i;
+
+  poi=pFrameData;
+  while(nHeight--)
+  {
+    for(i=0;i<nWidth/2;i++)
+    {
+      tmp=poi[i];
+      poi[i]=poi[nWidth-i-1];
+      poi[nWidth-i-1]=tmp;
+    }
+    poi+=nWidth;
+  }
+}
+
 void INF_BAM_FRAMEDATA::ReorderPixels(COLORREF *palette, BYTE chTransparentIndex,
                                       BYTE chNewTransparentIndex, bool bIsCompressed)
 {
@@ -74,12 +93,6 @@ void INF_BAM_FRAMEDATA::ReorderPixels(COLORREF *palette, BYTE chTransparentIndex
           {
             idx=chTransparentIndex;
           }
-/*
-          for(color=1;color<256;color++)
-          {
-            if(!memcmp(palette+color,palette+idx,3) ) break;
-          }
-*/
           pFrameData[i]=(BYTE) idx;
           break;
         }
@@ -735,7 +748,7 @@ int Cbam::ExplodeBamData(bool onlyheader)
     if(ret<gret) gret=ret;
   }
   order[3]=(m_nMinFrameOffset<<2)|3;
-  qsort(order,4,4,longsort);
+  qsort(order,4,sizeof(int),longsort);
   m_nSaveOrder=0;
   for(nOffset=0;nOffset<4;nOffset++)
   {
@@ -760,8 +773,7 @@ int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
   
   nFrameSize=sHeader.width*sHeader.height;
   m_pFrameData[nFrameWanted].nFrameSize=nFrameSize;
-//  m_pFrames[nFrameWanted].wWidth=(unsigned short) sHeader.width;
-//  m_pFrames[nFrameWanted].wHeight=(unsigned short) sHeader.height;
+
   pRawData=new BYTE[nFrameSize];
   if(!pRawData)
   {
@@ -1191,6 +1203,20 @@ int Cbam::SetFrameIndex(int nCycle, int nIndex, int nFrameIndex)
   return 0;
 }
 
+int Cbam::FlipFrame(int nFrameWanted)
+{
+  int RLE;
+  int ret;
+
+  RLE=GetFrameRLE(nFrameWanted);
+  ret=SetFrameRLE(nFrameWanted, false);
+  if(!ret) return -1;
+  m_pFrameData[nFrameWanted].FlipFrame(m_pFrames[nFrameWanted].wWidth,m_pFrames[nFrameWanted].wHeight);
+  m_pFrames[nFrameWanted].wCenterX=(short) (m_pFrames[nFrameWanted].wWidth-m_pFrames[nFrameWanted].wCenterX);
+  SetFrameRLE(nFrameWanted,RLE);
+  return 0;
+}
+
 int Cbam::SwapFrames(int a, int b)
 {
   short tmp;
@@ -1322,7 +1348,7 @@ int Cbam::InsertCycle(int nCycleWanted)
   {
     nCycleWanted=m_nCycles;
   }
-  if(m_pCycles)
+  if(m_nCycles)
   {
     if(nCycleWanted<m_nCycles) FirstFrameIndex=m_pCycles[nCycleWanted].wFirstFrameIndex;
     else FirstFrameIndex=m_pCycles[nCycleWanted-1].wFirstFrameIndex+m_pCycles[nCycleWanted-1].wFrameIndexCount;
@@ -1472,13 +1498,16 @@ int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex)
   CPoint point;
   OctQuant oc;
 
-  point=tmpbam.GetFrameSize(nImportFrameIndex);
   memset(m_pFrames+nFrameIndex,0,sizeof(INF_BAM_FRAME) );
   m_pFrames[nFrameIndex].dwFrameDataOffset=0x80000000;
+  point=tmpbam.GetFramePos(nImportFrameIndex);
+  SetFramePos(nFrameIndex,point.x,point.y);
+  
+  point=tmpbam.GetFrameSize(nImportFrameIndex);  
   m_pFrames[nFrameIndex].wWidth=(unsigned short) point.x;
   m_pFrames[nFrameIndex].wHeight=(unsigned short) point.y;
 
-  oc.AddPalette(m_palette); //fills palette into octtree
+  oc.AddPalette(m_palette); //feeds palette into octtree
   return oc.QuantizeAllColors(m_pFrameData[nFrameIndex].pFrameData,
     tmpbam.GetFrameData(nImportFrameIndex),point,tmpbam.m_palette,m_palette);
 }
@@ -1890,7 +1919,6 @@ static int colourorder(const void *a, const void *b)
 void Cbam::OrderPalette()
 {
   BYTE *pClr;
-  int nFrame;
   int i;
 
   //mark palette so we'll know the original order
@@ -1911,13 +1939,22 @@ void Cbam::OrderPalette()
       break;
     }
   }
+  ReorderPixels();
+  m_header.chTransparentIndex=0;
+}
+
+void Cbam::ReorderPixels()
+{
+  BYTE *pClr;
+  int nFrame;
+  int i;
+
   //do the pixel change
   for(nFrame=0;nFrame<m_header.wFrameCount;nFrame++)
   {
     m_pFrameData[nFrame].ReorderPixels(m_palette, m_header.chTransparentIndex,0,
          !(m_pFrames[nFrame].dwFrameDataOffset&0x80000000) );
   }
-  m_header.chTransparentIndex=0;
   //change the palette back to clean
   for(i=0;i<m_palettesize/4;i++)
   {
@@ -1933,11 +1970,11 @@ void Cbam::ForcePalette(palettetype &newpalette)
 
   for(nOrigIndex=0;nOrigIndex<m_palettesize/4;nOrigIndex++)
   {
-    if(nOrigIndex==m_header.chTransparentIndex) continue; //don't fuck the transparent index
+    if(nOrigIndex==m_header.chTransparentIndex) continue; //don't bother with the transparent index
     nFoundIndex=-1;
     for(nForceIndex=0;nForceIndex<m_palettesize/4;nForceIndex++)
     {
-      if(nForceIndex==m_header.chTransparentIndex) continue; //don't fuck the transparent index
+      if(nForceIndex==m_header.chTransparentIndex) continue; //don't bother with the transparent index
       nDiff=ChiSquare((BYTE *) (m_palette+nOrigIndex), (BYTE *) (newpalette+nForceIndex) );
       if( (nFoundIndex<0) || (nDiff<nMinDiff) )
       {
@@ -1988,7 +2025,7 @@ void Cbam::ConvertToGrey(COLORREF Shade, bool keepgray)
 
 	for(i=0;i<m_palettesize/4;i++)
 	{
-    if(i==m_header.chTransparentIndex) continue; //don't fuck that colour
+    if(i==m_header.chTransparentIndex) continue; //don't bother with the transparent index
 		pClr = (BYTE *) (m_palette+i);
 
 		nBlue = *(pClr);

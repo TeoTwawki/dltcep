@@ -40,6 +40,8 @@ void CCreatureEdit::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 }
 
+static unsigned char defaultcolors[7]={30,37,57,12,23,28,0};
+
 void CCreatureEdit::NewCreature()
 {
 	itemname="new creature";
@@ -78,6 +80,8 @@ void CCreatureEdit::NewCreature()
   the_creature.header.unknown27e=-1;
   memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );
   *(int *) (the_creature.itemslots+the_creature.slotcount)=1000;
+  memcpy(the_creature.header.colours,defaultcolors,7);
+  the_creature.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CCreatureEdit, CDialog)
@@ -91,12 +95,12 @@ BEGIN_MESSAGE_MAP(CCreatureEdit, CDialog)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
 	ON_COMMAND(ID_EXPORTSOUNDSET, OnExportsoundset)
 	ON_COMMAND(ID_IMPORTSOUNDSET, OnImportsoundset)
+	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -115,15 +119,11 @@ void CCreatureEdit::OnLoad()
 		res=read_creature(pickerdlg.m_picked);
     switch(res)
     {
-    case -4:
-      MessageBox("Creature loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
-      break;
     case -3:
-      MessageBox("Creature loaded with errors (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Not enough memory","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
-    case 1:
+    case 1: case 2:
       MessageBox("Creature will be reordered (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
@@ -167,19 +167,15 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_creature.ReadCreatureFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
-    case -4:
-      MessageBox("Creature loaded with serious errors (no extensions).","Warning",MB_ICONEXCLAMATION|MB_OK);
-      itemname=m_getfiledlg.GetFileTitle();
-      itemname.MakeUpper();
-      break;
     case -3:
-      MessageBox("Creature loaded with errors (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Not enough memory","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
-    case 1:
+    case 1: case 2:
       MessageBox("Creature will be reordered (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
@@ -247,7 +243,6 @@ void CCreatureEdit::SaveCreature(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
   CFileDialog m_getfiledlg(FALSE, "cre", makeitemname(".cre",0), res, szFilter);
 
   if(save)
@@ -289,17 +284,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    /*
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_creature.WriteCreatureToFile(fhandle,chrorcre);
-    close(fhandle);
-    */
-    res = write_creature(newname);
+    
+    res = write_creature(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
@@ -327,7 +314,11 @@ void CCreatureEdit::OnExportsoundset()
 
 void CCreatureEdit::OnImportsoundset() 
 {
-  //	 ExportTBG(this, REF_CRE|TBG_ALT);
+  CString tmp;
+  
+  tmp=itemname;
+  ((CChitemDlg *) AfxGetMainWnd())->Importtbg(TBG_ALT);
+  itemname=tmp;  
 }
 
 BOOL CCreatureEdit::OnInitDialog() 
@@ -402,6 +393,22 @@ void CCreatureEdit::OnToolsIdsbrowser()
   dlg.DoModal();
   m_idsname=itemname;
   itemname=tmpstr;
+}
+
+void CCreatureEdit::OnCancel() 
+{
+  CString tmpstr;
+
+	if(the_creature.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the file (%s).\n"
+      "Do you want to quit without save?\n",itemname);
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
 }
 
 BOOL CCreatureEdit::PreTranslateMessage(MSG* pMsg) 

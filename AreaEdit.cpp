@@ -40,6 +40,7 @@ void CAreaEdit::NewArea()
 {
 	itemname="new area";
   the_area.new_area();
+  the_mos.new_mos();
   memset(&the_area.header,0,sizeof(area_header));
   memset(&the_area.songheader,0,sizeof(area_song));
   memset(&the_area.intheader,0,sizeof(area_int));
@@ -144,8 +145,10 @@ restart:
     }
     the_area.m_night=false;
     readonly=m_getfiledlg.GetReadOnlyPref();
+    the_mos.new_mos();
     res=the_area.ReadAreaFromFile(fhandle,-1);
-    close(fhandle);
+    close(fhandle);    
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     if(res>=0)
     {
       res=ReadWed(res);
@@ -202,7 +205,6 @@ void CAreaEdit::SaveArea(int save)
   CString filepath, tmpath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
 
   if(readonly)
@@ -211,7 +213,6 @@ void CAreaEdit::SaveArea(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
   CFileDialog m_getfiledlg(FALSE, "are", makeitemname(".are",0), res, szFilter);
 
   if(save)
@@ -256,24 +257,15 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    /*
-    tmpath=bgfolder+"override\\"+itemname+".TMP";
-    fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_area.WriteAreaToFile(fhandle, 0);
-    close(fhandle);
-    */
-    res = write_area(newname);
+
+    res = write_area(newname, filepath);
     if(res)
     {
       goto endofquest;
     }
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
 
-    if(!res && the_area.WedChanged() && the_area.WedAvailable()) //writing the wed file out
+    if(the_area.WedChanged() && the_area.WedAvailable()) //writing the wed file out
     {
       RetrieveResref(tmpstr,the_area.header.wed);
       if(tmpstr.GetLength()!=6 || tmpstr.Find(" ",0)!=-1 )
@@ -282,24 +274,15 @@ gotname:
         goto endofquest;
       }
       if(the_area.m_night) tmpstr+="N";
-      tmpath=bgfolder+"override\\"+tmpstr+".TMP";
-      filepath=bgfolder+"override\\"+tmpstr+".wed";
-      fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-      if(fhandle<1)
-      {
-        res = -2;
-        goto endofquest;
-      }
-      else
-      {
-        res=the_area.WriteWedToFile(fhandle);
-        close(fhandle);
-        if(!res)
-        {
-          unlink(filepath);
-          rename(tmpath,filepath);
-        }
-      }
+
+      filepath = filepath.Left(filepath.ReverseFind('\\')+1)+tmpstr+".WED";
+      res = write_wed(tmpstr, filepath);
+    }
+    if(!res && the_mos.MosChanged())
+    {
+      RetrieveResref(tmpstr,the_area.overlayheaders[0].tis);
+      filepath = filepath.Left(filepath.ReverseFind('\\')+1)+tmpstr+".TIS";
+      res = write_tis(tmpstr, filepath);
     }
 endofquest:
     switch(res)
@@ -399,86 +382,132 @@ BOOL CAreaEdit::OnInitDialog()
 
 void CAreaEdit::OnToolsMirrorareavertically() 
 {
-  int i;
-  int minx, maxx;
+  POSITION pos;
+  wed_tilemap alt;
+  DWORD nFrameWanted;  
+  int i,y;
+  int minx, maxx, maxy;
 
   the_area.wedchanged=true;
 	for(i=0;i<the_area.actorcount;i++)
   {
-    the_area.actorheaders[i].destx=(short) (the_area.width-the_area.actorheaders[i].destx);
-    the_area.actorheaders[i].posx=(short) (the_area.width-the_area.actorheaders[i].posx);
+    the_area.actorheaders[i].destx=(short) (the_area.m_width-the_area.actorheaders[i].destx);
+    the_area.actorheaders[i].posx=(short) (the_area.m_width-the_area.actorheaders[i].posx);
   }
   for(i=0;i<the_area.ambientcount;i++)
   {
-    the_area.ambientheaders[i].posx=(short) (the_area.width-the_area.ambientheaders[i].posx);
+    the_area.ambientheaders[i].posx=(short) (the_area.m_width-the_area.ambientheaders[i].posx);
   }
   for(i=0;i<the_area.animcount;i++)
   {
-    the_area.animheaders[i].posx=(short) (the_area.width-the_area.animheaders[i].posx);
+    the_area.animheaders[i].posx=(short) (the_area.m_width-the_area.animheaders[i].posx);
     the_area.animheaders[i].flags^=AA_MIRROR;
-  }
-  for(i=0;i<the_area.containercount;i++)
-  {
-    the_area.containerheaders[i].launchx=(short) (the_area.width-the_area.containerheaders[i].launchx);
-    the_area.containerheaders[i].posx=(short) (the_area.width-the_area.containerheaders[i].posx);
-    minx=the_area.width-the_area.containerheaders[i].p2x;
-    maxx=the_area.width-the_area.containerheaders[i].p1x;
-    the_area.containerheaders[i].p1x=(short) minx;
-    the_area.containerheaders[i].p2x=(short) maxx;
-    the_area.FlipVertex(i,the_area.containerheaders[i].vertexcount,the_area.width);
-  }
-  for(i=0;i<the_area.doorcount;i++)
-  {
-    the_area.doorheaders[i].launchx=(short) (the_area.width-the_area.doorheaders[i].launchx);
-    minx=the_area.width-the_area.doorheaders[i].locp2x;
-    maxx=the_area.width-the_area.doorheaders[i].locp1x;
-    the_area.doorheaders[i].locp1x=(short) minx;
-    the_area.doorheaders[i].locp2x=(short) maxx;
-    minx=the_area.width-the_area.doorheaders[i].cp2x;
-    maxx=the_area.width-the_area.doorheaders[i].cp1x;
-    the_area.doorheaders[i].cp1x=(short) minx;
-    the_area.doorheaders[i].cp2x=(short) maxx;
-    minx=the_area.width-the_area.doorheaders[i].op2x;
-    maxx=the_area.width-the_area.doorheaders[i].op1x;
-    the_area.doorheaders[i].op1x=(short) minx;
-    the_area.doorheaders[i].op2x=(short) maxx;
-    the_area.FlipVertex(i*4+the_area.containercount+the_area.triggercount,
-      the_area.triggerheaders[i].vertexcount,the_area.width);
-    the_area.FlipVertex(i*4+1+the_area.containercount+the_area.triggercount,
-      the_area.triggerheaders[i].vertexcount,the_area.width);
-  }
-  for(i=0;i<the_area.entrancecount;i++)
-  {
-    the_area.entranceheaders[i].px=(short) (the_area.width-the_area.entranceheaders[i].px);
-    the_area.entranceheaders[i].face=(short) ((16-the_area.entranceheaders[i].face)&15);
-  }
-  for(i=0;i<the_area.mapnotecount;i++)
-  {
-    the_area.mapnoteheaders[i].px=(short) (the_area.width-the_area.mapnoteheaders[i].px);
-  }
-  for(i=0;i<the_area.spawncount;i++)
-  {
-    the_area.spawnheaders[i].px=(short) (the_area.width-the_area.spawnheaders[i].px);
   }
   for(i=0;i<the_area.triggercount;i++)
   {
-    the_area.triggerheaders[i].launchx=(short) (the_area.width-the_area.triggerheaders[i].launchx);
-    the_area.triggerheaders[i].launchy=(short) (the_area.width-the_area.triggerheaders[i].launchy);
-    minx=the_area.width-the_area.triggerheaders[i].p2x;
-    maxx=the_area.width-the_area.triggerheaders[i].p1x;
+    the_area.triggerheaders[i].launchx=(short) (the_area.m_width-the_area.triggerheaders[i].launchx);
+    the_area.triggerheaders[i].launchy=(short) (the_area.m_width-the_area.triggerheaders[i].launchy);
+    minx=the_area.m_width-the_area.triggerheaders[i].p2x;
+    maxx=the_area.m_width-the_area.triggerheaders[i].p1x;
     the_area.triggerheaders[i].p1x=(short) minx;
     the_area.triggerheaders[i].p2x=(short) maxx;
     //this is rather a point not a box
     if(the_area.triggerheaders[i].infoflags&1024)
     {
-      the_area.triggerheaders[i].ovrp1x=(short) (the_area.width-the_area.triggerheaders[i].ovrp1x);
+      the_area.triggerheaders[i].ovrp1x=(short) (the_area.m_width-the_area.triggerheaders[i].ovrp1x);
     }
-    the_area.FlipVertex(i+the_area.containercount,the_area.triggerheaders[i].vertexcount,the_area.width);
+    the_area.FlipVertex(i,the_area.triggerheaders[i].vertexcount,the_area.m_width);
   }
-  for(i=0;i<the_area.wedvertexcount;i++)
+  for(i=0;i<the_area.containercount;i++)
   {
-    the_area.wedvertices[i].point.x=(short) (the_area.width-the_area.wedvertices[i].point.x);
+    the_area.containerheaders[i].launchx=(short) (the_area.m_width-the_area.containerheaders[i].launchx);
+    the_area.containerheaders[i].posx=(short) (the_area.m_width-the_area.containerheaders[i].posx);
+    minx=the_area.m_width-the_area.containerheaders[i].p2x;
+    maxx=the_area.m_width-the_area.containerheaders[i].p1x;
+    the_area.containerheaders[i].p1x=(short) minx;
+    the_area.containerheaders[i].p2x=(short) maxx;
+    the_area.FlipVertex(i+the_area.triggercount,the_area.containerheaders[i].vertexcount,the_area.m_width);
   }
+  for(i=0;i<the_area.doorcount;i++)
+  {
+    the_area.doorheaders[i].launchx=(short) (the_area.m_width-the_area.doorheaders[i].launchx);
+    minx=the_area.m_width-the_area.doorheaders[i].locp2x;
+    maxx=the_area.m_width-the_area.doorheaders[i].locp1x;
+    the_area.doorheaders[i].locp1x=(short) minx;
+    the_area.doorheaders[i].locp2x=(short) maxx;
+    minx=the_area.m_width-the_area.doorheaders[i].cp2x;
+    maxx=the_area.m_width-the_area.doorheaders[i].cp1x;
+    the_area.doorheaders[i].cp1x=(short) minx;
+    the_area.doorheaders[i].cp2x=(short) maxx;
+    minx=the_area.m_width-the_area.doorheaders[i].op2x;
+    maxx=the_area.m_width-the_area.doorheaders[i].op1x;
+    the_area.doorheaders[i].op1x=(short) minx;
+    the_area.doorheaders[i].op2x=(short) maxx;
+    the_area.FlipVertex(i*4+the_area.containercount+the_area.triggercount,
+      the_area.doorheaders[i].countvertexopen,the_area.m_width);
+    the_area.FlipVertex(i*4+1+the_area.containercount+the_area.triggercount,
+      the_area.doorheaders[i].countvertexclose,the_area.m_width);
+    the_area.FlipVertex(i*4+2+the_area.containercount+the_area.triggercount,
+      the_area.doorheaders[i].countblockopen,the_area.m_width/GR_WIDTH);
+    the_area.FlipVertex(i*4+3+the_area.containercount+the_area.triggercount,
+      the_area.doorheaders[i].countblockclose,the_area.m_width/GR_WIDTH);
+  }
+  for(i=0;i<the_area.entrancecount;i++)
+  {
+    the_area.entranceheaders[i].px=(short) (the_area.m_width-the_area.entranceheaders[i].px);
+    the_area.entranceheaders[i].face=(short) ((16-the_area.entranceheaders[i].face)&15);
+  }
+  for(i=0;i<the_area.mapnotecount;i++)
+  {
+    the_area.mapnoteheaders[i].px=(short) (the_area.m_width-the_area.mapnoteheaders[i].px);
+  }
+  for(i=0;i<the_area.spawncount;i++)
+  {
+    the_area.spawnheaders[i].px=(short) (the_area.m_width-the_area.spawnheaders[i].px);
+  }
+  for(i=0;i<the_area.wallpolygoncount;i++)
+  {
+    the_area.FlipWedVertex(i, the_area.wallpolygonheaders[i].countvertex, the_area.m_width);
+  }
+  for(i=0;i<the_area.doorpolygoncount;i++)
+  {
+    the_area.FlipWedVertex(i+the_area.secheader.wallpolycnt, the_area.doorpolygonheaders[i].countvertex, the_area.m_width);
+  }
+
+  //make sure the tis is loaded
+  SetupSelectPoint();
+  for(nFrameWanted=0;nFrameWanted<the_mos.tisheader.numtiles;nFrameWanted++)
+  {
+    the_mos.FlipTile(nFrameWanted);
+  }
+  
+  the_area.MirrorMap(the_area.lightmap);
+  the_area.MirrorMap(the_area.heightmap);
+  the_area.MirrorMap(the_area.searchmap);
+  maxx=the_area.m_width/64;
+  maxy=the_area.m_height/64;
+  for(y=0;y<maxy;y++)
+  {
+    for(i=0;i<maxx/2;i++)
+    {
+      alt=the_area.overlaytileheaders[y*maxx+i];
+      the_area.overlaytileheaders[y*maxx+i]=the_area.overlaytileheaders[(y+1)*maxx-i-1];
+      the_area.overlaytileheaders[(y+1)*maxx-i-1]=alt;
+    }
+  }
+  pos=the_area.doortilelist.GetHeadPosition();
+  for(i=0;i<the_area.weddoorcount;i++)
+  {
+    the_area.FlipDoorTile(i, the_area.weddoorheaders[i].countdoortileidx, maxx);
+  }
+
+  the_area.RecalcBoundingBoxes();
+  for(i=0;i<3;i++)
+  {
+    the_area.changedmap[i]=true;
+  }
+  the_area.wedchanged=true;
+  the_mos.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 

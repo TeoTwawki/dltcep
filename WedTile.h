@@ -19,20 +19,43 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CWedTile)
 	enum { IDD = IDD_WEDTILE };
+	CComboBox	m_indexpicker;
 	CListBox	m_tilepicker;
+	BOOL	m_open;
+	BOOL	m_setoverlay;
 	//}}AFX_DATA
-  int m_tilenum;
+  BOOL m_graphics;
+  int m_tilenum, m_firstindex;
   wed_tilemap *m_ptileheader;
   short *m_ptileidx;
-  int m_tilecountx,m_tilecounty;
+  short *m_pdooridx;
+  DWORD m_tilecountx,m_tilecounty, m_maxtile;
   CString m_tisname;
+  int m_overlay;
+  int m_doornum;
 
-  inline void SetTile(wed_tilemap *poi1, short *poi2, int countx, int county)
+  inline void SetTile(int baseoverlay, int countx, int county)
   {
-    m_ptileheader=poi1;
-    m_ptileidx=poi2;
+    m_overlay=baseoverlay;
+    m_ptileheader=the_area.overlaytileheaders+the_area.getotc(baseoverlay);
+    m_ptileidx=the_area.overlaytileindices+the_area.getfoti(baseoverlay);
     m_tilecountx=countx;
     m_tilecounty=county;
+    m_pdooridx=NULL;
+    m_maxtile=countx*county;
+  }
+  inline void SetDoor(int doornum)
+  {
+    POSITION pos;
+
+    m_doornum=doornum;
+    m_overlay=-1;
+    m_ptileheader=the_area.overlaytileheaders;
+    m_ptileidx=the_area.overlaytileindices;
+    //m_pdooridx=the_area.doortileindices+the_area.weddoorheaders[doornum].firstdoortileidx;
+    pos=the_area.doortilelist.FindIndex(doornum);
+    m_pdooridx=(short *) the_area.doortilelist.GetAt(pos);
+    m_maxtile=the_area.weddoorheaders[doornum].countdoortileidx;
   }
 
 // Overrides
@@ -47,22 +70,34 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CImageView m_preview;
 
   void RefreshTile();
+  void RefreshFields();
+  void RefreshDialog();
   void ChangeOverlay(int flag);
+  void LoadTileSetAt(int firsttile, int random);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedTile)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSelchangeBlockpicker();
-	afx_msg void DefaultKillfocus();
-	afx_msg void OnTile();
 	afx_msg void OnAddalt();
 	afx_msg void OnFixalter();
 	afx_msg void OnGreenwater();
-	virtual void OnOK();
 	afx_msg void OnOverlay();
+	afx_msg void OnSave();
+	afx_msg void DefaultKillfocus();
+	afx_msg void OnKillfocusFirst();
+	afx_msg void OnKillfocusTileidx();
+	afx_msg void OnRemove();
+	afx_msg void OnLoad();
+	afx_msg void OnLoad2();
+	afx_msg void OnOpen();
+	afx_msg void OnPreview();
+	afx_msg void OnDrop();
 	//}}AFX_MSG
+  void CWedTile::OnTile();
 	DECLARE_MESSAGE_MAP()
 };
 

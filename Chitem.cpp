@@ -166,7 +166,7 @@ CStringList exclude_item;
 CStringList xplist;
 CStringList pro_references;
 CStringList pro_titles;
-CStringList race_names;
+CStringList beasts; 
 CStringList spawngroup;
 CStringMapInt rnditems;             //this is the mapping for ignored items (random treasure)
 CStringMapArray store_spell_desc;
@@ -471,6 +471,7 @@ BOOL CChitemApp::InitInstance()
   LoadStdProfileSettings( );  //recent files  
 
 //  SetDialogBkColor(RGB(180,192,192),RGB(32,32,32) ); //sets the background/text color of the forms
+  
 #ifdef _AFXDLL
   Enable3dControls();			// Call this when using MFC in a shared DLL
 #else
@@ -694,7 +695,7 @@ long file_date(CString filename)
   return(the_stat.st_mtime); //it is a directory
 }
 
-// windows is fucked up!
+// windows shell is useless
 // some versions can't handle executable names in apostrophe, but they let you specify
 // spaces in pathnames.
 // simulating the system() function, breaking down syscommand into an argv structure
@@ -1669,14 +1670,21 @@ void StoreAnim(CString &dlgcontrol, char *itempoi)
   dlgcontrol.ReleaseBuffer();
 }
 
-void RetrieveVariable(CString &dlgcontrol, const char *itempoi)
+void RetrieveVariable(CString &dlgcontrol, const char *itempoi, bool noupper)
 {
   char ref[33];
   int i;
   
-  for(i=0;itempoi[i] && i<32;i++) ref[i]=(char) toupper(itempoi[i]); //areas rely on toupper
-  ref[i]=0;
-  dlgcontrol=ref;
+  if(noupper) dlgcontrol=CString(itempoi,32);
+  else
+  {
+    for(i=0;itempoi[i] && i<32;i++)
+    {    
+      ref[i]=(char) toupper(itempoi[i]); //areas rely on toupper
+    }
+    ref[i]=0;
+    dlgcontrol=ref;
+  }
 }
 
 void StoreName(CString &dlgcontrol, char *itempoi)
@@ -1704,14 +1712,21 @@ void StoreName(CString &dlgcontrol, char *itempoi)
   dlgcontrol.ReleaseBuffer();
 }
 
-void StoreVariable(CString &dlgcontrol, char *itempoi)
+void StoreVariable(CString &dlgcontrol, char *itempoi, bool noupper)
 {
   char *poi;
   int i;
   
   poi=dlgcontrol.GetBuffer(32);
-  for(i=0;poi[i] && i<32;i++) itempoi[i]=(char) toupper(poi[i]);
-  for(;i<32;i++) itempoi[i]=0;
+  if(noupper)
+  {
+    strncpy(itempoi,poi,32);
+  }
+  else
+  {
+    for(i=0;poi[i] && i<32;i++) itempoi[i]=(char) toupper(poi[i]);
+    for(;i<32;i++) itempoi[i]=0;
+  }
   dlgcontrol.ReleaseBuffer();
 }
 
@@ -2416,11 +2431,11 @@ CString get_par2_label(int opcode)
   }
   return opcodes[opcode].par2;
 }
-//                       0 button, 1 unknown,2 slider, 3 editbox,4 unknown, 5 scrolltext,
-static char chuicontrolsizes[CCNUM]={18,       -1,       38,       92,       -1,        32,
+//                       0 button, 1 gemrb progress,2 slider, 3 editbox,4 unknown, 5 scrolltext,
+static char chuicontrolsizes[CCNUM]={18,       28,       38,       92,       -1,        32,
 //6 label, 7 scrollbar
 22,      26};
-static CString chuicontrolnames[CCNUM]={"Button","Unknown 1","Slider","EditBox","Unknown 4",
+static CString chuicontrolnames[CCNUM]={"Button","Progressbar","Slider","EditBox","Unknown 4",
 "Textarea","Label","Scrollbar"};
 
 int ChuiControlSize(int controltype)
@@ -3151,6 +3166,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define Am sf(CHECK_AREA, CHECK_MOS2)
 #define Av sf(CHECK_AREA, CHECK_VVC2)
 #define AE sf(CHECK_AREA, ENTRY_POINT)
+#define AV sf(CHECK_SCOPE, ADD_VAR3)
 #define bO sf(CHECK_BCS2,IS_VAR)
 #define BO sf(CHECK_BCS,IS_VAR)
 #define by CHECK_BYTE
@@ -3175,7 +3191,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define NC sf(NO_CHECK, IS_VAR)
 #define MO sf(CHECK_MOVIE, IS_VAR)
 #define MV sf(0,MERGE_VARS)
-#define mv sf(1,MERGE_VARS)
+#define mv sf(1,MERGE_VARS) //merge vars with :
 #define OO sf(IS_VAR,IS_VAR)
 #define PO sf(CHECK_SPL, IS_VAR)
 #define pO sf(CHECK_SPL2, IS_VAR)
@@ -3288,7 +3304,7 @@ int tob_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   MV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    IO,   mv,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3308,7 +3324,7 @@ int tob_action_flags[MAX_ACTION]={
 //230,  231,  232,  233,  234,  235,  236,  237,  238,  239,  
     OO,   CO,   CO,   CO,   OO,   jr,   OO,   OO,   CO,   OO,  
 //240,  241,  242,  243,  244,  245,  246,  247,  248,  249,  
-    pO,   OO,   OO,   OO,   VO,   MV,   VC,   tv,   TV,   OO,  
+    pO,   OO,   OO,   OO,   AV,   AV,   VC,   tv,   TV,   OO,  
 //250,  251,  252,  253,  254,  255,  256,  257,  258,  259,  
     Cv,   AO,   CO,   OO,   OO,   GG,   VI,   IO,   OO,   OO,  
 //260,  261,  262,  263,  264,  265,  266,  267,  268,  269,  
@@ -3418,7 +3434,7 @@ int iwd2_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   MV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    IO,   mv,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3548,7 +3564,7 @@ int pst_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   MV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    IO,   mv,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   OO,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3592,97 +3608,9 @@ int pst_action_flags[MAX_ACTION]={
 //350,  351,  352,  353,  354,  355,  356,  357,  358,  359,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,
 };
-/*
-void outputtable()
-{
-  CString tmpstr;
-  FILE *fpoi;
-  int i,j,flags;
 
-  fpoi=fopen("outputtable","wt");
-  for(i=0;i<MAX_TRIGGER;i+=10)
-  {
-    fprintf(fpoi,"//");
-    for(j=i;j<i+10;j++)
-    {
-      fprintf(fpoi,"0x%02x, ",j);
-    }
-    fprintf(fpoi,"\n   ");
-    for(j=i;j<i+10;j++)
-    {
-      flags=handle_trigger(j);
-      if(tob_action_flags[j]!=flags)
-      {
-        nop();
-      }
-      switch(flags)
-      {
-      case OO: tmpstr="OO"; break;
-      case DV: tmpstr="DV"; break;
-      case LO: tmpstr="LO"; break;
-      case GO: tmpstr="GO"; break;
-      case GG: tmpstr="GG"; break;
-      case LL: tmpstr="LL"; break;
-      case VO: tmpstr="VO"; break;
-      case VC: tmpstr="VC"; break;
-      case VI: tmpstr="VI"; break;
-      case VT: tmpstr="VT"; break;
-      case TV: tmpstr="TV"; break;
-      case tv: tmpstr="tv"; break;
-      case vO: tmpstr="vO"; break;
-      case VV: tmpstr="VV"; break;
-      case vv: tmpstr="vv"; break;
-      case CO: tmpstr="CO"; break;
-      case Cv: tmpstr="Cv"; break;
-      case CD: tmpstr="CD"; break;
-      case Cd: tmpstr="Cd"; break;
-      case II: tmpstr="II"; break;
-      case IO: tmpstr="IO"; break;
-      case iO: tmpstr="iO"; break;
-      case io: tmpstr="io"; break;
-      case MO: tmpstr="MO"; break;
-      case SO: tmpstr="SO"; break;
-      case sO: tmpstr="sO"; break;
-      case sD: tmpstr="sD"; break;
-      case PO: tmpstr="PO"; break;
-      case pO: tmpstr="pO"; break;
-      case TO: tmpstr="TO"; break;
-      case AO: tmpstr="AO"; break;
-      case AA: tmpstr="AA"; break;
-      case AE: tmpstr="AE"; break;
-      case aO: tmpstr="aO"; break;
-      case Am: tmpstr="Am"; break;
-      case Av: tmpstr="Av"; break;
-      case BO: tmpstr="BO"; break;
-      case bO: tmpstr="bO"; break;
-      case DO: tmpstr="DO"; break;
-      case dO: tmpstr="dO"; break;
-      case WO: tmpstr="WO"; break;
-      case wO: tmpstr="wO"; break;
-      case XO: tmpstr="XO"; break;
-      case xO: tmpstr="xO"; break;
-      case XP: tmpstr="XP"; break;
-      case xp: tmpstr="xp"; break;
-      case NC: tmpstr="NC"; break;
-      case MV: tmpstr="MV"; break;
-      case mv: tmpstr="mv"; break;
-      case st: tmpstr="st"; break;
-      case by: tmpstr="by"; break;
-      default: tmpstr="**"; break;
-      }
-      fprintf(fpoi," %s,  ",tmpstr);
-    }
-    fprintf(fpoi,"\n");
-  }
-  fclose(fpoi);
-}
-*/
 int handle_action(int opcode)
 {
-  if(opcode==165)
-  {
-    nop();
-  }
   if(opcode>=MAX_ACTION || opcode<0) return OO;
   if(pst_compatible_var()) return pst_action_flags[opcode];
   if(has_xpvar() ) return iwd2_action_flags[opcode];
@@ -3741,6 +3669,8 @@ int check_ids_targeting(int par1, int par2)
 CString lastopenedscript;
 CString lastopenedsave;
 CString lastopeneddata;
+CString lastopenedoverride;
+CString lastopenedmusic;
 
 CString getitemname(CString filepath)
 {
@@ -3756,6 +3686,13 @@ CString makeitemname(CString ext, int remember)
 
   switch(remember)
   {
+  case 0:
+    if(!lastopenedoverride.IsEmpty() && (editflg&LASTOPENED) )
+    {
+      if(itemname.Left(4)=="new ") return lastopenedoverride+"\\*"+ext;
+      return lastopenedoverride+"\\"+itemname+ext;
+    }
+    break;
   case 1:
     if(!lastopenedscript.IsEmpty() && (editflg&LASTOPENED) )
     {
@@ -3775,6 +3712,13 @@ CString makeitemname(CString ext, int remember)
     {
       if(itemname.Left(4)=="new ") return lastopeneddata+"\\*"+ext;
       return lastopeneddata+"\\"+itemname+ext;
+    }
+    break;
+  case 4:
+    if(!lastopenedmusic.IsEmpty() && (editflg&LASTOPENED) )
+    {
+      if(itemname.Left(4)=="new ") return lastopenedmusic+"\\*"+ext;
+      return lastopenedmusic+"\\"+itemname+ext;
     }
     break;
   }
@@ -3822,15 +3766,42 @@ void UpdateIEResource(CString key, int restype, CString filepath, int size)
 
 ///////// Readers & writers/////////////////////
 
-int write_area(CString key)
+int read_area(CString key)
+{
+  loc_entry fileloc, wedfileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(areas.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) return -2;
+    areas.SetAt(key,fileloc);
+    the_mos.new_mos();
+    ret=the_area.ReadAreaFromFile(fhandle, fileloc.size);
+    close(fhandle);
+    if(ret>=0)
+    {
+      ret=ReadWed(ret);
+    }
+  }
+  else return -1;
+  return ret;
+}
+
+int write_area(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".ARE";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".ARE";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -3845,21 +3816,62 @@ int write_area(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".ARE";
-    UpdateIEResource(key,REF_ARE,filepath,size);
+    tmpath="override\\"+key+".ARE";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_ARE,tmpath,size);
+    }
   }
   return ret;
 }
 
-int write_tis(CString key)
+int write_wed(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".TIS";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".WED";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_area.WriteWedToFile(fhandle);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && (size>0) )
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".WED";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_WED,tmpath,size);
+    }
+  }
+  return ret;
+}
+
+int write_tis(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".TIS";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -3874,8 +3886,11 @@ int write_tis(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".TIS";
-    UpdateIEResource(key,REF_TIS,filepath,size);
+    tmpath="override\\"+key+".TIS";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_TIS,tmpath,size);
+    }
   }
   return ret;
 }
@@ -3899,15 +3914,18 @@ int read_item(CString key)
   return ret;
 }
 
-int write_item(CString key)
+int write_item(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".ITM";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".ITM";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -3922,8 +3940,11 @@ int write_item(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".ITM";
-    UpdateIEResource(key,REF_ITM,filepath,size);
+    tmpath="override\\"+key+".ITM";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_ITM,tmpath,size);
+    }
   }
   return ret;
 }
@@ -3947,15 +3968,18 @@ int read_spell(CString key)
   return ret;
 }
 
-int write_spell(CString key)
+int write_spell(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".SPL";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".SPL";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -3970,8 +3994,11 @@ int write_spell(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".SPL";
-    UpdateIEResource(key,REF_SPL,filepath,size);
+    tmpath="override\\"+key+".SPL";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_SPL,tmpath,size);
+    }
   }
   return ret;
 }
@@ -3995,15 +4022,18 @@ int read_store(CString key)
   return ret;
 }
 
-int write_store(CString key)
+int write_store(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".STO";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".STO";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4018,8 +4048,11 @@ int write_store(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".STO";
-    UpdateIEResource(key,REF_SPL,filepath,size);
+    tmpath="override\\"+key+".STO";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_STO,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4049,46 +4082,31 @@ int ReadWed(int res)
   if(weds.Lookup(wed,wedfileloc))
   {
     fhandle=locate_file(wedfileloc, 0);
-    if(fhandle<1)
-    {        
-      res=3; //wedfile not available
-    }
-    else
-    {
-      switch(the_area.ReadWedFromFile(fhandle, wedfileloc.size) )
-      {
-      case 0: case 1: case 2: case 3: break;
-      default:
-        res=3;
-      }
-      close(fhandle);
-    }
   }
-  else res=3;
-  return res;
-}
-
-int read_area(CString key)
-{
-  loc_entry fileloc, wedfileloc;
-  int ret;
-  int fhandle;
-  CString tmp;
-  
-  if(areas.Lookup(key,fileloc))
+  else fhandle=-1;
+  if(fhandle<1) //falling back to same directory
   {
-    fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    areas.SetAt(key,fileloc);
-    ret=the_area.ReadAreaFromFile(fhandle, fileloc.size);
-    close(fhandle);
-    if(ret>=0)
-    {
-      ret=ReadWed(ret);
-    }
+    fhandle=open(lastopenedoverride+"//"+wed+".WED",O_RDONLY|O_BINARY);
   }
-  else return -1;
-  return ret;
+  if(fhandle<1)
+  {
+    res=3; //wedfile not available
+  }
+  else
+  {
+    switch(the_area.ReadWedFromFile(fhandle, wedfileloc.size) )
+    {
+    case 0:
+      break;
+    case 1: case 2: case 3:
+      the_area.wedchanged=true;
+      break;
+    default:
+      res=3;
+    }
+    close(fhandle);
+  }
+  return res;
 }
 
 int read_projectile(CString key)
@@ -4110,15 +4128,18 @@ int read_projectile(CString key)
   return ret;
 }
 
-int write_projectile(CString key)
+int write_projectile(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".PRO";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".PRO";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4133,8 +4154,11 @@ int write_projectile(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".PRO";
-    UpdateIEResource(key,REF_PRO,filepath,size);
+    tmpath="override\\"+key+".PRO";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_PRO,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4155,6 +4179,95 @@ int read_chui(CString key)
     close(fhandle);
   }
   else return -1;
+  return ret;
+}
+
+int write_chui(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".CHU";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_chui.WriteChuiToFile(fhandle,0);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".CHU";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_CHU,tmpath,size);
+    }
+  }
+  return ret;
+}
+
+int read_map(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(wmaps.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) return -2;
+    wmaps.SetAt(key,fileloc);
+    ret=the_map.ReadMapFromFile(fhandle, fileloc.size);
+    close(fhandle);
+  }
+  else return -1;
+  return ret;
+}
+
+int write_map(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".WMP";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_map.WriteMapToFile(fhandle,0);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".WMP";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_WMP,tmpath,size);
+    }
+  }
   return ret;
 }
 
@@ -4196,15 +4309,18 @@ int read_creature(CString key)
   return ret;
 }
 
-int write_creature(CString key)
+int write_creature(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".CRE";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".CRE";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4219,8 +4335,11 @@ int write_creature(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".CRE";
-    UpdateIEResource(key,REF_CRE,filepath,size);
+    tmpath="override\\"+key+".CRE";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_CRE,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4264,15 +4383,18 @@ int read_videocell(CString key)
   return ret;
 }
 
-int write_videocell(CString key)
+int write_videocell(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".VVC";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".VVC";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4287,8 +4409,11 @@ int write_videocell(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".VVC";
-    UpdateIEResource(key,REF_VVC,filepath,size);
+    tmpath="override\\"+key+".VVC";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_VVC,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4309,6 +4434,50 @@ int read_2da(CString key)
     close(fhandle);
   }
   else return -1;
+  return ret;
+}
+
+int write_2da(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".2DA";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_2da.Write2DAToFile(fhandle);
+  //reopening the file because it is now closed
+  fhandle=open(tmpath,O_BINARY|O_RDONLY);
+  if(fhandle<1)
+  {
+    size=-1;
+  }
+  else
+  {
+    size=filelength(fhandle);
+    close(fhandle);
+  }
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".2DA";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_2DA,tmpath,size);
+    }
+  }
   return ret;
 }
 
@@ -4387,15 +4556,18 @@ int read_effect(CString key)
   return ret;
 }
 
-int write_effect(CString key)
+int write_effect(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".EFF";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".EFF";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4410,8 +4582,11 @@ int write_effect(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".EFF";
-    UpdateIEResource(key,REF_EFF,filepath,size);
+    tmpath="override\\"+key+".EFF";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_EFF,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4436,15 +4611,18 @@ int read_game(CString key)
   return ret;
 }
 
-int write_game(CString key)
+int write_game(CString key, CString filepath)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".GAM";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".GAM";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4459,8 +4637,11 @@ int write_game(CString key)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".GAM";
-    UpdateIEResource(key,REF_GAM,filepath,size);
+    tmpath="override\\"+key+".GAM";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_GAM,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4477,16 +4658,21 @@ int read_bmp(CString key, Cbam *cb, int lazy)
   if(bitmaps.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1)
-    {
-      ret=-2;
-      goto endofquest;
-    }
-    bitmaps.SetAt(key,fileloc);
-    ret=cb->ReadBmpFromFile(fhandle, fileloc.size);
-    close(fhandle);
   }
-  else ret=-2;
+  else fhandle=-1;
+  if(fhandle<1)
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".bmp",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1)
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  bitmaps.SetAt(key,fileloc);
+  ret=cb->ReadBmpFromFile(fhandle, fileloc.size);
+  close(fhandle);
+
 endofquest:
   if(ret) cb->m_name.Empty();
   else cb->m_name=key+".bmp";
@@ -4540,6 +4726,7 @@ int read_bmp(CString key,HBITMAP &hb)
     if(!memory) return -1;
     if(read(fhandle,memory,size)!=size) return -2;
     CDC *pDC = AfxGetMainWnd()->GetDC();
+    if(hb) DeleteObject(hb);
     hb = ::CreateDIBitmap(pDC->GetSafeHdc(),(BITMAPINFOHEADER*)(memory+sizeof(BITMAPFILEHEADER)),
       CBM_INIT, memory+((BITMAPFILEHEADER*)memory)->bfOffBits,
       (BITMAPINFO*)(memory+sizeof(BITMAPFILEHEADER)), DIB_RGB_COLORS);
@@ -4591,16 +4778,22 @@ int read_mos(CString key, Cmos *cb, int lazy)
   if(mos.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1)
-    {
-      ret=-2;
-      goto endofquest;
-    }
-    mos.SetAt(key,fileloc);
-    ret=cb->ReadMosFromFile(fhandle, fileloc.size);
-    close(fhandle);
   }
-  else ret=-2;
+  else fhandle=-1;
+  if(fhandle<1) //falling back to same directory
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".mos",O_RDONLY|O_BINARY);
+  }
+
+  if(fhandle<1)
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  mos.SetAt(key,fileloc);
+  ret=cb->ReadMosFromFile(fhandle, fileloc.size);
+  close(fhandle);
+  
 endofquest:
   if(ret) cb->m_name.Empty();
   else cb->m_name=key+".mos";
@@ -4639,15 +4832,18 @@ endofquest:
   return ret;
 }
 
-int write_bam(CString key)
+int write_bam(CString key, CString filepath, Cbam *bam)
 {
   loc_entry fileloc;
   int ret;
-  CString filepath, tmpath;
+  CString tmpath;
   int size;
   int fhandle;
 
-  filepath=bgfolder+"override\\"+key+".BAM";
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".BAM";
+  }
   tmpath=bgfolder+"override\\"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -4655,15 +4851,53 @@ int write_bam(CString key)
   {
     return -2;
   }
-  ret=the_bam.WriteBamToFile(fhandle);
+  ret=bam->WriteBamToFile(fhandle);
   size=filelength(fhandle);
   close(fhandle);
   if(!ret && size>0)
   {
     unlink(filepath);
     rename(tmpath,filepath);
-    filepath="override\\"+key+".BAM";
-    UpdateIEResource(key,REF_BAM,filepath,size);
+    tmpath="override\\"+key+".BAM";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_BAM,tmpath,size);
+    }
+  }
+  return ret;
+}
+
+int write_bmp(CString key, CString filepath, Cbam *bam, int frame)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".BMP";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=bam->WriteBmpToFile(fhandle,frame);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".BMP";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_BMP,tmpath,size);
+    }
   }
   return ret;
 }
@@ -4737,13 +4971,19 @@ int write_wav(CString key, void *memory, long samples_written, int wav_or_acm)
     rename(tmpath,filepath);
     if(wav_or_acm)
     {
-      filepath="override\\"+key+".WAV";
-      UpdateIEResource(key,REF_WAV,filepath,size);
+      tmpath="override\\"+key+".WAV";
+      if(!filepath.CompareNoCase(bgfolder+tmpath) )
+      {
+        UpdateIEResource(key,REF_WAV,tmpath,size);
+      }
     }
     else
     {
-      filepath="music\\"+key+".ACM";
-      UpdateIEResource(key,REF_ACM,filepath,size);
+      tmpath="override\\"+key+".ACM";
+      if(!filepath.CompareNoCase(bgfolder+tmpath) )
+      {
+        UpdateIEResource(key,REF_ACM,tmpath,size);
+      }
     }
   }
   return ret;
@@ -4760,6 +5000,13 @@ int longsortb(const void *a,const void *b)
 {
   if(*(long *) a>*(long *) b) return 1;
   if(*(long *) a<*(long *) b) return -1;
+  return 0;
+}
+
+int shortsortb(const void *a,const void *b)
+{
+  if(*(short *) a>*(short *) b) return 1;
+  if(*(short *) a<*(short *) b) return -1;
   return 0;
 }
 
@@ -4801,7 +5048,7 @@ unsigned long *init_squares()
     b_offset[i] = (unsigned short) ((i & 128) << 5 | (i & 64) << 3 | (i & 32) << 1 |
 				  (i & 16)  >> 1 | (i & 8)  >> 3);
   }
-  for(i=-255;i<255;i++) square_tbl[i+255]=i*i;
+  for(i=-255;i<256;i++) square_tbl[i+255]=i*i;
   return square_tbl+255;
 }
 unsigned long *squares=init_squares();
@@ -5469,7 +5716,7 @@ int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd)
   return IDCANCEL;
 }
 
-//this is a special fuckup (err hack), to get this file selection box
+//this is a special hack, to get this file selection box
 //working on multi selection correctly
 void HackForLargeList(CFileDialog &m_getfiledlg)
 {
@@ -5671,7 +5918,7 @@ int CompressBIFC(CString infilename)
   }
   bifc_header.len=len;
   outfilename=infilename;
-  fhandle=open(outfilename+".tmp",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
+  fhandle=open(outfilename+".TMP",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
   if(fhandle<1)
   {
     close(infile);
@@ -5753,7 +6000,7 @@ int CompressCBF(CString infilename)
   cbf_header.namelen=infilename.GetLength();
   outfilename.MakeLower();
   outfilename.Replace(".bif",".cbf");
-  fhandle=open(outfilename+".tmp",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
+  fhandle=open(outfilename+".TMP",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
   if(fhandle<1)
   {
     close(infile);
@@ -5808,7 +6055,7 @@ endofquest:
   return ret;
 }
 
-int SetupSelectPoint()
+int SetupSelectPoint(int overlay, Cmos *overlaymos)
 {
   CString tmpstr;
 
@@ -5822,13 +6069,72 @@ int SetupSelectPoint()
     MessageBox(0,"Cannot load TIS.","Warning",MB_ICONEXCLAMATION|MB_OK);
     return -1;
   }
-  the_mos.SetOverlay(0, the_area.overlaytileheaders, the_area.overlaytileindices);
+  the_mos.SetOverlay(overlay, the_area.overlaytileheaders, the_area.overlaytileindices, overlaymos);
   the_mos.TisToMos(the_area.overlayheaders[0].width,the_area.overlayheaders[0].height);
   
   return 0;
 }
 
 //////////vertex & polygon functions
+int CanMove(CPoint &point, area_vertex *wedvertex, int count)
+{
+  int i;
+  int ret;
+
+  ret=0;
+  for(i=0;i<count;i++)
+  {
+    if(point.x<-wedvertex[i].x)
+    {
+      point.x=-wedvertex[i].x;
+      ret=1;
+    }
+    if(point.y<-wedvertex[i].y)
+    {
+      point.y=-wedvertex[i].y;
+      ret=1;
+    }
+    if(point.x>=the_mos.mosheader.wWidth-wedvertex[i].x)
+    {
+      point.x=the_mos.mosheader.wWidth-wedvertex[i].x-1;
+      ret=1;
+    }
+    if(point.y>=the_mos.mosheader.wHeight-wedvertex[i].y)
+    {
+      point.y=the_mos.mosheader.wHeight-wedvertex[i].y-1;
+      ret=1;
+    }
+  }
+  return ret;
+}
+
+void RecalcBox(int count, int idx, POINTS &min, POINTS &max)
+{
+  POINTS tmp;
+  POSITION pos;
+  area_vertex *poi;
+  int i;
+
+  if(!count)
+  {
+    max.x=-1;
+    max.y=-1;
+    min.x=-1;
+    min.y=-1;
+    return;
+  }
+  pos=the_area.vertexheaderlist.FindIndex(idx);
+  poi=(area_vertex *) the_area.vertexheaderlist.GetAt(pos);
+  min=max=(POINTS &) poi[0];
+  for(i=1;i<count;i++)
+  {
+    tmp=(POINTS &) poi[i];
+    if(max.x<tmp.x) max.x=tmp.x;
+    if(max.y<tmp.y) max.y=tmp.y;
+    if(min.x>tmp.x) min.x=tmp.x;
+    if(min.y>tmp.y) min.y=tmp.y;
+  }
+}
 
 int PolygonInBox(area_vertex *wedvertex, int count, CRect rect)
 {
@@ -5836,11 +6142,11 @@ int PolygonInBox(area_vertex *wedvertex, int count, CRect rect)
 
   for(i=0;i<count;i++)
   {
-    if(wedvertex[i].point.x<rect.left || wedvertex[i].point.x>rect.right)
+    if(wedvertex[i].x<rect.left || wedvertex[i].x>rect.right)
     {
       continue;
     }
-    if(wedvertex[i].point.y<rect.top || wedvertex[i].point.y>rect.bottom)
+    if(wedvertex[i].y<rect.top || wedvertex[i].y>rect.bottom)
     {
       continue;
     }
@@ -5851,6 +6157,13 @@ int PolygonInBox(area_vertex *wedvertex, int count, CRect rect)
   if(PointInPolygon(wedvertex, count,CPoint(rect.right, rect.top) ) ) return true;
   if(PointInPolygon(wedvertex, count,CPoint(rect.left, rect.bottom) ) ) return true;
   return false;
+}
+
+int CheckIntervallum(int value, int first, int count)
+{
+  if(value<first) return -1;
+  if(value>=first+count) return -1;
+  return value-first;
 }
 
 int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
@@ -5871,16 +6184,16 @@ int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
   }
 
   vtx0 = &wedvertex[count - 1];
-  yflag0 = ( vtx0->point.y >= ty );
+  yflag0 = ( vtx0->y >= ty );
   vtx1 = &wedvertex[index];
   
   for (j = count ; j-- ;)
   {
-    yflag1 = ( vtx1->point.y >= ty );
+    yflag1 = ( vtx1->y >= ty );
     if (yflag0 != yflag1)
     {
-      xflag0 = ( vtx0->point.x >= tx );
-      if (xflag0 == ( vtx1->point.x >= tx ))
+      xflag0 = ( vtx0->x >= tx );
+      if (xflag0 == ( vtx1->x >= tx ))
       {
         if (xflag0)
         {
@@ -5889,9 +6202,9 @@ int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
       }
       else
       {
-        if (( vtx1->point.x -
-          ( vtx1->point.y - ty ) * ( vtx0->point.x - vtx1->point.x ) /
-          ( vtx0->point.y - vtx1->point.y ) ) >= tx)
+        if (( vtx1->x -
+          ( vtx1->y - ty ) * ( vtx0->x - vtx1->x ) /
+          ( vtx0->y - vtx1->y ) ) >= tx)
         {
           inside_flag = !inside_flag;
         }
@@ -5904,32 +6217,45 @@ int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
   return inside_flag;
 }
 
+static area_vertex GetVertex(area_vertex *wedvertex, int count, int which)
+{
+  area_vertex tmp;
+
+  tmp=wedvertex[which];
+  which++;
+  if(which==count) which=0;
+  tmp.x=(unsigned short) (tmp.x+wedvertex[which].x);
+  tmp.y=(unsigned short) (tmp.y+wedvertex[which].y);
+  return tmp;
+}
+
 //This function orders the vertices of a polygon (without ruining it)
 int VertexOrder(area_vertex *wedvertex, int count)
-//int Carea::VertexOrder(area_vertex *wedvertex, int count)
 {
   int i;
   int shift;
   area_vertex *tmp;
   area_vertex max;
+  area_vertex local;
 
-  max=wedvertex[0];
+  max=GetVertex(wedvertex,count,0);
   shift=0;
   for(i=1;i<count;i++)
   {
-    if(wedvertex[i].point.y>max.point.y)
+    local=GetVertex(wedvertex,count,i);
+    if(local.y>max.y)
     {
       shift=i;
-      max=wedvertex[i];
+      max=local;
     }
     else
     {
-      if(wedvertex[i].point.y==max.point.y)
+      if(local.y==max.y)
       {
-        if(wedvertex[i].point.x>max.point.x)
+        if(local.x<max.x)
         {
           shift=i;
-          max=wedvertex[i];
+          max=local;
         }
       }
     }
@@ -6098,15 +6424,11 @@ void CStringMapLocEntry::Fixup(int index, int value)
 
 int CStringMapLocEntry::Lookup(CString key, loc_entry &loc)
 {
-  if(key=="STATDESC")
-  {
-    nop();
-  }
   loc.bifname.Empty();
   loc.resref.Empty();
   loc.cdloc=0;
   loc.index=0;
-  loc.size=0;
+  loc.size=-1;
   loc.bifindex=0;
   return CMap<CString, LPCSTR, loc_entry, loc_entry&>::Lookup(key,loc);
 }

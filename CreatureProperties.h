@@ -28,7 +28,6 @@ public:
 	BOOL	m_shortnametag;
 	//}}AFX_DATA
 
-
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureGeneral)
@@ -38,6 +37,7 @@ public:
 
 // Implementation
 protected:
+  CString FindKit(unsigned int kit);
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureGeneral)
@@ -101,10 +101,11 @@ public:
 	CStatic	m_largeportrait;
 	CStatic	m_smallportrait;
 	//}}AFX_DATA
-  CString bms, bml;
-  COLORREF bgcolor;
-  bool play;
-  int playmax, playindex;
+  CString m_bms, m_bml;
+  COLORREF m_bgcolor;
+  bool m_play;
+  int m_playmax, m_playindex;
+  HBITMAP m_hb1, m_hb2;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -402,6 +403,7 @@ protected:
 	afx_msg void OnKillfocusU29();
 	afx_msg void OnKillfocusU30();
 	afx_msg void OnKillfocusReputation();
+	afx_msg void OnTorment();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -433,6 +435,7 @@ public:
 	//}}AFX_DATA
   int m_idx;
   int m_spellslot;
+  HBITMAP m_hb;
   
   // Overrides
   // ClassWizard generated virtual function overrides
@@ -493,6 +496,7 @@ protected:
 	afx_msg void OnClass();
 	afx_msg void OnKillfocusSelected();
 	afx_msg void OnUndroppable();
+	afx_msg void OnClearall();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -54,8 +54,8 @@ protected:
 	afx_msg void OnBrowse();
 	afx_msg void OnAddcre();
 	afx_msg void OnDelcre();
-	afx_msg void OnKillfocusUnknowna8();
-	afx_msg void OnKillfocusUnknownaa();
+	afx_msg void OnKillfocusDay();
+	afx_msg void OnKillfocusNight();
 	afx_msg void OnKillfocusSpawnnumpicker();
 	afx_msg void OnSelchangeSpawnnumpicker();
 	afx_msg void OnClear();

@@ -23,23 +23,18 @@ public:
 	BOOL	m_graphics;
 	BOOL	m_open;
 	BOOL	m_insertpoint;
+	BOOL	m_movepolygon;
 	//}}AFX_DATA
   wed_polygon *wedpolygon;
   area_vertex *wedvertex;
   int first;
   int m_vertexnum;
+  int m_polynum;
   int m_changed;
-  CImageView m_preview;
-  POINT *m_polygon;
   BOOL insertpoint;
   POSITION pos;
 
-  inline void SetPolygon(wed_polygon *poi1, POSITION poi2)
-  {
-    wedpolygon=poi1;
-    pos=poi2;
-    wedvertex=(area_vertex *) the_area.vertexheaderlist.GetAt(poi2);
-  }
+  void SetPolygon(int type, int number);
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -51,10 +46,13 @@ public:
 	//}}AFX_VIRTUAL
 
 // Implementation
+
 protected:
   CToolTipCtrl m_tooltip;
+  CImageView m_preview;
 
   void RefreshPolygon();
+  void Shift(int where);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedPolygon)
@@ -80,11 +78,12 @@ protected:
 	afx_msg void OnReverse();
 	afx_msg void OnOrder();
 	virtual BOOL OnInitDialog();
-	afx_msg void OnShift();
 	afx_msg void OnPreview();
 	afx_msg void OnOpen();
 	afx_msg void OnDblclkVertexpicker();
 	afx_msg void OnInsert();
+	afx_msg void OnDeltaposShift(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnMove();
 	//}}AFX_MSG
   void RefreshVertex(); //do we need afx_msg or not?
 	DECLARE_MESSAGE_MAP()

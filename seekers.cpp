@@ -1565,7 +1565,7 @@ bool CChitemDlg::match_item()
       searchflags&=~((1<<FLG_CHANGE)|(1<<FLG_CHANGE2));
       return true;
     }
-    write_item(itemname);    
+    write_item(itemname,"");    
   }
   return true;
 }
@@ -1809,7 +1809,7 @@ bool CChitemDlg::match_spell()
       searchflags&=~((1<<FLG_CHANGE)|(1<<FLG_CHANGE2));
       return true;
     }
-    write_item(itemname);    
+    write_item(itemname,"");    
   }
   return true;
 }
@@ -2327,7 +2327,7 @@ bool CChitemDlg::match_creature()
       searchflags&=~((1<<FLG_CHANGE)|(1<<FLG_CHANGE2));
       return true;
     }
-    write_creature(itemname);    
+    write_creature(itemname,"");    
   }
 
   return true;
@@ -2464,20 +2464,45 @@ bool CChitemDlg::match_area()
   search_data tmpdata;
 
 #ifdef _DEBUG
-  /*
+
   int i;
 
-  for(i=0;i<the_area.triggercount;i++)
+  for(i=0;i<the_area.doorcount;i++)
   {
-    if(the_area.triggerheaders[i].dialogref[0])
+    if(the_area.doorheaders[i].openscript[0])
     {
-      log("Using dialog: %.8s",the_area.triggerheaders[i].dialogref);
+      log("%d Using script: %.8s",i,the_area.doorheaders[i].openscript);
     }
   }
-  */
+
 #endif
   memset(&tmpdata,0,sizeof(tmpdata) );
   found=true;
+
+  if(searchflags&MS )
+  {
+    for(idx=0;idx<the_area.triggercount;idx++)
+    {
+      if(the_area.triggerheaders[idx].strref==searchdata.strref)
+      {
+        log("Found strref #%d in trigger #%d",searchdata.strref, idx+1);
+      }
+    }
+    for(idx=0;idx<the_area.mapnotecount;idx++)
+    {
+      if(the_area.mapnoteheaders[idx].strref==searchdata.strref)
+      {
+        log("Found strref #%d in mapnote #%d",searchdata.strref, idx+1);
+      }
+    }
+    for(idx=0;idx<the_area.doorcount;idx++)
+    {
+      if(the_area.doorheaders[idx].strref==searchdata.strref)
+      {
+        log("Found strref #%d in door #%d",searchdata.strref, idx+1);
+      }
+    }
+  }
 
   if(searchflags&MT )
   {    
@@ -3209,6 +3234,14 @@ int CChitemDlg::check_chui()
   return ret;
 }
 
+int CChitemDlg::check_creature_pst()
+{
+  CString tmpstr;
+
+  RetrieveVariable(tmpstr, the_creature.pstheader.bestiary);
+  return 0;
+}
+
 //flags that make the creature die as soon as it was put in the game (useless)
 #define FLAGS_THAT_HURT  (0x800)
 
@@ -3436,6 +3469,10 @@ int CChitemDlg::check_creature()
   }
   ret|=check_weaponslots();
 
+  if(pst_compatible_var())
+  {
+    ret|=check_creature_pst();
+  }
   if(chkflg&NOEXTCHK) return ret;
   ret|=check_creature_spells();
   ret|=check_creature_features();
@@ -3945,8 +3982,8 @@ int CChitemDlg::check_area_door()
   int strref;
 
   ret=0;
-  maxx=the_area.overlayheaders[0].width*64;
-  maxy=the_area.overlayheaders[0].height*64;
+  maxx=the_area.m_width;
+  maxy=the_area.m_height;
   if(the_area.WedAvailable())
   {
     if(the_area.wedheader.doorcnt!=the_area.header.doorcnt)
@@ -4036,8 +4073,8 @@ int CChitemDlg::check_area_entrance()
   unsigned int px,py;
 
   ret=0;
-  maxx=the_area.overlayheaders[0].width*64;
-  maxy=the_area.overlayheaders[0].height*64;
+  maxx=the_area.m_width;
+  maxy=the_area.m_height;
   for(i=0;i<the_area.header.entrancecnt;i++)
   {
     RetrieveVariable(entrancename,the_area.entranceheaders[i].entrancename);
@@ -4175,8 +4212,8 @@ int CChitemDlg::check_area_spawn()
   unsigned int px,py;
 
   ret=0;
-  maxx=the_area.overlayheaders[0].width*64;
-  maxy=the_area.overlayheaders[0].height*64;
+  maxx=the_area.m_width;
+  maxy=the_area.m_height;
   for(i=0;i<the_area.header.spawncnt;i++)
   {
     RetrieveVariable(spawnname, the_area.spawnheaders[i].spawnname);
@@ -4279,13 +4316,22 @@ int CChitemDlg::check_area_trigger()
       {
         areas.Lookup(destination,fileloc);   //this must succeed!
         fhandle=locate_file(fileloc, 0);  //hopefully this too
-        RetrieveVariable(entrancename,the_area.triggerheaders[i].destname);
-        if(tmparea.CheckDestination(fhandle, fileloc.size, entrancename))
+        if(fhandle)
+        {
+          RetrieveVariable(entrancename,the_area.triggerheaders[i].destname);
+          if(tmparea.CheckDestination(fhandle, fileloc.size, entrancename))
+          {
+            ret|=BAD_ATTR;
+            log("Invalid destination reference '%-.32s' for area '%s' (causes crash) in active region #%d (%-.32s [%d.%d])",
+              entrancename, destination, i+1,infoname,px,py);
+            //the destination area does not exist in the other area, this causes crash
+          }
+          close(fhandle);
+        }
+        else
         {
           ret|=BAD_ATTR;
-          log("Invalid destination reference '%-.32s' for area '%s' (causes crash) in active region #%d (%-.32s [%d.%d])",
-            entrancename, destination, i+1,infoname,px,py);
-          //the destination area does not exist in the other area, this causes crash
+          log("Can't load area: %s\n",destination);
         }
       }
     }
@@ -4507,13 +4553,48 @@ int CChitemDlg::check_area()
 
 int CChitemDlg::check_wed()
 {
+  CString tmpstr;
+  short *doortiles;
+  POSITION pos;
   int ret;
+  int idx;
+  int tilecount;
+  int i,j;
 
   ret=0;
   if(the_area.wedheader.overlaycnt!=5)
   {
     ret|=BAD_EXTHEAD;
     log("Non-standard wed overlay count");
+  }
+  if(the_area.overlaycount<1)
+  {
+    return ret;
+  }
+  tilecount=the_area.overlayheaders[0].height*the_area.overlayheaders[0].width;
+  for(i=0;i<tilecount;i++)
+  {
+    idx=(unsigned short) the_area.overlaytileindices[i];
+    if(idx>=the_area.overlaytilecount)
+    {
+      ret|=BAD_EXTHEAD;
+      log("Invalid tile in [%d.%d]",i%the_area.overlayheaders[0].width,i%the_area.overlayheaders[0].width);
+    }
+  }
+  pos=the_area.doortilelist.GetHeadPosition();
+  for(i=0;i<the_area.weddoorcount;i++)
+  {
+    doortiles=(short *) the_area.doortilelist.GetNext(pos);
+    for(j=0;j<the_area.weddoorheaders[i].countdoortileidx;j++)
+    {
+      idx=(unsigned short) doortiles[j];
+      if(idx>=the_area.overlaytilecount)
+      {
+        ret|=BAD_EXTHEAD;
+        RetrieveResref(tmpstr, the_area.weddoorheaders[i].doorid);
+        log("Invalid %d. door (%s) tile: %d",i+1,tmpstr,j);
+      }
+    }
   }
   return ret;
 }

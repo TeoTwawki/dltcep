@@ -406,6 +406,7 @@ void CScriptEdit::OnLoadex()
         MessageBox("Cannot decompile file!","Error",MB_OK);
         return;
       }
+      lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     }
     else
     { //remember the path when opening a script source 
@@ -451,7 +452,7 @@ void CScriptEdit::OnLoadex()
     }
   }
   UpdateData(UD_DISPLAY);
-  CheckScript(FORCED_CHECK);
+  CheckScript(WHOLE_CHECK|FORCED_CHECK);
   RefreshDialog();
 }
 
@@ -509,6 +510,7 @@ restart:
     if(m_bcs)
     {
       if(filepath.Right(4)!=".bcs")  filepath+=".bcs";
+      lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     }
     else
     {
@@ -595,6 +597,7 @@ void CScriptEdit::NewScript()
 void CScriptEdit::OnNew() 
 {
   NewScript();
+  m_text_control.SetWindowText("");
   UpdateData(UD_DISPLAY);
   CheckScript(FORCED_CHECK|WHOLE_CHECK);
   RefreshDialog();
@@ -734,9 +737,10 @@ void CScriptEdit::CheckScript(int messages)
     if(!m_text_control.GetModify()) return;
   }
   m_text_control.SetModify(false);
+  m_count=m_text_control.GetLineCount();
+
   if(m_errors) delete [] m_errors;
   triggeroraction=TA_IF;
-  m_count=m_text_control.GetLineCount();
   if(m_count<0)
   {
     m_errors=new int[1];
@@ -1206,7 +1210,7 @@ void CScriptEdit::OnContextMenu(CWnd* pWnd, CPoint point)
     CMenu *popupmenu;
     
     menu=GetMenu();    
-    popupmenu=menu->GetSubMenu(EDITMENU); //fuck this should be better defined
+    popupmenu=menu->GetSubMenu(EDITMENU); //this should be better defined
     popupmenu->TrackPopupMenu(TPM_CENTERALIGN,point.x,point.y,this);   
   }
 }

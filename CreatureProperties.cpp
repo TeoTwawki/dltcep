@@ -7,6 +7,7 @@
 #include "chitemDlg.h"
 #include "EffEdit.h"
 #include "CreatureProperties.h"
+#include "TormentCre.h"
 #include "2da.h"
 #include "tbg.h"
 #include "options.h"
@@ -43,11 +44,22 @@ CCreatureGeneral::~CCreatureGeneral()
 {
 }
 
+CString CCreatureGeneral::FindKit(unsigned int kit)
+{
+  CString tmpstr, kitname;
+  kitname = IDSToken("KIT", kit>>16);
+  if(kitname.GetLength()) tmpstr.Format("0x%08x - %s",kit, kitname);
+  else tmpstr.Format("0x%08x",kit);
+  return tmpstr;
+}
+
 void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
 {
-  int value;
   CString tmpstr;
+  creature_header tmpheader;
+  int value;
 
+  memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureGeneral)
 	DDX_Text(pDX, IDC_LONGNAME, m_longname);
@@ -191,9 +203,14 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.enemy=(BYTE) value;
   }
 
-  tmpstr.Format("0x%08x",the_creature.header.kit);
+  //tmpstr.Format("0x%08x",the_creature.header.kit);
+  tmpstr=FindKit(the_creature.header.kit);
   DDX_Text(pDX,IDC_KIT,tmpstr);
   the_creature.header.kit=strtonum(tmpstr);
+  if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
+  {
+    the_creature.m_changed=true;
+  }
 }
 
 static int radioids[4]={IDC_V10,IDC_V12,IDC_V22,IDC_V90};
@@ -595,23 +612,29 @@ CCreatureIcons::CCreatureIcons(): CPropertyPage(CCreatureIcons::IDD)
 	//{{AFX_DATA_INIT(CCreatureIcons)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
-  play=false;
-  bgcolor=RGB(32,32,32);
+  m_play=false;
+  m_bgcolor=RGB(32,32,32);
+  m_hb1=NULL;
+  m_hb2=NULL;
 }
 
 CCreatureIcons::~CCreatureIcons()
 {
+  if(m_hb1) DeleteObject(m_hb1);
+  if(m_hb2) DeleteObject(m_hb2);
 }
 
 void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
 {
   CWnd *cw;
   CString tmpstr;
-  HBITMAP hb;
   int fc;
   int ret;
   int pst;
+  int i;
+  creature_header tmpheader;
 
+  memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureIcons)
 	DDX_Control(pDX, IDC_LARGEPORTRAITICON, m_largeportrait);
@@ -621,13 +644,13 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_SMALLPORTRAIT, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr, the_creature.header.iconm);
-  if(bms!=tmpstr)
+  if(m_bms!=tmpstr)
   {
-    bms=tmpstr;
-    hb=0;
-    if(!read_bmp(tmpstr,hb))
+    m_bms=tmpstr;
+    
+    if(!read_bmp(tmpstr,m_hb1))
     {
-      m_smallportrait.SetBitmap(hb);
+      m_smallportrait.SetBitmap(m_hb1);
     }
     else
     {
@@ -642,20 +665,19 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
   cw=GetDlgItem(IDC_PLAY);
   pst=the_creature.revision==12;
   cw->EnableWindow(pst);
-  if(bml!=tmpstr)
+  if(m_bml!=tmpstr)
   {
-    bml=tmpstr;
-    hb=0;
+    m_bml=tmpstr;
     if(pst)
     {
       ret=read_bam(tmpstr);
       fc=the_bam.GetFrameIndex(1,0);
-      the_bam.MakeBitmap(fc,RGB(32,32,32),hb,BM_RESIZE,32,32);
+      the_bam.MakeBitmap(fc,RGB(32,32,32),m_hb2,BM_RESIZE,32,32);
     }
-    else ret=read_bmp(tmpstr,hb);
+    else ret=read_bmp(tmpstr,m_hb2);
     if(!ret)
     {
-      m_largeportrait.SetBitmap(hb);
+      m_largeportrait.SetBitmap(m_hb2);
     }
     else
     {
@@ -663,10 +685,13 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
     }
   }
 
-  tmpstr=colortitle(the_creature.header.colours[0]);
-  DDX_Text(pDX, IDC_CMETAL, tmpstr);
-  the_creature.header.colours[0]=(BYTE) strtonum(tmpstr);
-
+  for(i=0;i<7;i++)
+  {
+  tmpstr=colortitle(the_creature.header.colours[i]);
+  DDX_Text(pDX, IDC_CMETAL+i, tmpstr);
+  the_creature.header.colours[i]=(BYTE) strtonum(tmpstr);
+  }
+  /*
   tmpstr=colortitle(the_creature.header.colours[1]);
   DDX_Text(pDX, IDC_CMINOR, tmpstr);
   the_creature.header.colours[1]=(BYTE) strtonum(tmpstr);
@@ -690,7 +715,7 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
   tmpstr=colortitle(the_creature.header.colours[6]);
   DDX_Text(pDX, IDC_CHAIR, tmpstr);
   the_creature.header.colours[6]=(BYTE) strtonum(tmpstr);
-
+*/
   RetrieveResref(tmpstr,the_creature.header.scripts[0]);
   DDX_Text(pDX, IDC_OVERRIDE, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 8);
@@ -725,6 +750,10 @@ void CCreatureIcons::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_DVAR, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 32);
   StoreVariable(tmpstr,the_creature.header.dvar);
+  if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
+  {
+    the_creature.m_changed=true;
+  }
 }
 
 //move itemdata to local variables
@@ -994,32 +1023,30 @@ void CCreatureIcons::OnBrowse14()
 
 void CCreatureIcons::OnTimer(UINT nIDEvent) 
 {
-  HBITMAP hb;
   int nFrameIndex;
 
-  if(!play || playindex>playmax)
+  if(!m_play || m_playindex>m_playmax)
   {
     KillTimer(nIDEvent);
     return;
   }
-  if(playindex==playmax)
+  if(m_playindex==m_playmax)
   {
-    playindex=0;
-    play=false;
+    m_playindex=0;
+    m_play=false;
   }
-  nFrameIndex=the_bam.GetFrameIndex(0, playindex);
-  hb=0;
-  the_bam.MakeBitmap(nFrameIndex,bgcolor,hb,BM_RESIZE,1,1);
-  m_largeportrait.SetBitmap(hb);
-  playindex++;
+  nFrameIndex=the_bam.GetFrameIndex(0, m_playindex);
+  the_bam.MakeBitmap(nFrameIndex,m_bgcolor,m_hb2,BM_RESIZE,1,1);
+  m_largeportrait.SetBitmap(m_hb2);
+  m_playindex++;
 	CPropertyPage::OnTimer(nIDEvent);
 }
 
 void CCreatureIcons::OnPlay() 
 {
-  playmax=the_bam.GetCycleData(0).y;
-  playindex=0;
-  play=true;
+  m_playmax=the_bam.GetCycleData(0).y;
+  m_playindex=0;
+  m_play=true;
   SetTimer(0,100,NULL);
 }
 
@@ -1039,6 +1066,9 @@ CCreatureSkills::~CCreatureSkills()
 
 void CCreatureSkills::DoDataExchange(CDataExchange* pDX)
 {
+  creature_header tmpheader;
+
+  memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
   if(the_creature.revision==12) m_pst="Unused prof.";
   else m_pst="Detect illusions";
@@ -1072,6 +1102,10 @@ void CCreatureSkills::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_STRBON, the_creature.header.strbon);
   DDX_Text(pDX, IDC_FATIGUE, the_creature.header.fatigue);
   DDX_Text(pDX, IDC_INTOX, the_creature.header.intox);
+  if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
+  {
+    the_creature.m_changed=true;
+  }
 }
 
 //move itemdata to local variables
@@ -1284,7 +1318,9 @@ CCreatureResist::~CCreatureResist()
 void CCreatureResist::DoDataExchange(CDataExchange* pDX)
 {
   int tmp;
+  creature_header tmpheader;
 
+  memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureResist)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
@@ -1340,6 +1376,10 @@ void CCreatureResist::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX,IDC_MISSILE, tmp);
   DDV_MinMaxInt(pDX, tmp, -127,127);
   the_creature.header.resmiss=(char) tmp;
+  if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
+  {
+    the_creature.m_changed=true;
+  }
 }
 
 //move itemdata to local variables
@@ -1671,7 +1711,11 @@ void CCreatureStrings::OnSelchangeSlotpicker()
 void CCreatureStrings::OnKillfocusRef() 
 {
   UpdateData(UD_RETRIEVE);
-  the_creature.header.strrefs[m_stringnum]=m_ref;
+  if(the_creature.header.strrefs[m_stringnum]!=m_ref)
+  {
+    the_creature.header.strrefs[m_stringnum]=m_ref;
+    the_creature.m_changed=true;
+  }
 	RefreshStrings();
   UpdateData(UD_DISPLAY);
 }
@@ -1771,7 +1815,11 @@ void CCreatureStrings::OnExport()
 
 void CCreatureStrings::OnImport() 
 {
+  CString tmp;
+
+  tmp=itemname;
 	((CChitemDlg *) AfxGetMainWnd())->Importtbg(TBG_ALT);	
+  itemname=tmp;
   RefreshStrings();
   UpdateData(UD_DISPLAY);
 }
@@ -1791,8 +1839,11 @@ CCreatureUnknown::~CCreatureUnknown()
 
 void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
 {
+  CButton *cb;
   int i;
+  creature_header tmpheader;
 
+  memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreatureUnknown)
 	//}}AFX_DATA_MAP
@@ -1835,6 +1886,14 @@ void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX,IDC_U30, the_creature.header.unknown27e);
   DDV_MinMaxInt(pDX,the_creature.header.unknown27e,-32768,32767);
   DDX_Text(pDX, IDC_REPUTATION, the_creature.header.reputation);
+
+  cb=(CButton *) GetDlgItem(IDC_TORMENT);
+  if(cb) cb->EnableWindow(the_creature.revision==12);
+
+  if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
+  {
+    the_creature.m_changed=true;
+  }
 }
 
 //move itemdata to local variables
@@ -1844,8 +1903,8 @@ void CCreatureUnknown::RefreshUnknown()
 
 BOOL CCreatureUnknown::OnInitDialog() 
 {
-  RefreshUnknown();
 	CPropertyPage::OnInitDialog();
+  RefreshUnknown();
   
 	return TRUE;
 }
@@ -1892,6 +1951,7 @@ BEGIN_MESSAGE_MAP(CCreatureUnknown, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_U29, OnKillfocusU29)
 	ON_EN_KILLFOCUS(IDC_U30, OnKillfocusU30)
 	ON_EN_KILLFOCUS(IDC_REPUTATION, OnKillfocusReputation)
+	ON_BN_CLICKED(IDC_TORMENT, OnTorment)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2134,6 +2194,13 @@ void CCreatureUnknown::OnKillfocusReputation()
   UpdateData(UD_DISPLAY);
 }
 
+void CCreatureUnknown::OnTorment() 
+{
+	CTormentCre dlg;
+	
+  dlg.DoModal();
+}
+
 void CCreatureUnknown::OnClearall() 
 {
   memset(the_creature.header.unused,0,sizeof(the_creature.header.unused) );	
@@ -2160,10 +2227,12 @@ CCreatureItem::CCreatureItem()	: CPropertyPage(CCreatureItem::IDD)
 	m_spellres2 = _T("");
 	//}}AFX_DATA_INIT
   m_idx=-1;
+  m_hb=NULL;
 }
 
 CCreatureItem::~CCreatureItem()
 {
+  if(m_hb) DeleteObject(m_hb);
 }
 
 static int itemboxids[]={IDC_USE1,IDC_USE2,IDC_USE3,IDC_FLAGS,
@@ -2219,7 +2288,6 @@ CString CCreatureItem::ResolveSpellName(CString key)
 
 void CCreatureItem::DoDataExchange(CDataExchange* pDX)
 {
-  HBITMAP hb;
   int fc;
   CString tmpstr;
   CButton *cb;
@@ -2289,8 +2357,8 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
       else
       {
         fc=the_bam.GetFrameIndex(1,0);
-        the_bam.MakeBitmap(fc,RGB(32,32,32),hb,BM_RESIZE,32,32);
-        m_invicon.SetBitmap(hb);
+        the_bam.MakeBitmap(fc,RGB(32,32,32),m_hb,BM_RESIZE,32,32);
+        m_invicon.SetBitmap(m_hb);
       }
     }
   }
@@ -2586,6 +2654,7 @@ BEGIN_MESSAGE_MAP(CCreatureItem, CPropertyPage)
 	ON_BN_CLICKED(IDC_CLASS, OnClass)
 	ON_CBN_KILLFOCUS(IDC_SELECTED, OnKillfocusSelected)
 	ON_BN_CLICKED(IDC_UNDROPPABLE, OnUndroppable)
+	ON_BN_CLICKED(IDC_CLEARALL, OnClearall)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2713,21 +2782,21 @@ void CCreatureItem::OnKillfocusFlags()
 void CCreatureItem::OnIdentified() 
 {
   if(m_idx<0) return;
-  the_creature.items[m_idx].flags^=1;
+  the_creature.items[m_idx].flags^=STI_IDENTIFIED;
 	UpdateData(UD_DISPLAY);
 }
 
 void CCreatureItem::OnNosteal() 
 {
   if(m_idx<0) return;
-  the_creature.items[m_idx].flags^=2;
+  the_creature.items[m_idx].flags^=STI_NOSTEAL;
 	UpdateData(UD_DISPLAY);
 }
 
 void CCreatureItem::OnStolen() 
 {
   if(m_idx<0) return;
-  the_creature.items[m_idx].flags^=4;
+  the_creature.items[m_idx].flags^=STI_STOLEN;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -2735,7 +2804,7 @@ void CCreatureItem::OnStolen()
 void CCreatureItem::OnUndroppable() 
 {
   if(m_idx<0) return;
-  the_creature.items[m_idx].flags^=8;
+  the_creature.items[m_idx].flags^=STI_NODROP;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -2756,6 +2825,15 @@ void CCreatureItem::OnSelchangeLevelslot()
 {
 	RefreshSpellPicker(m_levelpicker.GetCurSel());
 	UpdateData(UD_DISPLAY);
+}
+
+void CCreatureItem::OnClearall() 
+{
+	the_creature.KillItems();
+	memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );
+  *(int *) (the_creature.itemslots+the_creature.slotcount)=1000;
+  RefreshItem();
+  UpdateData(UD_DISPLAY);
 }
 
 #define BG2_SELECTCOUNT  (7+9+1)
@@ -2837,6 +2915,7 @@ void CCreatureItem::OnDelslot()
   if(the_creature.selects) delete [] the_creature.selects;
   the_creature.selects=newselects;
   the_creature.header.selectcnt=the_creature.selectcount;
+  the_creature.m_changed=true;
   RefreshItem();
 	UpdateData(UD_DISPLAY);
 }
@@ -2867,6 +2946,7 @@ void CCreatureItem::OnAddslot()
   if(the_creature.selects) delete [] the_creature.selects;
   the_creature.selects=newselects;
   the_creature.header.selectcnt=the_creature.selectcount;
+  the_creature.m_changed=true;
   m_levelpicker.AddString("");
   m_levelpicker.SetCurSel(pos);
   RefreshItem();
@@ -2975,6 +3055,7 @@ void CCreatureItem::RemoveSpell(int slot)
       the_creature.selects[i].index--;
     }
   }
+  the_creature.m_changed=true;
 }
 
 void CCreatureItem::AddSpell(int slot, CString spellres)
@@ -3015,6 +3096,7 @@ void CCreatureItem::AddSpell(int slot, CString spellres)
       the_creature.selects[i].index++;
     }
   }
+  the_creature.m_changed=true;
 }
 
 static CString typestr[]={"Priest","Wizard","Innate"};
@@ -3112,7 +3194,6 @@ void CCreatureItem::OnKillfocusSpellres2()
 
 void CCreatureItem::OnBrowse3() 
 {
-  if(m_spellslot<0) return;
   pickerdlg.m_restype=REF_SPL;
   pickerdlg.m_picked=m_spellres2;
   if(pickerdlg.DoModal()==IDOK)
@@ -3147,6 +3228,7 @@ int CCreatureItem::AddBook(int level, int type)
   if(the_creature.books) delete [] the_creature.books;
   the_creature.books=newbook;
   the_creature.header.bookcnt=the_creature.bookcount;
+  the_creature.m_changed=true;
   return 0;
 }
 
@@ -3203,6 +3285,7 @@ void CCreatureItem::OnRemove()
   if(the_creature.books) delete [] the_creature.books;
   the_creature.books=newbook;
   the_creature.header.bookcnt=the_creature.bookcount;
+  the_creature.m_changed=true;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -3238,7 +3321,6 @@ void CCreatureItem::OnBook()
   MessageBox("Added all memorised spells to the book.","Creature editor",MB_OK);
   UpdateData(UD_DISPLAY);
 }
-
 
 void CCreatureItem::OnBook2() 
 {
@@ -3392,6 +3474,7 @@ void CCreatureEffect::OnAdd()
     the_creature.oldeffects=neweffects2;
   }
   the_creature.header.effectcnt=the_creature.effectcount;
+  the_creature.m_changed=true;
   RefreshEffect();
 }
 
@@ -3433,7 +3516,8 @@ void CCreatureEffect::OnDelete()
     the_creature.oldeffects=neweffects2;
   }
   the_creature.header.effectcnt=the_creature.effectcount;
-	RefreshEffect();
+  the_creature.m_changed=true;
+  RefreshEffect();
 }
 
 void CCreatureEffect::OnEdit() 
@@ -3599,3 +3683,4 @@ BEGIN_MESSAGE_MAP(CCreaturePropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CCreaturePropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+

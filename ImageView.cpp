@@ -19,24 +19,33 @@ static char THIS_FILE[] = __FILE__;
 CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CImageView)
-	m_value = 0;
 	m_showall = FALSE;
 	m_showgrid = FALSE;
 	m_fill = FALSE;
 	//}}AFX_DATA_INIT
   m_max=15;
-  m_bm=0;
+  m_bm=NULL;
   m_clipx=0;
   m_clipy=0;
   m_animbam=NULL;
+  m_frame=0;
   m_map=NULL;
-//  m_polycount=0;
   m_palette=NULL;
-  m_maxextentx=m_maxextenty=8;//maximum number of tiles fitting on screen
+  if(editflg&LARGEWINDOW)
+  {
+    m_maxextentx=m_maxextenty=8;//maximum number of tiles fitting on screen
+  }
+  else
+  {
+    m_maxextentx=m_maxextenty=10;
+  }
   m_maxclipx=m_maxclipy=1;
   m_sourcepoint=0;
   m_mos=NULL;
   m_enablebutton=IW_NOREDRAW;
+  m_value=-1;
+  m_actvertex=0;
+  m_vertexcount=0;
 }
 
 void CImageView::DoDataExchange(CDataExchange* pDX)
@@ -61,7 +70,7 @@ void CImageView::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_FILL, m_fill);
 	//}}AFX_DATA_MAP
   
-  if(m_max)
+  if(m_max && (m_value!=-1) )
   {
     tmpstr=GetMapTypeValue(m_maptype,m_value);
     DDX_Text(pDX, IDC_VALUE, tmpstr);
@@ -95,7 +104,7 @@ END_MESSAGE_MAP()
 
 void CImageView::PutPixel(CPoint point, unsigned char color)
 {
-  int pos=point.x+point.y*(the_area.width/GR_WIDTH);
+  int pos=point.x+point.y*(the_area.m_width/GR_WIDTH);
   if(m_max==1 )
   {
     if(m_fill) m_map[pos]=1;
@@ -108,9 +117,9 @@ void CImageView::PutPixel(CPoint point, unsigned char color)
 int CImageView::GetPixel(CPoint point)
 {
   if(point.x<0 || point.y<0) return -1;
-  if(point.x>=the_area.width/GR_WIDTH) return -1;
-  if(point.y>=the_area.height/GR_HEIGHT) return -1;
-  return m_map[point.x+point.y*(the_area.width/GR_WIDTH)];
+  if(point.x>=the_area.m_width/GR_WIDTH) return -1;
+  if(point.y>=(the_area.m_height+GR_HEIGHT-1)/GR_HEIGHT) return -1;
+  return m_map[point.x+point.y*(the_area.m_width/GR_WIDTH)];
 }
 
 void CImageView::InitView(int flags, Cmos *my_mos)
@@ -148,6 +157,10 @@ void CImageView::SetMapType(int maptype, LPBYTE map)
   m_map=map;
   switch(maptype)
   {
+  case MT_BAM:
+    m_palette=NULL;
+    m_max=0;
+    break;
   case MT_HEIGHT:
     m_palette=the_area.htpal;
     m_max=15;
@@ -164,27 +177,28 @@ void CImageView::SetMapType(int maptype, LPBYTE map)
     m_palette=boolean_palette;
     m_max=1;
     break;
-  case MT_OVERLAY: case MT_POLYGON: case MT_WALLPOLYLIST:
+  default:
     m_palette=NULL;
-    m_max=0;
+    m_max=GetCountPolygon();
   }
 }
 
 #define TMPX (m_maxextentx/2)
 #define TMPY (m_maxextenty/2)
 
-void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy)
+void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int frame)
 {
   CPoint point;
   int tmpw;
 
-  point=bam->GetFrameSize(0);
+  m_frame=frame;
+  point=bam->GetFrameSize(frame);
   point.x/=m_mos->mosheader.dwBlockSize;
   point.y/=m_mos->mosheader.dwBlockSize;
   tmpw=min(TMPX-point.x,TMPY-point.y);
   if(tmpw<0) tmpw=0;
   m_animbam=bam;
-  point=bam->GetFramePos(0);
+  point=bam->GetFramePos(frame);
   m_clipx=(orgx-point.x)/(signed) m_mos->mosheader.dwBlockSize;
   m_clipy=(orgy-point.y)/(signed) m_mos->mosheader.dwBlockSize;
   if(m_clipx>m_maxclipx-m_maxextentx)
@@ -218,148 +232,233 @@ void CImageView::CenterPolygon(CPtrList *polygons, int idx)
   POSITION pos;
   area_vertex *polygon;
 
-  if(m_maptype==MT_DOORPOLYLIST) idx+=the_area.wallpolygoncount;
-  pos=polygons->FindIndex(idx);
+  pos=GetPolygonAt(polygons, idx);
   if(pos)
   {
     polygon=(area_vertex *) polygons->GetAt(pos);
-    m_clipx=polygon[0].point.x/the_mos.mosheader.dwBlockSize-m_maxextentx/2;
-    m_clipy=polygon[0].point.y/the_mos.mosheader.dwBlockSize-m_maxextenty/2;
+    m_clipx=polygon[0].x/m_mos->mosheader.dwBlockSize-TMPX;
+    m_clipy=polygon[0].y/m_mos->mosheader.dwBlockSize-TMPY;
   }
+}
+
+POSITION CImageView::GetPolygonAt(CPtrList *polygons, int idx)
+{
+  switch(m_maptype)
+  {
+  case MT_WALLPOLYLIST:
+    return polygons->FindIndex(idx);
+  case MT_DOORPOLYLIST: case MT_BLOCK:
+    return polygons->FindIndex(idx+the_area.wallpolygoncount);
+  case MT_REGION:
+    return polygons->FindIndex(idx);
+  case MT_CONTAINER:
+    return polygons->FindIndex(idx+the_area.triggercount);
+  case MT_DOOR:
+    //must multiply it by 2 because of the impeded blocks
+    if(idx&1)
+    {
+      return polygons->FindIndex((idx<<1)-1+the_area.triggercount+the_area.containercount);
+    }
+    else
+    {
+      return polygons->FindIndex((idx<<1)+the_area.triggercount+the_area.containercount);
+    }
+  }
+  return NULL;
+}
+
+int CImageView::GetCountPolygon()
+{
+  switch(m_maptype)
+  {
+  case MT_WALLPOLYLIST:
+    return the_area.wallpolygoncount;
+  case MT_DOORPOLYLIST: case MT_BLOCK:
+    return the_area.doorpolygoncount;
+  case MT_REGION:
+    return the_area.triggercount;
+  case MT_CONTAINER:
+    return the_area.containercount;
+  case MT_DOOR:
+    return the_area.doorcount*2;
+  }
+  return 0;
+}
+
+CString CImageView::GetPolygonText(int idx)
+{
+  int found;
+  CString tmp;
+
+  switch(m_maptype)
+  {
+  case MT_WALLPOLYLIST:
+    tmp.Format("%d",idx+1);
+    break;
+  case MT_DOORPOLYLIST:case MT_BLOCK:
+    for(found=0;found<the_area.weddoorcount;found++)
+    {
+      if(CheckIntervallum(idx,the_area.weddoorheaders[found].offsetpolygonopen, the_area.weddoorheaders[found].countpolygonopen)!=-1 )
+      {      
+        RetrieveResref(tmp,the_area.weddoorheaders[found].doorid);
+        break;
+      }
+      if(CheckIntervallum(idx,the_area.weddoorheaders[found].offsetpolygonclose, the_area.weddoorheaders[found].countpolygonclose)!=-1 )
+      {      
+        RetrieveResref(tmp,the_area.weddoorheaders[found].doorid);
+        break;
+      }
+    }
+    break;
+  case MT_REGION:
+    RetrieveVariable(tmp,the_area.triggerheaders[idx].infoname);
+    break;
+  case MT_CONTAINER:
+    RetrieveVariable(tmp,the_area.containerheaders[idx].containername);
+    break;
+  case MT_DOOR:
+    RetrieveResref(tmp,the_area.doorheaders[idx/2].doorid);
+    break;
+  }
+  return tmp;
+}
+
+short *CImageView::GetPolygonBox(int idx)
+{
+  switch(m_maptype)
+  {
+  case MT_WALLPOLYLIST:
+    return &the_area.wallpolygonheaders[idx].minx;
+  case MT_DOORPOLYLIST:case MT_BLOCK:
+    return &the_area.doorpolygonheaders[idx].minx;
+  case MT_REGION:
+    return &the_area.triggerheaders[idx].p1x;
+  case MT_CONTAINER:
+    return &the_area.containerheaders[idx].p1x;
+  case MT_DOOR:
+    if(idx&1) return &the_area.doorheaders[idx/2].cp1x;
+    return &the_area.doorheaders[idx/2].op1x;      
+  }
+  return NULL;
+}
+
+int CImageView::GetPolygonSize(int idx)
+{
+  switch(m_maptype)
+  {
+  case MT_WALLPOLYLIST:
+    return the_area.wallpolygonheaders[idx].countvertex;
+  case MT_DOORPOLYLIST:case MT_BLOCK:
+    return the_area.doorpolygonheaders[idx].countvertex;
+  case MT_REGION:
+    return the_area.triggerheaders[idx].vertexcount;
+  case MT_CONTAINER:
+    return the_area.containerheaders[idx].vertexcount;
+  case MT_DOOR:
+    if(idx&1) return the_area.doorheaders[idx/2].countvertexclose;
+    return the_area.doorheaders[idx/2].countvertexopen;
+  }
+  return 0;
+}
+
+inline int CImageView::IsPointInPolygon(area_vertex *wedvertex, int idx, CPoint point)
+{  
+  return PointInPolygon(wedvertex, GetPolygonSize(idx), point);
 }
 
 int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
 {
   POSITION pos;
-  int count;
   int idx, max;
 
-  m_value++;
-  if(m_maptype==MT_WALLPOLYLIST)
+  if(m_maptype==MT_DOOR)
   {
-    pos=polygons->FindIndex(m_value);
-    max=the_area.wallpolygoncount;
+    m_value&=~1;
+    m_value+=2;
   }
-  else
-  {
-    pos=polygons->FindIndex(m_value+the_area.wallpolygoncount);
-    max=the_area.doorpolygoncount;
-  }
-
+  else m_value++;
+  max=GetCountPolygon();
+  pos=GetPolygonAt(polygons, m_value);
   for(idx=m_value;idx<max;idx++)
   {
-    if(m_maptype==MT_WALLPOLYLIST)
-    {
-      count=the_area.wallpolygonheaders[idx].countvertex;
-    }
-    else
-    {
-      count=the_area.doorpolygonheaders[idx].countvertex;
-    }
-    if(PointInPolygon((area_vertex *) polygons->GetNext(pos), count, point) )
+    if(IsPointInPolygon((area_vertex *) polygons->GetNext(pos), idx, point) )
     {
       return idx;
     }
+    if((m_maptype==MT_DOOR) && (idx&1) )
+    {
+      polygons->GetNext(pos);
+      polygons->GetNext(pos);
+    }
   }
-  if(m_maptype==MT_WALLPOLYLIST)
-  {
-    pos=polygons->GetHeadPosition();
-  }
-  else
-  {
-    pos=polygons->FindIndex(the_area.wallpolygoncount);
-  }
+  pos=GetPolygonAt(polygons, 0);
   for(idx=0;idx<m_value;idx++)
   {
-    if(m_maptype==MT_WALLPOLYLIST)
-    {
-      count=the_area.wallpolygonheaders[idx].countvertex;
-    }
-    else
-    {
-      count=the_area.doorpolygonheaders[idx].countvertex;
-    }
-    if(PointInPolygon((area_vertex *) polygons->GetNext(pos), count, point) )
+    if(IsPointInPolygon((area_vertex *) polygons->GetNext(pos), idx, point) )
     {
       return idx;
+    }
+    if((m_maptype==MT_DOOR) && (idx&1) )
+    {
+      polygons->GetNext(pos);
+      polygons->GetNext(pos);
     }
   }
   return -1;
 }
 
+void CImageView::DrawIcons()
+{
+  int i, fc;
+  CPoint point;
+
+  for(i=0;i<m_animbam->GetCycleCount();i++)
+  {
+    fc=m_animbam->GetFrameIndex(i,0);
+    point=((POINT *) m_map)[i];
+    m_animbam->MakeBitmap(fc,GREY,m_bm,BM_OVERLAY,point.x, point.y);
+  }
+}
+
 void CImageView::DrawPolyPolygon(CPtrList *polygons)
 {
+  CString tmpstr;
   POSITION pos;
-  int idx;
+  short *bbox;
+  int idx, max;
   unsigned int count;
+  bool fill;
 
   idx=0;
-  if(m_maptype==MT_WALLPOLYLIST) pos=polygons->GetHeadPosition();
-  else pos = polygons->FindIndex(the_area.wallpolygoncount);
-  while(pos)
+  pos=GetPolygonAt(polygons, 0);
+  max=GetCountPolygon();
+  for(idx=0;idx<max;idx++)
   {
-    if(idx==m_value) m_fill=true;
-    else m_fill=false;
-    //if polygons == the_area.wedvertexheaderlist
-    if(m_maptype==MT_WALLPOLYLIST)
-    {
-      if(idx>=the_area.wallpolygoncount) break;
-      if((unsigned int) the_area.wallpolygonheaders[idx].minx>(m_clipx+m_maxextentx)*m_mos->mosheader.dwBlockSize) goto endofquest;
-      if((unsigned int) the_area.wallpolygonheaders[idx].maxx<m_clipx*m_mos->mosheader.dwBlockSize) goto endofquest;
-      if((unsigned int) the_area.wallpolygonheaders[idx].miny>(m_clipy+m_maxextenty)*m_mos->mosheader.dwBlockSize) goto endofquest;
-      if((unsigned int) the_area.wallpolygonheaders[idx].maxy<m_clipy*m_mos->mosheader.dwBlockSize) goto endofquest;
-      count=the_area.wallpolygonheaders[idx].countvertex;
-    }
-    else
-    {
-      if(idx>=the_area.doorpolygoncount) break;
-      if((unsigned int) the_area.doorpolygonheaders[idx].minx>(m_clipx+m_maxextentx)*m_mos->mosheader.dwBlockSize) goto endofquest;
-      if((unsigned int) the_area.doorpolygonheaders[idx].maxx<m_clipx*m_mos->mosheader.dwBlockSize) goto endofquest;
-      if((unsigned int) the_area.doorpolygonheaders[idx].miny>(m_clipy+m_maxextenty)*m_mos->mosheader.dwBlockSize) goto endofquest;
-      if((unsigned int) the_area.doorpolygonheaders[idx].maxy<m_clipy*m_mos->mosheader.dwBlockSize) goto endofquest;
-      count=the_area.doorpolygonheaders[idx].countvertex; 
-    }
+    if(idx==m_value) fill=true;
+    else fill=false;
+    count=GetPolygonSize(idx);
     if(count>1)
-    {
-      DrawLines((POINTS *) polygons->GetAt(pos), count);
+    {      
+      bbox=GetPolygonBox(idx);
+      tmpstr=GetPolygonText(idx);
+      //the wed bbox and the area bbox are not compatible, Bioware learnt this from M$, i guess
+      if((unsigned int) bbox[BBMINX]>(m_clipx+m_maxextentx)*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) bbox[m_maptype>=MT_REGION?BBMAXX:WBBMAXX]<m_clipx*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) bbox[m_maptype>=MT_REGION?BBMINY:WBBMINY]>(m_clipy+m_maxextenty)*m_mos->mosheader.dwBlockSize) goto endofquest;
+      if((unsigned int) bbox[BBMAXY]<m_clipy*m_mos->mosheader.dwBlockSize) goto endofquest;      
+      DrawLines((POINTS *) polygons->GetAt(pos), count, tmpstr, fill,0);
     }
 endofquest:
     polygons->GetNext(pos);
-    idx++;
+    if((m_maptype==MT_DOOR) && (idx&1) )
+    {
+      polygons->GetNext(pos);
+      polygons->GetNext(pos);
+    }
   }
 }
 
-void CImageView::FixPolygon(POINT *polygon, unsigned int count, int needclose)
-{
-  unsigned int i;
-
-  if(needclose)
-  {
-    polygon[count]=polygon[0];
-    count++;
-  }
-  for(i=0;i<count;i++)
-  {
-    if(polygon[i].x<0)
-    {
-      polygon[i].x=0;
-    }
-    if(polygon[i].y<0)
-    {
-      polygon[i].y=0;
-    }
-    if((unsigned long) polygon[i].x>m_maxextentx*m_mos->mosheader.dwBlockSize)
-    {
-      polygon[i].x=m_maxextentx*m_mos->mosheader.dwBlockSize;
-    }
-    if((unsigned long) polygon[i].y>m_maxextenty*m_mos->mosheader.dwBlockSize)
-    {
-      polygon[i].y=m_maxextenty*m_mos->mosheader.dwBlockSize;
-    }
-  }  
-}
-
-void CImageView::DrawLines(POINTS *polygon, unsigned int count)
+void CImageView::DrawLines(POINTS *polygon, unsigned int count, CString title, int fill, int actv)
 {
   unsigned int i;
 
@@ -392,8 +491,13 @@ void CImageView::DrawLines(POINTS *polygon, unsigned int count)
         m_poly[i].x=polygon[i].x-m_clipx*m_mos->mosheader.dwBlockSize;
         m_poly[i].y=polygon[i].y-m_clipy*m_mos->mosheader.dwBlockSize;
       }
-      FixPolygon(m_poly, count, needclose);
-      if(m_fill)
+      if(needclose)
+      {
+        m_poly[count]=m_poly[0];
+      }
+      dcBmp.TextOut(m_poly[0].x,m_poly[0].y,title);
+
+      if(fill)
       {
         dcBmp.Polygon(m_poly,count); //this closes the polygon on its own
       }
@@ -409,14 +513,7 @@ void CImageView::DrawLines(POINTS *polygon, unsigned int count)
         dcBmp.LineTo(m_poly[1]);
       }
       dcBmp.SelectObject(&pen2);
-      if(m_maptype==MT_POLYGON)
-      {
-        dcBmp.Ellipse(m_poly[m_value].x-1, m_poly[m_value].y-1,m_poly[m_value].x+1, m_poly[m_value].y+1);
-      }
-      else
-      {
-        dcBmp.Ellipse(m_poly[0].x-1, m_poly[0].y-1,m_poly[0].x+1, m_poly[0].y+1);
-      }
+      dcBmp.Ellipse(m_poly[actv].x-1, m_poly[actv].y-1,m_poly[actv].x+1, m_poly[actv].y+1);
       free(m_poly);
     }
   }
@@ -455,8 +552,9 @@ void CImageView::DrawGrid()
   //setting a green color
   dcBmp.SetBkMode(1);
   dcBmp.SetTextColor(RGB(255,255,255) );
-  CPen mypen(PS_SOLID,1,RGB(0,255,0) );
-  CPen *cpentmp=dcBmp.SelectObject(&mypen);
+  CPen mypen1(PS_SOLID,1,RGB(0,255,0) );
+  CPen mypen2(PS_SOLID,1,RGB(255,0,0) );
+  CPen *cpentmp=dcBmp.SelectObject(&mypen1);
 
   CRect cr;
   CString tmpstr;
@@ -477,10 +575,10 @@ void CImageView::DrawGrid()
     }
     if(m_map && (m_enablebutton&IW_EDITMAP) )
     {
-      int p=(m_clipy*m_mos->mosheader.dwBlockSize+j)/GR_HEIGHT*the_area.width/GR_WIDTH+m_clipx*m_mos->mosheader.dwBlockSize/GR_WIDTH;
+      int p=(m_clipy*m_mos->mosheader.dwBlockSize+j)/GR_HEIGHT*the_area.m_width/GR_WIDTH+m_clipx*m_mos->mosheader.dwBlockSize/GR_WIDTH;
       for(i=sx;i<cr.Width();i+=xs)
       {
-        if(m_showall || (m_map[p]==m_value) )
+        if((m_showall && m_maptype!=MT_BLOCK) || (m_map[p]==m_value) )
         {
           if(m_max==255) tmpstr.Format("%02x",m_map[p]);
           else tmpstr.Format("%d",m_map[p]);
@@ -489,6 +587,20 @@ void CImageView::DrawGrid()
         p++;
       }
     }
+  }
+  if(m_showgrid && (m_enablebutton&IW_MARKTILE) )
+  {
+    CRect rect;
+    dcBmp.SelectObject(&mypen2);
+
+    rect.TopLeft()=GetPoint(GP_TILE);
+    rect.left*=m_mos->mosheader.dwBlockSize;
+    rect.top*=m_mos->mosheader.dwBlockSize;
+//    rect.left-=m_clipx*m_mos->mosheader.dwBlockSize;
+//    rect.top-=m_clipy*m_mos->mosheader.dwBlockSize;
+    rect.bottom=rect.top+m_mos->mosheader.dwBlockSize;
+    rect.right=rect.left+m_mos->mosheader.dwBlockSize;
+    dcBmp.DrawFocusRect(rect);
   }
  
   //restore original settings (this will prevent some leaks)
@@ -537,7 +649,7 @@ void CImageView::RedrawContent()
   if(m_maxextenty>m_maxclipy) m_maxextenty=m_maxclipy;
   theScrollInfo.fMask=SIF_PAGE|SIF_POS|SIF_RANGE;
   theScrollInfo.nPage=(m_maxclipx-m_minclipx+m_maxextentx-1)/m_maxextentx;
-//  if(m_clipx<0) m_clipx=0;
+  if(m_clipx<0) m_clipx=0; //why was this removed?
   theScrollInfo.nPos=m_clipx;
   theScrollInfo.nMin=m_minclipx;
   theScrollInfo.nMax=m_maxclipx-m_maxextentx+theScrollInfo.nPage-1;
@@ -554,7 +666,7 @@ void CImageView::RedrawContent()
   }
 
   theScrollInfo.nPage=(m_maxclipy-m_minclipy+m_maxextenty-1)/m_maxextenty;
-//  if(m_clipy<0) m_clipy=0;
+  if(m_clipy<0) m_clipy=0; //why was this removed?
   theScrollInfo.nPos=m_clipy;
   theScrollInfo.nMin=m_minclipy;
   theScrollInfo.nMax=m_maxclipy-m_maxextenty+theScrollInfo.nPage-1;
@@ -613,8 +725,8 @@ void CImageView::RedrawContent()
     adjusty=(rect.Width()-brect.Width())/3;
     m_setbutton.SetWindowPos(0,adjusty,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
     m_button.SetWindowPos(0,adjusty*2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_spinx.SetWindowPos(0,adjusty*2+brect.Width()+25,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_spiny.SetWindowPos(0,adjusty*2+brect.Width()+60,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    m_spinx.SetWindowPos(0,/*adjusty*2+brect.Width()+*/25,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    m_spiny.SetWindowPos(0,/*adjusty*2+brect.Width()+*/60,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
     m_spinx.SetRange32(0,rect.Width());
     m_spiny.SetRange32(0,rect.Height());
     m_spinx.SetPos(m_confirmed.x);
@@ -626,21 +738,23 @@ void CImageView::RedrawContent()
   }
   if(m_max>1)
   {
-    m_showall_control.ShowWindow(!!(m_enablebutton&IW_EDITMAP));
+    m_showall_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
   }
   
-  m_value_control.ShowWindow(!!(m_enablebutton&(IW_EDITMAP|IW_GETPOLYGON) ));
   m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_SHOWGRID));
   m_fill_control.ShowWindow(!!(m_enablebutton&IW_ENABLEFILL));
-  m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
+  m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
   m_showgrid_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+70,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
-  if(m_enablebutton&IW_EDITMAP)
+  if(m_enablebutton&IW_SHOWALL)
   {
-    m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
   }
   if(m_enablebutton&(IW_EDITMAP|IW_GETPOLYGON) )
   {
-    m_value_control.SetWindowPos(0,(rect.Width()-brect.Width())/4-20,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    if(m_value!=-1)
+    {
+      m_value_control.SetWindowPos(0,(rect.Width()-brect.Width())/4-20,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    }
   }
   m_button.ShowWindow(!!(m_enablebutton&IW_ENABLEBUTTON));
   m_setbutton.ShowWindow(!!(m_enablebutton&IW_PLACEIMAGE));
@@ -656,7 +770,6 @@ BOOL CImageView::OnInitDialog()
 
   if(!m_mos)
   {
-    //we need this because itempicker creates this object dynamically
     m_mos=&the_mos; 
   }
 	CDialog::OnInitDialog();
@@ -673,6 +786,7 @@ BOOL CImageView::OnInitDialog()
     case MT_LIGHT: SetWindowText("Edit lightmap"); break;
     case MT_SEARCH: SetWindowText("Edit searchmap"); break;
     case MT_BLOCK: SetWindowText("Edit impeded blocks"); break;
+    case MT_OVERLAY: SetWindowText("Edit overlaid tiles"); break;
     default:
       return TRUE;
       break;
@@ -779,6 +893,35 @@ void CImageView::DrawLine(CPoint source, CPoint destination, unsigned char color
 void CImageView::OnBitmap() 
 {
   m_confirmed=m_mousepoint;
+  if( m_map && (m_enablebutton&IW_OVERLAY))
+  {
+    CPoint point;
+    int pos;
+    
+    //actually this part now could be put into the parent code
+    //and we don't really need to set m_map anymore
+    point=GetPoint(GP_TILE);
+    pos=point.y*m_mos->mosheader.wColumn+point.x;
+    ((wed_tilemap *) m_map)[pos].flags^=m_mos->m_overlay;
+    the_area.wedchanged=true;
+    m_sourcepoint=GetPoint(GP_TILE); //again???
+    if(GetParent())
+    {
+      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0);
+    }
+    else RefreshDialog();
+    return;
+  }
+  if(m_enablebutton&(IW_SETVERTEX|IW_MARKTILE) )
+  {
+    m_sourcepoint=GetPoint(GP_TILE);
+    if(GetParent())
+    {
+      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0);
+    }
+    return;
+  }
+
   if( m_map && (m_enablebutton&IW_GETPOLYGON))
   {
     CPoint point;
@@ -795,26 +938,6 @@ void CImageView::OnBitmap()
     return;
   }
 
-  if( m_map && (m_enablebutton&IW_OVERLAY))
-  {
-    CPoint point;
-    int pos;
-    
-    point=GetPoint(GP_TILE);
-    pos=point.y*m_mos->mosheader.wColumn+point.x;
-    ///TODO set overlay
-    ((wed_tilemap *) m_map)[pos].flags^=1<<m_mos->m_overlay;
-    RefreshDialog();
-    return;
-  }
-  if(m_enablebutton&IW_SETVERTEX)
-  {
-    if(GetParent())
-    {
-      GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0);
-    }
-    return;
-  }
   if(m_map && (m_enablebutton&IW_EDITMAP) )
   {
     CPoint point;
@@ -841,10 +964,7 @@ void CImageView::OnBitmap()
   {
     m_spinx.SetPos(m_confirmed.x);
     m_spiny.SetPos(m_confirmed.y);
-  }
-  if(m_enablebutton&IW_MARKTILE)
-  {
-    OnOK();	
+    RefreshDialog();
   }
 }
 
@@ -874,16 +994,28 @@ void CImageView::RefreshDialog()
   if(m_enablebutton&IW_MARKTILE)
   {
     point=GetPoint(GP_TILE);
-    tmpstr.Format("Select tile... (%d,%d)",point.x,point.y);
+    if(m_map)
+    {
+      tmpstr.Format("Select overlaid tile... (%d,%d)",point.x,point.y);
+    }
+    else
+    {
+      tmpstr.Format("Select tile... (%d,%d)",point.x,point.y);
+    }
     SetWindowText(tmpstr);
   }
   else if(m_enablebutton&IW_PLACEIMAGE)
   {
+    if(m_maptype==MT_BAM && m_animbam && m_map && m_showall)
+    {
+      //DrawIcons();//can't make this work yet
+    }
+
     if(m_enablebutton&IW_MATCH) nReplaced=BM_OVERLAY|BM_MATCH;
     else nReplaced=BM_OVERLAY;
-    point=m_confirmed-m_animbam->GetFramePos(0);
+    point=m_confirmed-m_animbam->GetFramePos(m_frame);
 
-    nReplaced=m_animbam->MakeBitmap(0,GREY,m_bm,nReplaced,point.x, point.y);
+    nReplaced=m_animbam->MakeBitmap(m_frame,GREY,m_bm,nReplaced,point.x, point.y);
     tmpbm=m_bitmap.GetBitmap();
     if(tmpbm) ::DeleteObject(tmpbm);
 
@@ -895,12 +1027,30 @@ void CImageView::RefreshDialog()
   m_bitmap.SetBitmap(m_bm);
   if(m_enablebutton&IW_SETVERTEX)
   {
+    if(m_showall)
+    {
+      if(m_maptype==MT_DOORPOLYLIST || m_maptype==MT_WALLPOLYLIST)
+      {
+        DrawPolyPolygon(&the_area.wedvertexheaderlist);
+      }
+      else
+      {
+        DrawPolyPolygon(&the_area.vertexheaderlist);
+      }
+    }
     point=GetPoint(GP_POINT);
     tmpstr.Format("Select point... (%d,%d)",point.x,point.y);
     SetWindowText(tmpstr);
-    if(m_max)
+    if(m_vertexcount)
     {
-      DrawLines((POINTS *) m_map, m_max);
+      DrawLines((POINTS *) m_polygon, m_vertexcount,"", m_fill, m_actvertex);
+    }
+  }
+  else if(m_enablebutton&IW_EDITMAP)
+  {
+    if(m_showall && (m_maptype==MT_BLOCK) )
+    {      
+      DrawPolyPolygon(&the_area.wedvertexheaderlist);
     }
   }
   else if(m_enablebutton&IW_GETPOLYGON)

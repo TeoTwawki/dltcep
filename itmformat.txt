@@ -87,8 +87,7 @@ Roughly speaking, each "ability" (I believe this to be the terminology used in t
 Offset Size Description
 0000h 0001h AttackType
 0001h 0001h ForceIdentify
-0002h 0001h AbilityUseLocation
-0003h 0001h UNKNOWN
+0002h 0002h AbilityUseLocation
 0004h 0008h UseIcon
 000Ch 0001h Target
 000Dh 0001h TargetNumber #
@@ -583,7 +582,7 @@ Bit Data Description
 Bit 0 is the LSB, Bit 7 the MSB
  
 
-WeaponProdiciency:
+WeaponProficiency:
  
 
  

@@ -168,6 +168,7 @@ protected:
   int check_area_interrupt();
   int check_wed();
   int check_weaponslots();
+  int check_creature_pst();
   int check_creature_spells();
   int check_creature_features();
   int check_feature(long feature, int par1, int par2);
@@ -226,7 +227,6 @@ protected:
 	afx_msg void OnRescan();
 	afx_msg void OnRescan2();
 	afx_msg void OnCompat();
-	afx_msg void OnContext();
 	afx_msg void OnTooltips();
 	afx_msg void OnProgress();
 	afx_msg void OnSavesettings();
@@ -313,6 +313,7 @@ protected:
 	afx_msg void OnCompressbif();
 	afx_msg void OnCompresscbf();
 	afx_msg void OnTispack();
+	afx_msg void OnHelpReadme();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

@@ -48,7 +48,7 @@ public:
 //  area_vertex *wallgroupvertices;
 //  area_vertex *doorvertices; 
 
-  unsigned short width, height;
+  unsigned short m_width, m_height;
   unsigned char *searchmap;
   unsigned char *lightmap;
   unsigned char *heightmap;
@@ -87,8 +87,9 @@ public:
   area_ambient *ambientheaders;
   area_anim *animheaders;
   area_vertex *vertexheaders;
-  CVertexPtrList vertexheaderlist;
-  CVertexPtrList wedvertexheaderlist;
+  CMyPtrList vertexheaderlist;
+  CMyPtrList wedvertexheaderlist;
+  CMyPtrList doortilelist;
   area_variable *variableheaders;
   area_door *doorheaders;
   area_mapnote *mapnoteheaders;
@@ -99,6 +100,8 @@ public:
 	Carea();
 	virtual ~Carea();
   void new_area();
+  int RemoveDoorPolygon(int first);
+  int RemoveWedDoor(char *doorid);
   int DefaultAreaOverlays();
   int WriteAreaToFile(int fh, int calculate);
   int WriteWedToFile(int fh);
@@ -121,11 +124,12 @@ public:
     return wedchanged;
   }
   bool WedAvailable() { return wedavailable; }
+  void MirrorMap(unsigned char *poi);
   void RecalcBox(int pos, wed_polygon *header, area_vertex *vertices);
   //int VertexOrder(area_vertex *wedvertex, int count);
   int ConvertOffsetToIndex(int polyoffset);
 //  int ConsolidateVertices();
-  int ConsolidateDoortiles();
+//  int ConsolidateDoortiles();
 
   inline void KillMaps()
   {
@@ -393,6 +397,19 @@ public:
     vertexcount=0;
   }
 
+  inline void KillDoorTileList()
+  {
+    int i;
+    void *poi;
+    
+    i=doortilelist.GetCount();
+    while(i--)
+    {
+      poi=doortilelist.RemoveHead();
+      if(poi) delete [] poi;      
+    }
+  }
+
   inline void KillWedVertexList()
   {
     int i;
@@ -429,18 +446,25 @@ public:
   }
   void ShiftVertex(long id, int count, POINTS &point);
   void FlipVertex(long id, int count, int width);
+  void FlipWedVertex(long id, int count, int width);
+  void FlipDoorTile(long id, int count, int width);
   int RecalcBoundingBoxes();
 private:
   int adjust_actpointa(long offset);
   int adjust_actpointw(long offset);
   void MergeVertex(long &offset, int count);
   void MergeWedVertex(long &offset, int count);
+  void MergeDoortile(short &offset, int count);
   int ImplodeVertices();
   int ImplodeWedVertices();
+  int ImplodeDoortiles();
   void HandleVertex(long offset, int count);
   void HandleWedVertex(long offset, int count);
+  void HandleDoortile(long offset, int count);
   int ExplodeVertices();
   int ExplodeWedVertices();
+  int ExplodeDoorTiles();
+
   inline long myseeka(long pos)
   {
     return lseek(fhandlea, pos+startpointa,SEEK_SET)-startpointa;

@@ -50,6 +50,11 @@ IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG8,
 IDC_BUTTONFRAME1,IDC_BUTTONFRAME2, IDC_BUTTONFRAME3,IDC_BUTTONFRAME4,
 0};
 
+static int progressboxids[]={IDC_SLIDERMOS, IDC_BAM, IDC_BROWSE2,
+IDC_BAM2, IDC_BROWSE3, IDC_CYCLE, IDC_BUTTONCYCLE, IDC_BAM3, IDC_BROWSE4, 
+IDC_BAMFRAME3, IDC_STEPS,
+0};
+
 static int sliderboxids[]={IDC_BAM, IDC_BROWSE2, IDC_BAM2, IDC_BROWSE3,
 IDC_SLIDERMOS, IDC_SLIDERBAM, IDC_CYCLE, IDC_SLIDERCYCLE,
 IDC_BAMFRAME1, IDC_BAMFRAME2, IDC_UNKNOWN1, IDC_UNKNOWN2,
@@ -79,7 +84,7 @@ IDC_BAMFRAME1,IDC_BAMFRAME2, IDC_BAMFRAME3,IDC_BAMFRAME4,IDC_BAMFRAME5,IDC_BAMFR
 IDC_BUTTONCYCLE,IDC_SCROLL1,IDC_SCROLL2,IDC_SCROLL3,
 0};
 
-static int *allctrlids[]={buttonboxids,(int *) -1,sliderboxids,editboxids,(int *) -1,
+static int *allctrlids[]={buttonboxids,progressboxids,sliderboxids,editboxids,(int *) -1,
 textboxids, labelboxids, scrollbarids,
 0};
 
@@ -140,6 +145,22 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
       k=!!(cc->flags&buttonbits[i]);
       DDX_Check(pDX,IDC_FLAG1+i,k);
     }
+    }
+    break;
+  case CC_PROGRESS:
+    {
+    chui_progress *cc=(chui_progress *) the_chui.extensions[position];
+    RetrieveResref(tmpstr,cc->mos1);
+    DDX_Text(pDX, IDC_BAM, tmpstr);
+    StoreResref(tmpstr,cc->mos1);
+    RetrieveResref(tmpstr,cc->mos2);
+    DDX_Text(pDX, IDC_BAM2, tmpstr);
+    StoreResref(tmpstr,cc->mos2);
+    RetrieveResref(tmpstr,cc->bam);
+    DDX_Text(pDX, IDC_BAM3, tmpstr);
+    StoreResref(tmpstr,cc->bam);
+    DDX_Text(pDX, IDC_CYCLE, cc->cycle);
+    DDX_Text(pDX, IDC_BAMFRAME3, cc->jumpcount);
     }
     break;
   case CC_SLIDER:
@@ -257,7 +278,6 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     DDX_Text(pDX, IDC_BAM2, cc->textcontrolid);
     }
     break;
-  case CC_U1:
   case CC_U2:
   default:
     MessageBox("Unknown controltype!","Warning",MB_OK);
@@ -371,6 +391,14 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE6, OnBrowse6)
 	ON_EN_KILLFOCUS(IDC_TEXT, OnKillfocusText)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
 	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
@@ -395,7 +423,6 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_ID2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YPOS2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_WIDTH2, DefaultKillfocus)
@@ -414,14 +441,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_BAM5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAMFRAME5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAMFRAME6, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
-	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
-	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
-	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
-	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
-	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
-	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
-	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
+	ON_EN_KILLFOCUS(IDC_ID2, OnKillfocusId2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -542,6 +562,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_chui.ReadChuiFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -4:
@@ -583,7 +604,6 @@ void CChuiEdit::SaveChui(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int chrorcre;
   int res;
 
@@ -593,7 +613,6 @@ void CChuiEdit::SaveChui(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
   CFileDialog m_getfiledlg(FALSE, "chu", makeitemname(".chu",0), res, szFilter);
 
   if(save)
@@ -627,14 +646,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_chui.WriteChuiToFile(fhandle,0);
-    close(fhandle);
+    
+    res=write_chui(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
@@ -723,9 +737,16 @@ void CChuiEdit::OnSelchangeControlpicker()
 	UpdateData(UD_DISPLAY);
 }
 
+void CChuiEdit::OnKillfocusId2() 
+{
+	UpdateData(UD_RETRIEVE);
+  RefreshDialog();
+	UpdateData(UD_DISPLAY);
+}
+
 void CChuiEdit::DefaultKillfocus() 
 {
-	UpdateData(UD_RETRIEVE);	
+	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);	
 }
 
@@ -819,7 +840,7 @@ void CChuiEdit::OnKillfocusType()
     memcpy(newextension,the_chui.extensions[pos2],oldsize);
     delete [] the_chui.extensions[pos2];
     the_chui.extensions[pos2]=newextension;
-    the_chui.controltable[pos2].y=newsize;
+    the_chui.controltable[pos2].y=newsize+sizeof(chui_control_common);
     *oldtype=(char) newtype;
   }
   RefreshDialog();
@@ -862,6 +883,7 @@ int CChuiEdit::DeleteControls(int firstcontrol, int controlcount)
 {
   chui_control_common *newcontrols;
   BYTE **newextensions;
+  POINT *newtable;
   int i;
 
   if(firstcontrol<0 || controlcount<0) return -1;
@@ -877,6 +899,19 @@ int CChuiEdit::DeleteControls(int firstcontrol, int controlcount)
     delete [] newcontrols;
     return -3;
   }
+  newtable=new POINT[the_chui.controlcnt-controlcount];
+  if(!newtable)
+  {
+    delete [] newcontrols;
+    delete [] newextensions;
+    return -3;
+  }
+
+  memcpy(newtable, the_chui.controltable, firstcontrol*sizeof(POINT) );
+  memcpy(newtable+firstcontrol, the_chui.controltable+firstcontrol+controlcount,(the_chui.controlcnt-firstcontrol-controlcount)*sizeof(POINT));
+  delete [] the_chui.controltable;
+  the_chui.controltable=newtable;
+
   for(i=firstcontrol;i<firstcontrol+controlcount;i++)
   {
     delete [] the_chui.extensions[i];
@@ -934,6 +969,7 @@ void CChuiEdit::OnAddctrl()
 {
   chui_control_common *newcontrols;
   BYTE **newextensions;
+  POINT *newtable;
   int i;
   int windowcnt, controlcnt, pos;
 
@@ -952,21 +988,37 @@ void CChuiEdit::OnAddctrl()
     delete [] newcontrols;
     return;
   }
+  newtable=new POINT[the_chui.controlcnt+1];
+  if(!newtable)
+  {
+    delete [] newcontrols;
+    delete [] newextensions;
+    return;
+  }
 
+  i=ChuiControlSize(0)*sizeof(BYTE);
+  //copying the control table (sizes)
+  memcpy(newtable, the_chui.controltable, pos * sizeof(POINT) );
+  memcpy(newtable+pos+1, the_chui.controltable+pos, (the_chui.controlcnt-pos)*sizeof(BYTE *) );
+  //setting up the new size
+  newtable[pos].y=i+sizeof(chui_control_common);
   //copying the extension pointers
   memcpy(newextensions,the_chui.extensions,pos*sizeof(BYTE *) );
   memcpy(newextensions+pos+1,the_chui.extensions+pos,(the_chui.controlcnt-pos)*sizeof(BYTE *) );
   //creating the new extension
-  i=ChuiControlSize(0)*sizeof(BYTE);
   newextensions[pos]=new BYTE[i]; //the zero type control is a button
   //lets hope it is successfully allocated;
   if(!newextensions[pos])
   {
     delete [] newcontrols;
     delete [] newextensions;
+    delete [] newtable;
     return;
   }
   memset(newextensions[pos],0,i);
+
+  delete [] the_chui.controltable;
+  the_chui.controltable=newtable;
 
   delete [] the_chui.extensions;
   the_chui.extensions=newextensions;
@@ -974,6 +1026,7 @@ void CChuiEdit::OnAddctrl()
   memcpy(newcontrols,the_chui.controls, pos*sizeof(chui_control_common) );
   memcpy(newcontrols+pos+1,the_chui.controls+pos,(the_chui.controlcnt-pos) *sizeof(chui_control_common) );
   memset(newcontrols+pos,0,sizeof(chui_control_common)); //setting this control to empty
+  newcontrols[pos].controlid=(short) pos;
 
   delete [] the_chui.controls;
   the_chui.controls=newcontrols;
@@ -1027,6 +1080,18 @@ void CChuiEdit::OnBrowse2()  //browsing into the first resref
     if(pickerdlg.DoModal()==IDOK)
     {
       StoreResref(pickerdlg.m_picked,cc->bam);
+    }
+    }
+    break;
+  case CC_PROGRESS:
+    {
+    chui_progress *cc=(chui_progress *) the_chui.extensions[pos2];
+
+    pickerdlg.m_restype=REF_MOS;
+    RetrieveResref(pickerdlg.m_picked,cc->mos1);
+    if(pickerdlg.DoModal()==IDOK)
+    {
+      StoreResref(pickerdlg.m_picked,cc->mos1);
     }
     }
     break;
@@ -1103,6 +1168,18 @@ void CChuiEdit::OnBrowse3() //browsing into the second resref
   type=GetCurrentControlType(pos2, dummy); //type==*dummy
   switch(type)
   {
+  case CC_PROGRESS:
+    {
+    chui_progress *cc=(chui_progress *) the_chui.extensions[pos2];
+
+    pickerdlg.m_restype=REF_MOS;
+    RetrieveResref(pickerdlg.m_picked,cc->mos2);
+    if(pickerdlg.DoModal()==IDOK)
+    {
+      StoreResref(pickerdlg.m_picked,cc->mos2);
+    }
+    }
+    break;
   case CC_SLIDER:
     {
     chui_slider *cc=(chui_slider *) the_chui.extensions[pos2];
@@ -1152,6 +1229,18 @@ void CChuiEdit::OnBrowse4()
   type=GetCurrentControlType(pos2, dummy); //type==*dummy
   switch(type)
   {
+  case CC_PROGRESS:
+    {
+    chui_progress *cc=(chui_progress *) the_chui.extensions[pos2];
+
+    pickerdlg.m_restype=REF_BAM;
+    RetrieveResref(pickerdlg.m_picked,cc->bam);
+    if(pickerdlg.DoModal()==IDOK)
+    {
+      StoreResref(pickerdlg.m_picked,cc->bam);
+    }
+    }
+    break;
   case CC_EDITBOX:
     {
     chui_editbox *cc=(chui_editbox *) the_chui.extensions[pos2];
@@ -1193,7 +1282,7 @@ void CChuiEdit::OnBrowse5()
   UpdateData(UD_DISPLAY);
 }
 
-void CChuiEdit::OnBrowse6() 
+void CChuiEdit::OnBrowse6() //third resref
 {
 	char *dummy;
   int pos2;
@@ -1337,6 +1426,16 @@ void CChuiEdit::OnPreview()
         }
       }
       break;
+    case CC_PROGRESS:
+      {
+        chui_progress *cc=(chui_progress *) the_chui.extensions[pos2];
+        RetrieveResref(tmpstr,cc->mos1);
+        if(!read_mos(tmpstr, &tmp_mos, true))
+        {
+          tmp_mos.MakeBitmap(TRANSPARENT_GREEN,the_mos,mode,the_chui.controls[pos2].xpos,the_chui.controls[pos2].ypos);
+        }
+      }
+      break;
     case CC_SLIDER:
       {
         chui_slider *cc=(chui_slider *) the_chui.extensions[pos2];
@@ -1344,7 +1443,7 @@ void CChuiEdit::OnPreview()
         RetrieveResref(tmpstr,cc->mos);
         if(!read_mos(tmpstr, &tmp_mos, true))
         {
-          tmp_mos.MakeBitmap(0,the_mos,mode,the_chui.controls[pos2].xpos,the_chui.controls[pos2].ypos);
+          tmp_mos.MakeBitmap(TRANSPARENT_GREEN,the_mos,mode,the_chui.controls[pos2].xpos,the_chui.controls[pos2].ypos);
         }
         RetrieveResref(tmpstr,cc->bam);
         if(!read_bam(tmpstr, &tmp_bam, true))
@@ -1361,7 +1460,7 @@ void CChuiEdit::OnPreview()
         RetrieveResref(tmpstr,cc->mos1);
         if(!read_mos(tmpstr, &tmp_mos, true))
         {
-          tmp_mos.MakeBitmap(0,the_mos,mode,the_chui.controls[pos2].xpos,the_chui.controls[pos2].ypos);
+          tmp_mos.MakeBitmap(TRANSPARENT_GREEN,the_mos,mode,the_chui.controls[pos2].xpos,the_chui.controls[pos2].ypos);
         }
         RetrieveResref(tmpstr,cc->font);
         if(!read_bam(tmpstr,&tmp_bam,true))

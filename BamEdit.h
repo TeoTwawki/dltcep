@@ -66,6 +66,8 @@ protected:
   void LoadBam(Cbam *resource);
   void LoadBamEx(Cbam *resource);
   void AddonBam(Cbam &addon);
+  void AddinBam(Cbam &addin);
+  int WriteAllFrames(CString newname, Cbam &my_bam);
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -115,12 +117,18 @@ protected:
 	afx_msg void OnDecompress();
 	afx_msg void OnAlign();
 	afx_msg void OnCopycycle();
-	afx_msg void OnCyclePastecycle();
+	afx_msg void OnPastecycle();
 	afx_msg void OnShiftForward();
 	afx_msg void OnShiftBackward();
 	afx_msg void OnFileLoadbmp();
 	afx_msg void OnFileMergebam();
 	afx_msg void OnFileMergeexternalbam();
+	afx_msg void OnFlipcycle();
+	afx_msg void OnFlipframe();
+	afx_msg void OnCreatemirror();
+	afx_msg void OnDropallbutlast();
+	afx_msg void OnReduceorientation();
+	afx_msg void OnMergebam();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -71,6 +71,8 @@ public:
   bool ExpandMosBitsWhole(COLORREF clrReplace, COLORREF clrTransparent, COLORREF *pDIBits, int nOffset, int wWidth);
   int ExpandMosLine(char *pBuffer, int nSourceOff);
   int SaturateTransparency();
+  void AllocateTransparency();
+  void FlipTile();
 };
 
 typedef CMap<COLORREF, COLORREF&, int, int&> CPaletteMap;
@@ -85,23 +87,25 @@ public:
   short *m_tileindices;
   CString m_name;
   int m_nQualityLoss;
-  int m_nFrameNumber;
   INF_MOS_HEADER mosheader;
   tis_header tisheader;
   BOOL m_bCompressed;
   DWORD *m_pOffsets;
   int m_overlay;
+  int m_overlaytile;
+  Cmos *m_friend;
   bool m_changed;
   bool m_drawclosed;
 
   bool MosChanged() { return m_changed; }
-  void SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices);
+  void SetOverlay(int overlay, wed_tilemap *tileheaders, short *tileindices, Cmos *overlaymos=NULL);
   int ResolveFrameNumber(int framenumber);
   void new_mos();
   void DropUnusedPalette();
   int RetrieveTisFrameCount(int fhandle, int maxlen);
   int GetFrameCount();
   CPoint GetFrameSize(DWORD nFrame);
+  unsigned char *GetFrameBuffer(DWORD nFrame);
   COLORREF GetPixelData(int x, int y);
   int TakeOneFrame(DWORD nFrameWanted, COLORREF *prFrameBuffer, int factor);
   unsigned long *GetFramePalette(DWORD nFrame);
@@ -123,7 +127,10 @@ public:
   int GetImageWidth(int clipx, int maxclipx);
   int GetImageHeight(int clipy, int maxclipy);
   DWORD GetColor(DWORD x, DWORD y);
+  int FlipTile(DWORD nFrameWanted);
+  int RemoveTile(DWORD original);
   int AddTileCopy(DWORD original, unsigned char *optionalpixels = NULL, bool deepen=false);
+  int SetFrameData(DWORD nFrameWanted, INF_MOS_FRAMEDATA *oldframe);
   int SaturateTransparency(DWORD tile, bool createcopy = false, bool deepen=false);
 
   inline int GetDataSize()
@@ -156,6 +163,11 @@ public:
     }
   }
   inline COLORREF *GetDIB() { return m_pclrDIBits; }
+  inline INF_MOS_FRAMEDATA *GetFrameData(DWORD nFrameWanted)
+  {
+    if(nFrameWanted>=tisheader.numtiles) return NULL;
+    return m_pFrameData+nFrameWanted;
+  }
 
 private:
 	COLORREF *m_pclrDIBits;  

@@ -204,6 +204,15 @@ typedef struct//0
   short disabled;
 } chui_button;
 
+typedef struct//1
+{
+  char mos1[8];
+  char mos2[8];
+  char bam[8];
+  short jumpcount;
+  short cycle;
+} chui_progress;
+
 typedef struct//2
 {
   char mos[8];
@@ -733,7 +742,7 @@ typedef struct
   short curhp;
   short maxhp;
   unsigned long animid;
-  unsigned char colours[7];
+  unsigned char unused[7]; //colors
   char effbyte;
   char iconm[8];
   char iconl[8];
@@ -793,14 +802,21 @@ typedef struct
   unsigned char unknown243;
   long kit;
   char scripts[5][8];
-  char unknown270[24];
-  long zombie;
-  char unknown28c[24];
-  char internal[20]; //2a4
+  char unknown270[52];
+  char internals[20]; //2a4
   long unknown; //2b8
-  char chartype[32]; //bestiary, 2bc
-  char unknown2dc[29+24]; //2dc
-  unsigned char idspecies;
+  char bestiary[32]; //2bc
+  unsigned char dialogradius;
+  unsigned char feetcircle;
+  unsigned char unknown2de;
+  unsigned char colornum;
+  unsigned long techflags;
+  short colours[7]; //24e
+  unsigned char unknown2f2[3];
+  unsigned char colorslots[7];
+  unsigned char unknown2fc[21];
+  //char unknown2dc[29+24]; //2dc
+  unsigned char idsspecies;
   unsigned char idsteam;
   unsigned char idsfaction;
   unsigned char idsea;
@@ -1241,8 +1257,8 @@ typedef struct {
 } wed_door;
 
 typedef struct {
-  short firsttileprimary;
-  short counttileprimary; //tile indices are 16 bit values
+  unsigned short firsttileprimary;
+  unsigned short counttileprimary; //tile indices are 16 bit values
   short alternate;
   short flags;
   short unknown;
@@ -1497,7 +1513,7 @@ typedef struct {
   long strrefs[10];
   char creatures[10][8];
   short creaturecnt; //entry number
-  short unknown9a; //creature number
+  short difficulty; //creature number depends on this
   long unknown9c;  //1000
   short unknowna0; //1000
   short unknowna2; //1000
@@ -1511,12 +1527,12 @@ typedef struct {
 } area_int;
 
 typedef struct {
-  POINTS point;
+  unsigned short x,y;
 } area_vertex;
 
 //this pointer list will free previous elements
 //Do we need this for removehead/tail as well ?
-class CVertexPtrList : public CPtrList
+class CMyPtrList : public CPtrList
 {
 public:
   void RemoveAt(POSITION pos)
@@ -1660,7 +1676,7 @@ typedef struct {
 } gam_familiar;
 
 typedef struct {
-  short unknown00;
+  short selected;
   short slot;
   long creoffset;
   long cresize;
@@ -1676,11 +1692,11 @@ typedef struct {
 
 typedef struct {
   char name[32];
-  long unknowne0;
+  long talkcount;
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
   long unknown1;
-  long unknown2;
+  long joindate;
   long unknown3;
   long killxp; //this chapter
   long killnum;
@@ -1697,11 +1713,11 @@ typedef struct {
   char name[32];
   long unknowne0;
   long unknowne4;
-  long unknowne8;
+  long talkcount; //numtimestalkedto
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
   long unknown1;
-  long unknown2;
+  long joindate;
   long unknown3;
   long killxp; //this chapter
   long killnum;
@@ -1715,13 +1731,33 @@ typedef struct {
 } gam_pst_npc;
 
 typedef struct {
-  char unknown00[254];
   char name[32];
-  long unknowne0;
+  long talkcount;
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
   long unknown1;
-  long unknown2;
+  long joindate;
+  long unknown3;
+  long killxp; //this chapter
+  long killnum;
+  long totalkillxp;
+  long totalkillnum;
+  char favspell[4][8];
+  short favspcnt[4];
+  char favweap[4][8];
+  short favwpcnt[4];
+  char soundset[8];
+  char voiceset[32];
+} gam_iwd_npc;
+
+typedef struct {
+  char unknown00[254];
+  char name[32];
+  long talkcount;
+  long nameofmpv; //name of most powerful vanquished
+  long xpofmpv;   //xp of most powerful vanquished
+  long unknown1;
+  long joindate;
   long unknown3;
   long killxp; //this chapter
   long killnum;
@@ -1734,12 +1770,13 @@ typedef struct {
   char soundset[8];
   char voiceset[32];
   char unknown4[194];
-} gam_iwd_npc;
+} gam_iwd2_npc;
 
 typedef union {
   gam_bg_npc gbn;
   gam_pst_npc gpn;
   gam_iwd_npc gin;
+  gam_iwd2_npc gwn;
 } gam_npc_extension;
 
 typedef struct {
@@ -1747,7 +1784,7 @@ typedef struct {
 } gam_unknown1;
 
 typedef struct {
-  char unknown[1720]; //big fucking hack
+  char unknown[1720]; //big hack
 } gam_unknown2;
 
 typedef struct {

@@ -185,12 +185,12 @@ void CCFBDialog::OnOpenfile()
     }
     if(mode&2) ret=the_item.ReadItemFromFile(fhandle, fileloc.size);
     else ret=the_spell.ReadSpellFromFile(fhandle, fileloc.size);
+    close(fhandle);
     if(ret)
     {
       log("Invalid file.");
       continue;
-    }
-    close(fhandle);
+    }    
     if(ModifyCFB(mode, featnum, cfb))
     {
       log("No CFB... skipping file");

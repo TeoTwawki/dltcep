@@ -240,6 +240,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_src.ReadStringFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -4:
@@ -292,7 +293,6 @@ void CSRCEdit::SaveSrc(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
   CFileDialog m_getfiledlg(FALSE, "src", makeitemname(".src",0), res, szFilter);
 
   if(save)
@@ -334,6 +334,7 @@ gotname:
     }
     res=the_src.WriteStringToFile(fhandle,0);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:

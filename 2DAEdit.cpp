@@ -177,6 +177,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_2da.Read2DAFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 1:
@@ -212,7 +213,6 @@ void C2DAEdit::SaveTable(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
 
   if(readonly)
@@ -221,8 +221,6 @@ void C2DAEdit::SaveTable(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
-//  CFileDialog m_getfiledlg(FALSE, "2da", bgfolder+"override\\"+itemname, res, szFilter);
   CFileDialog m_getfiledlg(FALSE, "2da", makeitemname(".2da",0), res, szFilter);
 
   if(save)
@@ -256,14 +254,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_2da.Write2DAToFile(fhandle);
-    close(fhandle);
+
+    res=write_2da(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
@@ -609,12 +602,24 @@ escape:
 
 void C2DAEdit::OnRow2() 
 {
+  CString *row;
   CString tmpstr;
+  POSITION pos;
+  int i;
 
   if(m_item<0) m_item=the_2da.rows;
   tmpstr.Format("Row%d",m_item);
-  the_2da.AddRow(m_item,tmpstr, the_2da.defvalue);
-  RefreshDialog();
+  the_2da.AddRow(m_item, tmpstr, the_2da.defvalue);
+  pos=the_2da.data.FindIndex(m_item);
+  row=(CString *)the_2da.data.GetAt(pos);
+  m_2da_control.InsertItem(m_item, tmpstr);
+  for(i=0;i<the_2da.cols;i++)
+  {
+    m_2da_control.SetItemText(m_item,i, row[i]);
+  }
+  m_2da_control.EnsureVisible(m_item,false);
+  m_2da_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+//  RefreshDialog();
 }
 
 void C2DAEdit::OnColumn() 
@@ -652,7 +657,10 @@ void C2DAEdit::OnRemove()
   }
 	if(the_2da.RemoveRow(m_item))
   {
-    RefreshDialog();
+    m_2da_control.DeleteItem(m_item);
+    if(m_item>=the_2da.rows) m_item=the_2da.rows-1;
+    m_2da_control.EnsureVisible(m_item,false);
+    m_2da_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
   }
   else MessageBox("Cannot remove row!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
 }
@@ -962,6 +970,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_ids.ReadIDSFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 1:
@@ -1014,6 +1023,7 @@ void CIDSEdit::SaveIDS(int save)
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   CFileDialog m_getfiledlg(FALSE, "ids", makeitemname(".ids",0), res, szFilter2);
+
   if(save)
   {
     newname=itemname;
@@ -1053,6 +1063,7 @@ gotname:
     }
     res=the_ids.WriteIDSToFile(fhandle);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
@@ -1112,6 +1123,8 @@ void CIDSEdit::OnRemove()
 	if(the_ids.RemoveRow(m_item))
   {
     m_ids_control.DeleteItem(m_item);
+    m_ids_control.EnsureVisible(m_item, false);
+    m_ids_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
   }
   else
   {
@@ -1139,7 +1152,8 @@ void CIDSEdit::OnRow()
   the_ids.AddRow(m_item,def,tmpstr);
   m_ids_control.InsertItem(m_item, def);
   m_ids_control.SetItemText(m_item, 1, tmpstr);
-//  RefreshDialog();
+  m_ids_control.EnsureVisible(m_item, false);
+  m_ids_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
   UpdateData(UD_DISPLAY);
 }
 
@@ -1389,7 +1403,7 @@ void CMUSEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "mus", makeitemname(".mus",0), res, szFilter3);
+  CFileDialog m_getfiledlg(TRUE, "mus", makeitemname(".mus",4), res, szFilter3);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -1404,6 +1418,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_mus.ReadMusFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedmusic=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 1:
@@ -1438,8 +1453,8 @@ void CMUSEdit::OnSaveas()
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "mus", bgfolder+"music\\"+itemname+".mus", res, szFilter3);
-
+  //CFileDialog m_getfiledlg(FALSE, "mus", bgfolder+"music\\"+itemname+".mus", res, szFilter3);
+  CFileDialog m_getfiledlg(FALSE, "mus", makeitemname(".mus",4), res, szFilter3);
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -1474,6 +1489,7 @@ restart:
 
     res=the_mus.WriteMusToFile(fhandle);
     close(fhandle);
+    lastopenedmusic=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:

@@ -25,7 +25,6 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CMosEdit)
 	enum { IDD = IDD_MOSEDIT };
-	CStatic	m_bamframe1_control;
 	CComboBox	m_framenum_control;
 	BYTE	m_red;
 	BYTE	m_green;
@@ -44,14 +43,13 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual void PostNcDestroy();
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
   int tis_or_mos;
-  HBITMAP hbm;
+  CImageView m_preview;
 
   int Savemos(Cmos &my_mos, int save);
   void RefreshDialog();
@@ -75,12 +73,11 @@ protected:
 	afx_msg void OnKillfocusHeight();
 	afx_msg void OnExtract();
 	afx_msg void OnSave();
-	afx_msg void OnKillfocusPwidth();
-	afx_msg void OnKillfocusPheight();
 	virtual void OnOK();
 	afx_msg void OnMinimap();
 	afx_msg void OnLoadBmp();
 	//}}AFX_MSG
+  afx_msg void OnTile();
 	DECLARE_MESSAGE_MAP()
 };
 

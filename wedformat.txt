@@ -122,8 +122,8 @@ Here we have 8 bit flag :
 
     * Bit 0 : If set to 1 then the NPC/creature/PC appears to be behind wall if his location point is inside wall polygon boundaries. If the character location is "beneath" the wall polygon then the character's animation is shown in front of the wall and it is not shaded.
     * Bit 1 : If set to 1 this disable wall appearance at all.
-    * Bit 2 : There appears errors and game crushes ( Assertion failed in ChVidPoly.cpp, line 523) , however there are some condition when it works ok (used in AR0300 in BG2) but exact results are unknown at the moment.
-    * Bit 3 : Also used in game areas, in many places, but at first glance it doesn't seem to do anything.
+    * Bit 2 : Hovering wall. There appears errors and game crushes ( Assertion failed in ChVidPoly.cpp, line 523) , however there are some condition when it works ok (used in AR0300 in BG2).
+    * Bit 3 : Cover animations.
     * Bit 4 : unknown, unused ? 
     * Bit 5 : unknown, unused ? 
     * Bit 6 : unknown, unused ? 

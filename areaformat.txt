@@ -7,12 +7,15 @@ Gorin (ambient sounds section, 30.06.2001)
 Vungoctan (verified and corrected by Manveru, 12.07.2001)
 TheoTeamBG (15.10.2001)
 To An (09.03.2002)
+Avenger (continuously)
+
 Description
 
 This file format describes the content of an area, rather than its visual representation. It contains the list of actors, items, entrances and exits, spawn points, and other area-associated info. Essentially, this format is all about how the characters interact with the area and how the area responds, whereas the WED file is all about how the area appears graphically.
 AREA file versions
 
     * V1.0: Baldur's Gate, Planescape: Torment, Icewind Dale, BG2 SoA 
+    * V2.0: Icewind Dale II
 
 AREA V1.0
 
@@ -116,8 +119,12 @@ Also here I have noticed some weird values in PS:T - for example in city areas -
 0x00bc 4 (dword) Offset to Songs entries of the area
 0x00c0 4 (dword) Offset to  Interruption of rest party option section )
 0x00c4 4 (dword) offset of the automap note section, if any
-0x00c8 4 (dword) number of entries in the automap note section
+0x00c8 4 (dword) Number of entries in the automap note section
 0x00cc 4*20 (dword) Unknown,unused
+
+V2.0 File header (Same as V1.0 but 16 bytes longer)
+0x00cc 4*24 (dword) Unknown,unused
+
 V1.0 Actors
 Offset Size (data type) Description
 0x0000 32 (char array) Name of this actor (for editors purposes only)
@@ -138,7 +145,7 @@ Known values :
     * F0FF 0F00 - day
     * E0FF 0100 - dawn
     * 0F00 F0FF - night
-    * 1F00 FEFF- dusk
+    * 1F00 FEFF - dusk
     * FF00 FFFF - unknown
     * 3F00 E0FF - unknown
     * FFFF FFFF - always
@@ -175,9 +182,22 @@ Offset Size (data type) Description
 0x0040 32 (char array) Name of the entrance within the destination area where we will appear if we pass through this door. Only used for "exit" objects.
 0x0060 4 (dword) Flags:
 
-    * bit 0
+    * bit 0: Invisible trap
     * bit 1: Reset trap flag (for proximity triggers)
     * bit 2: Party Required flag (for travel triggers). Responsible for the "You must gather your party before venturing forth" message
+    * bit 3: Detectable
+    * bit 4: Unknown
+    * bit 5: Unknown
+    * bit 6: Triggered by NPCs (for proximity triggers)
+    * bit 7: Unknown
+    * bit 8: Deactivated (for proximity triggers)
+    * bit 9: NPC can't pass (for travel triggers)
+    * bit 10: Override?
+    * bit 11: Used by Door?
+    * bit 12: Unknown
+    * bit 13: Unknown
+    * bit 14: Unknown
+    * bit 15: Unknown
 
 0x0064 4 (strref) The text associated with this "info point", if this is actually an "info point" (i.e. if type==01).
 0x0068 2 (word) Trap detection difficulty (%)
@@ -217,7 +237,7 @@ Known values :
     * F0FF 0F00 - day
     * E0FF 0100 - dawn
     * 0F00 F0FF - night
-    * 1F00 FEFF- dusk
+    * 1F00 FEFF - dusk
     * FF00 FFFF - unknown
     * 3F00 E0FF - unknown
     * FFFF FFFF - always
@@ -254,8 +274,14 @@ Offset Size (data type) Description
     * 0c: CRATE
 
 0x0026 2 (word) Lock difficulty
-0x0028 2 (word) Is locked? (1 if locked, 0 otherwise)
-0x002a 2 (word) Unknown, always 0 ?
+0x0028 4 (dword) Flags
+    * Bit 0 - Locked
+    * Bit 1 - Unknown
+    * Bit 2 - Unknown
+    * Bit 3 - Reset trap
+    * Bit 4 - Unknown
+    * Bit 5 - PC can't use
+
 0x002c 2 (word) Trap detection difficulty
 0x002e 2 (word) Trap removal difficulty
 0x0030 2 (word) Container is trapped (0 if not , 1 otherwise)
@@ -271,7 +297,7 @@ Offset Size (data type) Description
 0x0078 8 (resref) Resref of a "key" item, which, if possessed allows this chest to be opened.
 0x0080 4 (dword) Unknown, unused.
 0x0084 4 (dword) TLK ref that is displayed when a lockpicking is attempted upon a container that couldn't be unlock (lock strength set to 100 or item needed). Only tested in BG II
-0x0080 56 (bytes) Unknown, unused.
+0x0088 56 (bytes) Unknown, unused.
 V1.0 Items
 
 For those of you that have been paying attention, you may recognize this struct as being used in both the CRE file and the STO file.
@@ -284,7 +310,7 @@ Offset Size (data type) Description
 0x0010 4 (dword) Flags:
 
     * bit 0: identified
-	* bit 1: unstealable
+    * bit 1: unstealable
     * bit 2: stolen
 
 V1.0 Vertices
@@ -310,7 +336,7 @@ Known values :
     * F0FF 0F00 - day
     * E0FF 0100 - dawn
     * 0F00 F0FF - night
-    * 1F00 FEFF- dusk
+    * 1F00 FEFF - dusk
     * FF00 FFFF - unknown
     * 3F00 E0FF - unknown
     * FFFF FFFF - always
@@ -493,8 +519,7 @@ Offset Size (data type) Description
 0x00a2 2 (word) Unknown, the same value as in offset 0x00a0, no effect on game noticed.
 0x00a4 2 (word) Maximal number of spawned creatures.
 0x00a6 2 (word) Unknown, usually value 1.
-0x00a8 2 (word) Unknown
-0x00aa 2 (word) Unknown, the same value as in offset 0x00a8
+0x00a8 2 (word) Day chance?
+0x00aa 2 (word) Night chance?
 0x00ac 56 (bytes) Set to zero. Unused , unknown.
 
- 

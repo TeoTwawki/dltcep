@@ -55,6 +55,7 @@ protected:
 	afx_msg void OnExportsoundset();
 	afx_msg void OnImportsoundset();
 	afx_msg void OnToolsIdsbrowser();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -4,11 +4,11 @@
 3. fix iwd/iwd2/pst creature editor
 4. kit checker port, kit checker - data constraint checks (min str, etc) 
 5. TAB inserts TAB in script editor
-6. check if doors are deleted correctly from wed
-7. finish tile editor
-8. add overlay manipulation
-9. wallgroup editor
-10. don't overwrite scripts/dialogs using weidu
-11. MDI ???
-12. avatar preview (creature editor)
-13. input focus never gets lost when clicking on SAVE in a tabbed window???
+6. don't overwrite scripts/dialogs using weidu
+7. MDI ???
+8. avatar preview (creature editor)
+9. mass delete of frames from sequences (in bam editor)
+10. modified files warning when exiting editor
+11. alter tlk only on save or exit (or tbg export)
+13. copy/paste in bams don't work?
+

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.2d"
+#define PRG_VERSION "6.3d"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -42,6 +42,7 @@
 #include "SRCEdit.h"
 #include "KeyEdit.h"
 #include "tispack.h"
+#include "TextView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -133,7 +134,6 @@ ON_WM_QUERYDRAGICON()
 ON_BN_CLICKED(IDC_RESCAN, OnRescan)
 ON_BN_CLICKED(IDC_RESCAN2, OnRescan2)
 ON_BN_CLICKED(IDC_COMPAT, OnCompat)
-ON_COMMAND(ID_CONTEXT, OnContext)
 ON_COMMAND(ID_TOOLTIPS, OnTooltips)
 ON_COMMAND(ID_PROGRESS, OnProgress)
 ON_COMMAND(ID_SAVESETTINGS, OnSavesettings)
@@ -218,6 +218,7 @@ ON_COMMAND(ID_CHECK_PROJECTILE, OnCheckProjectile)
 	ON_COMMAND(ID_AVATARS, OnAvatars)
 	ON_COMMAND(ID_COMPRESSBIF, OnCompressbif)
 	ON_COMMAND(ID_COMPRESSCBF, OnCompresscbf)
+	ON_COMMAND(ID_TISPACK, OnTispack)
 ON_COMMAND(ID_COMPAT, OnCompat)
 ON_COMMAND(ID_SEARCH_ITEM, OnFinditem)
 ON_COMMAND(ID_SEARCH_SPELL, OnFindspell)
@@ -242,7 +243,7 @@ ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
 	ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
 	ON_BN_CLICKED(IDC_CHECKPROJ, OnCheckArea)
-	ON_COMMAND(ID_TISPACK, OnTispack)
+	ON_COMMAND(ID_HELP_README, OnHelpReadme)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -419,6 +420,7 @@ BOOL CChitemDlg::OnInitDialog()
 
   if(bgfolder.IsEmpty())
   {
+    SendMessage(WM_COMMAND,ID_HELP_README,0);
     MessageBox("Please run setup!");
   }
   else
@@ -757,6 +759,11 @@ int CChitemDlg::scan_2da()
     }
   }
   
+  if(pst_compatible_var())
+  {
+    ReadBeastIni(beasts);
+  }
+
   idrefs.Lookup("ACTION",tmploc);
   val=ReadIds3(tmploc, action_defs, MAX_ACTION, action_data, 0);
   switch(val)
@@ -780,14 +787,14 @@ int CChitemDlg::scan_2da()
     MessageBox("trigger.ids is wrong, triggers won't be resolved.","Warning",MB_ICONEXCLAMATION|MB_OK);
     break;
   }
-
+/*
   idrefs.Lookup("RACE",tmploc);
   val=ReadIds(tmploc, race_names,1);
   if(val<0)
   {
     MessageBox("race.ids not found, race names are unavailable.","Warning",MB_ICONEXCLAMATION|MB_OK);
   }
-
+*/
   darefs.Lookup("SPAWNGRP",tmploc);
   Read2daRow(tmploc, spawngroup, 0); //no error reporting
 
@@ -2609,7 +2616,7 @@ void CChitemDlg::RefreshMenu()
   pMenu=GetMenu();
   if(pMenu)
   {
-    pMenu->ModifyMenu(ID_COMPAT, 0, ID_COMPAT, setupname);
+//    pMenu->ModifyMenu(ID_COMPAT, 0, ID_COMPAT, setupname);
     m_tooltip.Activate(!!tooltips); 
     pMenu->CheckMenuItem(ID_TOOLTIPS, MF_SET(tooltips) );
     
@@ -2643,12 +2650,12 @@ BOOL CChitemDlg::DestroyWindow()
   tlk_entries=NULL;
   return CDialog::DestroyWindow();
 }
-
+/*
 void CChitemDlg::OnContext() 
 {
   PostMessage(WM_SYSCOMMAND,SC_CONTEXTHELP,0);    
 }
-
+*/
 void CChitemDlg::OnTooltips() 
 {
   tooltips=!tooltips;
@@ -2964,8 +2971,8 @@ void CChitemDlg::OnFileImportd()
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING;  
   CFileDialog m_getfiledlg(TRUE, "d", bgfolder+weidudecompiled+"\\*.d;*.baf", res, szFilterWeiduAll);
   HackForLargeList(m_getfiledlg);
-
   m_getfiledlg.m_ofn.lpstrTitle="Which source files to compile?";
+
   res=99;
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -3999,6 +4006,10 @@ int CChitemDlg::read_next_creature(loc_entry fileloc)
     break;
   case 1:
     if(chkflg&NOSTRUCT) break;
+    log("Nonstandard order.");
+    break;
+  case 2:
+    if(chkflg&NOSTRUCT) break;
     log("Incorrect file size.");
     break;
   }
@@ -4311,7 +4322,10 @@ int CChitemDlg::read_next_area(loc_entry fileloc)
       {
         switch(the_area.ReadWedFromFile(fhandle, wedfileloc.size) )
         {
-        case 0: case 1: case 2: break;
+        case 0:
+          break;
+        case 1: case 2: case 3: break;
+          break;
         default:
           ret=3;
         }
@@ -4638,4 +4652,12 @@ void CChitemDlg::OnCancel()
   {
     CDialog::OnCancel();
   }
+}
+
+void CChitemDlg::OnHelpReadme() 
+{
+  CTextView dlg;
+  
+  dlg.m_file="readme.txt";
+  dlg.DoModal();
 }

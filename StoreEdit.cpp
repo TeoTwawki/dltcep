@@ -82,25 +82,7 @@ BEGIN_MESSAGE_MAP(CStoreEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-/*
-int CStoreEdit::read_store(CString key)
-{
-  loc_entry fileloc;
-  int ret;
-  int fhandle;
-  CString tmp;
-  
-  if(stores.Lookup(key,fileloc))
-  {
-    fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    ret=the_store.ReadStoreFromFile(fhandle, fileloc.size);
-    close(fhandle);
-  }
-  else return -1;
-  return ret;
-}
-*/
+
 BOOL CStoreEdit::OnInitDialog() 
 {
   CString tmpstr, tmpstr1, tmpstr2;
@@ -191,6 +173,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_store.ReadStoreFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -3:
@@ -242,7 +225,6 @@ void CStoreEdit::SaveStore(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
   CFileDialog m_getfiledlg(FALSE, "sto", makeitemname(".sto",0), res, szFilter);
 
   if(save)
@@ -275,17 +257,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    /*
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_store.WriteStoreToFile(fhandle,0);
-    close(fhandle);
-    */
-    res = write_store(newname);
+    
+    res = write_store(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:

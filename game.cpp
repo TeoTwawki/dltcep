@@ -140,20 +140,24 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   //precalculating fullsize
   switch(revision)
   {
-  case 11:
+  case 10: //this is totsc (maybe bg1 too)
     mysize=sizeof(gam_bg_npc);
+    memcpy(&header,"GAMEV1.1",8);
+    break;
+  case 11://this is iwd1
+    mysize=sizeof(gam_iwd_npc);
     memcpy(&header,"GAMEV1.1",8);
     break;
   case 12:
     mysize=sizeof(gam_pst_npc);
-    memcpy(&header,"GAMEV1.2",8);
+    memcpy(&header,"GAMEV1.1",8); //be aware, pst is 1.1 too!
     break;
   case 20:
     mysize=sizeof(gam_bg_npc); 
     memcpy(&header,"GAMEV2.0",8);
     break;
   case 22:
-    mysize=sizeof(gam_iwd_npc);
+    mysize=sizeof(gam_iwd2_npc);
     memcpy(&header,"GAMEV2.2",8);
     break;
   default:
@@ -405,7 +409,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       else
       {
         revision=22;      
-        mysize=sizeof(gam_iwd_npc);
+        mysize=sizeof(gam_iwd2_npc);
       }
     }
     else
@@ -415,7 +419,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     }
   }    
   else
-  { //this is a hack
+  { //this is a hack for PST
     if((header.pcoffset==184) || (header.variableoffset==184) )
     {
       adjust_actpoint(0);
@@ -428,8 +432,16 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     }
     else
     {
-      revision=11;
-      mysize=sizeof(gam_bg_npc);
+      if(bg1_compatible_area())
+      {
+        revision=10;
+        mysize=sizeof(gam_bg_npc);
+      }
+      else
+      {
+        revision=11;
+        mysize=sizeof(gam_iwd_npc);
+      }      
     }
   }
   //read non-party npcs

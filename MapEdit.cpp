@@ -10,6 +10,7 @@
 #include "MapEdit.h"
 #include "options.h"
 #include "tbg.h"
+#include "ImageView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -46,6 +47,7 @@ static int areaboxids[]={IDC_AREA,IDC_BROWSE3,IDC_BROWSE4,IDC_NAME,IDC_LONGNAME,
 IDC_ICONIDX,IDC_ICONRES,IDC_XPOS,IDC_YPOS,IDC_LOADSCREEN,IDC_AREAFLAG,IDC_AREAPICKER,
 IDC_CAPTION,IDC_TOOLTIP,IDC_CAPTIONTEXT,IDC_TOOLTIPTEXT,IDC_EDITLINK,IDC_DELAREA,
 IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,IDC_FLAG5,IDC_FLAG6,IDC_FLAG7,IDC_FLAG8,
+IDC_SET,
 0};
 
 void CMapEdit::DoDataExchange(CDataExchange* pDX)
@@ -350,6 +352,7 @@ BEGIN_MESSAGE_MAP(CMapEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
+	ON_BN_CLICKED(IDC_SET, OnSet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -420,6 +423,7 @@ restart:
     itemname.MakeUpper();
     res=the_map.ReadMapFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -1:
@@ -461,7 +465,6 @@ void CMapEdit::SaveMap(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
   
   if(readonly)
@@ -502,14 +505,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_map.WriteMapToFile(fhandle, 0);
-    close(fhandle);
+    
+    res = write_map(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
@@ -817,6 +815,44 @@ void CMapEdit::OnKillfocusYpos()
 	UpdateData(UD_DISPLAY);	
 }
 
+void CMapEdit::OnSet() 
+{
+  CImageView dlg;
+  CString tmpstr;
+  POINT *points;
+  POINT point;
+  int pos, pos2;
+  int i;
+
+  pos=m_mappicker.GetCurSel();
+  pos2=m_areapicker.GetCurSel();
+  if(pos<0 || pos2<0) return;
+  RetrieveResref(tmpstr, the_map.headers[pos].mos);
+  read_mos(tmpstr, &the_mos, true);
+  i=the_map.headers[pos].areacount;
+  points=new POINT[i];
+  //if points is null, then it will be ignored, no problem
+  while(i--)
+  {
+    points[i].x=the_map.areas[pos][i].xpos;
+    points[i].y=the_map.areas[pos][i].ypos;
+  }
+  dlg.SetMapType(MT_BAM,(LPBYTE) points);
+  dlg.InitView(IW_SHOWALL|IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
+  //the cursors are loaded in 'the_bam' now
+  dlg.SetupAnimationPlacement(&the_bam, the_map.areas[pos][pos2].xpos,
+    the_map.areas[pos][pos2].ypos, the_bam.GetFrameIndex(the_map.areas[pos][pos2].bamindex,0));    
+
+  if(dlg.DoModal()==IDOK)
+  {
+    point=dlg.GetPoint(GP_POINT);
+    the_map.areas[pos][pos2].xpos=point.x;
+    the_map.areas[pos][pos2].ypos=point.y;
+  }
+  if(points) delete [] points;
+  UpdateData(UD_DISPLAY);
+}
+
 void CMapEdit::OnKillfocusCaption() 
 {
   int pos,pos2;
@@ -1032,12 +1068,12 @@ int RemoveLink(int map, int from, int count)
       the_map.areas[map][i].northcnt-=count; //decreasing the link count with the removed links' count
     }
 
-    areafrom=the_map.areas[map][i].westidx;
-    areaend=areafrom+the_map.areas[map][i].westcnt;
-    if(areafrom>from) the_map.areas[map][i].westidx-=count;
+    areafrom=the_map.areas[map][i].eastidx;
+    areaend=areafrom+the_map.areas[map][i].eastcnt;
+    if(areafrom>from) the_map.areas[map][i].eastidx-=count;
     else if((areafrom<=from) && (areaend>from))
     {
-      the_map.areas[map][i].westcnt-=count;
+      the_map.areas[map][i].eastcnt-=count;
     }
 
     areafrom=the_map.areas[map][i].southidx;
@@ -1048,12 +1084,12 @@ int RemoveLink(int map, int from, int count)
       the_map.areas[map][i].southcnt-=count;
     }
 
-    areafrom=the_map.areas[map][i].eastidx;
-    areaend=areafrom+the_map.areas[map][i].eastcnt;
-    if(areafrom>from) the_map.areas[map][i].eastidx-=count;
+    areafrom=the_map.areas[map][i].westidx;
+    areaend=areafrom+the_map.areas[map][i].westcnt;
+    if(areafrom>from) the_map.areas[map][i].westidx-=count;
     else if((areafrom<=from) && (areaend>from))
     {
-      the_map.areas[map][i].eastcnt-=count;
+      the_map.areas[map][i].westcnt-=count;
     }
   }
   return 0;
@@ -1075,7 +1111,7 @@ void CMapEdit::OnDelarea()
   {
     return;
   }
-  if(RemoveLink(pos,the_map.areas[pos][pos2].westidx,the_map.areas[pos][pos2].westcnt))
+  if(RemoveLink(pos,the_map.areas[pos][pos2].eastidx,the_map.areas[pos][pos2].eastcnt))
   {
     return;
   }
@@ -1083,7 +1119,7 @@ void CMapEdit::OnDelarea()
   {
     return;
   }
-  if(RemoveLink(pos,the_map.areas[pos][pos2].eastidx,the_map.areas[pos][pos2].eastcnt))
+  if(RemoveLink(pos,the_map.areas[pos][pos2].westidx,the_map.areas[pos][pos2].westcnt))
   {
     return;
   }
@@ -1565,9 +1601,12 @@ void CMapLink::OnKillfocusEntrance()
 
 void CMapLink::OnSelchangeEntrance() 
 {
+  int x;
   CString tmpstr;
 
-  m_entrancenamepicker.GetLBText(m_entrancenamepicker.GetCurSel(),tmpstr);
+  x=m_entrancenamepicker.GetCurSel();
+  if(x<0) return;
+  m_entrancenamepicker.GetLBText(x,tmpstr);
   StoreVariable(tmpstr, the_map.arealinks[m_map][m_first+m_linkpicker].entryname);
   RefreshLink();
 	UpdateData(UD_DISPLAY);
@@ -1743,4 +1782,3 @@ BOOL CMapEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
-

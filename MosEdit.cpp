@@ -11,6 +11,7 @@
 #include "PaletteEdit.h"
 #include "ImageView.h"
 #include "TisDialog.h"
+#include "options.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -33,7 +34,6 @@ CMosEdit::CMosEdit(CWnd* pParent /*=NULL*/)
 	m_xsize = 0;
 	m_ysize = 0;
 	//}}AFX_DATA_INIT
-  hbm=0;
   m_function=0;
   m_adjust=0;
 }
@@ -61,7 +61,6 @@ void CMosEdit::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMosEdit)
-	DDX_Control(pDX, IDC_BAMFRAME1, m_bamframe1_control);
 	DDX_Control(pDX, IDC_FRAME, m_framenum_control);
 	DDX_Text(pDX, IDC_RED, m_red);
 	DDX_Text(pDX, IDC_GREEN, m_green);
@@ -98,9 +97,6 @@ void CMosEdit::DoDataExchange(CDataExchange* pDX)
 
   maxy=the_mos.GetImageHeight(0,0);
   DDX_Text(pDX, IDC_PHEIGHT, maxy);
-
-  the_mos.MakeBitmap(m_framenum_control.GetCurSel(),RGB(32,32,32),hbm);
-  m_bamframe1_control.SetBitmap(hbm);
 }
 
 BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
@@ -120,9 +116,8 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_HEIGHT, OnKillfocusHeight)
 	ON_BN_CLICKED(IDC_EXTRACT, OnExtract)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
-	ON_EN_KILLFOCUS(IDC_PWIDTH, OnKillfocusPwidth)
-	ON_EN_KILLFOCUS(IDC_PHEIGHT, OnKillfocusPheight)
 	ON_BN_CLICKED(IDC_MINIMAP, OnMinimap)
+	ON_COMMAND(ID_FILE_LOADBMP, OnLoadBmp)
 	ON_EN_KILLFOCUS(IDC_LIMIT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_RED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_GREEN, DefaultKillfocus)
@@ -134,8 +129,8 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_FILE_LOADBMP, OnLoadBmp)
 	//}}AFX_MSG_MAP
+ON_COMMAND(ID_REFRESH, OnTile)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -143,10 +138,17 @@ END_MESSAGE_MAP()
 
 BOOL CMosEdit::OnInitDialog() 
 {
+  CRect rect;
   CWnd *cb;
   CString tmpstr, tmpstr1, tmpstr2;
 
 	CDialog::OnInitDialog();
+  m_preview.InitView(IW_SHOWGRID|IW_MARKTILE|IW_ENABLEBUTTON, &the_mos);
+  m_preview.m_showgrid=true;
+  m_preview.Create(IDD_IMAGEVIEW,this);
+  GetWindowRect(rect);
+  m_preview.SetWindowPos(0,rect.right,rect.top,0,0,SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
+
 	RefreshDialog();
   //tooltips
   {
@@ -208,8 +210,9 @@ void CMosEdit::OnLoadBmp()
       NewMos(tis_or_mos);
       break;
     }
-    RefreshDialog();
   }
+  m_preview.ShowWindow(false);
+  RefreshDialog();
 }
 
 void CMosEdit::OnLoad() 
@@ -237,11 +240,10 @@ void CMosEdit::OnLoad()
       NewMos(tis_or_mos);
       break;
     }
-    RefreshDialog();
 	}
+  m_preview.ShowWindow(false);
+  RefreshDialog();
 }
-
-//static char BASED_CODE szFilter[] = "Image files (*.mos)|*.mos|Tile sets (*.tis)|*.tis|Bitmaps (*.bmp)|*.bmp|All files (*.*)|*.*||";
 
 void CMosEdit::OnLoadex() 
 {
@@ -282,6 +284,7 @@ restart:
       else res=the_mos.ReadMosFromFile(fhandle,-1);
     }
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 1:
@@ -307,6 +310,7 @@ restart:
       break;
     }
   }
+  m_preview.ShowWindow(false);
   RefreshDialog();
 }
 
@@ -386,6 +390,7 @@ gotname:
       else res=my_mos.WriteMosToFile(fhandle);
     }
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 1:
@@ -453,6 +458,24 @@ void CMosEdit::RefreshDialog()
 	sizes=the_mos.GetFrameSize(pos);
   m_xsize=sizes.x;
   m_ysize=sizes.y;
+  if(the_mos.mosheader.wColumn && the_mos.mosheader.wRow)
+  {
+    if(editflg&LARGEWINDOW)
+    {
+      m_preview.m_maxextentx=m_preview.m_maxextenty=8;//maximum number of tiles fitting on screen
+    }
+    else
+    {
+      m_preview.m_maxextentx=m_preview.m_maxextenty=10;
+    }
+    m_preview.m_maxclipx=the_mos.mosheader.wColumn;
+    m_preview.m_maxclipy=the_mos.mosheader.wRow;
+    m_preview.RedrawContent();
+  }
+  else
+  {
+    m_preview.ShowWindow(false);
+  }
   UpdateData(UD_DISPLAY);
 }
 
@@ -498,13 +521,13 @@ void CMosEdit::DefaultKillfocus()
 void CMosEdit::OnTransparent() 
 {
   CString tmpstr;
-  int nFrame;
+  DWORD nFrame;
   COLORREF redgreenblue;
   int nHits, nTotal, nCount;
 
   redgreenblue=m_red|(m_green<<8)|(m_blue<<16);
   nTotal=nCount=0;
-  for(nFrame=0;nFrame<the_mos.m_nFrameNumber;nFrame++)
+  for(nFrame=0;nFrame<the_mos.tisheader.numtiles;nFrame++)
   {
     nHits=the_mos.MakeTransparent(nFrame, redgreenblue, m_limit);
     if(nHits<0) return;
@@ -542,19 +565,20 @@ void CMosEdit::OnPalette()
 
 void CMosEdit::OnView() 
 {
-  CImageView dlg;
+  m_preview.m_showgrid=true;
+  RefreshDialog();
+  m_preview.ShowWindow(true);
+}
+void CMosEdit::OnTile()
+{
   CPoint point;
-
-  dlg.InitView(IW_ENABLEBUTTON|IW_SHOWGRID|IW_MARKTILE, &the_mos);
-  if(dlg.DoModal()==IDOK)
+  
+  point=m_preview.GetPoint(GP_TILE);
+  if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
+    point.y>=0 && point.y<=the_mos.mosheader.wRow)
   {
-    point=dlg.GetPoint(GP_TILE);
-    if(point.x>=0 && point.x<=the_mos.mosheader.wColumn &&
-       point.y>=0 && point.y<=the_mos.mosheader.wRow)
-    {
-      m_framenum_control.SetCurSel(point.y*the_mos.mosheader.wColumn+point.x);
-      RefreshDialog();
-    }
+    m_framenum_control.SetCurSel(point.y*the_mos.mosheader.wColumn+point.x);
+    RefreshDialog();
   }
 }
 
@@ -578,6 +602,7 @@ void CMosEdit::OnKillfocusWidth()
     the_mos.mosheader.wRow=(WORD) (the_mos.GetFrameCount()/the_mos.mosheader.wColumn);
   }
   the_mos.TisToMos(the_mos.mosheader.wColumn,the_mos.mosheader.wRow);
+  RefreshDialog();
   UpdateData(UD_DISPLAY);
 }
 
@@ -589,33 +614,17 @@ void CMosEdit::OnKillfocusHeight()
     the_mos.mosheader.wColumn=(WORD) (the_mos.GetFrameCount()/the_mos.mosheader.wRow);
   }
   the_mos.TisToMos(the_mos.mosheader.wColumn,the_mos.mosheader.wRow);
+  RefreshDialog();
 	UpdateData(UD_DISPLAY);
 }
 
 void CMosEdit::OnExtract() 
 {
 	CTisDialog dlg;
-	
+
+  m_preview.ShowWindow(false);
   dlg.setrange(itemname,the_mos.mosheader.wColumn,the_mos.mosheader.wRow,tis_or_mos);
   dlg.DoModal();
-}
-
-void CMosEdit::PostNcDestroy() 
-{
-  if(hbm) DeleteObject(hbm);	
-	CDialog::PostNcDestroy();
-}
-
-void CMosEdit::OnKillfocusPwidth() 
-{
-	// TODO: Add your control notification handler code here
-	
-}
-
-void CMosEdit::OnKillfocusPheight() 
-{
-	// TODO: Add your control notification handler code here
-	
 }
 
 void CMosEdit::OnOK() 

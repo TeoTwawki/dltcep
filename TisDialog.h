@@ -22,10 +22,11 @@ public:
 	enum { IDD = IDD_TISDIALOG };
 		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
+  BOOL m_graphics;
   CString m_tisname;
-  int m_posx, m_posy;
-  int m_minx, m_miny;
-  int m_maxx, m_maxy;
+  DWORD m_posx, m_posy;
+  DWORD m_minx, m_miny;
+  DWORD m_maxx, m_maxy;
   int m_tis_or_mos;
   int m_overlaynum;
   wed_tilemap *m_tileheaders;
@@ -43,6 +44,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CImageView m_preview;
 
   void SaveTis(int how);
   void RefreshDialog();
@@ -58,11 +60,12 @@ protected:
 	afx_msg void OnSavetis();
 	afx_msg void OnTop();
 	afx_msg void OnBottom();
-	afx_msg void OnPreview();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnMinimap();
 	afx_msg void OnOpen();
 	afx_msg void OnClearall();
+	afx_msg void OnLoad();
+	afx_msg void OnPreview();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

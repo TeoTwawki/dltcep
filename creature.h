@@ -51,6 +51,7 @@ public:
   int fullsize;
   int startpoint;
   int maxlen;
+  int m_changed;
 
 	Ccreature();
 	virtual ~Ccreature();
@@ -125,7 +126,7 @@ public:
   }
 
 private:
-  void order_items();
+  int fix_items();
   int adjust_actpoint(long offset);
   int handle_iwd2_spells(int position, long offset, long count);
   int handle_iwd2();

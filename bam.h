@@ -124,6 +124,7 @@ public:
     }
   }
 
+  void FlipFrame(int nWidth, int nHeight);
   int RLECompression(BYTE chTransparentIndex);
   int RLEDecompression(BYTE chTransparentIndex);
   void ReorderPixels(COLORREF *palette, BYTE chTransparentIndex, 
@@ -170,6 +171,7 @@ public:
   int GetFrameDataSize(int nFrameWanted);
   void ForcePalette(palettetype &palette);
   void OrderPalette();
+  void ReorderPixels();
   void DropUnusedPalette();
   bool GetFrameRLE(int nFrameWanted);
   bool SetFrameRLE(int nFrameWanted, BOOL NewRLE);
@@ -192,6 +194,7 @@ public:
   int SetFramePos(int nFrameWanted, int x, int y);
    //use RGB(128,128,128) for a greyscale
   void ConvertToGrey(COLORREF shade, bool keepgray=false);
+  int FlipFrame(int nFrameWanted);
   int SwapFrames(int a, int b); //swaps frames in lookup table
   int Reallocate(int x, int y);
 

@@ -70,7 +70,7 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
   StoreResref(tmpstr,the_area.intheader.creatures[m_crenum]);
   DDX_Text(pDX, IDC_STRREF, the_area.intheader.strrefs[m_crenum]);
 
-  DDX_Text(pDX, IDC_UNKNOWN9A, the_area.intheader.unknown9a);
+  DDX_Text(pDX, IDC_UNKNOWN9A, the_area.intheader.difficulty);
   DDX_Text(pDX, IDC_UNKNOWN9C, the_area.intheader.unknown9c);
   DDX_Text(pDX, IDC_UNKNOWNA0, the_area.intheader.unknowna0);
   DDX_Text(pDX, IDC_UNKNOWNA2, the_area.intheader.unknowna2);
@@ -97,8 +97,8 @@ BEGIN_MESSAGE_MAP(CAreaInt, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
 	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
-	ON_EN_KILLFOCUS(IDC_UNKNOWNA8, OnKillfocusUnknowna8)
-	ON_EN_KILLFOCUS(IDC_UNKNOWNAA, OnKillfocusUnknownaa)
+	ON_EN_KILLFOCUS(IDC_DAY, OnKillfocusDay)
+	ON_EN_KILLFOCUS(IDC_NIGHT, OnKillfocusNight)
 	ON_CBN_KILLFOCUS(IDC_SPAWNNUMPICKER, OnKillfocusSpawnnumpicker)
 	ON_CBN_SELCHANGE(IDC_SPAWNNUMPICKER, OnSelchangeSpawnnumpicker)
 	ON_BN_CLICKED(IDC_CLEAR, OnClear)
@@ -187,13 +187,13 @@ void CAreaInt::OnKillfocusUnknowna2()
 	UpdateData(UD_DISPLAY);
 }
 
-void CAreaInt::OnKillfocusUnknowna8() 
+void CAreaInt::OnKillfocusDay() 
 {
 	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);
 }
 
-void CAreaInt::OnKillfocusUnknownaa() 
+void CAreaInt::OnKillfocusNight() 
 {
 	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);
@@ -284,7 +284,7 @@ void CAreaInt::OnClear()
   {
     the_area.intheader.strrefs[i]=10134; //seems to be ok for BG2/IWD2
   }
-  the_area.intheader.unknown9a=2;
+  the_area.intheader.difficulty=2;
   the_area.intheader.unknown9c=the_area.intheader.unknowna0=the_area.intheader.unknowna2=1000;
   the_area.intheader.unknowna6=1;
   the_area.intheader.maxnumber=1;

@@ -264,6 +264,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   {
     return -2;
   }
+  m_changed=false;
   return 0;
 }
 
@@ -366,44 +367,48 @@ endofquest:
   return ret;
 }
 
-void Ccreature::order_items()
+int Ccreature::fix_items()
 {
-  int i,j;
-  short tmp;
-  creature_item tmpitem;
-  int found[IWD2_SLOT_COUNT];
+  creature_item *newitems;
+  int ret;
+  int i;
 
-  memset(found,0,sizeof(found));
+  ret=0;
+  itemcount=0;
+	for(i=0;i<slotcount;i++)
+  {    
+    if(itemslots[i]<0)
+    {
+      if(itemslots[i]<-1)
+      {
+        ret=1;
+      }
+      continue;
+    }
+    if(itemslots[i]>=header.itemcnt)
+    {
+      ret=1;
+      continue;
+    }
+    itemcount++;
+  }
+  newitems=new creature_item[itemcount];
+  if(!newitems)
+  {
+    itemcount=header.itemcnt;
+    return -3;
+  }
+  itemcount=0;
   for(i=0;i<slotcount;i++)
   {
-    //clearing up possible crashers
-    if((itemslots[i]>=the_creature.itemcount) || (itemslots[i]<-1))
-    {
-      itemslots[i]=-1;
-    }
-    else
-    {
-      if(found[itemslots[i]]) itemslots[i]=-1;
-      else found[itemslots[i]]=1;
-    }
-  }
-  for(i=0;i<slotcount-1;i++)
-  {
     if(itemslots[i]<0) continue;
-    for(j=i+1;j<slotcount;j++)
-    {
-      if(itemslots[j]<0) continue;
-      if(itemslots[i]>itemslots[j])
-      {
-        tmp=itemslots[i];
-        itemslots[i]=itemslots[j];
-        itemslots[j]=tmp;
-        tmpitem=items[itemslots[i]];
-        items[itemslots[i]]=items[itemslots[j]];
-        items[itemslots[j]]=tmpitem;
-      }
-    }
+    if(itemslots[i]>=header.itemcnt) continue;
+    memcpy(newitems+itemcount, items+itemslots[i],sizeof(creature_item) );
+    itemslots[i]=(short) itemcount++;
   }
+  delete [] items;
+  items=newitems;
+  return ret;
 }
 
 int Ccreature::handle_iwd2_spells(int position, long offset, long count)
@@ -572,6 +577,7 @@ int Ccreature::ReadCreatureFromFile(int fh, long ml)
   int flg, ret;
   int esize;
 
+  m_changed=false;
   if(fh<1) return -1;
   fhandle=fh; //for safe string reads
   if(ml==-1) maxlen=filelength(fhandle);
@@ -785,10 +791,12 @@ redo:
     }
     fullsize+=esize;
   }
-  order_items();
+  flg=fix_items();
+  if(flg<0) return flg;
+  ret|=flg;
   if(maxlen!=fullsize)
   {
-    return 1; //incorrect length
+    return 2; //incorrect length
   }
 
   return ret;

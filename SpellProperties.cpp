@@ -104,12 +104,12 @@ CSpellGeneral::CSpellGeneral() : CPropertyPage(CSpellGeneral::IDD)
 {
 	//{{AFX_DATA_INIT(CSpellGeneral)
 	//}}AFX_DATA_INIT
-  hbmb = 0;
+  m_hbmb = 0;
 }
 
 CSpellGeneral::~CSpellGeneral()
 {
-  if(hbmb) DeleteObject(hbmb);
+  if(m_hbmb) DeleteObject(m_hbmb);
 }
 
 static int iconboxids[8]={IDC_ATTR1,IDC_ATTR2,IDC_ATTR3,IDC_ATTR4,IDC_ATTR5,
@@ -202,15 +202,15 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
     RetrieveResref(tmpstr, the_spell.header.icon);
     DDX_Text(pDX, IDC_BOOKICON, tmpstr);
   	DDV_MaxChars(pDX, tmpstr, 8);
-    if(bmb!=tmpstr)
+    if(m_bmb!=tmpstr)
     {
-      bmb=tmpstr;
+      m_bmb=tmpstr;
       if(read_bam(tmpstr))
       {
         the_bam.new_bam();
       }
-      the_bam.MakeBitmap(0,RGB(240,224,160),hbmb,BM_RESIZE,32,32);
-      m_bookicon_control.SetBitmap(hbmb);
+      the_bam.MakeBitmap(0,RGB(240,224,160),m_hbmb,BM_RESIZE,32,32);
+      m_bookicon_control.SetBitmap(m_hbmb);
     }
 
     for(id=0;id<8;id++)
@@ -704,11 +704,12 @@ void CSpellDescription::OnKillfocusLongname()
     {
       if(MessageBox("Do you want to update dialog.tlk?","Spell editor",MB_YESNO)!=IDYES)
       {
-        return;
+        goto end;
       }
     }
     the_spell.header.spellname=store_tlk_text(the_spell.header.spellname, m_longname);
   }
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -725,11 +726,12 @@ void CSpellDescription::OnKillfocusLongdesc()
     {
       if(MessageBox("Do you want to update dialog.tlk?","Spell editor",MB_YESNO)!=IDYES)
       {
-        return;
+        goto end;
       }
     }
     the_spell.header.desc=store_tlk_text(the_spell.header.desc, m_longdesc);
   }
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -740,10 +742,11 @@ void CSpellDescription::OnLongnametag()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Spell editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
 	toggle_tlk_tag(the_spell.header.spellname);
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -754,10 +757,11 @@ void CSpellDescription::OnLongdesctag()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Spell editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }
   }
 	toggle_tlk_tag(the_spell.header.desc);
+end:
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
 }
@@ -990,20 +994,20 @@ CSpellExtended::CSpellExtended() : CPropertyPage(CSpellExtended::IDD)
 	//{{AFX_DATA_INIT(CSpellExtended)
 	//}}AFX_DATA_INIT
 	extheadnum = 0;
-  exteffnum = 0;
-  hbmu = 0;
+  m_exteffnum = 0;
+  m_hbmu = 0;
 }
 
 CSpellExtended::~CSpellExtended()
 {
-  if(hbmu) DeleteObject(hbmu);
+  if(m_hbmu) DeleteObject(m_hbmu);
 }
 
 void CSpellExtended::DoDataExchangeEffects(CDataExchange* pDX)
 {
   int fbc;
 
-  fbc=GetFBC(extheadnum)+exteffnum; //this is the cummulative fbc in effect
+  fbc=GetFBC(extheadnum)+m_exteffnum; //this is the cummulative fbc in effect
   if(fbc>=the_spell.featblkcount)
   {
     MessageBox("Internal error (fbc is inconsistent)","Error",MB_OK);
@@ -1012,7 +1016,7 @@ void CSpellExtended::DoDataExchangeEffects(CDataExchange* pDX)
   if(pDX->m_bSaveAndValidate==UD_DISPLAY)
   {
     EnableWindow_ExtEffect(true);
-    m_exteffnum_control.SetCurSel(exteffnum);
+    m_exteffnum_control.SetCurSel(m_exteffnum);
   }
 }
 
@@ -1033,15 +1037,15 @@ void CSpellExtended::DoDataExchangeExtended(CDataExchange* pDX)
     RetrieveResref(tmpstr, the_spell.extheaders[extheadnum].useicon);
   	DDX_Text(pDX, IDC_EXTUSEICON, tmpstr);
   	DDV_MaxChars(pDX, tmpstr, 8);
-    if(bmu!=tmpstr)
+    if(m_bmu!=tmpstr)
     {
-      bmu=tmpstr;
+      m_bmu=tmpstr;
       if(read_bam(tmpstr))
       {
         the_bam.new_bam();
       }
-      the_bam.MakeBitmap(0,RGB(32,32,32),hbmu,BM_RESIZE,32,32);
-      m_useicon_control.SetBitmap(hbmu);
+      the_bam.MakeBitmap(0,RGB(32,32,32),m_hbmu,BM_RESIZE,32,32);
+      m_useicon_control.SetBitmap(m_hbmu);
     }
 
     tmpstr=get_spell_form(the_spell.extheaders[extheadnum].spellform);
@@ -1183,8 +1187,8 @@ void CSpellExtended::RefreshExtended()
           the_spell.featblocks[fbc+i].vvc);
         m_exteffnum_control.AddString(tmp);
       }
-      if(exteffnum<0 || exteffnum>=i) exteffnum=0;
-      exteffnum=m_exteffnum_control.SetCurSel(exteffnum);
+      if(m_exteffnum<0 || m_exteffnum>=i) m_exteffnum=0;
+      m_exteffnum=m_exteffnum_control.SetCurSel(m_exteffnum);
     }
   }
 }
@@ -1315,7 +1319,7 @@ END_MESSAGE_MAP()
 void CSpellExtended::OnKillfocusExtheadnum() 
 {
   UpdateData(UD_RETRIEVE);
-  exteffnum=0;  
+  m_exteffnum=0;  
   RefreshExtended();
   UpdateData(UD_DISPLAY);
 }
@@ -1323,7 +1327,7 @@ void CSpellExtended::OnKillfocusExtheadnum()
 void CSpellExtended::OnSelchangeExtheadnum() 
 {
   extheadnum=m_extheadnum_control.GetCurSel();
-  exteffnum=0;
+  m_exteffnum=0;
   RefreshExtended();
   UpdateData(UD_DISPLAY);
 }
@@ -1331,7 +1335,7 @@ void CSpellExtended::OnSelchangeExtheadnum()
 void CSpellExtended::OnKillfocusExteffnum() 
 {
   UpdateData(UD_RETRIEVE);
-  exteffnum=m_exteffnum_control.GetCurSel();
+  m_exteffnum=m_exteffnum_control.GetCurSel();
   UpdateData(UD_DISPLAY);
 }
 
@@ -1371,7 +1375,7 @@ void CSpellExtended::OnOrder()
 void CSpellExtended::OnNext() 
 {
   extheadnum++;
-  exteffnum=0;
+  m_exteffnum=0;
   RefreshExtended();
   UpdateData(UD_DISPLAY);
 }
@@ -1380,7 +1384,7 @@ void CSpellExtended::OnPrev()
 {
   if(extheadnum) extheadnum--;
   else extheadnum=the_spell.extheadcount-1;
-  exteffnum=0;
+  m_exteffnum=0;
   RefreshExtended();
   UpdateData(UD_DISPLAY);
 }
@@ -1435,7 +1439,7 @@ void CSpellExtended::OnExtremove()
   //must have had at least one block
   delete [] the_spell.extheaders;
   extheadnum=deletepos-1;
-  exteffnum=0;
+  m_exteffnum=0;
   the_spell.extheadcount=the_spell.header.extheadcount;
   the_spell.extheaders=new_extheaders;
   RefreshExtended();
@@ -1485,7 +1489,7 @@ void CSpellExtended::OnExtadd()
     delete [] the_spell.extheaders;
   }
   extheadnum=insertpos;
-  exteffnum=0;
+  m_exteffnum=0;
   the_spell.extheadcount=the_spell.header.extheadcount;
   the_spell.extheaders=new_extheaders;
   RefreshExtended();
@@ -1538,9 +1542,9 @@ void CSpellExtended::OnExteffremove()
 {
   if(!the_spell.header.extheadcount) return;
   if(!the_spell.extheaders[extheadnum].fbcount) return;
-  exteffnum=m_exteffnum_control.GetCurSel();
-  if(exteffnum<0) return;
-  if(!DeleteFeatures(GetFBC(extheadnum)+exteffnum,1,0))
+  m_exteffnum=m_exteffnum_control.GetCurSel();
+  if(m_exteffnum<0) return;
+  if(!DeleteFeatures(GetFBC(extheadnum)+m_exteffnum,1,0))
   {
     the_spell.extheaders[extheadnum].fbcount--;  
   }
@@ -1566,8 +1570,8 @@ void CSpellExtended::OnExteffadd()
   //exteffnum: actual feature number in actual feature block
   if(the_spell.extheaders[extheadnum].fbcount)
   {
-    exteffnum=m_exteffnum_control.GetCurSel();
-    fbc=GetFBC(extheadnum)+exteffnum+1;///////
+    m_exteffnum=m_exteffnum_control.GetCurSel();
+    fbc=GetFBC(extheadnum)+m_exteffnum+1;///////
   }
   else fbc=GetFBC(extheadnum);
   allcount=GetFBC(the_spell.extheadcount);
@@ -1596,7 +1600,7 @@ void CSpellExtended::OnExteffadd()
   {
     delete [] the_spell.featblocks;
   }
-  exteffnum=fbc-GetFBC(extheadnum);
+  m_exteffnum=fbc-GetFBC(extheadnum);
   the_spell.extheaders[extheadnum].fbcount++;
   the_spell.featblocks=new_featblocks;
   //this is the cummulative feature block count
@@ -1609,9 +1613,9 @@ void CSpellExtended::OnExteffcopy()
 {
   int fbc;
 
-  exteffnum=m_exteffnum_control.GetCurSel();
-  if(exteffnum<0 || exteffnum>=the_spell.extheaders[extheadnum].fbcount) return;
-  fbc=GetFBC(extheadnum)+exteffnum;
+  m_exteffnum=m_exteffnum_control.GetCurSel();
+  if(m_exteffnum<0 || m_exteffnum>=the_spell.extheaders[extheadnum].fbcount) return;
+  fbc=GetFBC(extheadnum)+m_exteffnum;
   memcpy(&featcopy,&the_spell.featblocks[fbc],sizeof(feat_block) );
 }
 
@@ -1619,9 +1623,9 @@ void CSpellExtended::OnExteffpaste()
 {
   int fbc;
 
-  exteffnum=m_exteffnum_control.GetCurSel();
-  if(exteffnum<0 || exteffnum>=the_spell.extheaders[extheadnum].fbcount) return;
-  fbc=GetFBC(extheadnum)+exteffnum;
+  m_exteffnum=m_exteffnum_control.GetCurSel();
+  if(m_exteffnum<0 || m_exteffnum>=the_spell.extheaders[extheadnum].fbcount) return;
+  fbc=GetFBC(extheadnum)+m_exteffnum;
   memcpy(&the_spell.featblocks[fbc],&featcopy, sizeof(feat_block) );
   RefreshExtended();
   UpdateData(UD_DISPLAY);
@@ -1634,13 +1638,13 @@ void CSpellExtended::OnEdit()
   CEffEdit dlg;
 
   if(extheadnum<0) return;
-  exteffnum=m_exteffnum_control.GetCurSel();
-  if(exteffnum<0 || exteffnum>=the_spell.extheaders[extheadnum].fbcount) return;
-  fbc=GetFBC(extheadnum)+exteffnum;
+  m_exteffnum=m_exteffnum_control.GetCurSel();
+  if(m_exteffnum<0 || m_exteffnum>=the_spell.extheaders[extheadnum].fbcount) return;
+  fbc=GetFBC(extheadnum)+m_exteffnum;
   ConvertToV20Eff((creature_effect *) the_effect.header.signature,the_spell.featblocks+fbc );
   dlg.SetLimitedEffect(1);
   tmpname=itemname;
-  itemname.Format("%d,%d of %s", extheadnum+1, exteffnum+1, tmpname);
+  itemname.Format("%d,%d of %s", extheadnum+1, m_exteffnum+1, tmpname);
   dlg.SetDefaultDuration(the_spell.featblocks[GetFBC(extheadnum)].duration);
   dlg.DoModal();
   itemname=tmpname;

@@ -42,6 +42,7 @@ public:
 	BYTE	m_xg;
 	BYTE	m_xb;
 	//}}AFX_DATA
+  int m_max;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -54,6 +55,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 	CColorDialog dlg;
   RGBQUAD colorbits[16*16*16*16];
   CPoint mousepoint;
@@ -86,6 +88,7 @@ protected:
 	afx_msg void OnKillfocusBlue2();
 	afx_msg void OnKillfocusGreen2();
 	afx_msg void OnKillfocusRed2();
+	afx_msg void OnSwap();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

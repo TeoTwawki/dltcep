@@ -33,6 +33,7 @@ CPaletteEdit::CPaletteEdit(CWnd* pParent /*=NULL*/)
   mypoint=0;
   palette=0;
   m_pSteps=NULL;
+  m_max=256;
 }
 
 void CPaletteEdit::DoDataExchange(CDataExchange* pDX)
@@ -85,6 +86,7 @@ BEGIN_MESSAGE_MAP(CPaletteEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_BLUE2, OnKillfocusBlue2)
 	ON_EN_KILLFOCUS(IDC_GREEN2, OnKillfocusGreen2)
 	ON_EN_KILLFOCUS(IDC_RED2, OnKillfocusRed2)
+	ON_BN_CLICKED(IDC_SWAP, OnSwap)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -141,12 +143,12 @@ void CPaletteEdit::InitPaletteBitmap()
 		return;
 
   myidx=mypoint.x+mypoint.y*16;
-  for(j=0;j<256;j++)
+  for(j=0;j<m_max;j++)
   {
     Red=((BYTE *) (palette+j))[2];
     Green=((BYTE *) (palette+j))[1];
     Blue=((BYTE *) (palette+j))[0];
-    for(i=0;i<16*16;i++)
+    for(i=0;i<256;i++)
     {
       idx=((j&0xf0)<<8)|((i&0xf0)<<4)|((j&15)<<4)|(i&15);
       if((myidx==j) && ((i&3)==((i>>4)&3)) )
@@ -169,7 +171,7 @@ void CPaletteEdit::InitPaletteBitmap()
 	
 	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bmi.bmiHeader.biWidth = 16*16;
-	bmi.bmiHeader.biHeight = -16*16;// The graphics are stored as bottom up DIBs.
+	bmi.bmiHeader.biHeight = -m_max;// The graphics are stored as bottom up DIBs.
 	bmi.bmiHeader.biPlanes = 1;
 	bmi.bmiHeader.biBitCount = 32;
 	bmi.bmiHeader.biCompression = BI_RGB;
@@ -186,6 +188,14 @@ BOOL CPaletteEdit::OnInitDialog()
   COLORREF mycolor;
 
 	CDialog::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
+  }
   mypoint=0;
   palettehwnd=GetDlgItem(IDC_PALETTE)->m_hWnd;
   mycolor=palette[0];
@@ -213,6 +223,7 @@ BOOL CPaletteEdit::PreTranslateMessage(MSG* pMsg)
       ScreenToClient(&mousepoint);
     }
   }
+  else m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
@@ -464,4 +475,20 @@ void CPaletteEdit::OnKillfocusRed2()
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
+}
+
+void CPaletteEdit::OnSwap() 
+{
+  int myidx;
+
+  myidx=mypoint.x+mypoint.y*16;
+
+  if(myidx==0)
+  {
+    MessageBox("Can't swap the transparent color here.","Palette editor",MB_OK);
+    return;
+  }
+  SwapPalette(palette,myidx,1);
+
+	UpdateData(UD_DISPLAY);	
 }

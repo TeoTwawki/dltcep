@@ -25,6 +25,7 @@
 #define IW_MARKTILE     256
 #define IW_ENABLEFILL   512
 #define IW_GETPOLYGON   1024      //draws all polygons, you are allowed to select one
+#define IW_SHOWALL      2048      //show all button
 
 typedef CList<CPoint, CPoint &> CPointList;
 
@@ -33,12 +34,11 @@ class CImageView : public CDialog
 // Construction
 public:
 	CImageView(CWnd* pParent = NULL);   // standard constructor
-//  void SetBitMap(HBITMAP *hb); obsolete
   void InitView(int flags, Cmos *my_mos=NULL); //sets the viewer to the current mos dimensions
   void SetMapType(int maptype, LPBYTE map);
   void RedrawContent();
   void RefreshDialog();
-  void SetupAnimationPlacement(Cbam *bam, int orgx, int orgy);
+  void SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int frame);
   void DrawGrid();
   CPoint GetPoint(int frame);
 
@@ -61,6 +61,7 @@ public:
 	BOOL	m_showgrid;
 	BOOL	m_fill;
 	//}}AFX_DATA
+  int m_actvertex, m_vertexcount;
   int m_max;
   int m_maptype;
   CPoint m_oladjust;
@@ -73,8 +74,9 @@ public:
   int m_enablebutton;
   int m_maxextentx, m_maxextenty;
   Cbam *m_animbam;
+  int m_frame;
   LPBYTE m_map;
-//  int m_polycount;
+  area_vertex *m_polygon;
   COLORREF *m_palette;
   HBITMAP m_bm;  //accessed from chui editor
   Cmos *m_mos;
@@ -97,11 +99,17 @@ protected:
   int GetPixel(CPoint point);
   void FloodFill(CPoint point, unsigned char color);
   void DrawLine(CPoint source, CPoint destination, unsigned char color);
+  void DrawIcons();
   void DrawPolyPolygon(CPtrList *polygons);
   void CenterPolygon(CPtrList *polygons, int idx);
+  POSITION GetPolygonAt(CPtrList *polygons, int idx);
+  int GetCountPolygon();
+  CString GetPolygonText(int idx);
+  short *GetPolygonBox(int idx);
+  int GetPolygonSize(int idx);
+  inline int IsPointInPolygon(area_vertex *wedvertex, int idx, CPoint point);
   int FindPolygon(CPtrList *polygons, CPoint point);
-  void FixPolygon(POINT *polygon, unsigned int count, int needclose);
-  void DrawLines(POINTS *polygon, unsigned int count);
+  void DrawLines(POINTS *polygon, unsigned int count, CString title, int fill, int actv);
   void DrawMap(); //light, height, search maps
 	// Generated message map functions
 	//{{AFX_MSG(CImageView)

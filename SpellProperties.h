@@ -16,8 +16,8 @@ public:
 	CSpellGeneral();
 	~CSpellGeneral();
   void RefreshGeneral();
-  CString bmb;
-  HBITMAP hbmb;
+  CString m_bmb;
+  HBITMAP m_hbmb;
 
 protected:
 // Dialog Data
@@ -221,9 +221,9 @@ public:
   // real counters
 	int	m_extheadnum;
   int extheadnum;
-  int exteffnum;
-  CString bmu;
-  HBITMAP hbmu;
+  int m_exteffnum;
+  CString m_bmu;
+  HBITMAP m_hbmu;
 
 // Overrides
 	// ClassWizard generate virtual function overrides

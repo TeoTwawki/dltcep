@@ -110,6 +110,7 @@ void Carea::new_area()
   KillVertices();
   KillVertexList();
   KillWedVertexList();
+  KillDoorTileList();
   KillExplored();
 
   KillOverlays();
@@ -145,53 +146,6 @@ int Carea::adjust_actpointw(long offset)
   if(myseekw(offset)!=offset) return -2;
   return 1;
 }
-/*
-//This function orders the vertices of a polygon (without ruining it)
-int Carea::VertexOrder(area_vertex *wedvertex, int count)
-{
-  int i;
-  int shift;
-  area_vertex *tmp;
-  area_vertex max;
-
-  max=wedvertex[0];
-  shift=0;
-  for(i=1;i<count;i++)
-  {
-    if(wedvertex[i].point.y>max.point.y)
-    {
-      shift=i;
-      max=wedvertex[i];
-    }
-    else
-    {
-      if(wedvertex[i].point.y==max.point.y)
-      {
-        if(wedvertex[i].point.x>max.point.x)
-        {
-          shift=i;
-          max=wedvertex[i];
-        }
-      }
-    }
-  }
-  if(shift)
-  {
-    tmp=new area_vertex[count];
-    if(!tmp)
-    {
-      return -3;
-    }
-    for(i=0;i<count;i++)
-    {
-      tmp[i]=wedvertex[(i+shift)%count];
-    }
-    memcpy(wedvertex,tmp,count*sizeof(area_vertex) );
-    delete [] tmp;
-  }
-  return 0;
-}
-*/
 
 void Carea::ShiftVertex(long id, int count, POINTS &point)
 {
@@ -201,8 +155,35 @@ void Carea::ShiftVertex(long id, int count, POINTS &point)
   poi=(area_vertex *) vertexheaderlist.GetAt(vertexheaderlist.FindIndex(id));
   for(i=0;i<count;i++)
   {
-    poi[i].point.x=(short) (poi[i].point.x+point.x);
-    poi[i].point.y=(short) (poi[i].point.y+point.y);
+    poi[i].x=(unsigned short) (poi[i].x+point.x);
+    poi[i].y=(unsigned short) (poi[i].y+point.y);
+  }
+}
+
+void Carea::FlipDoorTile(long id, int count, int width)
+{
+  short *poi;
+  int i;
+  int x,y;
+
+  poi=(short *) doortilelist.GetAt(doortilelist.FindIndex(id));
+  for(i=0;i<count;i++)
+  {
+    x=poi[i]%width;
+    y=poi[i]/width;
+    poi[i]=(unsigned short) ((y+1)*width-x-1);
+  }
+}
+
+void Carea::FlipWedVertex(long id, int count, int width)
+{
+  area_vertex *poi;
+  int i;
+
+  poi=(area_vertex *) wedvertexheaderlist.GetAt(wedvertexheaderlist.FindIndex(id));
+  for(i=0;i<count;i++)
+  {
+    poi[i].x=(unsigned short) (width-poi[i].x);
   }
 }
 
@@ -214,8 +195,19 @@ void Carea::FlipVertex(long id, int count, int width)
   poi=(area_vertex *) vertexheaderlist.GetAt(vertexheaderlist.FindIndex(id));
   for(i=0;i<count;i++)
   {
-    poi[i].point.x=(short) (width-poi[i].point.x);
+    poi[i].x=(unsigned short) (width-poi[i].x);
   }
+}
+
+void Carea::MergeDoortile(short &offset, int count)
+{
+  void *poi;
+
+  offset=(short) doortileidxcount;
+  poi=doortilelist.RemoveHead();
+  memcpy(doortileindices+offset,poi,sizeof(short)*count);
+  delete [] poi;
+  doortileidxcount+=count;
 }
 
 void Carea::MergeWedVertex(long &offset, int count)
@@ -245,8 +237,7 @@ int Carea::ImplodeVertices()
   int i;
 
   KillVertices(); //for safety reasons, we just kill them again
-  //first count all the vertices
-  vertexcount=0;
+  //first count all the vertices (killvertices zeroes vertexcount)
   for(i=0;i<header.infocnt;i++)
   {
     vertexcount+=triggerheaders[i].vertexcount;
@@ -283,8 +274,12 @@ int Carea::ImplodeVertices()
     MergeVertex(doorheaders[i].firstblockclose,doorheaders[i].countblockclose);
   }
 
-  KillVertexList();
   if(header.vertexcnt!=vertexcount) return -1; //internal error
+  if(vertexheaderlist.GetCount())
+  {
+    KillVertexList();
+    return 1;
+  }
   return 0;
 }
 
@@ -294,7 +289,6 @@ int Carea::ImplodeWedVertices()
 
   KillWedvertices(); //kill them for safety reason
 
-  wedvertexcount=0;
   for(i=0;i<secheader.wallpolycnt;i++)
   {
     wedvertexcount+=wallpolygonheaders[i].countvertex;
@@ -317,7 +311,36 @@ int Carea::ImplodeWedVertices()
     MergeWedVertex(doorpolygonheaders[i].firstvertex,doorpolygonheaders[i].countvertex);
   }
 
-  KillWedVertexList();
+  if(wedvertexheaderlist.GetCount())
+  {
+    KillWedVertexList();
+    return 1;
+  }
+  return 0;
+}
+
+int Carea::ImplodeDoortiles()
+{
+  int i;
+
+  KillDoortiles();
+
+  for(i=0;i<wedheader.doorcnt;i++)
+  {
+    doortileidxcount+=weddoorheaders[i].countdoortileidx;
+  }
+  doortileindices=new short[doortileidxcount];
+  if(!doortileindices) return -3;
+  doortileidxcount=0;
+  for(i=0;i<wedheader.doorcnt;i++)
+  {
+    MergeDoortile(weddoorheaders[i].firstdoortileidx,weddoorheaders[i].countdoortileidx);
+  }
+  if(doortilelist.GetCount())
+  {
+    KillDoorTileList();
+    return 1;
+  }
   return 0;
 }
 
@@ -343,6 +366,18 @@ void Carea::HandleWedVertex(long offset, int count)
   wedvertexcount-=count;
   //we store the pointer in the offset field, it needs to be resolved before save
   wedvertexheaderlist.AddTail(newvertices);
+}
+
+void Carea::HandleDoortile(long offset, int count)
+{
+  short *newtiles;
+
+  newtiles=new short[count];
+  if(!newtiles) return; //can't allocate, heh
+  memcpy(newtiles,doortileindices+offset,sizeof(short)*count);
+  doortileidxcount-=count;
+  //we store the pointer in the offset field, it needs to be resolved before save
+  doortilelist.AddTail(newtiles);
 }
 
 int Carea::ExplodeVertices()
@@ -392,6 +427,21 @@ int Carea::ExplodeWedVertices()
   return ret?1:0;
 }
 
+int Carea::ExplodeDoorTiles()
+{
+  int ret;
+  int i;
+
+  KillDoorTileList();
+  for(i=0;i<wedheader.doorcnt;i++)
+  {
+    HandleDoortile(weddoorheaders[i].firstdoortileidx, weddoorheaders[i].countdoortileidx);
+  }
+  ret=doortileidxcount;
+  KillDoortiles();
+  return ret?1:0;
+}
+
 int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize)
 {
   CString filepath, tmpath;
@@ -410,8 +460,8 @@ int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, in
     return -2;
   }
   ret=0;
-  width=the_area.width/GR_WIDTH;
-  height=the_area.height/GR_HEIGHT;
+  width=m_width/GR_WIDTH;
+  height=(m_height+GR_HEIGHT-1)/GR_HEIGHT;
   palsize*=sizeof(COLORREF);
   bitspercolor=palsize==64?4:8;
   scanline=GetScanLineLength(width,bitspercolor);
@@ -540,6 +590,7 @@ int Carea::WriteWedToFile(int fh)
     return -1; //internal error
   }
 
+  ImplodeDoortiles();
   ImplodeWedVertices();
   for(i=0;i<wallpolygoncount;i++)
   {
@@ -669,6 +720,7 @@ int Carea::WriteWedToFile(int fh)
 
 endofquest:
   ExplodeWedVertices();
+  ExplodeDoorTiles();
   return ret;
 }
 
@@ -1069,6 +1121,25 @@ int Carea::FillDestination(int fh, long ml, CComboBox *cb)
   return 0;
 }
 
+void Carea::MirrorMap(unsigned char *poi)
+{
+  int maxx,maxy;
+  int x,y;
+  unsigned char tmp;
+
+  maxx=m_width/GR_WIDTH;
+  maxy=(m_height+GR_HEIGHT-1)/GR_HEIGHT;
+  for(y=0;y<maxy;y++)
+  {
+    for(x=0;x<maxx/2;x++)
+    {
+      tmp=poi[y*maxx+x];
+      poi[y*maxx+x]=poi[(y+1)*maxx-x-1];
+      poi[(y+1)*maxx-x-1]=tmp;
+    }
+  }
+}
+
 //door = -1 don't calculate vertex offset
 
 void Carea::RecalcBox(int pos, wed_polygon *header, area_vertex *vertices)
@@ -1087,10 +1158,10 @@ void Carea::RecalcBox(int pos, wed_polygon *header, area_vertex *vertices)
     return;
   }
   
-  min=max=vertices[0].point;
+  min=max=(POINTS &) vertices[0];
   for(i=1;i<count;i++)
   {
-    tmp=vertices[i].point;
+    tmp=(POINTS &) vertices[i];
     if(max.x<tmp.x) max.x=tmp.x;
     if(max.y<tmp.y) max.y=tmp.y;
     if(min.x>tmp.x) min.x=tmp.x;
@@ -1110,9 +1181,12 @@ int Carea::RecalcBoundingBoxes()
   int minx,miny, maxx,maxy;
   int x,y;
   POSITION pos;
+  void *poi;
+  int count;
   int i;
 
   pos = wedvertexheaderlist.GetHeadPosition();
+  //this is being done for all polygons
   for(i=0;i<wedvertexheaderlist.GetCount();i++)
   {
     if(i<secheader.wallpolycnt)
@@ -1127,24 +1201,37 @@ int Carea::RecalcBoundingBoxes()
   wgx=(overlayheaders[0].width+9)/10;
   wgy=(overlayheaders[0].height*2+14)/15;
   wallgroupidxcount=wgx*wgy;
-  if(wallgroupindices) //these are cheap
+  if(wallgroupindices) 
   {
     delete [] wallgroupindices;
   }
   wallgroupindices=new wed_polyidx[wallgroupidxcount];
   if(!wallgroupindices) return -3;
   memset(wallgroupindices,0,wallgroupidxcount*sizeof(wed_polyidx) );
-  for(i=0;i<secheader.wallpolycnt;i++)
+  pos = wedvertexheaderlist.GetHeadPosition();
+//  for(i=0;i<secheader.wallpolycnt;i++)
+  for(i=0;i<wedvertexheaderlist.GetCount();i++)
   {
-    minx=wallpolygonheaders[i].minx/640;
-    maxx=wallpolygonheaders[i].maxx/640;
-    miny=wallpolygonheaders[i].miny/480;
-    maxy=wallpolygonheaders[i].maxy/480;
+    poi = wedvertexheaderlist.GetNext(pos);
+    if(i<secheader.wallpolycnt)
+    {
+      minx=wallpolygonheaders[i].minx/640;
+      maxx=wallpolygonheaders[i].maxx/640;
+      miny=wallpolygonheaders[i].miny/480;
+      maxy=wallpolygonheaders[i].maxy/480;
+      count=wallpolygonheaders[i].countvertex;
+    }
+    else
+    {
+      minx=doorpolygonheaders[i-secheader.wallpolycnt].minx/640;
+      maxx=doorpolygonheaders[i-secheader.wallpolycnt].maxx/640;
+      miny=doorpolygonheaders[i-secheader.wallpolycnt].miny/480;
+      maxy=doorpolygonheaders[i-secheader.wallpolycnt].maxy/480;
+      count=doorpolygonheaders[i-secheader.wallpolycnt].countvertex;
+    }
     for(x=minx;x<=maxx;x++) for(y=miny;y<=maxy;y++)
     {
-      pos = wedvertexheaderlist.FindIndex(i);
-      if(PolygonInBox( (area_vertex *) wedvertexheaderlist.GetAt(pos),
-        wallpolygonheaders[i].countvertex, CRect(minx*640, miny*480, (minx+1)*640, (miny+1)*480) ) )
+      if(PolygonInBox( (area_vertex *) poi, count, CRect(minx*640, miny*480, (minx+1)*640, (miny+1)*480) ) )
       {
         wallgroupindices[y*wgx+x].count++;
       }
@@ -1162,198 +1249,36 @@ int Carea::RecalcBoundingBoxes()
     delete [] polygonindices;
   }
   polygonindices=new short[polygonidxcount];
-  for(i=0;i<secheader.wallpolycnt;i++)
+  pos = wedvertexheaderlist.GetHeadPosition();
+//  for(i=0;i<secheader.wallpolycnt;i++)
+  for(i=0;i<wedvertexheaderlist.GetCount();i++)
   {
-    minx=wallpolygonheaders[i].minx/640;
-    maxx=wallpolygonheaders[i].maxx/640;
-    miny=wallpolygonheaders[i].miny/480;
-    maxy=wallpolygonheaders[i].maxy/480;
+    poi = wedvertexheaderlist.GetNext(pos);
+    if(i<secheader.wallpolycnt)
+    {
+      minx=wallpolygonheaders[i].minx/640;
+      maxx=wallpolygonheaders[i].maxx/640;
+      miny=wallpolygonheaders[i].miny/480;
+      maxy=wallpolygonheaders[i].maxy/480;
+      count=wallpolygonheaders[i].countvertex;
+    }
+    else
+    {
+      minx=doorpolygonheaders[i-secheader.wallpolycnt].minx/640;
+      maxx=doorpolygonheaders[i-secheader.wallpolycnt].maxx/640;
+      miny=doorpolygonheaders[i-secheader.wallpolycnt].miny/480;
+      maxy=doorpolygonheaders[i-secheader.wallpolycnt].maxy/480;
+      count=doorpolygonheaders[i-secheader.wallpolycnt].countvertex;
+    }
     for(x=minx;x<=maxx;x++) for(y=miny;y<=maxy;y++)
     {
-      pos = wedvertexheaderlist.FindIndex(i);
-      if(PolygonInBox((area_vertex *) wedvertexheaderlist.GetAt(pos),
-        wallpolygonheaders[i].countvertex, CRect(minx*640, miny*480, (minx+1)*640, (miny+1)*480) ) )
+      if(PolygonInBox((area_vertex *) poi, count, CRect(minx*640, miny*480, (minx+1)*640, (miny+1)*480) ) )
       {
-        polygonindices[wallgroupindices[y*wgx+x].index+wallgroupindices[y*wgx+x].count++]=(short) i;
+        wed_polyidx *wgi=wallgroupindices+y*wgx+x;
+        polygonindices[wgi->index+wgi->count++]=(short) i;
       }
     }
   }
-  return 0;
-}
-
-
-//cleaning up holes, mixups and other fuckups
-//recreating Wallgroup vertices, removing the Wedvertices
-/*
-int Carea::CleanUpVertices()
-{
-  int i;
-  int wvc, dvc;
-  int pos, pos2;
-  int ret;
-
-  wvc=0;
-  for(i=0;i<wallpolygoncount;i++)
-  {
-    wvc+=wallgroupheaders[i].countvertex;
-  }
-  if(wallgroupvertexcount!=wvc)
-  {
-    KillWallgroupvertices();
-    wallgroupvertices = new area_vertex[wvc];
-    if(!wallgroupvertices) return -3;
-    wallgroupvertexcount=wvc;
-  }
-  ret=0;
-  pos=0;
-  for(i=0;i<wallpolygoncount;i++)
-  {
-    memcpy(wallgroupvertices+pos,wedvertices+wallgroupheaders[i].firstvertex,wallgroupheaders[i].countvertex*sizeof(area_vertex) );
-    if(wallgroupheaders[i].firstvertex!=pos)
-    {
-      wallgroupheaders[i].firstvertex=pos;
-      wedchanged=true;
-      ret=1;
-    }
-    pos+=wallgroupheaders[i].countvertex;
-  }
-
-  dvc=0;
-  for(i=0;i<doorpolygoncount;i++)
-  {
-    dvc+=doorpolygonheaders[i].countvertex;
-  }
-  if(doorvertexcount!=dvc)
-  {
-    KillDoorvertices();
-    doorvertices = new area_vertex[dvc];
-    if(!doorvertices) return -3;
-    doorvertexcount=dvc;
-  }
-  pos2=0;
-  for(i=0;i<doorpolygoncount;i++)
-  {
-    memcpy(doorvertices+pos2,wedvertices+doorpolygonheaders[i].firstvertex,doorpolygonheaders[i].countvertex*sizeof(area_vertex) );
-    if(doorpolygonheaders[i].firstvertex!=pos+pos2)
-    {
-      //doorpolygonheaders[i].firstvertex=pos+pos2;
-      wedchanged=true;
-      ret=1;
-    }
-    doorpolygonheaders[i].firstvertex=pos2;
-    pos2+=doorpolygonheaders[i].countvertex;
-  }
-
-  pos2=0;
-  for(i=0;i<wallgroupidxcount;i++)
-  {
-    if(wallgroupindices[i].index!=pos2)
-    {
-      wallgroupindices[i].index=(short) pos2;
-      wedchanged=true;
-      ret=1;
-    }
-    pos2+=wallgroupindices[i].count;
-  }
-  for(i=0;i<polygonidxcount;i++)
-  {
-    if(polygonindices[i]>=wallpolygoncount+doorpolygoncount)
-    {
-      polygonindices[i]=0; //quick hack
-      ret=2;
-    }
-  }
-  KillWedvertices();
-  return ret;
-}
-*/
-//read all polygonheaders, remove unused vertices
-/*
-int Carea::ConsolidateVertices()
-{
-  area_vertex *newvertices;
-  int newvertexcount;
-  int pos;
-  int i;
-
-  newvertexcount=0;
-  for(i=0;i<wallpolygoncount;i++)
-  {
-    newvertexcount+=wallgroupheaders[i].countvertex;
-  }
-  newvertices=new area_vertex[newvertexcount];
-  if(!newvertices) return -3;
-  pos=0;
-  for(i=0;i<wallpolygoncount;i++)
-  {
-    memcpy(newvertices+pos, wallgroupvertices+wallgroupheaders[i].firstvertex,wallgroupheaders[i].countvertex*sizeof(area_vertex) );
-    if(wallgroupheaders[i].firstvertex!=pos)
-    {
-      wallgroupheaders[i].firstvertex=pos;
-      wedchanged=true;
-    }
-    pos+=wallgroupheaders[i].countvertex;
-  }
-
-  delete [] wallgroupvertices;
-  wallgroupvertices=newvertices;
-  wallgroupvertexcount=newvertexcount;
-
-  newvertexcount=0;
-  for(i=0;i<doorpolygoncount;i++)
-  {
-    newvertexcount+=doorpolygonheaders[i].countvertex;
-  }
-  newvertices=new area_vertex[newvertexcount];
-  if(!newvertices) return -3;
-  
-  //don't clear pos, it now contains wallgroupvertexcount
-  for(i=0;i<doorpolygoncount;i++)
-  {
-    memcpy(newvertices+(pos-wallgroupvertexcount),
-           doorvertices+(doorpolygonheaders[i].firstvertex-wallgroupvertexcount),
-           doorpolygonheaders[i].countvertex*sizeof(area_vertex) );
-    if(doorpolygonheaders[i].firstvertex!=pos)
-    {
-      doorpolygonheaders[i].firstvertex=pos;
-      wedchanged=true;
-    }
-    pos+=doorpolygonheaders[i].countvertex;
-  }
-  delete [] doorvertices;
-  doorvertices=newvertices;
-  doorvertexcount=newvertexcount;
-  return 0;
-}
-*/
-int Carea::ConsolidateDoortiles()
-{
-  short *newdoortileindices;
-  int newdoortileidxcount;
-  int pos;
-  int i;
-
-  newdoortileidxcount=0;
-  for(i=0;i<weddoorcount;i++)
-  {
-    newdoortileidxcount+=weddoorheaders[i].countdoortileidx;
-  }
-  newdoortileindices=new short[newdoortileidxcount];
-  if(!newdoortileindices) return -3;
-  pos=0;
-  for(i=0;i<weddoorcount;i++)
-  {
-    memcpy(newdoortileindices+pos, doortileindices+weddoorheaders[i].firstdoortileidx,weddoorheaders[i].countdoortileidx*sizeof(short) );
-    if(weddoorheaders[i].firstdoortileidx!=pos)
-    {
-      weddoorheaders[i].firstdoortileidx=(short) pos;
-      wedchanged=true;
-    }
-    pos+=weddoorheaders[i].countdoortileidx;
-  }
-  delete [] doortileindices;
-  doortileindices=newdoortileindices;
-  doortileidxcount=newdoortileidxcount;
   return 0;
 }
 
@@ -1424,21 +1349,28 @@ int Carea::ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palett
 {
   Cbam tmpbam;
   CString resname;
+  int mapsize;
 
+  RetrieveResref(resname,header.wed);
+  resname+=Suffix;
+  if(read_bmp(resname, &tmpbam, 0)) return -2;
+  if(tmpbam.GetFrameCount()!=1) return -2;
+  if(size<tmpbam.m_palettesize) return -2;
   if(Storage)
   {
     delete [] Storage;
     Storage=NULL;
   }
-  RetrieveResref(resname,the_area.header.wed);
-  resname+=Suffix;
-  if(read_bmp(resname, &tmpbam, 0)) return -2;
-  if(tmpbam.GetFrameCount()!=1) return -2;
-  if(size<tmpbam.m_palettesize) return -2;
-  Storage = tmpbam.GetFrameData(0);
   memset(Palette,0,size);
-  memcpy(Palette, tmpbam.m_palette, tmpbam.m_palettesize);
-  return tmpbam.DetachFrameData(0);
+  memcpy(Palette, tmpbam.m_palette, tmpbam.m_palettesize);  
+  mapsize=(m_width/GR_WIDTH)*((m_height+GR_HEIGHT-1)/GR_HEIGHT);
+  Storage = new unsigned char[mapsize];
+  if(!Storage) return -3;
+  memset(Storage, 0, mapsize);
+  size = tmpbam.GetFrameDataSize(0);
+  if(size<mapsize) mapsize=size;
+  memcpy(Storage, tmpbam.GetFrameData(0), mapsize);
+  return 0;
 }
 
 int Carea::ReadWedFromFile(int fh, long ml)
@@ -1489,8 +1421,12 @@ int Carea::ReadWedFromFile(int fh, long ml)
   {
     return -2;
   }
-  width=(unsigned short) (overlayheaders[0].width*64);
-  height=(unsigned short) (overlayheaders[0].height*64);
+  if(wedheader.overlaycnt)
+  {
+    m_width=(unsigned short) (overlayheaders[0].width*64);
+    m_height=(unsigned short) (overlayheaders[0].height*64);
+  }
+  else m_width=m_height=0;
   ReadMap("LM", lightmap, lmpal, sizeof(lmpal) );
   ReadMap("SR", searchmap, srpal, sizeof(srpal) );
   ReadMap("HT", heightmap, htpal, sizeof(htpal) );
@@ -1707,7 +1643,7 @@ int Carea::ReadWedFromFile(int fh, long ml)
   {
     if(wallpolygonheaders[i].firstvertex!=wvc)
     {
-      ret|=4;
+      ret|=1;
     }
     wvc=max(wvc,wallpolygonheaders[i].firstvertex+wallpolygonheaders[i].countvertex);
   }
@@ -1716,7 +1652,7 @@ int Carea::ReadWedFromFile(int fh, long ml)
   {
     if(doorpolygonheaders[i].firstvertex!=wvc)
     {
-      ret|=4;
+      ret|=1;
     }
     wvc=max(wvc,doorpolygonheaders[i].firstvertex+doorpolygonheaders[i].countvertex);
   }
@@ -1759,7 +1695,7 @@ int Carea::ReadWedFromFile(int fh, long ml)
   }
   fullsizew+=esize;
 
-  flg=ConsolidateDoortiles();
+  flg=ExplodeDoorTiles();
   if(flg<0) return flg;
   ret|=flg;
 
@@ -2239,13 +2175,100 @@ int Carea::ReadAreaFromFile(int fh, long ml)
 #define DEF_OVERLAY_CNT  5
 int Carea::DefaultAreaOverlays()
 {
-  the_area.wedheader.overlaycnt=DEF_OVERLAY_CNT;
-  the_area.overlaycount=DEF_OVERLAY_CNT;
+  wedheader.overlaycnt=DEF_OVERLAY_CNT;
+  overlaycount=DEF_OVERLAY_CNT;
   overlayheaders=new wed_overlay[wedheader.overlaycnt];
   if(!overlayheaders)
   {
     return -3;
   }
   memset(overlayheaders,0,DEF_OVERLAY_CNT*sizeof(wed_overlay) );
+  return 0;
+}
+
+int Carea::RemoveDoorPolygon(int first)
+{
+  wed_polygon *newpolygons;
+  POSITION pos;
+  int i;
+
+  pos=wedvertexheaderlist.FindIndex(wallpolygoncount+first);
+  if(!pos) return -1;
+  newpolygons=new wed_polygon[--doorpolygoncount];
+  if(!newpolygons)
+  {
+    doorpolygoncount++;
+    return -3;
+  }
+  for(i=0;i<weddoorcount;i++)
+  {
+    if(weddoorheaders[i].offsetpolygonopen>first)
+    {
+      weddoorheaders[i].offsetpolygonopen--;
+    }
+    if(weddoorheaders[i].offsetpolygonclose>first)
+    {
+      weddoorheaders[i].offsetpolygonclose--;
+    }
+  }
+  memcpy(newpolygons, doorpolygonheaders, first*sizeof(wed_polygon));
+  memcpy(newpolygons+first, doorpolygonheaders+first+1,(doorpolygoncount-first)*sizeof(wed_polygon) );
+  delete [] doorpolygonheaders;
+  doorpolygonheaders=newpolygons;
+  wedvertexheaderlist.RemoveAt(pos);//this also frees the polygon
+  return 0;
+}
+
+int Carea::RemoveWedDoor(char *doorid)
+{
+  wed_door *newdoors;
+  POSITION pos;
+  int newcount;
+  int i,j;
+
+  newcount=0;
+  for(i=0;i<wedheader.doorcnt;i++)
+  {
+    //the door isn't about to remove
+    if(strnicmp(doorid, weddoorheaders[i].doorid,8) )
+    {
+      newcount++;
+    }
+  }
+  if(newcount==wedheader.doorcnt) return 1; //wed didn't need any change
+  newdoors=new wed_door[newcount];
+  if(!newdoors) return -3;
+  j=0;
+  for(i=0;i<wedheader.doorcnt;i++)
+  {
+    //we keep this door
+    if(strnicmp(doorid, weddoorheaders[i].doorid,8) )
+    {
+      newdoors[j++]=weddoorheaders[i];
+    }
+    else //we don't keep this door
+    {
+      ////TODO
+      while(weddoorheaders[i].countpolygonopen)
+      {
+        RemoveDoorPolygon(weddoorheaders[i].offsetpolygonopen);
+        weddoorheaders[i].countpolygonopen--;
+      }
+      while(weddoorheaders[i].countpolygonopen)
+      {
+        RemoveDoorPolygon(weddoorheaders[i].offsetpolygonclose);
+        weddoorheaders[i].countpolygonclose--;
+      }
+      pos=doortilelist.FindIndex(i);
+      doortilelist.RemoveAt(pos);
+    }
+  }
+  wedchanged=true;
+  if(weddoorheaders)
+  {
+    delete [] weddoorheaders;
+  }
+  weddoorheaders=newdoors;
+  weddoorcount=wedheader.doorcnt=newcount;
   return 0;
 }

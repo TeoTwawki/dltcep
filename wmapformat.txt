@@ -75,7 +75,7 @@ WMAP V1.0 Area entry
  0x0030         4 (dword)                        Bitmap indicating status of area: 
 
                              bit 0: is area visible? 
-                             bit 1: unknown 
+                             bit 1: visible from adjacent area 
                              bit 2: set if area can be visited 
                              bit 3: set if area has been visited 
                              bits 4-31: unused? 

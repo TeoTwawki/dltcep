@@ -62,11 +62,26 @@ extern UINT WM_FINDREPLACE;
 #define MT_POLYGON 5
 #define MT_WALLPOLYLIST 6
 #define MT_DOORPOLYLIST 7
+#define MT_REGION 8
+#define MT_CONTAINER 9
+#define MT_DOOR 10
+#define MT_BAM 11
 
 //getpoint units (for ImageView)
 #define GP_POINT  0
 #define GP_TILE   1
 #define GP_BLOCK  2
+
+//bounding box index symbols
+#define BBMINX 0
+#define BBMINY 1
+#define BBMAXX 2
+#define BBMAXY 3
+
+#define WBBMINX 0
+#define WBBMAXX 1
+#define WBBMINY 2
+#define WBBMAXY 3
 
 
 #define MAX_LINE  1000
@@ -114,6 +129,7 @@ extern UINT WM_FINDREPLACE;
 #define SPT_STRING2  'S2'
 #define SPT_AREA1    'SA'   //area (inserted)
 #define SPT_VAR1     'SV'   //simple variable
+#define SPT_VAR3     'VS'   //simple variable, reversed
 #define SPT_TOKEN1   'ST'   //token
 #define SPT_COLUMN1  'SX'   //xplist column
 #define SPT_RESREF1  'SR'   //resource (8 chars long)
@@ -159,6 +175,7 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define STI_IDENTIFIED  1
 #define STI_NOSTEAL     2
 #define STI_STOLEN      4
+#define STI_NODROP      8
 
 #define NUM_SPELLTYPE  4
 //spell types
@@ -418,6 +435,8 @@ extern CString DELETED_REFERENCE;
 #define CHECK_PAL    24 //palette (bmp)
 #define CHECK_SRC    25 //pst src file
 #define CHECK_GAME   26 //iwd2 party file
+#define CHECK_SCOPE  27
+#define ADD_VAR3     28
 
 #define CHECK_SOUND2 30
 #define CHECK_ITEM2  31
@@ -612,7 +631,7 @@ extern CStringList exclude_item;
 extern CStringList xplist;
 extern CStringList pro_references;
 extern CStringList pro_titles;
-extern CStringList race_names;
+extern CStringList beasts;
 extern CStringList spawngroup;
 extern CStringMapInt rnditems;
 extern CStringList sectype_names;
@@ -693,9 +712,9 @@ extern CStringMapCStringMapInt idsmaps;
 //area animation flags
 #define AA_MIRROR 2048
 
- //0 button, 1 unknown,2 slider, 3 editbox,4 unknown, 5 scrolltext,
+ //0 button, 1 progress,2 slider, 3 editbox,4 unknown, 5 scrolltext,
 #define CC_BUTTON    0
-#define CC_U1        1
+#define CC_PROGRESS  1
 #define CC_SLIDER    2
 #define CC_EDITBOX   3
 #define CC_U2        4
@@ -722,6 +741,8 @@ extern CItemPicker pickerdlg;
 extern CString lastopenedscript;
 extern CString lastopenedsave;
 extern CString lastopeneddata;
+extern CString lastopenedoverride;
+extern CString lastopenedmusic;
 /////////////////////////////////////////////////////////////////////////////
 // CChitemApp:
 // See chitem.cpp for the implementation of this class
@@ -798,8 +819,8 @@ void StoreResref(CString &dlgcontrol, char *itempoi);
 void RetrieveResref(CString &dlgcontrol, const char *itempoi, int dot=0);
 void StoreAnim(CString &dlgcontrol, char *itempoi);
 void RetrieveAnim(CString &dlgcontrol, const char *itempoi);
-void StoreVariable(CString &dlgcontrol, char *itempoi);
-void RetrieveVariable(CString &dlgcontrol, const char *itempoi);
+void StoreVariable(CString &dlgcontrol, char *itempoi, bool noupper=false);
+void RetrieveVariable(CString &dlgcontrol, const char *itempoi, bool noupper=false);
 void StoreName(CString &dlgcontrol, char *itempoi);
 CString format_label(CString label);
 CString format_weaprofs(int profnum);
@@ -861,6 +882,7 @@ CString *explode(const CString &array, char separator, int &count); //dumb explo
 //qsort helpers for sorting longs
 int longsort(const void *a,const void *b);  //descending
 int longsortb(const void *a,const void *b); //ascending
+int shortsortb(const void *a,const void *b); //ascending
 
 #define GREY_TRESHOLD 2048
 #define SMALL_DIFF    16
@@ -903,7 +925,6 @@ bool tob_specific();
 CString getitemname(CString filepath);
 CString makeitemname(CString ext, int remember);
 CString ImageFilter(int mostisbmp);
-void CreateMinimap(HWND hwnd);
 int GetScanLineLength(int width, int bytes);
 int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes);
 CString AssembleWeiduCommandLine(CString filename, CString outpath);
@@ -912,49 +933,60 @@ afx_msg void DefaultKillFocus();
 int CompressBIFC(CString infilename);
 int CompressCBF(CString infilename);
 
-int SetupSelectPoint();
-//vertex & polygon functions
+//graphical, vertex & polygon functions
+void CreateMinimap(HWND hwnd);
+int SetupSelectPoint(int overlay=0, Cmos *overlaymos=NULL);
+int CanMove(CPoint &point, area_vertex *wedvertex, int count);
+void RecalcBox(int count, int idx, POINTS &min, POINTS &max);
 int PolygonInBox(area_vertex *wedvertex, int count, CRect rect);
+int CheckIntervallum(int value, int first, int count);
 int PointInPolygon(area_vertex *wedvertex, int count, CPoint point);
 int VertexOrder(area_vertex *wedvertex, int count);
 
 //readers & writers (they handle the lookup tables)
 void UpdateIEResource(CString key, int restype, CString filepath, int size);
-int write_area(CString key);
-int write_tis(CString key);
+int write_area(CString key, CString filepath);
+int write_wed(CString key, CString filepath);
+int write_tis(CString key, CString filepath);
 int read_item(CString key);
-int write_item(CString key);
+int write_item(CString key, CString filepath);
 int read_spell(CString key);
-int write_spell(CString key);
+int write_spell(CString key, CString filepath);
 int read_store(CString key);
-int write_store(CString key);
+int write_store(CString key, CString filepath);
 int GetWed(bool night);
 int ReadWed(int res);
 int read_area(CString key);
 int read_projectile(CString key);
 int read_chui(CString key);
+int write_chui(CString key, CString filepath);
+int read_map(CString key);
+int write_map(CString key, CString filepath);
 int read_src(CString key);
 int read_creature(CString key);
-int write_creature(CString key);
+int write_creature(CString key, CString filepath);
 void MakeGradientBitmap(HBITMAP &hb, int GradientIndex);
 CString GetMapTypeValue(int maptype, int value);
 int read_bmp(CString key,HBITMAP &hb);
 int read_bmp(CString key, Cbam *cb, int lazy=0); //cb can't be NULL due to polymorphism
 int read_bmp(CString key, Cmos *cb, int lazy=0);
 int read_bam(CString key, Cbam *cb=NULL, int lazy=0);
-int write_bam(CString key);
+int write_bam(CString key, CString filepath, Cbam *cb);
+int write_bmp(CString key, CString filepath, Cbam *cb, int frame);
 int read_mos(CString key, Cmos *cb=NULL, int lazy=0);
 int read_tis(CString key, Cmos *cb=NULL, int lazy=0);
 int read_dialog(CString key);
 int read_videocell(CString key);
-int write_videocell(CString key);
+int write_videocell(CString key, CString filepath);
+int write_projectile(CString key, CString filepath);
 int read_mus(CString key);
 int read_worldmap(CString key);
 int read_effect(CString key);
-int write_effect(CString key);
+int write_effect(CString key, CString filepath);
 int read_game(CString key);
-int write_game(CString key);
+int write_game(CString key, CString filepath);
 int read_2da(CString key);
+int write_2da(CString key, CString filepath);
 int read_ids(CString key);
 int play_acm(CString key, bool acm_or_wavc, int justload);
 int write_wav(CString key, void *memory, long samples_written, int wav_or_acm);

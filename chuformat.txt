@@ -86,7 +86,13 @@ This is a simple type of control. It has an associated BAM file, a 'cycle number
 Offset Size (data type) Description
 0x0000 14 (common section) fields common to all control types
 0x000e 8 (resref) The resource name of the BAM file from which the graphics for this button are taken.
-0x0016 2 (word) The cycle from the BAM file to take our graphics from.
+0x0016 1 (byte) Text Alignment bits
+	1 - left
+	2 - right
+	4 - top
+	8 - bottom
+
+0x0017 1 (byte) The cycle from the BAM file to take our graphics from.
 0x0018 2 (word) Frame index from BAM file: Button unpressed
 0x001a 2 (word) Frame index from BAM file: Button pressed
 0x001c 2 (word) Frame index from BAM file: Button selected

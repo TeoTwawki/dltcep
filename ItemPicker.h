@@ -31,23 +31,26 @@ public:
   CString m_picked;
   int m_restype;
   int m_oldrestype;
-  Ccreature my_creature;
-  Citem my_item;
-  Cspell my_spell;
-  Cstore my_store;
-  Carea my_area;
-  Cbam my_bam;
-  CImageView m_preview;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CItemPicker)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void PostNcDestroy();
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CImageView m_preview;
+  Ccreature my_creature;
+  Citem my_item;
+  Cspell my_spell;
+  Cstore my_store;
+  Carea my_area;
+  Cbam my_bam;
+  Cmos my_mos;
+
   void FillList(int restype, CListBox &list);
   void Preview(CString &key, loc_entry &fileloc, int restype);
   void ResolveKey(CString &key, loc_entry &fileloc, int restype);

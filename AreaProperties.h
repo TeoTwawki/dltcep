@@ -25,7 +25,6 @@ public:
 	enum { IDD = IDD_AREAGENERAL };
 	CComboBox	m_areaflag_control;
 	//}}AFX_DATA
-
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaGeneral)
@@ -146,11 +145,8 @@ public:
 	enum { IDD = IDD_AREATRIGGER };
 	CSpinButtonCtrl	m_spin_control;
 	CComboBox	m_entrancenamepicker;
-	CComboBox	m_vertexpicker;
 	CComboBox	m_regiontype_control;
 	CComboBox	m_triggerpicker;
-	int		m_vx;
-	int		m_vy;
 	//}}AFX_DATA
   area_trigger triggercopy;
   area_vertex *vertexcopy;
@@ -178,8 +174,6 @@ protected:
 	afx_msg void OnKillfocusTriggerpicker();
 	afx_msg void OnSelchangeTriggerpicker();
 	afx_msg void OnRecalcbox();
-	afx_msg void OnAddvertex();
-	afx_msg void OnRemovevertex();
 	afx_msg void OnParty();
 	afx_msg void OnAdd();
 	afx_msg void OnRemove();
@@ -203,18 +197,17 @@ protected:
 	afx_msg void OnKillfocusInfostr();
 	afx_msg void OnCursor();
 	afx_msg void OnUnknown();
-	afx_msg void OnSelchangeVertices();
-	afx_msg void OnModvertex();
 	afx_msg void OnDropdownEntrancename();
 	afx_msg void OnChangeCursoridx();
 	afx_msg void OnKillfocusDestarea();
-	afx_msg void OnKillfocusVertices();
 	afx_msg void OnSet();
 	afx_msg void OnBrowse();
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
 	afx_msg void OnKillfocusRegiontype();
+	afx_msg void OnEditpolygon();
+	afx_msg void OnSelection();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -426,12 +419,9 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAreaContainer)
 	enum { IDD = IDD_AREACONTAINER };
-	CComboBox	m_vertexpicker;
 	CComboBox	m_itemnumpicker;
 	CComboBox	m_containertype_control;
 	CComboBox	m_containerpicker;
-	int		m_vx;
-	int		m_vy;
 	//}}AFX_DATA
 
   area_container containercopy;
@@ -479,19 +469,20 @@ protected:
 	afx_msg void OnKillfocusUse3();
 	afx_msg void OnAdditem();
 	afx_msg void OnDelitem();
-	afx_msg void OnKillfocusVertices();
 	afx_msg void OnRecalcbox();
-	afx_msg void OnAddvertex();
-	afx_msg void OnRemovevertex();
 	afx_msg void OnKillfocusStrref();
 	afx_msg void OnKillfocusText();
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
-	afx_msg void OnSelchangeVertices();
-	afx_msg void OnModvertex();
 	afx_msg void OnHidden();
 	afx_msg void OnNopc();
 	afx_msg void OnSet();
+	afx_msg void OnEditpolygon();
+	afx_msg void OnNodrop();
+	afx_msg void OnSelection();
+	afx_msg void OnFit();
+	afx_msg void OnTreset();
+	afx_msg void OnKillfocusLocked();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -582,12 +573,8 @@ public:
 	//{{AFX_DATA(CAreaDoor)
 	enum { IDD = IDD_AREADOOR };
 	CSpinButtonCtrl	m_spin_control;
-	CComboBox	m_blockpicker;
-	CComboBox	m_vertexpicker;
 	CComboBox	m_doorpicker;
 	BOOL	m_openclose;
-	int		m_vx;
-	int		m_vy;
 	//}}AFX_DATA
 
   area_door doorcopy;
@@ -623,8 +610,6 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnOpenClose();
 	afx_msg void OnRecalcbox();
-	afx_msg void OnKillfocusVertices();
-	afx_msg void OnSelchangeVertices();
 	afx_msg void OnKillfocusStrref();
 	afx_msg void OnKillfocusInfostr();
 	afx_msg void OnFlag1();
@@ -644,12 +629,8 @@ protected:
 	afx_msg void OnKillfocusLongname();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
-	afx_msg void OnAdd3();
 	afx_msg void OnUnknown();
 	afx_msg void OnBrowse5();
-	afx_msg void OnModvertex();
-	afx_msg void OnAddvertex();
-	afx_msg void OnRemovevertex();
 	afx_msg void OnFlag9();
 	afx_msg void OnFlag10();
 	afx_msg void OnFlag11();
@@ -660,10 +641,11 @@ protected:
 	afx_msg void OnTagged();
 	afx_msg void OnChangeCursoridx();
 	afx_msg void OnSet();
-	afx_msg void OnModblock();
-	afx_msg void OnKillfocusBlocks();
-	afx_msg void OnRemoveblock();
 	afx_msg void OnEditblock();
+	afx_msg void OnEditpolygon();
+	afx_msg void OnSet2();
+	afx_msg void OnSet3();
+	afx_msg void OnSelection();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -759,6 +741,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAreaMap)
 	enum { IDD = IDD_AREAMAP };
+	CButton	m_special_control;
 	CComboBox	m_value_control;
 	CStatic	m_bitmap;
 	int		m_maptype;
@@ -771,6 +754,8 @@ public:
   LPBYTE the_map;
   COLORREF *the_palette;
   COLORREF bgcolor;
+  int m_function, m_adjust;
+
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -783,8 +768,9 @@ public:
 
 // Implementation
 protected:
-  void Allocatemap();
+  void Allocatemap(bool allocate);
   void ResetCombo();
+  void AddTravelRegions();
 
 	// Generated message map functions
 	//{{AFX_MSG(CAreaMap)
@@ -798,6 +784,9 @@ protected:
 	afx_msg void OnMap();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnEdit();
+	afx_msg void OnUndo();
+	afx_msg void OnPalette();
+	afx_msg void OnSpecial();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

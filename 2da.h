@@ -136,6 +136,8 @@ int ReadSongIds(loc_entry entry, CString2List &refs);
 int ReadIds2(loc_entry entry, CString *refs, int maxindex);
 int ReadIds3(loc_entry entry, CString *refs, int maxindex, CStringMapCompiler &atdata, int trigger_or_action);
 int ReadIds4(loc_entry entry, CStringMapInt &refs);
+void ReadBeastIni(CStringList &beasts);
+
 int read_effect_descs(); // setting up opcode descriptions
 int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &atdata, int trigger_or_action);
 

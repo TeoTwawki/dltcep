@@ -15,7 +15,7 @@ typedef struct
   long unused;
   long tbgcount;
   long othercount;
-  unsigned char genre; //fuck!
+  unsigned char genre; //we don't care about this too much
   long totallen;
 } iap_header;
 
@@ -42,7 +42,7 @@ public:
 	virtual ~Ctbg();
   int WriteIap(int fhandle);
   int WriteZip(int fhandle);
-  int ExportFile(int filetype);
+  int ExportFile(int filetype, CString filepath);
   int Readtbg(CString filepath, CStringList &filelist);
   void new_iap();
   //new feature: modify iap

@@ -215,10 +215,31 @@ void CAreaSong::OnClear()
   memset(&the_area.songheader,0,sizeof(area_song));
   memset(the_area.songheader.songs,-1,sizeof(the_area.songheader.songs) );
   the_area.songheader.volumed=the_area.songheader.volumen=100;
-  //bg2 specific songs
-  the_area.songheader.songs[0]=11; //day song
-  the_area.songheader.songs[1]=45; //night sing
-  the_area.songheader.songs[3]=55; //battlesong
+  
+  if(pst_compatible_var())
+  {
+    the_area.songheader.songs[0]=17; 
+    the_area.songheader.songs[1]=17; 
+    the_area.songheader.songs[3]=27; 
+  }
+  else if(iwd2_structures())//iwd2 specific
+  {
+    the_area.songheader.songs[0]=4; 
+    the_area.songheader.songs[1]=4; 
+    the_area.songheader.songs[3]=0; 
+  }
+  else if(has_xpvar()) //iwd1
+  {
+    the_area.songheader.songs[0]=0; 
+    the_area.songheader.songs[1]=-1;
+    the_area.songheader.songs[3]=37;
+  }
+  else//bg2 specific
+  {
+    the_area.songheader.songs[0]=11; //day song
+    the_area.songheader.songs[1]=45; //night song
+    the_area.songheader.songs[3]=55; //battlesong
+  }
 	UpdateData(UD_DISPLAY);
 }
 
@@ -232,6 +253,7 @@ void CAreaSong::Musiclist(int idx)
   if(read_mus(itemname))
   {
     MessageBox("Unknown song","Area editor",MB_ICONEXCLAMATION|MB_OK);
+    itemname=tmpname;
     return;
   }
   dlg.DoModal();

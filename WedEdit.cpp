@@ -32,7 +32,10 @@ CWedEdit::CWedEdit(CWnd* pParent /*=NULL*/)	: CDialog(CWedEdit::IDD, pParent)
 	//}}AFX_DATA_INIT
   m_overlaynum=-1;
   m_doornum=-1;
+  m_doorpolynum=-1;
   m_repair=false;
+  m_polygonsize=0;
+  m_polygoncopy=NULL;
 }
 
 static int overlayboxids[]={IDC_TILESET, IDC_WIDTH, IDC_HEIGHT, IDC_UNKNOWN0C,
@@ -40,10 +43,12 @@ IDC_REMOVE, IDC_EDIT, IDC_EDITTILE, IDC_OVERLAY,
 0};
 
 static int doorboxids[]={IDC_DOORID, IDC_CLOSED, IDC_DOORPOLYPICKER, IDC_DOORPOLYNUM,
-IDC_EDITDOORPOLY,
+IDC_EDITDOORPOLY, IDC_SELECTION, IDC_REMOVE3, IDC_COPY, IDC_PASTE, IDC_DROP, 
+IDC_EDITTILE2, IDC_ADD3,
 0};
 
 static int wallgroupboxids[]={IDC_WALLGROUPPICKER, IDC_EDITWALLPOLY, IDC_SELECTION2,
+IDC_REMOVE2, IDC_COPY2, IDC_PASTE2, IDC_TRANSPARENT, IDC_CLEAR,
 0};
 
 void CWedEdit::DoDataExchange(CDataExchange* pDX)
@@ -126,6 +131,12 @@ void CWedEdit::DoDataExchange(CDataExchange* pDX)
   }
   cb=GetDlgItem(IDC_EDITDOORPOLY);
   cb->EnableWindow(flg && m_doorpolynum>=0);
+  cb=GetDlgItem(IDC_REMOVE3);
+  cb->EnableWindow(flg && m_doorpolynum>=0);
+  cb=GetDlgItem(IDC_COPY);
+  cb->EnableWindow(flg && m_doorpolynum>=0);
+  cb=GetDlgItem(IDC_PASTE);
+  cb->EnableWindow(flg && m_doorpolynum>=0);
 
   /// WALLGROUP ///
   flg=the_area.wallpolygoncount>0;
@@ -140,30 +151,26 @@ void CWedEdit::RefreshOverlay()
 {
   CString tisname;
   loc_entry fileloc;
-  int size;
+  int otc;
   int fhandle;
   int i;
 
   the_area.overlaytilecount=0;
   for(i=0;i<the_area.overlaycount;i++)
   {
-    size=the_area.overlayheaders[i].width*the_area.overlayheaders[i].height;
-    the_area.overlaytilecount+=size;
+    otc=the_area.overlayheaders[i].width*the_area.overlayheaders[i].height;
+    the_area.overlaytilecount+=otc;
   }
-  /*
-  for(i=0;i<the_area.doorcount;i++)
-  {
-    the_area.overlaytilecount+=the_area.weddoorheaders[i].countdoortileidx;
-  }
-  */
-  size=the_area.overlayheaders[m_overlaynum].width*the_area.overlayheaders[m_overlaynum].height;
+
+  otc=the_area.overlayheaders[m_overlaynum].width*the_area.overlayheaders[m_overlaynum].height;
   if(!m_overlaynum)
   {
     for(i=0;i<the_area.doorcount;i++)
     {
-      size+=the_area.weddoorheaders[i].countdoortileidx;
+      otc+=the_area.weddoorheaders[i].countdoortileidx;
     }
   }
+
   RetrieveResref(tisname,the_area.overlayheaders[m_overlaynum].tis);
   if(!tis.Lookup(tisname,fileloc) )
   {
@@ -177,7 +184,7 @@ void CWedEdit::RefreshOverlay()
     return;
   }
   tis.SetAt(tisname,fileloc);
-  if(!m_overlaynum && size<the_mos.RetrieveTisFrameCount(fhandle,fileloc.size) )
+  if(!m_overlaynum && otc<the_mos.RetrieveTisFrameCount(fhandle,fileloc.size) )
   {
     m_problem="Doesn't match area dimensions";
   }
@@ -209,7 +216,6 @@ void CWedEdit::RefreshWed()
     m_maxoverlay.Format("/ %d",i);
     if(m_overlaynum<0) m_overlaynum=0;
     m_overlaynum=m_overlaypicker_control.SetCurSel(m_overlaynum);
-
   }
 
   //// DOOR ////
@@ -223,8 +229,9 @@ void CWedEdit::RefreshWed()
     }
     m_maxdoor.Format("/ %d",i);
     if(m_doornum<0) m_doornum=0;
+    if(m_doornum>=m_doorpicker_control.GetCount()) m_doornum=m_doorpicker_control.GetCount()-1;
     m_doornum=m_doorpicker_control.SetCurSel(m_doornum);
-
+    
     if(m_doornum>=0)
     {
       m_doorpolypicker_control.ResetContent();
@@ -246,6 +253,7 @@ void CWedEdit::RefreshWed()
       }
       m_maxdoorpoly.Format("/ %d",i);
       if(m_doorpolynum<0) m_doorpolynum=0;
+      if(m_doorpolynum>=m_doorpolypicker_control.GetCount()) m_doorpolynum=m_doorpolypicker_control.GetCount()-1;
       m_doorpolynum=m_doorpolypicker_control.SetCurSel(m_doorpolynum);
     }
     cw=GetDlgItem(IDC_OPEN);
@@ -260,7 +268,7 @@ void CWedEdit::RefreshWed()
     cw->SetWindowText(tmpstr);
     m_polygontype.Format("Choose polygon of %s door",tmpstr);
   }
-
+  
   //// WALLGROUP ////
   if(m_wallgrouppicker_control)
   {
@@ -273,6 +281,7 @@ void CWedEdit::RefreshWed()
     }
     m_maxwallgroup.Format("/ %d",i);
     if(m_wallgroupnum<0) m_wallgroupnum=0;
+    if(m_wallgroupnum>=m_wallgrouppicker_control.GetCount()) m_wallgroupnum=m_wallgrouppicker_control.GetCount()-1;
     m_wallgroupnum=m_wallgrouppicker_control.SetCurSel(m_wallgroupnum);
   }
 }
@@ -337,13 +346,20 @@ BEGIN_MESSAGE_MAP(CWedEdit, CDialog)
 	ON_BN_CLICKED(IDC_EDITTILE, OnEdittile)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
-	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	ON_BN_CLICKED(IDC_SELECTION2, OnSelection2)
 	ON_BN_CLICKED(IDC_ADD3, OnAdd3)
 	ON_BN_CLICKED(IDC_ADD2, OnAdd2)
 	ON_BN_CLICKED(IDC_REMOVE2, OnRemove2)
 	ON_BN_CLICKED(IDC_REMOVE3, OnRemove3)
+	ON_BN_CLICKED(IDC_COPY, OnCopy)
+	ON_BN_CLICKED(IDC_PASTE, OnPaste)
+	ON_BN_CLICKED(IDC_COPY2, OnCopy2)
+	ON_BN_CLICKED(IDC_PASTE2, OnPaste2)
+	ON_BN_CLICKED(IDC_TRANSPARENT, OnTransparent)
+	ON_BN_CLICKED(IDC_CLEANUP, OnCleanup)
+	ON_BN_CLICKED(IDC_EDITTILE2, OnEdittile2)
+	ON_BN_CLICKED(IDC_DROP, OnDrop)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -485,19 +501,27 @@ void CWedEdit::OnSelchangeDoorpolypicker()
 	UpdateData(UD_DISPLAY);	
 }
 
-void CWedEdit::OnAdd() 
+void CWedEdit::OnEdittile2() 
 {
-  CString tmpstr;
-	CTisDialog dlg;
-  
-  UpdateData(UD_RETRIEVE);
-  RetrieveResref(tmpstr, the_area.overlayheaders[0].tis);
-  dlg.setrange(tmpstr, the_area.overlayheaders[0].width,
-    the_area.overlayheaders[0].height, 7);//additional flag means setting location
-  dlg.m_overlaynum=0;
-  dlg.m_tileheaders=the_area.overlaytileheaders;
-  dlg.m_tileindices=the_area.overlaytileindices;
+  Cmos overlay;
+  CWedTile dlg;
+  CString tisname;
+  int x,y;
+
+  if(m_doornum<0) return;
+  x=the_area.overlayheaders[0].width;
+  y=the_area.overlayheaders[0].height;
+  dlg.SetTile(0,  x,y);
+  dlg.SetDoor(m_doornum);
+
+  RetrieveResref(tisname, the_area.weddoorheaders[m_doornum].doorid);
+  dlg.m_tisname=tisname;
+
+  if(SetupSelectPoint(-1)) return;
+
   dlg.DoModal();
+  if(the_mos.MosChanged()) the_area.wedchanged=true;
+  RefreshWed();
   UpdateData(UD_DISPLAY);
 }
 
@@ -537,84 +561,93 @@ void CWedEdit::OnAdd3()
       the_area.weddoorheaders[m_doornum].offsetpolygonopen++;
     }
   }
-  for(i=m_doornum+1;i<the_area.weddoorcount;i++)
+  for(i=0;i<the_area.weddoorcount;i++)
   {
-    the_area.weddoorheaders[i].offsetpolygonclose++;
-    the_area.weddoorheaders[i].offsetpolygonopen++;
+    if(i!=m_doornum)
+    {
+      if(the_area.weddoorheaders[i].offsetpolygonclose>=first)
+      {
+        the_area.weddoorheaders[i].offsetpolygonclose++;
+      }
+      if(the_area.weddoorheaders[i].offsetpolygonopen>=first)
+      {
+        the_area.weddoorheaders[i].offsetpolygonopen++;
+      }
+    }
   }
-  pos = the_area.wedvertexheaderlist.FindIndex(first);
+  pos = the_area.wedvertexheaderlist.FindIndex(the_area.wallpolygoncount+first-1);
   memcpy(newpolygons,the_area.doorpolygonheaders,first*sizeof(wed_polygon) );
   memcpy(newpolygons+first+1,the_area.doorpolygonheaders+first,(the_area.doorpolygoncount-first)*sizeof(wed_polygon) );
   memset(newpolygons+first,0,sizeof(wed_polygon) );
   newpolygons[first].flags=0x89; //standard door flags
+  newpolygons[first].unkflags=255;
   delete [] the_area.doorpolygonheaders;
   the_area.doorpolygonheaders=newpolygons;
-  the_area.wedvertexheaderlist.InsertBefore(pos, newelement);
+  the_area.wedvertexheaderlist.InsertAfter(pos, newelement);
   the_area.doorpolygoncount++;
+  the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
 
 void CWedEdit::OnRemove3() 
 {
-	wed_polygon *newpolygons;
-  POSITION pos;
-  int polycount, first;
+  int first;
 	
+  if(m_doornum<0) return;
+  if(m_doorpolynum<0) return;
   if(m_open)
   {
-    polycount=the_area.weddoorheaders[m_doornum].countpolygonopen;
-    first=polycount+the_area.weddoorheaders[m_doornum].offsetpolygonopen;
-    if(the_area.weddoorheaders[m_doornum].offsetpolygonclose>=first)
-    {
-      the_area.weddoorheaders[m_doornum].offsetpolygonclose--;
-    }
+    first=m_doorpolynum+the_area.weddoorheaders[m_doornum].offsetpolygonopen;
   }
   else
   {
-    polycount=the_area.weddoorheaders[m_doornum].countpolygonclose;
-    first=polycount+the_area.weddoorheaders[m_doornum].offsetpolygonclose;
+    first=m_doorpolynum+the_area.weddoorheaders[m_doornum].offsetpolygonclose;
   }
-  pos=the_area.wedvertexheaderlist.FindIndex(the_area.wallpolygoncount+first);
-  if(!pos) return;
-  newpolygons=new wed_polygon[--the_area.doorpolygoncount];
-  if(!newpolygons)
+  if(the_area.RemoveDoorPolygon(first))
   {
-    the_area.secheader.wallpolycnt++;
+    MessageBox("Can't remove polygon","Area editor",MB_ICONSTOP|MB_OK);
     return;
   }
-  memcpy(newpolygons, the_area.doorpolygonheaders, m_wallgroupnum*sizeof(wed_polygon));
-  memcpy(newpolygons+m_wallgroupnum, the_area.doorpolygonheaders+m_wallgroupnum+1,(the_area.secheader.wallpolycnt-m_wallgroupnum)*sizeof(wed_polygon) );
-  delete [] the_area.weddoorheaders;
-  the_area.doorpolygonheaders=newpolygons;
-  the_area.wedvertexheaderlist.RemoveAt(pos);//this also frees the polygon
+  if(m_open)
+  {
+    the_area.weddoorheaders[m_doornum].countpolygonopen--;
+    if(m_doorpolynum>=the_area.weddoorheaders[m_doornum].countpolygonopen) m_doorpolynum--;
+  }
+  else
+  {
+    the_area.weddoorheaders[m_doornum].countpolygonclose--;
+    if(m_doorpolynum>=the_area.weddoorheaders[m_doornum].countpolygonclose) m_doorpolynum--;
+  }
+  the_area.wedchanged=true;
+  RefreshWed();
+  UpdateData(UD_DISPLAY);
+}
+
+void CWedEdit::OnDrop() 
+{
+  the_area.RemoveWedDoor(the_area.weddoorheaders[m_doornum].doorid);
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
 
 void CWedEdit::OnEditdoorpoly() 
 {
-  POSITION pos;
+//  POSITION pos;
   CWedPolygon dlg;
   int first;
 	
   if(m_doorpolynum<0) return;
   if(m_open) first=the_area.weddoorheaders[m_doornum].offsetpolygonopen+m_doorpolynum;
   else first=the_area.weddoorheaders[m_doornum].offsetpolygonclose+m_doorpolynum;  
-  pos=the_area.wedvertexheaderlist.FindIndex(first+the_area.wallpolygoncount);
-  dlg.SetPolygon(the_area.doorpolygonheaders+first, pos);
+//  pos=the_area.wedvertexheaderlist.FindIndex(first+the_area.wallpolygoncount);
+//  dlg.SetPolygon(the_area.doorpolygonheaders+first, pos);
+  dlg.SetPolygon(MT_DOORPOLYLIST, first);
   dlg.m_open=m_open;
   dlg.DoModal();
   if(dlg.m_changed) the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
-}
-
-int CheckIntervallum(int value, int first, int count)
-{
-  if(value<first) return -1;
-  if(value>=first+count) return -1;
-  return value-first;
 }
 
 void CWedEdit::OnSelection() 
@@ -629,7 +662,7 @@ void CWedEdit::OnSelection()
 
   if(m_open) first=the_area.weddoorheaders[m_doornum].offsetpolygonopen+m_doorpolynum;
   else first=the_area.weddoorheaders[m_doornum].offsetpolygonclose+m_doorpolynum;
-  dlg.SetMapType(MT_DOORPOLYLIST, (unsigned char *) &the_area.wedvertexheaderlist);
+  dlg.SetMapType(MT_DOORPOLYLIST, (LPBYTE) &the_area.wedvertexheaderlist);
   dlg.m_max=the_area.doorpolygoncount;
   dlg.m_value=first;
   dlg.InitView(IW_SHOWGRID|IW_GETPOLYGON|IW_ENABLEBUTTON, &the_mos);
@@ -650,6 +683,70 @@ void CWedEdit::OnSelection()
     }
   }
   RefreshWed();
+  UpdateData(UD_DISPLAY);
+}
+
+void CWedEdit::OnCopy() 
+{
+  POSITION pos;
+  int first;
+
+  if(m_open)
+  {
+    first=m_doorpolynum+the_area.weddoorheaders[m_doornum].offsetpolygonopen;
+  }
+  else
+  {
+    first=m_doorpolynum+the_area.weddoorheaders[m_doornum].offsetpolygonclose;
+  }
+  pos=the_area.wedvertexheaderlist.FindIndex(the_area.wallpolygoncount+first);
+  if(!pos) return;
+	if(m_polygoncopy)
+  {
+    delete [] m_polygoncopy;
+  }
+  m_polygonsize=the_area.doorpolygonheaders[first].countvertex;
+  m_polygoncopy=new area_vertex[m_polygonsize];
+  if(!m_polygoncopy)
+  {
+    MessageBox("Out of memory","Area editor",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  memcpy(m_polygoncopy, the_area.wedvertexheaderlist.GetAt(pos), m_polygonsize * sizeof(area_vertex) );
+}
+
+void CWedEdit::OnPaste() 
+{
+  area_vertex *newpolygon;
+  POSITION pos;
+  int first;
+
+  if(!m_polygoncopy)
+  {
+    return;
+  }
+  if(m_open)
+  {
+    first=m_doorpolynum+the_area.weddoorheaders[m_doornum].offsetpolygonopen;
+  }
+  else
+  {
+    first=m_doorpolynum+the_area.weddoorheaders[m_doornum].offsetpolygonclose;
+  }
+  pos=the_area.wedvertexheaderlist.FindIndex(the_area.wallpolygoncount+first);
+  if(!pos) return;
+  newpolygon = new area_vertex[m_polygonsize];
+  if(!newpolygon)
+  {
+    MessageBox("Out of memory","Area editor",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  memcpy(newpolygon, m_polygoncopy, m_polygonsize * sizeof(area_vertex) );
+  the_area.wedvertexheaderlist.SetAt(pos, newpolygon);
+  the_area.doorpolygonheaders[first].countvertex=m_polygonsize;
+  the_area.RecalcBoundingBoxes(); //simplicity
+  RefreshWed();
+  UpdateData(UD_DISPLAY);
 }
 
 //////////////// WALLGROUP /////////////////////
@@ -720,6 +817,7 @@ void CWedEdit::OnRemove2()
   the_area.wallpolygonheaders=newpolygons;
   the_area.wedvertexheaderlist.RemoveAt(pos);//this also frees the polygon
   the_area.wallpolygoncount=the_area.secheader.wallpolycnt;
+  the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
@@ -731,7 +829,7 @@ void CWedEdit::OnAdd2()
   POSITION pos;
 
   pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
-  if(!pos) return;
+  if(m_wallgroupnum<0) m_wallgroupnum=0;
   newelement = new area_vertex[0];
   if(!newelement) return;
   newpolygons = new wed_polygon [the_area.secheader.wallpolycnt+1];
@@ -741,16 +839,24 @@ void CWedEdit::OnAdd2()
     return;
   }
 
-  pos = the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
   memcpy(newpolygons,the_area.wallpolygonheaders,m_wallgroupnum*sizeof(wed_polygon) );
   memcpy(newpolygons+m_wallgroupnum+1,the_area.wallpolygonheaders+m_wallgroupnum,(the_area.secheader.wallpolycnt-m_wallgroupnum)*sizeof(wed_polygon) );
   memset(newpolygons+m_wallgroupnum,0,sizeof(wed_polygon) );
+  newpolygons[m_wallgroupnum].unkflags=255;
   delete [] the_area.wallpolygonheaders;
   the_area.wallpolygonheaders=newpolygons;
-  the_area.wedvertexheaderlist.InsertBefore(pos, newelement);
+  if(pos)
+  {
+    the_area.wedvertexheaderlist.InsertBefore(pos, newelement);
+  }
+  else
+  {
+    the_area.wedvertexheaderlist.AddHead(newelement);
+  }
   the_area.secheader.wallpolycnt++;
   the_area.wallpolygoncount=the_area.secheader.wallpolycnt;
   the_area.RecalcBoundingBoxes();
+  the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
@@ -764,35 +870,269 @@ void CWedEdit::OnSelection2()
     return;
   }
 
-  dlg.SetMapType(MT_WALLPOLYLIST, (unsigned char *) &the_area.wedvertexheaderlist);
+  dlg.SetMapType(MT_WALLPOLYLIST, (LPBYTE) &the_area.wedvertexheaderlist);
   dlg.m_value=m_wallgroupnum;
   dlg.m_max=the_area.wallpolygoncount;
   dlg.InitView(IW_SHOWGRID|IW_GETPOLYGON|IW_ENABLEBUTTON, &the_mos);
   dlg.DoModal();
   m_wallgroupnum=dlg.m_value;
   RefreshWed();  
+  UpdateData(UD_DISPLAY);
 }
 
 void CWedEdit::OnEditwallpoly() 
 {
-  POSITION pos;
+//  POSITION pos;
 	CWedPolygon dlg;
 	
   if(m_wallgroupnum<0) return;
-  pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
-  dlg.SetPolygon(the_area.wallpolygonheaders+m_wallgroupnum,pos);
+  //pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
+  dlg.SetPolygon(MT_WALLPOLYLIST, m_wallgroupnum);
   dlg.DoModal();
   if(dlg.m_changed) the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
 
+void CWedEdit::OnCopy2() 
+{
+  POSITION pos;
+
+  pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
+  if(!pos) return;
+	if(m_polygoncopy)
+  {
+    delete [] m_polygoncopy;
+  }
+  m_polygonsize=the_area.wallpolygonheaders[m_wallgroupnum].countvertex;
+  m_polygoncopy=new area_vertex[m_polygonsize];
+  if(!m_polygoncopy)
+  {
+    MessageBox("Out of memory","Area editor",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  memcpy(m_polygoncopy, the_area.wedvertexheaderlist.GetAt(pos), m_polygonsize * sizeof(area_vertex) );
+}
+
+void CWedEdit::OnPaste2() 
+{
+  area_vertex *newpolygon;
+  POSITION pos;
+
+  if(!m_polygoncopy)
+  {
+    return;
+  }
+  pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
+  if(!pos) return;
+  newpolygon = new area_vertex[m_polygonsize];
+  if(!newpolygon)
+  {
+    MessageBox("Out of memory","Area editor",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  memcpy(newpolygon, m_polygoncopy, m_polygonsize * sizeof(area_vertex) );
+  the_area.wedvertexheaderlist.SetAt(pos, newpolygon);
+  the_area.wallpolygonheaders[m_wallgroupnum].countvertex=m_polygonsize;
+  the_area.RecalcBoundingBoxes(); //simplicity
+  the_area.wedchanged=true;
+  RefreshWed();
+  UpdateData(UD_DISPLAY);
+}
+
+//returns true if the whole tile became transparent
+int CWedEdit::HandleOverlay(int x, int y, area_vertex *polygon, int size, int tile)
+{
+  CPoint tmp;
+  unsigned char *framebuffer;
+  int px,py;
+  int transparent;
+
+  framebuffer=the_mos.GetFrameBuffer(tile);
+  if(!framebuffer) return 0;
+  tmp=the_mos.GetFrameSize(tile);
+  if(tmp.x!=64 || tmp.y!=64) return 0;
+
+  transparent=1;
+  tmp.y=y;
+  for(py=0;py<64;py++)
+  {
+    tmp.x=x;
+    for(px=0;px<64;px++)
+    {
+      if(PointInPolygon(polygon, size, tmp ) )
+      {
+        *framebuffer=0;
+      }
+      if(*framebuffer) transparent=0;
+      framebuffer++;
+      tmp.x++;
+    }
+    tmp.y++;
+  }
+  return transparent;
+}
+
+//returns true if the whole tile became opaque (ie. same as the original)
+//non-transparency check doesn't work for doors!
+int CWedEdit::RemoveOverlay(int x, int y, area_vertex *polygon, int size, int tile, int original)
+{
+  CPoint tmp;
+  unsigned char *framebuffer;
+  unsigned char *originalbuffer;
+  int px,py;
+  int opaque;
+
+  framebuffer=the_mos.GetFrameBuffer(tile);
+  if(!framebuffer) return 0;
+  originalbuffer=the_mos.GetFrameBuffer(original);
+  if(!originalbuffer) return 0;
+  tmp=the_mos.GetFrameSize(tile);
+  if(tmp.x!=64 || tmp.y!=64) return 0;
+
+  opaque=1;
+  tmp.y=y;
+  for(py=0;py<64;py++)
+  {
+    tmp.x=x;
+    for(px=0;px<64;px++)
+    {
+      if(PointInPolygon(polygon, size, tmp ) )
+      {
+        *framebuffer=*originalbuffer;
+      }
+      if(*framebuffer!=*originalbuffer) opaque=0;
+      framebuffer++;
+      originalbuffer++;
+      tmp.x++;
+    }
+    tmp.y++;
+  }
+  return opaque;
+}
+
+void CWedEdit::OnTransparent() 
+{
+  int x,y;
+  POSITION pos;
+  area_vertex *polygon;
+  int size, tile, tilenum;
+
+  if(m_overlaynum<1 || !the_area.overlayheaders[m_overlaynum].tis[0])
+  {
+    MessageBox("First select an overlay!","Area editor",MB_ICONINFORMATION|MB_OK);
+    return;
+  }
+
+  if(m_wallgroupnum<0) return;
+  pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
+  if(!pos) return;
+  polygon = (area_vertex *) the_area.wedvertexheaderlist.GetAt(pos);
+  size = the_area.wallpolygonheaders[m_wallgroupnum].countvertex;
+  if(size<3 || !polygon) return;
+  if(SetupSelectPoint()) return;
+  for(y=0;y<the_area.overlayheaders[0].height;y++)
+  {
+    for(x=0;x<the_area.overlayheaders[0].width;x++)
+    {
+      if(!PolygonInBox( polygon,size,CRect(x*64, y*64, (x+1)*64, (y+1)*64) ) )
+      {
+        continue;
+      }
+      tilenum=y*the_area.overlayheaders[0].width+x;
+      tile=the_area.overlaytileheaders[tilenum].alternate;
+      if(tile==-1) //this tile wasn't yet overlaid, create the alternate tile now
+      {
+        tile=the_area.overlaytileheaders[tilenum].alternate=(short) the_mos.AddTileCopy(the_area.overlaytileindices[the_area.overlaytileheaders[tilenum].firsttileprimary]);
+      }
+      the_area.overlaytileheaders[tilenum].flags|=1<<m_overlaynum;
+      //prepare the tile
+      if(HandleOverlay(x*64,y*64, polygon, size, tile))
+      {
+        //fully overlaid tiles don't need to be stored
+        the_mos.RemoveTile(tile);
+        //          the_area.overlaytileheaders[tilenum].alternate=-1;
+        for(tilenum=0;tilenum<the_area.overlaytilecount;tilenum++)
+        {
+          if(the_area.overlaytileheaders[tilenum].alternate>tile)
+          {
+            the_area.overlaytileheaders[tilenum].alternate--;
+          }
+          else if(the_area.overlaytileheaders[tilenum].alternate==tile)
+          {
+            the_area.overlaytileheaders[tilenum].alternate=-1;
+          }
+        }
+      }
+    }
+  }
+  MessageBox("The polygon was removed after the creation of the overlay.","Area editor",MB_ICONINFORMATION|MB_OK);
+  //remove the polygon after use
+  OnRemove2();
+}
+
 void CWedEdit::OnClear() 
+{
+  int x,y;
+  POSITION pos;
+  area_vertex *polygon;
+  int size, tile, original, tilenum;
+
+  if(m_wallgroupnum<0) return;
+  pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
+  if(!pos) return;
+  polygon = (area_vertex *) the_area.wedvertexheaderlist.GetAt(pos);
+  size = the_area.wallpolygonheaders[m_wallgroupnum].countvertex;
+  if(size<3 || !polygon) return;
+  if(SetupSelectPoint()) return;
+  for(y=0;y<the_area.overlayheaders[0].height;y++)
+  {
+    for(x=0;x<the_area.overlayheaders[0].width;x++)
+    {
+      if(!PolygonInBox( polygon,size,CRect(x*64, y*64, (x+1)*64, (y+1)*64) ) )
+      {
+        continue;
+      }
+      tilenum=y*the_area.overlayheaders[0].width+x;
+      tile=the_area.overlaytileheaders[tilenum].alternate;
+      original=the_area.overlaytileindices[the_area.overlaytileheaders[tilenum].firsttileprimary];
+      if(tile==-1) 
+      {
+        //the tile isn't overlaid at all?
+        if(!the_area.overlaytileheaders[tilenum].flags) continue; 
+        //this tile is fully overlaid, create overlay now
+        tile=the_area.overlaytileheaders[tilenum].alternate=(short) the_mos.AddTileCopy(original);
+      }
+      //prepare the tile
+      if(RemoveOverlay(x*64, y*64, polygon, size, tile, original))
+      {
+        the_area.overlaytileheaders[tilenum].flags=0;
+        //fully opaque tiles don't need to be stored twice
+        the_mos.RemoveTile(tile);
+        for(tilenum=0;tilenum<the_area.overlaytilecount;tilenum++)
+        {
+          if(the_area.overlaytileheaders[tilenum].alternate>tile)
+          {
+            the_area.overlaytileheaders[tilenum].alternate--;
+          }
+          else if(the_area.overlaytileheaders[tilenum].alternate==tile)
+          {
+            the_area.overlaytileheaders[tilenum].alternate=-1;
+          }
+        }
+      }
+    }
+  }
+  MessageBox("The polygon was removed after the creation of the overlay.","Area editor",MB_ICONINFORMATION|MB_OK);
+  //remove the polygon after use
+  OnRemove2();
+}
+
+void CWedEdit::OnCleanup() 
 {
 	int ret;
 	
   ret=the_area.RecalcBoundingBoxes();
-  ret=the_area.ConsolidateDoortiles();
   if(ret)
   {
     the_area.wedchanged=true;
@@ -891,24 +1231,37 @@ void CWedEdit::OnNew()
     return;
   }
   the_area.wedchanged=true;
-  tilecount=the_mos.tisheader.numtiles;
   
   StoreResref(itemname,the_area.overlayheaders[m_overlaynum].tis);
   itemname=tmpstr;
   //setting up overlaytileindices
 
   tilecount=the_mos.mosheader.wColumn*the_mos.mosheader.wRow;
-
   //wallgroupindices for first overlay
+
   newindices=new short[the_area.overlaytileidxcount+tilecount];
   if(!newindices)
   {
-    return;
+    return;  
   }
+
+  memcpy(newindices,the_area.overlaytileindices,the_area.overlaytileidxcount*sizeof(short) );
+  for(i=0;i<tilecount;i++)
+  {
+    newindices[the_area.overlaytileidxcount+i]=(short) i;
+  }
+  the_area.overlaytileidxcount+=tilecount;
+  delete [] the_area.overlaytileindices;
+  the_area.overlaytileindices=newindices;
+
+  if(m_overlaynum)
+  {
+    tilecount=1;
+  }
+
   newtileheaders=new wed_tilemap[the_area.overlaytilecount+tilecount];
   if(!newtileheaders)
   {
-    delete [] newindices;
     return;
   }
 
@@ -933,29 +1286,42 @@ void CWedEdit::OnNew()
   memcpy(newtileheaders,the_area.overlaytileheaders,the_area.overlaytilecount*sizeof(wed_tilemap) );
   memset(newtileheaders+the_area.overlaytilecount,0,tilecount*sizeof(wed_tilemap) );
 
-  memcpy(newindices,the_area.overlaytileindices,the_area.overlaytileidxcount*sizeof(short) );
   i=tilecount;
   while(i--)
   {
-    newindices[the_area.overlaytileidxcount+i]=(short) i;
-    newtileheaders[the_area.overlaytilecount+i].firsttileprimary=(short) i;
-    newtileheaders[the_area.overlaytilecount+i].counttileprimary=1;
+    if(m_overlaynum)
+    {
+      newtileheaders[the_area.overlaytilecount+i].counttileprimary=the_mos.mosheader.wRow;
+    }
+    else
+    {
+      newtileheaders[the_area.overlaytilecount+i].firsttileprimary=(short) i;
+      newtileheaders[the_area.overlaytilecount+i].counttileprimary=1;
+// i don't know why was this here, it would set the overlay flags to some weird value
+//      newtileheaders[the_area.overlaytilecount+i].flags=(short) (the_mos.mosheader.wRow<<8);
+    }
     newtileheaders[the_area.overlaytilecount+i].alternate=-1;
   }
 
   delete [] the_area.overlaytileheaders;
   the_area.overlaytileheaders=newtileheaders;
 
-  delete [] the_area.overlaytileindices;
-  the_area.overlaytileindices=newindices;
-
   the_area.overlaytilecount+=tilecount;
-  the_area.overlaytileidxcount+=tilecount;
 
   the_area.overlayheaders[m_overlaynum].tileidxoffset=-1;
   the_area.overlayheaders[m_overlaynum].tilemapoffset=-1;
-  the_area.overlayheaders[m_overlaynum].width=the_mos.mosheader.wColumn;
-  the_area.overlayheaders[m_overlaynum].height=the_mos.mosheader.wRow;
+  if(m_overlaynum)
+  {
+    the_area.overlayheaders[m_overlaynum].width=1;
+    the_area.overlayheaders[m_overlaynum].height=1;
+  }
+  else
+  {
+    the_area.overlayheaders[m_overlaynum].width=the_mos.mosheader.wColumn;
+    the_area.overlayheaders[m_overlaynum].height=the_mos.mosheader.wRow;
+    the_area.m_width=the_mos.mosheader.wWidth;
+    the_area.m_height=the_mos.mosheader.wHeight;
+  }
   the_area.overlayheaders[m_overlaynum].unknownc=0;
 
   RefreshOverlay();
@@ -974,27 +1340,27 @@ void CWedEdit::OnEdittile()
   if(m_overlaynum<0) return;
   if(m_whole) baseoverlay=0;
   else baseoverlay=m_overlaynum;
-  RetrieveResref(tisname, the_area.overlayheaders[baseoverlay].tis);
-  /*
-  read_tis(tisname,&the_mos,true);
-  the_mos.TisToMos(x,y);
-  the_mos.SetOverlay(m_overlaynum, the_area.overlaytileheaders+the_area.getotc(baseoverlay),
-    the_area.overlaytileindices+the_area.getfoti(baseoverlay) );
-  */
-  if(SetupSelectPoint()) return;
+
   x=the_area.overlayheaders[baseoverlay].width;
   y=the_area.overlayheaders[baseoverlay].height;
-  dlg.SetTile(the_area.overlaytileheaders+the_area.getotc(baseoverlay),
-    the_area.overlaytileindices+the_area.getfoti(baseoverlay), x,y);
-  if(the_mos.MosChanged()) the_area.wedchanged=true;
+  dlg.SetTile(baseoverlay,  x,y);
+
+  RetrieveResref(tisname, the_area.overlayheaders[baseoverlay].tis);
   dlg.m_tisname=tisname;
 
   if(baseoverlay!=m_overlaynum)
   {
     RetrieveResref(tisname, the_area.overlayheaders[m_overlaynum].tis);
     read_tis(tisname, &overlay, false);
+    baseoverlay=m_overlaynum;
   }
+  else
+  {
+    baseoverlay=0;
+  }
+  if(SetupSelectPoint(baseoverlay, &overlay)) return;
   dlg.DoModal();
+  if(the_mos.MosChanged()) the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
@@ -1003,4 +1369,14 @@ BOOL CWedEdit::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CWedEdit::PostNcDestroy() 
+{
+  if(m_polygoncopy)
+  {
+    delete [] m_polygoncopy;	
+    m_polygoncopy=NULL;
+  }
+	CDialog::PostNcDestroy();
 }

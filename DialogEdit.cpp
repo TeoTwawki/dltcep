@@ -418,11 +418,11 @@ BOOL CDialogEdit::OnInitDialog()
 }
 
 static int dialogboxids[]={IDC_STRREF, IDC_TAGGED, IDC_BROWSE, IDC_PLAY, IDC_SOUND,
-IDC_TEXT, IDC_HASOPTION,IDC_HASCONDITION,IDC_HASACTION, IDC_HASJOURNAL, 
+IDC_NEWVALUE,IDC_TEXT, IDC_HASOPTION,IDC_HASCONDITION,IDC_HASACTION, IDC_HASJOURNAL, 
 IDC_OPTION, IDC_CONDITION,IDC_ACTION,IDC_JOURNAL, IDC_JOURTYPE,IDC_VALUE,IDC_DIALOG,
 0};
 static int stringboxids[]={IDC_STRREF, IDC_TAGGED, IDC_BROWSE, IDC_PLAY, IDC_SOUND,
-0};
+IDC_NEWVALUE,0};
 
 void CDialogEdit::EnableWindows(int enableflags, int actualflags)
 {
@@ -745,6 +745,7 @@ BEGIN_MESSAGE_MAP(CDialogEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
+	ON_BN_CLICKED(IDC_NEWVALUE, OnNewvalue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -811,6 +812,7 @@ restart:
     itemname.MakeUpper();
     res=the_dialog.ReadDialogFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -1:
@@ -869,6 +871,7 @@ int CDialogEdit::SaveDialog(CString filepath, CString newname)
   itemname=newname;
   res=the_dialog.WriteDialogToFile(fhandle);
   close(fhandle);
+  lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
   switch(res)
   {
   case 0:
@@ -1902,6 +1905,8 @@ void CDialogEdit::RefreshLeaf()
   int key,idx;
   CString old;
 
+  if(!m_currentselection) return;
+  key=-1;
   idx=m_dialogtree.GetItemData(m_currentselection);
   switch(m_activesection)
   {
@@ -1912,7 +1917,9 @@ void CDialogEdit::RefreshLeaf()
     }
     if(key!=(idx&NODEMASK) )
     {
-      abort();
+      RefreshDialog(0);
+      MessageBox("Please try to reproduce this","Internal error",MB_ICONSTOP|MB_OK);
+      return;
     }
     switch(idx&FLAGMASK)
     {
@@ -2096,7 +2103,7 @@ void CDialogEdit::OnContextMenu(CWnd* pWnd, CPoint point)
     CMenu *popupmenu;
     
     menu=GetMenu();    
-    popupmenu=menu->GetSubMenu(TREEMENU); //fuck this should be better defined
+    popupmenu=menu->GetSubMenu(TREEMENU); //this should be better defined
     popupmenu->TrackPopupMenu(TPM_CENTERALIGN,point.x,point.y,this);
   }
 }
@@ -2924,6 +2931,14 @@ restart:
   UpdateData(UD_DISPLAY);
 }
 
+void CDialogEdit::OnNewvalue() 
+{
+	m_strref=-1;
+  m_text=resolve_tlk_text(m_strref);
+  RefreshLeaf();
+  UpdateData(UD_DISPLAY);	
+}
+
 void CDialogEdit::OnImportTbg() 
 {
 	// TODO: Add your command handler code here
@@ -2936,13 +2951,6 @@ void CDialogEdit::OnExportTbg()
 	
 }
 
-BOOL CDialogEdit::PreTranslateMessage(MSG* pMsg) 
-{
-  m_tooltip.RelayEvent(pMsg);
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
-
 void CDialogEdit::OnCancel() 
 {
 	if(the_dialog.changed)
@@ -2953,4 +2961,10 @@ void CDialogEdit::OnCancel()
     }
   }
 	CDialog::OnCancel();
+}
+
+BOOL CDialogEdit::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

@@ -215,6 +215,11 @@ void CIapDialog::OnSaveas()
   int fhandle;
   int res;
 
+  if(readonly)
+  {
+    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
   if(!m_otherpicker.GetCount() && !m_tbgpicker.GetCount())
   {
     MessageBox("Add some files first!","IAP creator",MB_OK);
@@ -360,8 +365,9 @@ void CIapDialog::OnOpenother()
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING;
 
   CFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"override\\*.*", flg, szFilter1);
-  
+  HackForLargeList(m_getfiledlg);
   m_getfiledlg.m_ofn.lpstrTitle="Select game files!";
+
   if( m_getfiledlg.DoModal() == IDOK )
   {
     pos=m_getfiledlg.GetStartPosition();
@@ -381,8 +387,9 @@ void CIapDialog::OnOpentbg()
   
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING|OFN_EXPLORER;
   CFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg", flg, szFilterTbg);
-  
+  HackForLargeList(m_getfiledlg);
   m_getfiledlg.m_ofn.lpstrTitle="Select TBG files!";
+
   if( m_getfiledlg.DoModal() == IDOK )
   {
     pos=m_getfiledlg.GetStartPosition();
@@ -429,6 +436,10 @@ int CIapDialog::WeHaveWeiDU(bool toggle)
         m_otherpicker.DeleteString(i);
         continue;
       }
+      return true;
+    }
+    if((flg==3) && !toggle)
+    {
       return true;
     }
     i++;
@@ -491,12 +502,8 @@ void CIapDialog::OnContextMenu(CWnd* pWnd, CPoint point)
         break;
       case WIT_SOURCE:
         flg=2;
-        /*
-        if(!WeHaveWeiDU(false) )
-        {
-          MessageBox("Make sure the other side has the external installer (WeiDU) as well.","Warning",MB_ICONWARNING|MB_OK);
-        }
-        */
+        break;
+      case WIT_TEXT:
         break;
       default:
         MessageBox("Only textfiles could be displayed on unpack.","Warning",MB_ICONWARNING|MB_OK);
@@ -570,6 +577,8 @@ void CIapDialog::OnLaunch()
         MessageBox("Make sure the other side has the external installer (WeiDU) as well.","Warning",MB_ICONWARNING|MB_OK);
       }
       flg|=2;
+      break;
+    case WIT_TEXT:
       break;
     default:
       MessageBox("Only textfiles could be displayed on unpack.","Warning",MB_ICONWARNING|MB_OK);

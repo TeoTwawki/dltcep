@@ -39,6 +39,8 @@ public:
   int m_doorpolynum;
   int m_wallpolynum;
   bool m_repair;
+  area_vertex *m_polygoncopy;
+  int m_polygonsize;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -47,6 +49,7 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void PostNcDestroy();
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -55,6 +58,10 @@ protected:
 
   void RefreshOverlay();
   void RefreshWed();
+  //returns true if tile is fully transparent
+  int HandleOverlay(int x, int y, area_vertex *polygon, int size, int tile);
+  //returns true if tile is fully opaque
+  int RemoveOverlay(int x, int y, area_vertex *polygon, int size, int tile, int original);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedEdit)
@@ -83,13 +90,20 @@ protected:
 	afx_msg void OnEdittile();
 	afx_msg void OnRemove();
 	afx_msg void OnOverlay();
-	afx_msg void OnAdd();
 	afx_msg void OnSelection();
 	afx_msg void OnSelection2();
 	afx_msg void OnAdd3();
 	afx_msg void OnAdd2();
 	afx_msg void OnRemove2();
 	afx_msg void OnRemove3();
+	afx_msg void OnCopy();
+	afx_msg void OnPaste();
+	afx_msg void OnCopy2();
+	afx_msg void OnPaste2();
+	afx_msg void OnTransparent();
+	afx_msg void OnCleanup();
+	afx_msg void OnEdittile2();
+	afx_msg void OnDrop();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

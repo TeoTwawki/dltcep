@@ -29,6 +29,7 @@ CStoreGeneral::CStoreGeneral() : CPropertyPage(CStoreGeneral::IDD)
 {
 	//{{AFX_DATA_INIT(CStoreGeneral)
 	m_storename = _T("");
+	m_storenametag = FALSE;
 	//}}AFX_DATA_INIT
 }
 
@@ -52,6 +53,7 @@ void CStoreGeneral::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CStoreGeneral)
 	DDX_Control(pDX, IDC_STORETYPE, m_storetype_control);
 	DDX_Text(pDX, IDC_STORENAME, m_storename);
+	DDX_Check(pDX, IDC_TAGGED, m_storenametag);
 	//}}AFX_DATA_MAP
 	DDX_Text(pDX, IDC_STORENAMEREF, the_store.header.strref);
 	DDX_Text(pDX, IDC_SELLINGPERCENT, the_store.header.selling);
@@ -154,6 +156,7 @@ void CStoreGeneral::RefreshGeneral()
     }
   }
   m_storename=resolve_tlk_text(the_store.header.strref);
+  m_storenametag=resolve_tlk_tag(the_store.header.strref);
 }
 
 BEGIN_MESSAGE_MAP(CStoreGeneral, CPropertyPage)
@@ -296,10 +299,12 @@ void CStoreGeneral::OnTagged()
   {
     if(MessageBox("Do you want to update dialog.tlk?","Store editor",MB_YESNO)!=IDYES)
     {
-      return;
+      goto end;
     }      
   }
 	toggle_tlk_tag(the_store.header.strref);
+end:
+  RefreshGeneral();
   UpdateData(UD_DISPLAY);
 }
 
@@ -315,14 +320,14 @@ void CStoreGeneral::OnKillfocusStorename()
     {
       if(MessageBox("Do you want to update dialog.tlk?","Store editor",MB_YESNO)!=IDYES)
       {
-        return;
+        goto end;
       }      
     }
     //this handles the reference changes and adds a new string if needed
     the_store.header.strref=store_tlk_text(the_store.header.strref,m_storename);
-    RefreshGeneral();
-    //    WriteTlk();
   }
+end:
+  RefreshGeneral();
   UpdateData(UD_DISPLAY);
 }
 
@@ -1612,19 +1617,25 @@ void CStoreDrinks::UpdateDrinkpicker()
 
 BEGIN_MESSAGE_MAP(CStoreDrinks, CPropertyPage)
 	//{{AFX_MSG_MAP(CStoreDrinks)
+	ON_BN_CLICKED(IDC_ADDDRINK, OnAdddrink)
+	ON_BN_CLICKED(IDC_ADDSPELL, OnAddspell)
+	ON_BN_CLICKED(IDC_REMOVEDRINK, OnRemovedrink)
+	ON_BN_CLICKED(IDC_REMOVESPELL, OnRemovespell)
+	ON_BN_CLICKED(IDC_REMALLSPELL, OnRemallspell)
+	ON_BN_CLICKED(IDC_REMALLDRINK, OnRemalldrink)
 	ON_CBN_KILLFOCUS(IDC_SPELLS, OnKillfocusSpells)
 	ON_CBN_SELCHANGE(IDC_SPELLS, OnSelchangeSpells)
 	ON_CBN_KILLFOCUS(IDC_SPELLRESREF, OnKillfocusSpellresref)
 	ON_EN_KILLFOCUS(IDC_CUREDESCREF, OnKillfocusCuredescref)
 	ON_EN_KILLFOCUS(IDC_CURENAME, OnKillfocusCurename)
 	ON_EN_KILLFOCUS(IDC_CUREPRICE, OnKillfocusCureprice)
-	ON_BN_CLICKED(IDC_REMALLSPELL, OnRemallspell)
-	ON_BN_CLICKED(IDC_REMALLDRINK, OnRemalldrink)
-	ON_BN_CLICKED(IDC_REMOVEDRINK, OnRemovedrink)
-	ON_BN_CLICKED(IDC_REMOVESPELL, OnRemovespell)
-	ON_BN_CLICKED(IDC_ADDDRINK, OnAdddrink)
-	ON_BN_CLICKED(IDC_ADDSPELL, OnAddspell)
-  	//}}AFX_MSG_MAP
+	ON_CBN_KILLFOCUS(IDC_DRINKS, OnKillfocusDrinks)
+	ON_EN_KILLFOCUS(IDC_DRINKRESREF, OnKillfocusDrinkresref)
+	ON_EN_KILLFOCUS(IDC_DRINKNAMEREF, OnKillfocusDrinknameref)
+	ON_EN_KILLFOCUS(IDC_DRINKPRICE, OnKillfocusDrinkprice)
+	ON_EN_KILLFOCUS(IDC_DRINKSTRENGTH, OnKillfocusDrinkstrength)
+	ON_CBN_SELCHANGE(IDC_DRINKS, OnSelchangeDrinks)
+	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 //spells (cures) section//

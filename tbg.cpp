@@ -9,6 +9,7 @@
 #include "chitem.h"
 #include "options.h"
 #include "tbg.h"
+#include "TextView.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -417,8 +418,12 @@ int Ctbg::read_iap(int fhandle, int maxlen, int onlyopen, CStringList &filelist)
     }
     if((iapfileheaders[actfilecount].launchflag&1) )
     {
-      if(esize>4096) filedata[4096]=0;
-      MessageBox(0,filedata,"IAP import",MB_OK);
+      //if(esize>4096) filedata[4096]=0;
+      //MessageBox(0,filedata,"IAP import",MB_OK);
+      CTextView dlg;
+      dlg.m_text=filedata;
+      dlg.m_file=outfilepath;
+      dlg.DoModal();
       delete [] filedata;
       continue;
     }
@@ -456,7 +461,7 @@ int Ctbg::patch_baldur_gam(int fhandle)
     ret=the_game.AddNpc(tbgnentry.npcname,tbgnentry.area, tbgnentry.x, tbgnentry.y);
     if(ret<0) return ret;
   }
-  return write_game("BALDUR");
+  return write_game("BALDUR","");
 }
 
 int Ctbg::read_tbg(int fhandle, int maxlen)
@@ -1026,7 +1031,7 @@ int Ctbg::collect_srcrefs()
 }
 
 //writes out a tbg file
-int Ctbg::ExportFile(int filetype)
+int Ctbg::ExportFile(int filetype, CString outfilepath)
 {
   CString outfilename;
   CString tmpstr;
@@ -1042,12 +1047,12 @@ int Ctbg::ExportFile(int filetype)
   if(!tbgext[idx]) return -99;
   if(filetype&TBG_ALT)
   {
-    outfilename.Format("%s%s#%c.tbg",bgfolder,itemname,tbgext[idx]);
+    outfilename.Format("%s%s#%c.tbg",outfilepath,itemname,tbgext[idx]);
   }
   else
   {
     if(tbgext[idx]=='-') outfilename.Format("%s%s.tbg",bgfolder,itemname);
-    else outfilename.Format("%s%s-%c.tbg",bgfolder,itemname,tbgext[idx]);
+    else outfilename.Format("%s%s-%c.tbg",outfilepath,itemname,tbgext[idx]);
   }
   new_iap(); //clears headers & counters  
   switch(filetype)
@@ -1134,7 +1139,7 @@ int Ctbg::ExportFile(int filetype)
   header.asciioffset=header.strrefoffset+header.strrefcount*sizeof(unsigned long);
   header.fileoffset=header.asciioffset+header.asciicount*sizeof(unsigned long);
   header.textentryoffset=header.fileoffset+header.filelength;
-//  count=header.textentryoffset;
+
   //adjusting strref offsets
   //setting string offsets (we used this as pointer offset)
   m_tbgnames=new CString[maxcount];
@@ -1366,7 +1371,8 @@ restart:
       if(res==IDNO) goto restart;
     }
     itemname=newname;
-    res=the_tbg.ExportFile(filetype);
+    filepath=filepath.Left(filepath.ReverseFind('\\')+1);
+    res=the_tbg.ExportFile(filetype, filepath);
     switch(res)
     {
     case -3:

@@ -356,6 +356,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     res=the_projectile.ReadProjectileFromFile(fhandle,-1);
     close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
@@ -394,7 +395,6 @@ void CProjEdit::SaveProj(int save)
   CString filepath;
   CString newname;
   CString tmpstr;
-  int fhandle;
   int res;
 
   if(readonly)
@@ -403,7 +403,6 @@ void CProjEdit::SaveProj(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-
   CFileDialog m_getfiledlg(FALSE, "pro", makeitemname(".pro",0), res, szFilter);
 
   if(save)
@@ -437,14 +436,9 @@ gotname:
       res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
       if(res==IDNO) goto restart;
     }
-    fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-    if(fhandle<1)
-    {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
-      goto restart;
-    }
-    res=the_projectile.WriteProjectileToFile(fhandle,0);
-    close(fhandle);
+    
+    res = write_projectile(newname, filepath);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:

@@ -69,6 +69,7 @@
 #define W98         0x100000//w98 compatible mode (sound)
 #define RESLOC      0x200000//don't choke on bad bifs
 #define USEIAP      0x400000//use zip compression instead of iap
+#define LARGEWINDOW 0x800000//larger graphical window for areas
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -198,6 +199,7 @@ protected:
 	afx_msg void OnW98();
 	afx_msg void OnWeidu();
 	afx_msg void OnZip();
+	afx_msg void OnLargeWindow();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
