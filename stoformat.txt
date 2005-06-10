@@ -9,8 +9,10 @@ Description
 These files contain a description of the types of items and services available for sale in a given store, inn, tavern, or temple.
 STOR file versions
 
-    * V1.0: Baldur's Gate, Icewind Dale
+    * V1.0: Baldur's Gate I-II
     * V1.1: Planescape: Torment
+    * V9.0: Icewind Dale I-II
+
 
 STOR V1.0
 
@@ -37,15 +39,21 @@ Offset Size (data type) Description
     * bit 4 (0x10) : User allowed to purchase cures
     * bit 5 (0x20) : User allowed to donate money
     * bit 6 (0x40) : User allowed to purchase drinks
-    * bit 7 (0x80) : Unknown
-    * bit 8 (0x100): Unknown
-    * bit 9 (0x200): Buy Fenced Goods ?
+    * bit 7        : Unknown
+    * bit 8        : Unknown
+    * bit 9 (0x200): Quality 1
+    * bit 10 (0x400): Quality 2
+    * bit 11        : Unknown
+    * bit 12        : Unknown
+    * bit 13 (0x2000): Buy Fenced Goods
+    * bit 14        : Unknown
+    * bit 15        : Unknown
 
 0x0014 4 (dword) Store "sell price markup" (percentage of base price store charges for items)
 0x0018 4 (dword) Store "buy price markup" (percentage of base price store is willing to pay)
 0x001c 4 (dword) Price depreciation
 0x0020 2 (word) Probability to fail to steal
-0x0022 2 (word) Bag capacity
+0x0022 2 (word) Bag capacity for BG2
 0x0024 8 (bytes) Dialog resource
 0x002c 4 (dword) Offset to Items purchased here section
 0x0030 4 (dword) Count of items in Items purchased here section.
@@ -71,6 +79,9 @@ Offset Size (data type) Description
 0x0070 4 (dword) Offset to Cures section.
 0x0074 4 (dword) Count of Cures.
 0x0078 36 (bytes) Unknown
+For V9.0 only:
+0x009c 4 (dword) Capacity
+0x00a0 80 (bytes) Unknown
 
 STOR V1.0 Items for Sale
 Offset Size (data type) Description

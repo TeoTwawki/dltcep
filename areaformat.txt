@@ -15,7 +15,7 @@ This file format describes the content of an area, rather than its visual repres
 AREA file versions
 
     * V1.0: Baldur's Gate, Planescape: Torment, Icewind Dale, BG2 SoA 
-    * V2.0: Icewind Dale II
+    * V9.1: Icewind Dale II
 
 AREA V1.0
 
@@ -122,8 +122,9 @@ Also here I have noticed some weird values in PS:T - for example in city areas -
 0x00c8 4 (dword) Number of entries in the automap note section
 0x00cc 4*20 (dword) Unknown,unused
 
-V2.0 File header (Same as V1.0 but 16 bytes longer)
-0x00cc 4*24 (dword) Unknown,unused
+V9.1 File header (Same as V1.0 but 16 bytes longer)
+0x0054 4*4 (dword) Unknown,unused
+and the rest is shifted by 0x10 bytes
 
 V1.0 Actors
 Offset Size (data type) Description
@@ -383,16 +384,20 @@ Offset Size (data type) Description
 
 But also :
 
-    * Bit 0 : if set to 1 then door is open
+    * Bit 0 : if set to 1 then door is open (reverse for PST)
     * Bit 1 : defines whether door is locked or not
-    * Bit 2 : unknown
-    * Bit 3 : unknown
-    * Bit 4 : unknown
+    * Bit 2 : reset trap, so it must be disarmed
+    * Bit 3 : detectable trap
+    * Bit 4 : broken door
     * Bit 5 : seem to be intern doors.
-    * Bit 6 : seem to lead to another area.  the doors have a reference to a trigger after 0x0098 like TranXXXX (where XXXX it's the corresponding area number)
-    * Bit 7 : door is secret, detect trap ability may be used to detect them , also the sound of opening/closing is different, 
+    * Bit 6 : blocking trigger when
+    * Bit 7 : door is secret, detect trap ability may be used to detect them , also the sound of opening/closing is different,
+    * Bit 8 : found hidden door
+    * Bit 9 : transparent door
+    * Bit 10: use up key
+    * Bit 11: slide door
+    
 
-Usually values 40, 4a, 42, 4001, 4a01, 4201 for normal doors are used . 
 0x002c 4 (dword) Index of first vertex comprising the outline of this door while the door is open.
 0x0030 2 (word) Count of vertices comprising the outline of this door while the door is open.
 0x0032 2 (word) Count of vertices comprising the outline of this door while the door is closed.
