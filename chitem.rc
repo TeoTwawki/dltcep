@@ -1944,11 +1944,11 @@ BEGIN
     LTEXT           "Actor",IDC_STATIC,7,2,18,8
     LTEXT           "Position",IDC_STATIC,7,34,26,8
     LTEXT           "Destination",IDC_STATIC,65,34,36,8
-    LTEXT           "Visible",IDC_STATIC,7,64,21,8
+    LTEXT           "Fields",IDC_STATIC,7,64,19,8
     LTEXT           "Animation",IDC_STATIC,7,94,32,8
     LTEXT           "0x2c",IDC_STATIC,7,122,16,8
     LTEXT           "Direction",IDC_STATIC,40,64,29,8
-    LTEXT           "0x38",IDC_STATIC,78,122,16,8
+    LTEXT           "Visible",IDC_STATIC,78,122,21,8
     LTEXT           "0x3c",IDC_STATIC,106,122,16,8
     LTEXT           "Talk count",IDC_STATIC,134,122,35,8
     LTEXT           "Schedule",IDC_STATIC,7,152,31,8
@@ -2466,9 +2466,9 @@ BEGIN
     LTEXT           "Gender",IDC_STATIC,300,39,24,8
     LTEXT           "Alignment",IDC_STATIC,300,69,32,8
     LTEXT           "Hated race",IDC_STATIC,104,134,36,8
-    LTEXT           "Morale",IDC_STATIC,55,165,22,8
+    LTEXT           "Morale",IDC_STATIC,55,165,29,8
     LTEXT           "Morale break",IDC_STATIC,159,165,42,8
-    LTEXT           "Morale recovery",IDC_STATIC,104,165,52,8
+    LTEXT           "Morale recovery",IDC_STATIC,104,165,54,8
     LTEXT           "THAC0",IDC_STATIC,104,101,24,8
     LTEXT           "# of attacks",IDC_STATIC,149,100,39,8
     LTEXT           "Kit",IDC_STATIC,300,99,9,8
@@ -2722,7 +2722,7 @@ BEGIN
     LTEXT           "0x9c",IDC_STATIC,180,71,16,8
     LTEXT           "0xa0",IDC_STATIC,228,71,16,8
     EDITTEXT        IDC_U14,276,52,20,14,ES_AUTOHSCROLL
-    LTEXT           "0x237",IDC_STATIC,276,39,20,8
+    LTEXT           "Sex",IDC_STATIC,276,39,13,8
     EDITTEXT        IDC_U15,300,52,20,14,ES_AUTOHSCROLL
     LTEXT           "0x243",IDC_STATIC,300,39,20,8
     EDITTEXT        IDC_U16,108,116,20,14,ES_AUTOHSCROLL
@@ -2995,46 +2995,42 @@ FONT 8, "MS Sans Serif"
 BEGIN
     COMBOBOX        IDC_DOORPICKER,7,16,144,167,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    EDITTEXT        IDC_DOORID,7,43,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
-    EDITTEXT        IDC_FLAGS,52,43,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TPOSX,97,43,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TPOSY,126,43,24,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Set",IDC_SET,155,43,34,14
-    EDITTEXT        IDC_SHORTREF,97,60,40,14,ES_AUTOHSCROLL
-    CONTROL         "Tagged",IDC_TAGGED,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFTTEXT | WS_TABSTOP,146,63,41,10
-    EDITTEXT        IDC_LONGNAME,7,77,180,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DOORID,7,43,57,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_FLAGS,68,43,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TPOSX,96,43,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TPOSY,124,43,24,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_SET,152,43,34,14
     EDITTEXT        IDC_STRREF,7,151,40,14,ES_AUTOHSCROLL
-    CONTROL         "Open",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    98,93,33,10
+    CONTROL         "Open",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    91,33,10
     CONTROL         "Detectable",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,148,105,51,10
-    CONTROL         "Linked?",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,98,117,41,10
-    CONTROL         "Transparent",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,52,129,54,10
+                    WS_TABSTOP,148,91,51,10
+    CONTROL         "Linked",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    93,104,41,10
+    CONTROL         "Transp.",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,52,117,40,10
     CONTROL         "Locked",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    148,93,40,10
-    CONTROL         "5",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
-                    117,20,10
-    CONTROL         "Hidden",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    148,117,39,10
-    CONTROL         "Remove key",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,126,129,56,10
+                    52,91,40,10
+    CONTROL         "Broken",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    7,104,39,10
+    CONTROL         "Secret",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    148,104,39,10
+    CONTROL         "Use up key",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,117,52,10
     CONTROL         "Reset trap",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,98,105,49,10
-    CONTROL         "Internal?",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,52,117,41,10
+                    WS_TABSTOP,93,91,49,10
+    CONTROL         "6",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,
+                    104,20,10
     CONTROL         "Found it",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,7,129,41,10
+                    WS_TABSTOP,7,117,41,10
     CONTROL         "Slide",IDC_FLAG12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    98,141,31,10
+                    148,117,31,10
     EDITTEXT        IDC_INFOSTR,52,151,174,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_CURSORIDX,10,178,40,14,ES_AUTOHSCROLL
     CONTROL         "Spin1",IDC_SPINCURSOR,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
-                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,50,178,11,14
-    CONTROL         "",IDC_CURSOR,"Static",SS_BITMAP | SS_SUNKEN,66,169,16,
+                    UDS_ARROWKEYS | UDS_NOTHOUSANDS,44,178,11,14
+    CONTROL         "",IDC_CURSOR,"Static",SS_BITMAP | SS_SUNKEN,56,169,16,
                     14
     EDITTEXT        IDC_SOUND1,96,178,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,138,178,28,14
@@ -3072,7 +3068,7 @@ BEGIN
     LTEXT           "/ 0",IDC_MAXDOOR,159,19,26,8
     LTEXT           "Door name",IDC_STATIC,7,6,36,8
     LTEXT           "Identifier",IDC_STATIC,7,33,28,8
-    LTEXT           "Flags",IDC_STATIC,50,33,18,8
+    LTEXT           "Flags",IDC_STATIC,68,33,18,8
     LTEXT           "Bounding box",IDC_STATIC,295,118,44,8
     GROUPBOX        "Vertices && impeded blocks",IDC_STATIC,291,92,122,70,
                     BS_FLAT
@@ -3083,7 +3079,7 @@ BEGIN
     LTEXT           "Trap detection && removal",IDC_STATIC,193,33,80,8
     LTEXT           "Trapped",IDC_STATIC,193,60,28,8
     LTEXT           "Detected",IDC_STATIC,237,60,30,8
-    LTEXT           "Launch point",IDC_STATIC,95,33,42,8
+    LTEXT           "Launch point",IDC_STATIC,96,33,42,8
     LTEXT           "Key",IDC_STATIC,284,6,13,8
     LTEXT           "Dialog",IDC_STATIC,284,60,21,8
     LTEXT           "Script",IDC_STATIC,284,33,19,8
@@ -3093,8 +3089,7 @@ BEGIN
     LTEXT           "%",IDC_STATIC,269,19,8,8
     LTEXT           "Lock difficulty",IDC_STATIC,237,6,44,8
     LTEXT           "Open fail",IDC_STATIC,7,141,29,8
-    LTEXT           "Region link",IDC_STATIC,7,91,36,8
-    LTEXT           "Name in dialog (ref. && string)",IDC_STATIC,7,65,88,8
+    LTEXT           "Region link",IDC_STATIC,7,59,36,8
     LTEXT           "%",IDC_STATIC,226,19,8,8
     EDITTEXT        IDC_POS1X2,199,100,28,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_POS1Y2,232,100,28,14,ES_AUTOHSCROLL
@@ -3105,7 +3100,7 @@ BEGIN
     PUSHBUTTON      "Set",IDC_SET2,263,100,24,14
     PUSHBUTTON      "Set",IDC_SET3,263,127,24,14
     PUSHBUTTON      "Select door",IDC_SELECTION,231,151,56,14
-    COMBOBOX        IDC_AREA,7,103,87,89,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_AREA,7,71,179,89,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
 END
 
@@ -4800,7 +4795,7 @@ IDD_GAMEGENERAL DIALOGEX 0, 0, 246, 150
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit general game data"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_STARTAREA,7,25,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_GAMETIME,61,25,48,14,ES_AUTOHSCROLL
@@ -4827,6 +4822,27 @@ BEGIN
                     93,20,10
     EDITTEXT        IDC_WEATHER,173,25,40,14,ES_AUTOHSCROLL
     LTEXT           "Weather",IDC_STATIC,173,11,28,8
+END
+
+IDD_GAMEPCINFO DIALOG DISCARDABLE  0, 0, 227, 199
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit PC info"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Back",IDCANCEL,88,178,50,14
+    EDITTEXT        IDC_AREA,11,18,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE1,60,18,38,14
+    EDITTEXT        IDC_XPOS,109,18,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_YPOS,158,18,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CRERES,11,44,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE2,60,44,38,14
+    COMBOBOX        IDC_FACE,109,44,69,176,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Area",IDC_STATIC,11,8,16,8
+    LTEXT           "Xpos",IDC_STATIC,109,8,17,8
+    LTEXT           "Ypos",IDC_STATIC,158,8,17,8
+    LTEXT           "Creature",IDC_STATIC,11,34,28,8
+    LTEXT           "Orientation",IDC_STATIC,109,34,35,8
 END
 
 
@@ -5597,6 +5613,14 @@ BEGIN
         TOPMARGIN, 3
         BOTTOMMARGIN, 143
     END
+
+    IDD_GAMEPCINFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 192
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -5646,8 +5670,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,5,0,7
- PRODUCTVERSION 6,5,0,7
+ FILEVERSION 6,6,0,2
+ PRODUCTVERSION 6,6,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5665,14 +5689,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 5, 0, 7\0"
+            VALUE "FileVersion", "6, 6, 0, 2\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2005 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 6.5G\0"
-            VALUE "ProductVersion", "6, 5, 0, 7\0"
+            VALUE "ProductName", "DLTC Editor Pro 6.6b\0"
+            VALUE "ProductVersion", "6, 6, 0, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6966,6 +6990,13 @@ BEGIN
     IDS_DELOVER             "Removes the selected overlay."
     IDS_TILES               "Manage tiles of this overlay."
     IDS_2C                  "Marks local variables."
+    IDS_VISIBLE             "Set it to -1 to make the creature visible."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FIELDS              "1-creature isn't embedded\n8-creature's scripting name overridden"
+    IDS_LABEL               "To edit this field, remove the number from the beginning."
 END
 
 #endif    // English (U.S.) resources

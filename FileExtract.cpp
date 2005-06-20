@@ -516,20 +516,24 @@ BOOL CFileExtract3::OnInitDialog()
   m_filetype_control.ResetContent();
   if(skim_sav)
   {
+    m_filetype_control.AddString(".*");
     m_filetype_control.AddString(".are");
     m_filetype_control.AddString(".sto");
     GetDlgItem(IDC_OVERRIDE)->ShowWindow(false);
+    m_filetype_control.SetCurSel(0);
     return TRUE;
   }
   if(cbf_or_sav)
   {
     m_filetype_control.AddString(".*");
     m_filetype_control.AddString(".bif");
+    m_filetype_control.SetCurSel(0);
     return TRUE;
   }
   for(i=0;i<=NUM_OBJTYPE;i++)
   {
     m_filetype_control.AddString(objexts[i]);
   }
+  m_filetype_control.SetCurSel(0);
 	return TRUE;
 }

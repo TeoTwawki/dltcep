@@ -34,6 +34,8 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   int CantMakeMinimap(CString tmpstr);
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -92,12 +94,16 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaActor)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
 	//{{AFX_MSG(CAreaActor)
@@ -168,6 +174,8 @@ public:
 
 // Implementation
 protected:  
+  CToolTipCtrl m_tooltip;
+
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
 	//{{AFX_MSG(CAreaTrigger)
@@ -249,6 +257,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -306,6 +315,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CAreaEntrance)
@@ -364,6 +374,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CAreaAmbient)
@@ -447,6 +458,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -524,6 +536,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CAreaVariable)
@@ -585,7 +598,7 @@ public:
   HBITMAP hbd;
 
   int m_doornum;
-  CString m_infostr, m_text;
+  CString m_infostr;
   CStatic m_cursoricon;
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -598,6 +611,8 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   int AddWedDoor(CString doorid);
   int RemoveWedDoor(char *doorid);
 	afx_msg void DefaultKillfocus();
@@ -622,22 +637,19 @@ protected:
 	afx_msg void OnFlag6();
 	afx_msg void OnFlag7();
 	afx_msg void OnFlag8();
-	afx_msg void OnKillfocusShortref();
+	afx_msg void OnFlag9();
+	afx_msg void OnFlag10();
+	afx_msg void OnFlag11();
+	afx_msg void OnFlag12();
 	afx_msg void OnKillfocusArea();
 	afx_msg void OnBrowse();
 	afx_msg void OnBrowse2();
 	afx_msg void OnPlay();
 	afx_msg void OnPlaysound();
-	afx_msg void OnKillfocusLongname();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
 	afx_msg void OnUnknown();
 	afx_msg void OnBrowse5();
-	afx_msg void OnFlag9();
-	afx_msg void OnFlag10();
-	afx_msg void OnFlag11();
-	afx_msg void OnFlag12();
-	afx_msg void OnTagged();
 	afx_msg void OnChangeCursoridx();
 	afx_msg void OnSet();
 	afx_msg void OnEditblock();
@@ -689,6 +701,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -767,6 +780,8 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void Allocatemap(bool allocate);
   void ResetCombo();
   void AddTravelRegions();

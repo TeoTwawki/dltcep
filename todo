@@ -7,16 +7,16 @@
 6. don't overwrite scripts/dialogs using weidu
 7. MDI ???
 8. avatar preview (creature editor)
-9. mass delete of frames from sequences (in bam editor)
-10. modified files warning when exiting editor
-11. alter tlk only on save or exit (or tbg export)
-13. copy/paste in bams don't work?
-14. copy/paste chu 
-15. iwd2 creature save/items/spells
-16. add vertex checker for areas (wed/are)
-17. edit creature in gam, add item, close and save, edit again
-18. edit dialog/dialogf/both option (keep both in memory)
-if opening both, but not the same #of resrefs, then ask for sync
-19. save/load polygons
-20. don't center on vertex option
-21. check ar3600 (xvarts) in bg1, green water
+9. modified files warning when exiting editor
+10. alter tlk only on save or exit (or tbg export)
+11. copy/paste in bams don't work?
+12. copy/paste chu 
+13. iwd2 creature save/items/spells
+14. add vertex checker for areas (wed/are)
+15. edit dialog/dialogf/both option (keep both in memory)
+if opening both, but not the same #of strrefs, then ask for sync
+16. close doors should display overlays correctly
+17. minimap with overlays
+18. startcutscene should be the last action in dialog blocks
+19. wed->overlay->extract tiles (crash?)
+20. classflags 1: no interrupt, 2: glowing?

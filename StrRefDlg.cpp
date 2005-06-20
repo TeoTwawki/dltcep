@@ -520,7 +520,7 @@ void CStrRefDlg::OnClear()
 	massclear mscDlg;
 	
   OnKillfocusStrref();
-  mscDlg.SetRange(1,tlk_headerinfo[0].entrynum-1, m_strref);
+  mscDlg.SetRange(0,tlk_headerinfo[0].entrynum-1, m_strref);
   mscDlg.SetText("Clearing an interval of entries");  
   if(mscDlg.DoModal()==IDOK)
   {

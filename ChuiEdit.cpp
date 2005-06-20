@@ -1014,7 +1014,7 @@ void CChuiEdit::OnAddctrl()
   i=ChuiControlSize(0)*sizeof(BYTE);
   //copying the control table (sizes)
   memcpy(newtable, the_chui.controltable, pos * sizeof(POINT) );
-  memcpy(newtable+pos+1, the_chui.controltable+pos, (the_chui.controlcnt-pos)*sizeof(BYTE *) );
+  memcpy(newtable+pos+1, the_chui.controltable+pos, (the_chui.controlcnt-pos)*sizeof(POINT) );
   //setting up the new size
   newtable[pos].y=i+sizeof(chui_control_common);
   //copying the extension pointers

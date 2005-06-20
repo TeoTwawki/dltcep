@@ -252,6 +252,7 @@
 #define IDS_ADDFRAME                    225
 #define IDD_GAMEGENERAL                 225
 #define IDS_SETFRAME                    226
+#define IDD_GAMEPCINFO                  226
 #define IDS_DELFRAME                    227
 #define IDS_CENTERFRAME                 228
 #define IDS_BAM                         229
@@ -296,6 +297,9 @@
 #define IDS_DELOVER                     268
 #define IDS_TILES                       269
 #define IDS_2C                          270
+#define IDS_VISIBLE                     271
+#define IDS_FIELDS                      272
+#define IDS_LABEL                       273
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002

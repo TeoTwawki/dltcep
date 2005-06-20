@@ -1,3 +1,4 @@
+
 #if !defined(AFX_STRUCTS_H__42E3FDEA_0FCA_4733_8AD1_6E396250B019__INCLUDED_)
 #define AFX_STRUCTS_H__42E3FDEA_0FCA_4733_8AD1_6E396250B019__INCLUDED_
 
@@ -693,7 +694,7 @@ typedef struct
   unsigned long unused2[8];
   long strrefs[SND_SLOT_COUNT];
   unsigned char levels[3];
-  unsigned char unknown237;
+  unsigned char sex;
   unsigned char strstat;
   unsigned char strbon;
   unsigned char intstat;
@@ -793,7 +794,7 @@ typedef struct
   unsigned long unused2[8];
   long strrefs[SND_SLOT_COUNT];
   unsigned char levels[3];
-  unsigned char unknown237;
+  unsigned char sex;
   unsigned char strstat;
   unsigned char strbon;
   unsigned char intstat;
@@ -909,7 +910,7 @@ typedef struct
   unsigned long unused2[8];
   long strrefs[SND_SLOT_COUNT];
   unsigned char levels[3];
-  unsigned char unknown237;
+  unsigned char sex;
   unsigned char strstat;
   unsigned char strbon;
   unsigned char intstat;
@@ -992,42 +993,54 @@ typedef struct
   char respierc;
   char resmiss;
   char resmdam;
-  unsigned char unknown61[6];
+  unsigned char unknown61[4];
+  unsigned char fatigue;
+  unsigned char intox;
   unsigned char luck;
-  unsigned char unknown[34];
+  unsigned char turnundead;
+  unsigned char unknown69[33];
   unsigned char totlevel;
   unsigned char levels[11];
-  unsigned char unknown2[22];
+  unsigned char unknown96[22];
   long strrefs[64];
   unsigned char script1[8]; //team script
   unsigned char script2[8]; //special script1
-  long unknown3;
+  long unknown1bc;
   long feat1, feat2, feat3; //96 bits
   char skills[143];
   char enemy[8];
   char subrace;
-  short unknown4;
+  char unknown264;
+  char sex;
   char strstat;
   char intstat;
   char wisstat;
   char dexstat;
   char constat;
   char chastat;
-  long unknown5;
+  unsigned char morale;
+  unsigned char moralebreak;
+  unsigned char moralerecover;
+  unsigned char unknown26f;
   long kit;
   char scripts[5][8];
-  char unknown6[232];
+  long unknown29c;
+  short internals[5];
+  char unknown2aa[66];
+  short savedx, savedy, savedir; //saved location
+  char unknown2f2[146];
   unsigned char idsea;
   unsigned char idsgeneral;
   unsigned char idsrace;
   unsigned char idsclass;
   unsigned char idsspecific;
   unsigned char idsgender;
-  char idsinternal[5]; //func spec
+  unsigned char idsinternal[5]; //func spec
   unsigned char idsalign;
-  long unknown7;
+  short unknown390; 
+  short unknown392; 
   char dvar[32];
-  char unknown8[6];  
+  char unknown3b4[6];  //3 words
   long spelloffs[IWD2_SPSLOTNUM][9]; //7 types: bard, cleric, druid, paladin, ranger, sorc, wizard
   long spellcnt[IWD2_SPSLOTNUM][9];  //7 types
   long domainoffs[9];   //plus domain
@@ -1053,6 +1066,7 @@ typedef struct
   char scripts[5][8];
   char dialogresref[8];
   char iwd2scripts[2][8];
+  char scriptname[32];
 } creature_data;
 
 typedef struct {
@@ -1295,7 +1309,7 @@ typedef struct {
   short posy;
   short destx;
   short desty;
-  long visible; //visibility ?
+  long fields; //used fields
   long unknown2c;
   long animation;//actor's animation type
   short face;
@@ -1463,10 +1477,9 @@ typedef struct {
   short locp1x, locp1y;   //open location 1
   short locp2x, locp2y;   //open location 2
   long strref;            //check this for missing strings STRREF!!!
-  char regionlink[24];
-  long nameref;           //check this for missing strings  STRREF!!!
-  char dlgref[8];
-  char unknownc0[8];
+  char regionlink[32];
+  long nameref;           //this is unsure
+  char dialogref[8];      //also unsure
 } area_door;
 
 typedef struct {
@@ -1650,11 +1663,16 @@ typedef struct {
   long dvaroffset;
   long dvarcount;
   long familiaroffset;
-  long unknownoffset;
-  long unknowncount;
+  long slocoffset;
+  long sloccount;
   long realtime;
   char unknown78[60];
 } gam_header;
+
+typedef struct {
+  char area[8];
+  short xpos, ypos;
+} gam_sloc;
 
 typedef struct {
   char filetype[4]; //'GAME'
@@ -1677,8 +1695,8 @@ typedef struct {
   long unknown48;
   long journalcount;
   long journaloffset;
-  long unknown2offset;
-  long unknown2count;
+  long mazeoffset;
+  long reputation;
   char curarea[8];
   long dvaroffset;
   long dvarcount;
@@ -1702,7 +1720,11 @@ typedef struct {
   char curarea[8];
   short xpos, ypos;
   short vrectx, vrecty;
-  short unknown28;
+  //bardsong = 1
+  //detecting traps = 2
+  //hide in shadows = 3
+  //turning undead = 4
+  short action;   
   short happiness;
   char unknown2c[112];
   char resrefs[3][8];
@@ -1803,8 +1825,8 @@ typedef struct {
 } gam_unknown1;
 
 typedef struct {
-  char unknown[1720]; //big hack
-} gam_unknown2;
+  char unknown[1720]; //not so big hack
+} gam_mazedata;
 
 typedef struct {
   char variablename[32];

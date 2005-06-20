@@ -121,8 +121,11 @@ void CTisDialog::RefreshDialog()
     m_preview.m_maxextentx=m_preview.m_maxextenty=10;
   }
 
-  m_preview.m_clipx=m_preview.m_minclipx=m_minx;
-  m_preview.m_clipy=m_preview.m_minclipy=m_miny;
+  CPoint point = m_preview.GetPoint(GP_TILE);
+  m_preview.m_clipx=point.x;
+  m_preview.m_minclipx=m_minx;
+  m_preview.m_clipy=point.y;
+  m_preview.m_minclipy=m_miny;
   m_preview.m_maxclipx=m_maxx+1;
   m_preview.m_maxclipy=m_maxy+1;
   if(m_graphics)

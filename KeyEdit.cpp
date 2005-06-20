@@ -392,6 +392,7 @@ int CKeyEdit::WriteChitin(int fhandle)
     esize+=bifentry[numbif].namelen;
   }
 
+  memcpy(key_headerinfo.signature,"KEY V1  ",8);
   if(write(fhandle,&key_headerinfo,sizeof(key_headerinfo))!=sizeof(key_headerinfo))
   {
     ret=-2;

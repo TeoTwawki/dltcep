@@ -367,7 +367,8 @@ void CScriptEdit::OnLoad()
     }
 	}
   UpdateData(UD_DISPLAY);
-  CheckScript(FORCED_CHECK);
+  the_script.m_changed=false;
+  CheckScript(WHOLE_CHECK|FORCED_CHECK);
   RefreshDialog();
 }
 
@@ -453,6 +454,7 @@ void CScriptEdit::OnLoadex()
     }
   }
   UpdateData(UD_DISPLAY);
+  the_script.m_changed=false;
   CheckScript(WHOLE_CHECK|FORCED_CHECK);
   RefreshDialog();
 }
@@ -581,6 +583,7 @@ restart:
     }
   }
   UpdateData(UD_DISPLAY);
+  the_script.m_changed=false;
   CheckScript(0);
   RefreshDialog();
 }
@@ -593,6 +596,7 @@ void CScriptEdit::NewScript()
   m_count=0;
   m_firsterror=0;
   m_bcs=1;
+  the_script.m_changed=false;
 }
 
 void CScriptEdit::OnNew() 
@@ -730,8 +734,14 @@ void CScriptEdit::CheckScript(int messages)
   int num_or;
   int commentpos;
 
-  if(m_bcs) SetWindowText("Edit script: "+itemname);
-  else SetWindowText("Edit script source: "+itemname);
+  
+  if(m_bcs) {
+    tmpstr.Format("Edit script: %s%s",itemname, the_script.m_changed?"*":"");
+  }
+  else {
+    tmpstr.Format("Edit script source: %s%s",itemname, the_script.m_changed?"*":"");
+  }
+  SetWindowText(tmpstr);
   if(!(messages&FORCED_CHECK) )
   {
     if(editflg&NOCHECK) return;
@@ -906,8 +916,12 @@ void CScriptEdit::OnChangeText()
 //  if(!cwnd || (m_text_control.GetSafeHwnd()!=cwnd->GetSafeHwnd()) ) return;
   if(!cwnd || (cwnd->GetDlgCtrlID()!=IDC_TEXT) ) return;
   UpdateData(UD_RETRIEVE);
+  if(m_text_control.GetModify())
+  {
+    the_script.m_changed=true;
+  }
   CheckScript(FORCED_CHECK);
-  RefreshDialog();	
+  RefreshDialog();
 }
 
 void CScriptEdit::PostNcDestroy() 
@@ -1230,12 +1244,6 @@ void CScriptEdit::OnIDS()
   itemname=tmpstr;
 }
  
-BOOL CScriptEdit::PreTranslateMessage(MSG* pMsg) 
-{
-	m_tooltip.RelayEvent(pMsg);
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
 BOOL CScriptEdit::OnHelpInfo(HELPINFO* /*pHelpInfo*/) 
 {
   CString tmpstr;
@@ -1263,6 +1271,33 @@ BOOL CScriptEdit::OnHelpInfo(HELPINFO* /*pHelpInfo*/)
 
 void CScriptEdit::OnUpdateText() 
 {
-  if(m_text_control.GetModify() ) return; //this will be handled in onchange
+  if(m_text_control.GetModify() )
+  {
+    the_script.m_changed=true;
+    return; //this will be handled in onchange
+  }
   OnChangeText(); //this event is called from scroll
 }
+
+void CScriptEdit::OnCancel() 
+{
+  CString tmpstr;
+
+	if(the_script.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the file (%s).\n"
+      "Do you want to quit without save?\n",itemname);
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
+}
+
+BOOL CScriptEdit::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
+}
+

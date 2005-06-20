@@ -811,7 +811,7 @@ int Ctbg::collect_arearefs()
   int i;
 
   pos=0;
-  count=the_area.containercount+the_area.triggercount+the_area.doorcount*2+the_area.mapnotecount+the_area.intheader.creaturecnt;
+  count=the_area.containercount+the_area.triggercount+the_area.doorcount+the_area.mapnotecount+the_area.intheader.creaturecnt;
 //additional counts
   tlkentries=new tbg_tlk_reference[count];
   if(!tlkentries) return -3;
@@ -838,8 +838,6 @@ int Ctbg::collect_arearefs()
   {
     strrefs[pos]=the_area.header.dooroffset+calc_offset2(the_area.doorheaders[0],the_area.doorheaders[i].strref);
     if(!resolve_tbg_entry(the_area.doorheaders[i].strref,tlkentries[pos]) ) pos++;
-    strrefs[pos]=the_area.header.dooroffset+calc_offset2(the_area.doorheaders[0],the_area.doorheaders[i].nameref);
-    if(!resolve_tbg_entry(the_area.doorheaders[i].nameref,tlkentries[pos]) ) pos++;
   }
   for(i=0;i<the_area.mapnotecount;i++)
   {

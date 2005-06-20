@@ -836,7 +836,7 @@ int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhand
     lseek(finput,saventry.compressed,SEEK_CUR);
     return 2; //no match
   }
-  if(!ext.IsEmpty() && !(saventry.filename.Right(4).CompareNoCase(ext)) )
+  if(!ext.IsEmpty() || !(saventry.filename.Right(4).CompareNoCase(ext)) )
   {
     lseek(finput,saventry.compressed,SEEK_CUR);
     return 2; //no match
@@ -1738,21 +1738,6 @@ void RetrieveResref(CString &dlgcontrol, const char *itempoi, int dot)
   int i;
   
   for(i=0;itempoi[i] && i<8;i++)
-  {
-    if(dot && itempoi[i]=='.') break;
-    ref[i]=(char) toupper(itempoi[i]);
-  }
-  ref[i]=0;
-  dlgcontrol=ref;
-}
-
-//moves a fixed char storage area to a CString (always capitalized)
-void RetrieveResref16(CString &dlgcontrol, const char *itempoi, int dot)
-{
-  char ref[17];
-  int i;
-  
-  for(i=0;itempoi[i] && i<16;i++)
   {
     if(dot && itempoi[i]=='.') break;
     ref[i]=(char) toupper(itempoi[i]);

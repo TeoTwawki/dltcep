@@ -32,6 +32,7 @@ public:
     cnt=0;
     bcnt=tcnt=rcnt=acnt=0;
   }
+  bool m_changed;
   //parsed script data (blocks[triggers[], responses[actions[]]])
   int bcnt, tcnt, rcnt, acnt;
   int blockcount;

@@ -47,7 +47,15 @@ CCreatureGeneral::~CCreatureGeneral()
 CString CCreatureGeneral::FindKit(unsigned int kit)
 {
   CString tmpstr, kitname;
-  kitname = IDSToken("KIT", kit>>16);
+  if(the_creature.revision!=22)
+  {
+    kitname = IDSToken("KIT", kit>>16); //not iwd2
+  }
+  else
+  {
+    kitname = IDSToken("KIT", kit); //iwd2
+  }
+  
   if(kitname.GetLength()) tmpstr.Format("0x%08x - %s",kit, kitname);
   else tmpstr.Format("0x%08x",kit);
   return tmpstr;
@@ -240,6 +248,8 @@ void CCreatureGeneral::RefreshGeneral()
   case 90:
     id=3;
     break;
+  default:
+    id=-1;
   }
   for(i=0;i<4;i++)
   {
@@ -1869,8 +1879,8 @@ void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX,IDC_U1+i, the_creature.header.unused[8+i]);
     DDV_MinMaxInt(pDX,the_creature.header.unused[8+i],0,255);
   }
-  DDX_Text(pDX,IDC_U14, the_creature.header.unknown237);
-  DDV_MinMaxInt(pDX,the_creature.header.unknown237,0,255);
+  DDX_Text(pDX,IDC_U14, the_creature.header.sex);
+  DDV_MinMaxInt(pDX,the_creature.header.sex,0,255);
   DDX_Text(pDX,IDC_U15, the_creature.header.unknown243);
   DDV_MinMaxInt(pDX,the_creature.header.unknown243,0,255);
   for(i=0;i<5;i++)
@@ -2206,7 +2216,7 @@ void CCreatureUnknown::OnClearall()
 {
   memset(the_creature.header.unused,0,sizeof(the_creature.header.unused) );	
   memset(the_creature.header.unused2,0,sizeof(the_creature.header.unused2) );	
-  the_creature.header.unknown237=1;
+  the_creature.header.sex=1;
   the_creature.header.unknown243=0;
   memset(the_creature.header.idsinternal,0,sizeof(the_creature.header.idsinternal) );	
   the_creature.header.unknown27c=-1;

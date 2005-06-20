@@ -150,9 +150,14 @@ int Cchui::ReadChuiFromFile(int fh, long ml)
   controltable=new POINT[ccnt];
   if(!controltable) return -3;
   controls=new chui_control_common[ccnt];
-  if(!controls) return -3;
+  if(!controls) {
+    return -3;
+  }
   extensions=new BYTE*[ccnt];
-  if(!extensions) return -3;
+  if(!extensions)
+  {
+    return -3;
+  }
   memset(extensions,0,sizeof(BYTE *)*ccnt);
   memset(controltable,0,sizeof(POINT)*ccnt);
   memset(controls,-1,sizeof(chui_control_common)*ccnt);//precaution
@@ -188,7 +193,10 @@ int Cchui::ReadChuiFromFile(int fh, long ml)
     
     minsize=max(esize,minsize);
     extensions[i]=new BYTE[minsize];
-    if(!extensions[i]) return -3;
+    if(!extensions[i])
+    {
+      return -3;
+    }
 
     if(read(fhandle,extensions[i],esize)!=esize)
     {

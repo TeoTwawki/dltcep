@@ -377,6 +377,7 @@ The explored bitmask is an array of bits, one bit for each 16x16 pixel cell on t
 V1.0 Doors
 
 Doors in an AREA file are the "door" objects that the user interacts with, to be distinguished from the "door" objects in the WED file. The WED file deals with how the opening and closing of a door changes the appearance of the world. A door in an AREA file details what happens when the user tries to open the door, what polygon the mouse must be inside of in order for mouse clicks to affect the door in question. The two types of door objects are linked through the id field in each -- the 8-byte character array which contains an identifier for the door. If the names in the two files match, the doors are the same, and toggling the state of the AREA door will toggle the state of the WED door. The name "doors" includes also all possible "secret doors" that appear on the wall after longer examination of it or using "detect trap" ability.
+This section has C8 (200) bytes.
 Offset Size (data type) Description
 0x0000 32 (char array) A long name for this door. Could be used by scripts.
 0x0020 8 (char array) A short identifier for this door. Probably used to establish a mapping between doors in the AREA file and doors in the WED file.
@@ -414,7 +415,7 @@ But also :
 0x0068 4 (dword) It is an index into cursors.bam frame - it's the cursor that's shown when hovering over the door.
 0x006c 2 (word) Trap detection difficulty
 0x006e 2 (word) Trap removal difficulty
-0x0070 2 (word) Trapped flag
+0x0070 2 (word) Trapped flag, enables script
 0x0072 2 (word) Trap detected flag
 0x0074 4 (point) Trap launch target point
 0x0078 8 (resref) Resref of key item needed to unlock door.
@@ -423,11 +424,9 @@ But also :
 0x008c 4 (dword) Lock difficulty (0-100)
 0x0090 8 (rect) Bounding box where the player must be in to open the door.
 0x0098 4 (strref) StrRef from dialog.tlk that appear when a thief attempt to unlock a door that couldn't be unlock (see the jail's door in AR1000.ARE and the shadow doors in AR1401.ARE for example). 
-0x009c 8 (bytes) Region link
-0x00a4 16 (bytes) Unknown
-0x00b4 4 (strref) Name of this door, if it has one. Name is used if the door initiates dialog with the user.
-0x00b8 8 (resref) Resref of the dialog resource associated with this door, if any. This dialog will be used if the door initiates dialog with the user in its associated script.
-0x00c0 8 (bytes) Unknown
+0x009c 32 (bytes) Region link, this link will be disabled if the door is closed
+0x00bc 4 (strref) Name of this door, if it has one. Name is used if the door initiates dialog with the user.
+0x00c0 8 (resref) Resref of the dialog resource associated with this door, if any. This dialog will be used if the door initiates dialog with the user in its associated script.
 
 V1.0 Animations
 Section size : 48h bytes.

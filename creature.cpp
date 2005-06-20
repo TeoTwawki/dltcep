@@ -101,15 +101,21 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
     break;
   case 22:
     fullsize=sizeof(creature_iwd2_header);
-  	memcpy(header.filetype,"CRE V2.2",8);
+    memcpy(header.filetype,"CRE V2.2",8);
     memcpy(&iwd2header,&header,((char *) &iwd2header.crushac)-(char *) &iwd2header);
     memcpy(&iwd2header.crushac,&header.crushac,13);
     memcpy(&iwd2header.resfire,&header.resfire,12);
+    memcpy(&iwd2header.fatigue,&header.fatigue,3);
     memcpy(&iwd2header.strrefs,&header.strrefs,64*sizeof(int) );
+    iwd2header.sex=header.sex;
     iwd2header.strstat=header.strstat;
     memcpy(&iwd2header.intstat,&header.intstat,5);
+    iwd2header.morale=header.morale;
+    iwd2header.moralebreak=header.moralebreak;
+    iwd2header.moralerecover=header.moralerecover;
+    iwd2header.kit=header.kit;
     memcpy(iwd2header.scripts,header.scripts,sizeof(iwd2header.scripts) );
-    memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
+    memcpy(&iwd2header.idsea,&header.idsea,((unsigned char *) iwd2header.unknown3b4)-&iwd2header.idsea);
     break;
   case 90:
     fullsize=sizeof(creature_iwd_header);
@@ -302,7 +308,6 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
 	  ret=-2;
     goto endofquest;
   }
-  //we can load only bg2 creatures
   //pst: v1.2,  iwd: v9.0 iwd2: v2.2
   if(!memcmp(header.revision,"V1.0",4) ) 
   {
@@ -314,6 +319,7 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
     }
     credata.animid=the_creature.header.animid;
     memcpy(credata.scripts,the_creature.header.scripts,5*8);
+    memcpy(credata.scriptname, the_creature.header.dvar,32);
     memcpy(credata.dialogresref,the_creature.header.dialogresref,8);
     revision=10;
     goto endofquest;
@@ -328,6 +334,7 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
     }
     credata.animid=the_creature.pstheader.animid;
     memcpy(credata.scripts,the_creature.pstheader.scripts,5*8);
+    memcpy(credata.scriptname, the_creature.header.dvar,32);
     memcpy(credata.dialogresref,the_creature.pstheader.dialogresref,8);
     revision=12;
     goto endofquest;
@@ -342,6 +349,7 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
     }
     credata.animid=the_creature.iwdheader.animid;
     memcpy(credata.scripts,the_creature.iwdheader.scripts,5*8);
+    memcpy(credata.scriptname, the_creature.header.dvar,32);
     memcpy(credata.dialogresref,the_creature.iwdheader.dialogresref,8);
     revision=90;
     goto endofquest;
@@ -357,6 +365,7 @@ int Ccreature::RetrieveCreData(int fh, creature_data &credata)
     }
     credata.animid=the_creature.iwd2header.animid;
     memcpy(credata.scripts,the_creature.iwd2header.scripts,5*8);
+    memcpy(credata.scriptname, the_creature.header.dvar,32);
     memcpy(credata.dialogresref,the_creature.iwd2header.dialogresref,8);
     revision=22;
     goto endofquest;
@@ -491,12 +500,18 @@ int Ccreature::handle_iwd2()
   memcpy(&header,&iwd2header,((char *) &iwd2header.crushac)-(char *) &iwd2header);
   memcpy(&header.crushac,&iwd2header.crushac,13);
   memcpy(&header.resfire,&iwd2header.resfire,12);
+  memcpy(&header.fatigue,&iwd2header.fatigue,6); //only 3 works
   memcpy(header.strrefs,iwd2header.strrefs,64*sizeof(int) );
+  header.sex=iwd2header.sex;
   header.strstat=iwd2header.strstat;
   header.strbon=0;
   memcpy(&header.intstat,&iwd2header.intstat,5);
+  header.morale=iwd2header.morale;
+  header.moralebreak=iwd2header.moralebreak;
+  header.moralerecover=iwd2header.moralerecover;
+  header.kit=iwd2header.kit;
   memcpy(header.scripts,iwd2header.scripts,sizeof(iwd2header.scripts) );
-  memcpy(&header.idsea,&iwd2header.idsea,((unsigned char *) iwd2header.unknown8)-&iwd2header.idsea);
+  memcpy(&header.idsea,&iwd2header.idsea,((unsigned char *) iwd2header.unknown3b4)-&iwd2header.idsea);
   memcpy(&header.itemslots,&iwd2header.itemslots,5*sizeof(long)+8);
   k=0;
   flg=0;

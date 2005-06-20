@@ -370,7 +370,7 @@ void CGameEdit::NewGame()
   the_game.KillPCExtensions();
   the_game.KillNPCExtensions();
   the_game.KillUnknowns1();
-  the_game.KillUnknowns2();
+  the_game.KillMazeData();
   the_game.KillJournals();
   the_game.KillDeathVariables();
 

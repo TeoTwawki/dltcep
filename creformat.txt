@@ -116,8 +116,8 @@ The way a multiclass char is indicated is by the absence of any of the "original
 0x0069 1 (byte) find/disarm traps skill (minimum value: 0)
 0x006a 1 (byte) pick-pockets skill (minimum value: 0)
 0x006b 1 (byte) fatigue (0-100)
-0x006c 1 (byte) intoxification (0-100)
-0x006d 1 (byte) luck
+0x006c 1 (byte) intoxication (0-100)
+0x006d 1 (byte) luck (0-100)
 0x006e 1 (byte) (not used in BG2) Large swords proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
 0x006f 1 (byte) (not used in BG2) Small swords proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
 0x0070 1 (byte) (not used in BG2) Bows proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
@@ -377,8 +377,8 @@ This offset determine whether creature is multiclass or dualclass., 00- multi or
 0x0069 1 (byte) traps skill (minimum value: 0)
 0x006a 1 (byte) pick-pockets skill (minimum value: 0)
 0x006b 1 (byte) fatigue (0-100)
-0x006c 1 (byte) intoxification (0-100)
-0x006d 1 (byte) luck
+0x006c 1 (byte) intoxication (0-100)
+0x006d 1 (byte) luck (0-100)
 0x006e 1 (byte) Fist proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
 0x006f 1 (byte) Edged weapons proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
 0x0070 1 (byte) Hammer proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
@@ -597,8 +597,8 @@ Offset Size (data type) Description
 0x0069 1 (byte) traps skill (minimum value: 0)
 0x006a 1 (byte) pick-pockets skill (minimum value: 0)
 0x006b 1 (byte) fatigue (0-100)
-0x006c 1 (byte) intoxification (0-100)
-0x006d 1 (byte) luck
+0x006c 1 (byte) intoxication (0-100)
+0x006d 1 (byte) luck (0-100)
 0x006e 1 (byte) Large swords proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
 0x006f 1 (byte) Small swords proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
 0x0070 1 (byte) Bows proficiency (It is rumored that proficiencies are packed in 3-bit chunks for the primary and secondary classes -- i.e. primary class proficiency is the low 3 bits, secondary is the middle 3 bits. This may be true.)
@@ -719,4 +719,259 @@ Offset Size (data type) Description
 CRE V9.0 Item Slots
 
 This is an array keeping track of which items are located in each particular location in the CRE's inventory. There are 38 slots, and they are NOT the same as the order specified in specified in SLOTS.IDS. I will update with the actual order ASAP. Each entry in here will either be 0xffff, meaning "empty", or it will be an index into the Items table.
+
+
+CRE V2.2
+
+Overall structure
+
+    * Header
+    * Known spells section
+    * Spell memorization info
+    * Memorized spells section
+    * Items section
+    * "Item slots"
+
+CRE V2.2 Header
+Offset Size (data type) Description
+0x0000 4 (char array) Signature ('CRE ')
+0x0004 4 (char array) Version ('V2.2')
+0x0008 4 (Strref) Long Creature name
+0x000c 4 (Strref) Short Creature name (used for tooltips)
+0x0010 1 (byte) This offset determine whether creature is multiclass or dualclass., 00- multi or single classed.
+
+    * bit 0 unknown
+    * bit 1 unknown (no cre's in bg has this bit set)
+    * bit 2 unknown (may have to do with ability to join party)
+    * bit 3 original class was fighter
+    * bit 4 original class was mage
+    * bit 5 original class was cleric
+    * bit 6 original class was theif
+    * bit 7 original class was druid
+
+0x0011 1 (byte) Second flag of creature.
+
+    * bit 0 original class was ranger
+    * bit 1 sets whether a CRE is a fallen paladin or not. 
+    * bit 2 sets whether a CRE is a fallen ranger or not. 
+    * bit 3 can export/customize character
+    * bit 4 unknown
+    * bit 5 unknown
+    * bit 6 unknown
+    * bit 7 unknown
+
+0x0012 2 (word) Unknown
+0x0014 4 (dword) experience value (i.e. value in XP for killing this creature)
+0x0018 4 (dword) experience
+0x001c 4 (dword) gold
+0x0020 4 (dword) (permanent) status flags (as per STATE.IDS). This varies from game to game, but includes such things as invisibility, charmed, silenced, and draw-upon-holy-might.
+0x0024 2 (word) Current hit points
+0x0026 2 (word) Max hit points
+0x0028 2 (word) Animation ID (as from ANIMATE.IDS). Note that while there is some structure to the ordering of these, it is actually worked out via a sort of tangled routine which sorts into major categories based on the high nybble. In Baldur's Gate, the way BAM files (for display on the overland screen) are mapped to CRE files is via this field; the resource names which are mapped to by ANIMATE ids are hard-coded in the executable. Yuck.
+0x002a 2 (word) unknown
+0x002c 1 (byte) metal color index
+0x002d 1 (byte) minor color index
+0x002e 1 (byte) major color index
+0x002f 1 (byte) skin color index
+0x0030 1 (byte) leather color index
+0x0031 1 (byte) armor color index
+0x0032 1 (byte) hair color index
+0x0033 1 (byte) flag: if 0, the effect structures attached to this CRE file are old style effects; if 1, the effect structures are as in the EFF V2.0 format.
+0x0034 8 (resref) resource name for the 'small portrait' associated with this CRE, if any (i.e. small portrait as customizable for each character in the game options)
+0x003c 8 (resref) resource name for the 'large portrait' associated with this CRE, if any (i.e. large portrait as customizable for each character in the game options)
+0x0044 1 (byte) reputation (minimum value: 0)
+0x0045 1 (byte) Hide In Shadows (Kit/Race/Dex Bonuses are separate from these values)
+0x0046 2 (signed word) armor class (natural?)
+0x0048 2 (signed word) armor class (crushing attacks modifier)
+0x004a 2 (signed word) armor class (missile attacks modifier)
+0x004c 2 (signed word) armor class (piercing attacks modifier)
+0x004e 2 (signed word) armor class (slashing attacks modifier)
+0x0050 1 (byte) THAC0 (1-25)
+0x0051 1 (byte) number of attacks (0-10)
+0x0052 1 (byte) fortitude save (0-20)
+0x0053 1 (byte) reflex save (0-20)
+0x0054 1 (byte) will save (0-20)
+0x0055 1 (byte) resist fire (0-100)
+0x0056 1 (byte) resist cold (0-100)
+0x0057 1 (byte) resist electricity (0-100)
+0x0058 1 (byte) resist acid (0-100)
+0x0059 1 (byte) resist magic (0-100)
+0x005a 1 (byte) resist magic fire (0-100)
+0x005b 1 (byte) resist magic cold (0-100)
+0x005c 1 (byte) resist slashing (0-100)
+0x005d 1 (byte) resist crushing (0-100)
+0x005e 1 (byte) resist piercing (0-100)
+0x005f 1 (byte) resist missile (0-100)
+0x0060 1 (byte) resist magic damage (0-100)
+0x0061 1 (byte) unknown
+0x0062 1 (byte) unknown
+0x0063 1 (byte) unknown
+0x0064 1 (byte) unknown
+0x0065 1 (byte) fatigue (0-100)
+0x0066 1 (byte) intoxication (0-100)
+0x0067 1 (byte) luck (0-100)
+0x0068 34 (bytes) unknown
+0x0084 32 (bytes) unknown ,always zeros
+0x008a 1 (byte) total levels
+0x008b 1 (byte) barbarian level
+0x008c 1 (byte) bard level
+0x008d 1 (byte) cleric level
+0x008e 1 (byte) druid level
+0x008f 1 (byte) fighter level
+0x0090 1 (byte) monk level
+0x0091 1 (byte) paladin level
+0x0092 1 (byte) ranger level
+0x0093 1 (byte) rogue level
+0x0094 1 (byte) sorcerer level
+0x0095 1 (byte) wizard level
+0x0096 22 (bytes) unknown
+0x00ac 4*64 (Strref*64) Strrefs which relate to the character. Most of them relate to the sound-set. In the file SOUNDOFF.IDS, there are several numbers. These indicate indices into this array, and they match various occurrences to Strrefs. For instance, SOUNDOFF.IDS has "SELECT_RARE", at index 35. SELECT_RARE actually takes up 4 entries -- the next numbered entry is at 39. So the 35th through the 39th entries in this are the "select rare" entries, which, it turns out, correspond to the amusing sound-bites you get if you repeatedly click on a character. A character's biography appears to be stored in the 74th entry in this array. What any other entries may be used for is unknown, although I suspect it varies from character to character, judging from the label "MISC" that is applied around entry #58. Presumably the rest of the entries are just for miscellaneous purposes which only apply to certain characters.
+0x01ac 8 (resref) Team script
+0x01b4 8 (resref) Special script
+0x01bc 4 (dword) unknown
+0x01c0 12 (bytes) feats bitfield
+0x01cc 12 (bytes) unknown (could be more feat bits)
+0x01d8 1 (byte) Bow skill
+0x01d9 1 (byte) XBow skill
+0x01da 1 (byte) Missile skill
+0x01db 1 (byte) Axe skill
+0x01dc 1 (byte) Mace skill
+0x01dd 1 (byte) Flail skill
+0x01de 1 (byte) Polearm skill
+0x01df 1 (byte) Hammer skill
+0x01e0 1 (byte) Staff skill
+0x01e1 1 (byte) Great sword
+0x01e2 1 (byte) Large sword
+0x01e3 1 (byte) Small blade
+0x01e4 1 (byte) Toughness
+0x01e5 1 (byte) Armored Arcana
+0x01e6 1 (byte) Cleave
+0x01e7 1 (byte) Armor proficiency
+0x01e8 1 (byte) Enchantment
+0x01e9 1 (byte) Evocation
+0x01ea 1 (byte) Necromancy
+0x01eb 1 (byte) Transmutation
+0x01ec 1 (byte) Spell penetration
+0x01ed 1 (byte) Extra rage
+0x01ee 1 (byte) Extra wild shape
+0x01ef 1 (byte) Extra smiting
+0x01f0 1 (byte) Extra turning
+0x01f1 1 (byte) Bastard sword
+0x01f2 38 (bytes) Unknown (more proficiencies)
+0x0218 1 (byte) Alchemy
+0x0219 1 (byte) Animal Empathy
+0x021a 1 (byte) Bluff
+0x021b 1 (byte) Concentration
+0x021c 1 (byte) Diplomacy
+0x021d 1 (byte) Disable device
+0x021e 1 (byte) Hide
+0x021f 1 (byte) Intimidate
+0x0220 1 (byte) Lore (knowledge arcana)
+0x0221 1 (byte) Move silently
+0x0222 1 (byte) Open lock
+0x0223 1 (byte) Pick pocket
+0x0224 1 (byte) Search
+0x0225 1 (byte) Spellcraft
+0x0226 1 (byte) Use magic device
+0x0227 1 (byte) Wilderness lore
+0x0228 51 (bytes) Unknown (more skills)
+0x025b 8 (bytes) Favoured enemies
+0x0263 1 (byte) Subrace
+0x0264 2 (word) Unknown
+0x0266 1 (byte) Strength (1-25)
+0x0267 1 (byte) Intelligence (1-25)
+0x0268 1 (byte) Wisdom (1-25)
+0x0269 1 (byte) Dexterity (1-25)
+0x026a 1 (byte) Constitution (1-25)
+0x026b 1 (byte) Charisma (1-25)
+0x026c 1 (byte) Morale?
+0x026d 1 (byte) Morale break?
+0x026e 1 (byte) unknown?
+0x026f 1 (byte) Morale Recovery Time?
+0x0270 4 (dword) kit
+0x0274 8 (resref) creature script ("override" script?)
+0x0250 8 (resref) creature script ("special 2" script?)
+0x0258 8 (resref) creature script ("combat" script?)
+0x0260 8 (resref) creature script ("special 3" script?)
+0x0268 8 (resref) creature script ("movement" script?)
+0x0270 4 (dword) unknown
+0x0274 5x2 (word) Internals, see SetInternal
+0x02aa 66 (bytes) unknown
+0x02ec 2 (word) Saved location X, see SaveLocation
+0x02ef 2 (word) Saved location Y
+0x02f0 2 (word) Saved location Orientation
+0x02f2 146 (bytes) unknown
+0x0384 1 (byte) "Enemy-Ally" type (see EA.IDS). This field and the next several require some explanation. It seems probable, due to the similar layout of these fields, that this is actually an object identifier. For reference, see the script compiler manual, but in short, it means that it has EA, GENERAL, RACE, CLASS, and SPECIFIC, among other things. This data could be used to explain the other unused fields. The only difficulty with this theory is that the byte which is currently listed as "gender" would normally be 'special case' according to the script compiler manual. On the other hand, the script compiler manual is poorly written and inaccurate in places, probably the result of a quick edit of an internal specification which was hacked into a public document.
+0x0385 1 (byte) "General" type (see GENERAL.IDS).
+0x0386 1 (byte) "Race" type (see RACE.IDS).
+0x0387 1 (byte) "Class" type (see CLASS.IDS).
+0x0388 1 (byte) "Specific" type (see SPECIFIC.IDS).
+0x0389 1 (byte) "Gender" type (see GENDER.IDS).
+0x038a 5 (bytes) unknown; however, see description at "Enemy-Ally" type byte above. If this is, in fact, an object id, then this here would be the 5 bytes which are used for functional specification of an object (see OBJECT.IDS). Functional specification of an object involves things like LastAttackerOf(Myself) or ProtectorOf(LastTalkedToBy(Protagonist)).
+0x038f 1 (byte) "Alignment" type (see ALIGNMEN.IDS.)
+0x0390 2 (word) unknown. This field and the next appear to hold two 16-bit words, both of which are usually 0xffff.
+0x0392 2 (word) unknown
+0x0394 32 (char array) This field determines the name of the "death variable" to set when this creature has been killed.
+0x03b4 2 (word) unknown
+0x03b6 2 (word) unknown
+0x03b8 2 (word) unknown
+0x03ba 9*4 (dword) spell book offsets for bard one for every level
+0x03de 9*4 (dword) spell book offsets for cleric one for every level
+0x0402 9*4 (dword) spell book offsets for druid one for every level
+0x0426 9*4 (dword) spell book offsets for paladin one for every level
+0x044a 9*4 (dword) spell book offsets for ranger one for every level
+0x046e 9*4 (dword) spell book offsets for sorceror one for every level
+0x0492 9*4 (dword) spell book offsets for wizard one for every level
+0x04b6 9*4 (dword) spell book counts for bard one for every level
+0x04da 9*4 (dword) spell book counts for cleric one for every level
+0x04fe 9*4 (dword) spell book counts for druid one for every level
+0x0522 9*4 (dword) spell book counts for paladin one for every level
+0x0546 9*4 (dword) spell book counts for ranger one for every level
+0x056a 9*4 (dword) spell book counts for sorceror one for every level
+0x058e 9*4 (dword) spell book counts for wizard one for every level
+0x05b2 9*4 (dword) domain spell book offsets for every level
+0x05d6 9*4 (dword) domain spell book counts for every level
+0x05fa 4 (dword) Innate offset
+0x05fe 4 (dword) Innate count
+0x0602 4 (dword) Song offset
+0x0606 4 (dword) Song count
+0x060a 4 (dword) Shape offset
+0x060e 4 (dword) Shape count
+0x0612 4 (dword) Item slots offset
+0x0616 4 (dword) Items offset
+0x061a 4 (dword) Items count
+0x061e 4 (dword) offset to effects currently affecting creature
+0x0622 4 (dword) count of effects currently affecting creature
+0x0626 8 (resref) associated dialog file. (A CRE can have a default DLG file associated. This can be overridden in the ARE file, and I think can also be overridden by a script).
+
+CRE V2.2 Spell book pages
+
+Each spell level has a page containing the spells and a small trailer containing the number of free slots.
+0x0000 4 (dword) SpellID (LISTSPLL.2da for spells, LISTSONG.2DA for songs, LISTSHAP.2DA for shapes and LISTINNT.2DA for innates).
+0x0004 4 (dword) Total
+0x0008 4 (dword) Remaining
+0x000c 4 (dword) UNKNOWN
+Trailer:
+0x0000 4 (dword) total memorization slots
+0x0004 4 (dword) free slots
+
+CRE V2.2 Items Table
+
+This section details which items the character has. It consists of an array of entries formatted as follows.
+Offset Size (data type) Description
+0x0000 8 (resref) Resource name of the ITM file holding the particular item
+0x0008 2 (word) unknown
+0x000a 2 (word) "usage1" -- typically, the count of the item, or the number of uses remaining in the item if it is not a "stackable" item.
+0x000c 2 (word) "usage2" -- the second parameter passed when the script function "CreateItem" is called. This might only be used for wands and other magical items which have multiple uses (i.e. cast fireball n times and aganazzar's scorcher m times)
+0x000e 2 (word) "usage3" -- the third parameter passed when the script function "CreateItem" is called. Presumably like 'usage2'.
+0x0010 4 (dword) Flags:
+
+    * bit 1: identified
+    * bit 2: can't steal
+    * bit 4: "stolen"
+    * bit 8: cannot move
+
+CRE V2.2 Item Slots
+
+This is an array keeping track of which items are located in each particular location in the CRE's inventory. There are 54 slots, and they are NOT the same as the order specified in specified in SLOTS.IDS. I will update with the actual order ASAP. Each entry in here will either be 0xffff, meaning "empty", or it will be an index into the Items table.
 

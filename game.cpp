@@ -25,13 +25,14 @@ Cgame::Cgame()
   pcs=NULL;
   variables=NULL;
   unknowns1=NULL;
-  unknowns2=NULL;
+  mazedata=NULL;
   journals=NULL;
   npcextensions=NULL;
   npcstructs=NULL;
   pcstructs=NULL;
   pcextensions=NULL;
   deathvariables=NULL;
+  slocs=NULL;
 
   npccount=0;
   pccount=0;
@@ -41,9 +42,10 @@ Cgame::Cgame()
   pcextensioncount=0;
   variablecount=0;
   unknown1count=0;
-  unknown2count=0;
   journalcount=0;
   deathvariablecount=0;
+  sloccount=0;
+
   revision=20; //bg2 revision is 2.0
 }
 
@@ -57,8 +59,9 @@ Cgame::~Cgame()
   KillPCExtensions();
   KillNPCExtensions();
   KillUnknowns1();
-  KillUnknowns2();
+  KillMazeData();
   KillJournals();
+  KillSavedLocs();
   KillDeathVariables();
 }
 
@@ -212,8 +215,8 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   fullsize+=header.variablecount*sizeof(gam_variable);
   if(revision==12)
   {
-    pstheader.unknown2offset=fullsize;
-    fullsize+=sizeof(gam_unknown2);
+    pstheader.mazeoffset=fullsize;
+    fullsize+=sizeof(gam_mazedata);
     pstheader.dvaroffset=fullsize;
     fullsize+=header.dvarcount*sizeof(gam_variable);
   }
@@ -240,6 +243,8 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     }
     if(revision==22) fullsize+=4;
   }
+  header.slocoffset=fullsize;
+  fullsize+=header.sloccount*sizeof(gam_sloc);
 
   if(calculate)
   {
@@ -306,7 +311,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   }
   if(revision==12)
   {
-    if(write(fhandle,unknowns2,sizeof(gam_unknown2) )!=sizeof(gam_unknown2) )
+    if(write(fhandle,mazedata,sizeof(gam_mazedata) )!=sizeof(gam_mazedata) )
     {
       return -2;
     }
@@ -354,6 +359,11 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     {
       write(fhandle,familiardata,4);
     }
+  }
+  esize=header.sloccount*sizeof(gam_sloc);
+  if(write(fhandle,variables,esize)!=esize)
+  {
+    return -2;
   }
   return 0;
 }
@@ -453,57 +463,6 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       }      
     }
   }
-  //read non-party npcs
-  flg=adjust_actpoint(header.npcoffset);
-  if(flg<0)
-  {
-    return flg;
-  }
-  if(flg) ret|=flg;
-
-  if(npccount!=header.npccount)
-  {
-    KillNPCs();
-    npcs=new gam_npc[header.npccount];
-    if(!npcs) return -3;
-    npccount=header.npccount;
-  }
-  if(npccount!=npcstructcount)
-  {
-    KillNPCStructs();
-    npcstructs=new char *[npccount];
-    if(!npcstructs)
-    {
-      return -3;
-    }
-    memset(npcstructs,0,npccount*sizeof(char *) );
-    npcstructcount=npccount;
-  }
-  if(npccount!=npcextensioncount)
-  {
-    KillNPCExtensions();
-    npcextensions=new gam_npc_extension[npccount];
-    if(!npcextensions)
-    {
-      return -3;
-    }
-    memset(npcextensions,0,npccount*sizeof(gam_npc_extension) );
-    npcextensioncount=npccount;
-  }
-
-  for(i=0;i<npccount;i++)
-  {
-    esize=sizeof(gam_npc);
-    if(read(fhandle,npcs+i, esize)!=esize)
-    {
-      return -2;
-    }
-    fullsize+=esize;
-    flg=ReadExtension((char *) (npcextensions+i),fullsize, mysize);
-    if(flg<0) return flg;
-    flg=ReadCreData(npcs[i].creoffset, npcs[i].cresize,npcstructs[i],fullsize);
-    if(flg<0) return flg;
- }
 
   //read pcs
   flg=adjust_actpoint(header.pcoffset);
@@ -557,6 +516,58 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     if(flg<0) return flg;
   }
 
+  //read non-party npcs
+  flg=adjust_actpoint(header.npcoffset);
+  if(flg<0)
+  {
+    return flg;
+  }
+  if(flg) ret|=flg;
+
+  if(npccount!=header.npccount)
+  {
+    KillNPCs();
+    npcs=new gam_npc[header.npccount];
+    if(!npcs) return -3;
+    npccount=header.npccount;
+  }
+  if(npccount!=npcstructcount)
+  {
+    KillNPCStructs();
+    npcstructs=new char *[npccount];
+    if(!npcstructs)
+    {
+      return -3;
+    }
+    memset(npcstructs,0,npccount*sizeof(char *) );
+    npcstructcount=npccount;
+  }
+  if(npccount!=npcextensioncount)
+  {
+    KillNPCExtensions();
+    npcextensions=new gam_npc_extension[npccount];
+    if(!npcextensions)
+    {
+      return -3;
+    }
+    memset(npcextensions,0,npccount*sizeof(gam_npc_extension) );
+    npcextensioncount=npccount;
+  }
+
+  for(i=0;i<npccount;i++)
+  {
+    esize=sizeof(gam_npc);
+    if(read(fhandle,npcs+i, esize)!=esize)
+    {
+      return -2;
+    }
+    fullsize+=esize;
+    flg=ReadExtension((char *) (npcextensions+i),fullsize, mysize);
+    if(flg<0) return flg;
+    flg=ReadCreData(npcs[i].creoffset, npcs[i].cresize,npcstructs[i],fullsize);
+    if(flg<0) return flg;
+ }
+
   //read unknownstruct
   flg=adjust_actpoint(header.unknown1offset);
   if(flg<0)
@@ -601,24 +612,23 @@ int Cgame::ReadGameFromFile(int fh, long ml)
 
   if(revision==12)
   {
-    //read unknownstruct (only in pst), hack!
-    flg=adjust_actpoint(pstheader.unknown2offset);
+    //read maze data (only in pst)
+    flg=adjust_actpoint(pstheader.mazeoffset);
     if(flg<0)
     {
       return flg;
     }
     if(flg) ret|=flg;
     
-    if(unknown2count!=1)
+    if(!mazedata)
     {
-      KillUnknowns2();
-      unknowns2=new gam_unknown2[1];
-      if(!unknowns2) return -3;
-      unknown2count=1;
+      KillMazeData();
+      mazedata=new gam_mazedata;
+      if(!mazedata) return -3;
     }
     
-    esize=sizeof(gam_unknown2)*1;
-    if(read(fhandle,unknowns2, esize)!=esize)
+    esize=sizeof(gam_mazedata);
+    if(read(fhandle,mazedata, esize)!=esize)
     {
       return -2;
     }
@@ -700,6 +710,30 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     fullsize+=esize;
   }
   else memset(&familiar,0,sizeof(familiar) );
+
+  if(revision==20)
+  {
+    flg=adjust_actpoint(header.slocoffset);
+    if(flg<0)
+    {
+      return flg;
+    }
+    if(flg) ret|=flg;
+
+    if(sloccount!=header.sloccount)
+    {
+      KillSavedLocs();
+      slocs = new gam_sloc[header.sloccount];
+      if(!slocs) return -3;
+      sloccount=header.sloccount;
+    }
+    esize =sizeof(gam_sloc)*header.sloccount;
+    if(read(fhandle,slocs, esize)!=esize)
+    {
+      return -2;
+    }
+    fullsize+=esize;
+  }
   if(revision==22) //this is a hack for iwd2
   {
     fullsize+=4;

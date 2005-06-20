@@ -26,16 +26,18 @@ public:
 
   int variablecount, deathvariablecount;
   int pccount, npccount;
-  int unknown1count, unknown2count;
+  int unknown1count;
   int journalcount;
   int pcstructcount, npcstructcount;
   int pcextensioncount, npcextensioncount;
+  int sloccount;
 
   gam_variable *variables, *deathvariables;
   gam_npc *pcs, *npcs;
   gam_unknown1 *unknowns1;
-  gam_unknown2 *unknowns2;
+  gam_mazedata *mazedata;
   gam_journal *journals;
+  gam_sloc *slocs;
   char **npcstructs;
   char **pcstructs;
   gam_npc_extension *pcextensions, *npcextensions;
@@ -144,13 +146,12 @@ public:
       unknown1count=0;
     }
   }
-  inline void KillUnknowns2()
+  inline void KillMazeData()
   {
-    if(unknowns2)
+    if(mazedata)
     {
-      delete[] unknowns2;
-      unknowns2=NULL;
-      unknown2count=0;
+      delete[] mazedata;
+      mazedata=NULL;
     }
   }
   inline void KillJournals()
@@ -160,6 +161,15 @@ public:
       delete[] journals;
       journals=NULL;
       journalcount=0;
+    }
+  }
+  inline void KillSavedLocs()
+  {
+    if(slocs)
+    {
+      delete[] slocs;
+      slocs=NULL;
+      sloccount=0;
     }
   }
 private:

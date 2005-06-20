@@ -825,7 +825,6 @@ void Pad(CString &str, int len);
 void StoreResref(CString &dlgcontrol, char *itempoi);
 void StoreResref16(CString &dlgcontrol, char *itempoi);
 void RetrieveResref(CString &dlgcontrol, const char *itempoi, int dot=0);
-void RetrieveResref16(CString &dlgcontrol, const char *itempoi, int dot=0);
 void StoreAnim(CString &dlgcontrol, char *itempoi);
 void RetrieveAnim(CString &dlgcontrol, const char *itempoi);
 void StoreVariable(CString &dlgcontrol, char *itempoi, bool noupper=false);

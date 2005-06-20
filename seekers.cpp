@@ -2634,12 +2634,47 @@ bool CChitemDlg::match_area()
           break;
         }
       }
+      if(!strnicmp(the_area.actorheaders[actp].scrarea,searchdata.resource,8) )
+      {
+        log("Using area script: %.8s in actor #%d",the_area.actorheaders[actp].scrarea, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scrclass,searchdata.resource,8) )
+      {
+        log("Using class script: %.8s in actor #%d",the_area.actorheaders[actp].scrclass, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scrdefault,searchdata.resource,8) )
+      {
+        log("Using default script: %.8s in actor #%d",the_area.actorheaders[actp].scrdefault, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scrgeneral,searchdata.resource,8) )
+      {
+        log("Using general script: %.8s in actor #%d",the_area.actorheaders[actp].scrgeneral, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scroverride,searchdata.resource,8) )
+      {
+        log("Using override script: %.8s in actor #%d",the_area.actorheaders[actp].scroverride, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].dialog,searchdata.resource,8) )
+      {
+        log("Using dialog: %.8s in actor #%d",the_area.actorheaders[actp].dialog, actp);
+        break;
+      }
     }
     for(actp=0;actp<the_area.triggercount;actp++)
     {
       if(!strnicmp(the_area.triggerheaders[actp].destref,searchdata.resource,8) )
       {
         log("Using destination: %.8s in trigger #%d",the_area.triggerheaders[actp].destref, actp);
+        break;
+      }
+      if(!strnicmp(the_area.triggerheaders[actp].scriptref,searchdata.resource,8) )
+      {
+        log("Using trap script: %.8s in trigger #%d",the_area.triggerheaders[actp].scriptref, actp);
         break;
       }
     }
@@ -4169,28 +4204,12 @@ int CChitemDlg::check_area_door()
         strref,i+1,doorname,p1x,p1y);
       break;
     }
-    switch(check_dialogres(the_area.doorheaders[i].dlgref,false) )
+    switch(check_dialogres(the_area.doorheaders[i].dialogref,false) )
     {
     case -1:
       ret|=BAD_RESREF;
       log("Non existent dialog (%-.8s) for door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].dlgref,i+1,doorname,p1x,p1y);
-    }
-    if(the_area.doorheaders[i].dlgref[0]) //door has name only when there is a dialog
-    {
-      switch(check_reference(the_area.doorheaders[i].nameref) )
-      {
-      case 1:
-        ret|=BAD_STRREF;
-        log("Invalid doorname (%d) in door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].nameref,i+1,doorname,p1x,p1y);
-        break;
-      case 2:
-        ret|=BAD_STRREF;
-        log("Deleted doorname (%d) in door #%d (%-.32s [%d.%d])",
-          the_area.doorheaders[i].nameref,i+1,doorname,p1x,p1y);
-        break;
-      }
+          the_area.doorheaders[i].dialogref,i+1,doorname,p1x,p1y);
     }
 
     switch(check_triggerref(the_area.doorheaders[i].regionlink,the_area.doorheaders[i].flags&1))

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.6"
+#define PRG_VERSION "6.6b"
 
 #include <fcntl.h>
 #include <direct.h>

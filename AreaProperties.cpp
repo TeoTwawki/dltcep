@@ -229,6 +229,13 @@ BOOL CAreaGeneral::OnInitDialog()
     m_areaflag_control.AddString(get_areaflag(flg) );
     flg<<=1;
   }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -650,7 +657,7 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_POSY, the_area.actorheaders[m_actornum].posy);
     DDX_Text(pDX, IDC_DESTX, the_area.actorheaders[m_actornum].destx);
     DDX_Text(pDX, IDC_DESTY, the_area.actorheaders[m_actornum].desty);
-    DDX_Text(pDX, IDC_VISIBLE, the_area.actorheaders[m_actornum].visible);
+    DDX_Text(pDX, IDC_VISIBLE, the_area.actorheaders[m_actornum].fields);
 
     if(the_area.actorheaders[m_actornum].unknown2c<10)
     {
@@ -797,6 +804,17 @@ BOOL CAreaActor::OnInitDialog()
   cb->SetDroppedWidth(200);
   FillCombo("ANIMATE",cb,4);
 
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_ACTORPICKER), IDS_LABEL);
+    m_tooltip.AddTool(GetDlgItem(IDC_VISIBLE), IDS_FIELDS);
+    m_tooltip.AddTool(GetDlgItem(IDC_U38), IDS_VISIBLE);
+  }
+
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -894,7 +912,7 @@ void CAreaActor::OnAdd()
   newdatapointers[the_area.actorcount]=NULL;
   tmpstr.Format("Actor %d",the_area.header.actorcnt);
   StoreName(tmpstr,newactors[the_area.actorcount].actorname);
-  newactors[the_area.actorcount].visible=1;
+  newactors[the_area.actorcount].fields=1; //use the creresref field
   newactors[the_area.actorcount].schedule=0xffffff;
   newactors[the_area.actorcount].unknown38=-1;
 
@@ -1031,7 +1049,7 @@ void CAreaActor::OnKillfocusActorpicker()
   {
     if(m_actornum>=0 && m_actornum<=the_area.actorcount)
     {
-      StoreName(tmpstr, the_area.actorheaders[m_actornum].actorname);
+      StoreVariable(tmpstr, the_area.actorheaders[m_actornum].actorname);
     }
   }
   RefreshActor();
@@ -1077,6 +1095,7 @@ void CAreaActor::OnFields()
     the_creature.RetrieveCreData(fh, credata);
     the_area.actorheaders[m_actornum].animation=credata.animid;
 
+    memcpy(the_area.actorheaders[m_actornum].actorname,credata.scriptname,32);
     memcpy(the_area.actorheaders[m_actornum].dialog,credata.dialogresref,8);
     memcpy(the_area.actorheaders[m_actornum].scroverride,credata.scripts[0],8);
     memcpy(the_area.actorheaders[m_actornum].scrclass,credata.scripts[1],8);
@@ -1087,6 +1106,7 @@ void CAreaActor::OnFields()
     memcpy(the_area.actorheaders[m_actornum].scrarea,credata.iwd2scripts[1],8);
   }
   the_area.m_changed=true;
+  RefreshActor();
   UpdateData(UD_DISPLAY);
 }
 
@@ -1257,6 +1277,12 @@ void CAreaActor::OnSchedule()
   }
   defschedule=dlg.m_default; //we copy this always
   UpdateData(UD_DISPLAY);
+}
+
+BOOL CAreaActor::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1452,6 +1478,14 @@ BOOL CAreaTrigger::OnInitDialog()
   for(i=0;i<NUM_RTTYPE;i++)
   {
     m_regiontype_control.AddString(get_region_type(i));
+  }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_TRIGGERPICKER), IDS_LABEL);
   }
 	RefreshTrigger();
   UpdateData(UD_DISPLAY);
@@ -1976,8 +2010,7 @@ void CAreaTrigger::OnUnknown()
 
 BOOL CAreaTrigger::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -2136,6 +2169,14 @@ BOOL CAreaSpawn::OnInitDialog()
   for(i=0;i<NUM_SPTYPE;i++)
   {
     cb->AddString(get_spawntype(i));
+  }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_SPAWNPICKER), IDS_LABEL);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -2424,8 +2465,7 @@ void CAreaSpawn::OnDelcre()
 
 BOOL CAreaSpawn::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -2526,6 +2566,14 @@ BOOL CAreaEntrance::OnInitDialog()
   for(i=0;i<NUM_FVALUES;i++)
   {
     cb->AddString(format_direction(i));
+  }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_ENTRANCEPICKER), IDS_LABEL);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -2724,8 +2772,7 @@ void CAreaEntrance::OnUnknown()
 
 BOOL CAreaEntrance::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -2897,6 +2944,14 @@ void CAreaAmbient::RefreshAmbient()
 BOOL CAreaAmbient::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_AMBIENTPICKER), IDS_LABEL);
+  }
   RefreshAmbient();
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -3282,8 +3337,7 @@ void CAreaAmbient::OnPlay()
 
 BOOL CAreaAmbient::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -3504,6 +3558,14 @@ BOOL CAreaContainer::OnInitDialog()
   for(i=0;i<NUM_CITYPE;i++)
   {
     m_containertype_control.AddString(get_container_icon(i));
+  }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_CONTAINERPICKER), IDS_LABEL);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -4135,8 +4197,7 @@ void CAreaContainer::OnFit()
 
 BOOL CAreaContainer::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -4286,6 +4347,14 @@ BOOL CAreaVariable::OnInitDialog()
     cb->ResetContent();
     cb->AddString("0 - User note");
     cb->AddString("1 - Read only");
+  }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+
   }
   RefreshVariable();
   UpdateData(UD_DISPLAY);
@@ -4660,8 +4729,7 @@ void CAreaVariable::OnSet()
 
 BOOL CAreaVariable::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -4707,7 +4775,6 @@ void CAreaDoor::RefreshDoor()
   if(m_doornum>=0)
   {
     m_infostr=resolve_tlk_text(the_area.doorheaders[m_doornum].strref);
-    m_text=resolve_tlk_text(the_area.doorheaders[m_doornum].nameref);
   }
   if(IsWindow(m_regionpicker) )
   {
@@ -4728,11 +4795,11 @@ IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,IDC_FLAG5,IDC_FLAG6,IDC_FLAG7,IDC_FLAG8,
 IDC_FLAG9,IDC_FLAG10,IDC_FLAG11,IDC_FLAG12,
 IDC_POS1X,IDC_POS1Y,IDC_POS2X,IDC_POS2Y, IDC_POS1X2,IDC_POS1Y2,IDC_POS2X2,IDC_POS2Y2,
 IDC_RECALCBOX,IDC_EDITPOLYGON, IDC_EDITBLOCK,IDC_SELECTION,
-IDC_OPEN,IDC_SOUND1,IDC_SOUND2, IDC_SHORTREF, IDC_LONGNAME,IDC_TAGGED,IDC_AREA,
-IDC_CURSORIDX, IDC_CURSOR, IDC_TPOSX, IDC_TPOSY,IDC_DETECT,IDC_REMOVAL,IDC_U54,
-IDC_TRAPPED,IDC_DETECTED,IDC_KEY, IDC_SCRIPT,IDC_DIALOG,IDC_LOCKED,IDC_DIFF,IDC_STRREF,
-IDC_INFOSTR, IDC_BROWSE,IDC_BROWSE2,IDC_BROWSE3, IDC_BROWSE4,IDC_BROWSE5,
-IDC_PLAY,IDC_PLAYSOUND, IDC_UNKNOWN, IDC_REMOVE, IDC_COPY, IDC_PASTE,
+IDC_OPEN,IDC_SOUND1,IDC_SOUND2, IDC_AREA, IDC_CURSORIDX, IDC_CURSOR, IDC_TPOSX, IDC_TPOSY,
+IDC_DETECT,IDC_REMOVAL,IDC_U54, IDC_TRAPPED,IDC_DETECTED,IDC_KEY, IDC_SCRIPT,IDC_DIALOG,
+IDC_LOCKED,IDC_DIFF,IDC_STRREF, IDC_INFOSTR, IDC_BROWSE,IDC_BROWSE2,IDC_BROWSE3, 
+IDC_BROWSE4,IDC_BROWSE5, IDC_PLAY,IDC_PLAYSOUND, IDC_UNKNOWN, 
+IDC_REMOVE, IDC_COPY, IDC_PASTE,
 0};
 
 #define DOORFLAGNUM  12
@@ -4788,8 +4855,6 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_LOCKED, the_area.doorheaders[m_doornum].locked);
     DDX_Text(pDX, IDC_DIFF, the_area.doorheaders[m_doornum].lockremoval);
     DDX_Text(pDX, IDC_U54, the_area.doorheaders[m_doornum].unknown54);
-    DDX_Text(pDX, IDC_SHORTREF, the_area.doorheaders[m_doornum].nameref);
-    DDX_Text(pDX, IDC_LONGNAME, m_text);
 
     RetrieveResref(tmpstr, the_area.doorheaders[m_doornum].key);
     DDX_Text(pDX, IDC_KEY, tmpstr);
@@ -4801,12 +4866,12 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr, the_area.doorheaders[m_doornum].openscript);
 
-    RetrieveResref(tmpstr, the_area.doorheaders[m_doornum].dlgref);
+    RetrieveResref(tmpstr, the_area.doorheaders[m_doornum].dialogref);
     DDX_Text(pDX, IDC_DIALOG, tmpstr);
     DDV_MaxChars(pDX, tmpstr, 8);
-    StoreResref(tmpstr, the_area.doorheaders[m_doornum].dlgref);
+    StoreResref(tmpstr, the_area.doorheaders[m_doornum].dialogref);
 
-    RetrieveResref16(tmpstr, the_area.doorheaders[m_doornum].regionlink); //travel region link
+    RetrieveVariable(tmpstr, the_area.doorheaders[m_doornum].regionlink); //travel region link
     DDX_Text(pDX, IDC_AREA, tmpstr);
     DDV_MaxChars(pDX, tmpstr, 16);
     StoreResref16(tmpstr, the_area.doorheaders[m_doornum].regionlink);
@@ -4868,7 +4933,14 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
 BOOL CAreaDoor::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
-  //
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_DOORPICKER), IDS_LABEL);
+  }
   RefreshDoor();
   UpdateData(UD_DISPLAY);
   return TRUE;
@@ -4894,22 +4966,19 @@ BEGIN_MESSAGE_MAP(CAreaDoor, CPropertyPage)
 	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
-	ON_EN_KILLFOCUS(IDC_SHORTREF, OnKillfocusShortref)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
+	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
+	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
 	ON_EN_KILLFOCUS(IDC_AREA, OnKillfocusArea)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_PLAY, OnPlay)
 	ON_BN_CLICKED(IDC_PLAYSOUND, OnPlaysound)
-	ON_EN_KILLFOCUS(IDC_LONGNAME, OnKillfocusLongname)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
 	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
 	ON_BN_CLICKED(IDC_BROWSE5, OnBrowse5)
-	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
-	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
-	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
-	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
-	ON_BN_CLICKED(IDC_TAGGED, OnTagged)
 	ON_EN_CHANGE(IDC_CURSORIDX, OnChangeCursoridx)
 	ON_BN_CLICKED(IDC_SET, OnSet)
 	ON_BN_CLICKED(IDC_EDITBLOCK, OnEditblock)
@@ -4994,46 +5063,6 @@ void CAreaDoor::OnChangeCursoridx()
   	UpdateData(UD_RETRIEVE);
 	  UpdateData(UD_DISPLAY);
   }
-}
-void CAreaDoor::OnKillfocusShortref() 
-{
-	UpdateData(UD_RETRIEVE);
-  RefreshDoor();
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaDoor::OnTagged() 
-{
-  if(editflg&TLKCHANGE)
-  {
-    if(MessageBox("Do you want to update dialog.tlk?","Area editor",MB_YESNO)!=IDYES)
-    {
-      return;
-    }
-  }
-	toggle_tlk_tag(the_area.doorheaders[m_doornum].nameref);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaDoor::OnKillfocusLongname() 
-{
-  CString old;
-
-	UpdateData(UD_RETRIEVE);
-  old=resolve_tlk_text(the_area.doorheaders[m_doornum].nameref);
-  if(old!=m_text)
-  {
-    if(editflg&TLKCHANGE)
-    {
-      if(MessageBox("Do you want to update dialog.tlk?","Area editor",MB_YESNO)!=IDYES)
-      {
-        return;
-      }
-    }
-    the_area.doorheaders[m_doornum].nameref=store_tlk_text(the_area.doorheaders[m_doornum].nameref, m_text);
-  }
-  RefreshDoor();
-	UpdateData(UD_DISPLAY);
 }
 
 void CAreaDoor::OnKillfocusArea() 
@@ -5538,10 +5567,10 @@ void CAreaDoor::OnBrowse4()
 {
   if(m_doornum<0) return;
   pickerdlg.m_restype=REF_DLG;
-  RetrieveResref(pickerdlg.m_picked,the_area.doorheaders[m_doornum].dlgref);
+  RetrieveResref(pickerdlg.m_picked,the_area.doorheaders[m_doornum].dialogref);
   if(pickerdlg.DoModal()==IDOK)
   {
-    StoreResref(pickerdlg.m_picked,the_area.doorheaders[m_doornum].dlgref);
+    StoreResref(pickerdlg.m_picked,the_area.doorheaders[m_doornum].dialogref);
   }
 	UpdateData(UD_DISPLAY);	
 }
@@ -5662,8 +5691,7 @@ void CAreaDoor::OnUnknown()
 
 BOOL CAreaDoor::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -5819,6 +5847,14 @@ void CAreaAnim::RefreshAnim()
 BOOL CAreaAnim::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_ANIMPICKER), IDS_LABEL);
+  }
 	RefreshAnim();
 	return TRUE;  
 }
@@ -6195,8 +6231,7 @@ void CAreaAnim::OnFit()
 
 BOOL CAreaAnim::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -6239,6 +6274,14 @@ BOOL CAreaMap::OnInitDialog()
   CRect tmprect;
 
 	CPropertyPage::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+
+  }
 	RefreshMap();
   GetDlgItem(IDC_MAP)->GetWindowRect(tmprect);
   m_oladjust=tmprect.TopLeft();
@@ -6631,6 +6674,7 @@ BOOL CAreaMap::PreTranslateMessage(MSG* pMsg)
       break;
     }
   }
+  m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
