@@ -14,6 +14,9 @@
 #include "compat.h"
 #include "WeiduLog.h"
 #include "tbg.h"
+#include "2da.h"
+#include "2daEdit.h"
+#include ".\dialogedit.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -387,6 +390,8 @@ BOOL CDialogEdit::OnInitDialog()
 {
   CString tmpstr, tmpstr1, tmpstr2;
 
+  the_ids.new_ids();
+  m_idsname="";
 	CDialog::OnInitDialog();
   m_activesection=FL_TEXT;
 	RefreshDialog(0);
@@ -414,6 +419,19 @@ BOOL CDialogEdit::OnInitDialog()
     tmpstr.Format(tmpstr1, tmpstr2);
     m_tooltip.AddTool(GetDlgItem(IDC_CHECK), tmpstr);
   }	
+
+	int i;
+	CWnd *cntrl;
+
+	CRect rect;
+	for(i=0;i<40;i++)
+	{
+		cntrl=GetDlgItem(IDC_U1+i);
+		cntrl->GetWindowRect(&rect);
+		ScreenToClient(&rect);
+		cntrl->SetWindowPos(NULL, 11, 314+13*i,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_HIDEWINDOW);
+	}
+	locked=false;
   UpdateData(UD_DISPLAY);
   return TRUE; 
 }
@@ -764,7 +782,14 @@ BEGIN_MESSAGE_MAP(CDialogEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
+	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	//}}AFX_MSG_MAP
+//	ON_WM_SIZE()
+//ON_WM_SIZING()
+ON_WM_SIZE()
+//ON_WM_SIZING()
+ON_WM_GETMINMAXINFO()
+ON_EN_CHANGE(IDC_TEXT, OnEnChangeText)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1106,7 +1131,7 @@ int CDialogEdit::SeekTo(int startnode, int type)
           return startnode|TRANSSTATE;
         }
       }
-      i=the_dialog.dlgtrans[startnode].actionindex;
+      i=the_dialog.dlgtrans[startnode].actionindex;      
       if((the_dialog.dlgtrans[startnode].flags&HAS_ACTION) && i>=0 && i<the_dialog.header.numaction)
       {
         if(match_script_text(the_dialog.actions[i],m_searchdlg.m_text))
@@ -1707,6 +1732,14 @@ void CDialogEdit::OnKillfocusFlags()
 	UpdateData(UD_DISPLAY);
 }
 
+int CDialogEdit::GetRowCount()
+{
+	CWnd *cntrl = GetDlgItem(IDC_TEXT);
+	CRect rect;
+	cntrl->GetWindowRect(&rect);
+	return rect.Height()/13;
+}
+
 void CDialogEdit::CheckTriggerOrAction(int messages)
 {
   CString *lines;
@@ -1715,22 +1748,27 @@ void CDialogEdit::CheckTriggerOrAction(int messages)
   CString tmpstr;
   trigger trigger;
   action action;
-  int count;
+  int rows, count;
   int i;
   int topline,firsterror;
   int triggeroraction;
 
+	if(locked) return;
+	locked=true;
+	rows=GetRowCount();
   if((m_activesection!=FL_ACTION) && (m_activesection!=FL_CONDITION))
   {
-    for(i=0;i<8;i++)
+    for(i=0;i<40;i++)
     {
       cb=(CButton *) GetDlgItem(IDC_U1+i);
       cb->ShowWindow(false);
     }
+		locked=false;
     return;
   }
   
   triggeroraction=m_activesection!=FL_ACTION;
+	GetDlgItem(IDC_TEXT)->GetWindowText(m_text);
   lines=explode(m_text, '\n', count);
   if(count<0)
   {
@@ -1755,12 +1793,15 @@ void CDialogEdit::CheckTriggerOrAction(int messages)
   }
   if(firsterror>=0)
   {
-    m_text_control.LineScroll(firsterror);
+		if(messages)
+		{
+			m_text_control.LineScroll(firsterror);
+		}
     topline=m_text_control.GetFirstVisibleLine();
-    for(i=0;i<8;i++)
+    for(i=0;i<40;i++)
     {
       cb=(CButton *) GetDlgItem(IDC_U1+i);
-      if(topline+i>=count)
+      if(topline+i>=count || i>=rows)
       {
         cb->ShowWindow(false);
       }
@@ -1783,10 +1824,11 @@ void CDialogEdit::CheckTriggerOrAction(int messages)
   else
   {
     topline=m_text_control.GetFirstVisibleLine();
-    for(i=0;i<8;i++)
+    for(i=0;i<40;i++)
     {
       cb=(CButton *) GetDlgItem(IDC_U1+i);
-      if(topline+i>=count)
+			if(!cb) continue;
+      if(topline+i>=count || i>=rows)
       {
         cb->ShowWindow(false);
       }
@@ -1801,6 +1843,7 @@ void CDialogEdit::CheckTriggerOrAction(int messages)
   }
   if(lines) delete [] lines;
   delete [] errors;
+	locked=false;
 }
 
 void CDialogEdit::OnSetfocusText() 
@@ -1856,7 +1899,7 @@ void CDialogEdit::OnKillfocusText()
     }
     break;
   case FL_ACTION:
-    CheckTriggerOrAction(true);
+    CheckTriggerOrAction(false);
     if(!m_transstates.Lookup(m_currentselection,key) ) break;
     idx=the_dialog.dlgtrans[key].actionindex;
     if(idx<0)
@@ -1874,7 +1917,7 @@ void CDialogEdit::OnKillfocusText()
     the_dialog.actions[idx]=old;
     break;
   case FL_CONDITION:
-    CheckTriggerOrAction(true);
+    CheckTriggerOrAction(false);
     if(m_transstates.Lookup(m_currentselection,key) )
     {
       idx=the_dialog.dlgtrans[key].trtrindex;
@@ -2065,6 +2108,11 @@ void CDialogEdit::OnVersion()
 }
 
 void CDialogEdit::OnVscrollText() 
+{
+  CheckTriggerOrAction(false);
+}
+
+void CDialogEdit::OnEnChangeText()
 {
   CheckTriggerOrAction(false);
 }
@@ -2816,6 +2864,19 @@ void CDialogEdit::OnToolspst()
   }
 }
 
+void CDialogEdit::OnToolsIdsbrowser() 
+{
+	CIDSEdit dlg;
+  CString tmpstr;
+
+  dlg.SetReadOnly(true);
+  tmpstr=itemname;
+  itemname=m_idsname;
+  dlg.DoModal();
+  m_idsname=itemname;
+  itemname=tmpstr;
+}
+
 void CDialogEdit::OnExportWeidu() 
 {
 	CString syscommand;
@@ -2973,8 +3034,92 @@ void CDialogEdit::OnCancel()
 	CDialog::OnCancel();
 }
 
+static int rightbuttons[]={IDC_VERSION, IDC_HASOPTION, IDC_HASCONDITION, IDC_HASACTION, 
+IDC_HASJOURNAL, IDC_JOURTYPE, IDC_STATIC2, IDC_STATIC6, IDC_STATIC4, IDC_STATIC5, IDC_SOUND, 0};
+
+static int right2buttons[]={IDC_FLAGS, IDC_OPTION, IDC_CONDITION, IDC_ACTION, 
+IDC_JOURNAL, IDC_DIALOG, IDC_VALUE, IDC_STATIC3, IDC_STRREF, 0};
+
+static int bottombuttons[]={IDC_LOAD, IDC_LOADEX, IDC_SAVEAS, IDC_NEW, IDC_CHECK, IDCANCEL,0};
+
+void CDialogEdit::OnSize(UINT nType, int cx, int cy)
+{
+	CDialog::OnSize(nType, cx, cy);
+
+	int i;
+	CRect rect;
+	CWnd *cntrl;
+
+	//dialog tree widens
+	cntrl = GetDlgItem(IDC_DIALOGTREE);
+	if(cntrl && IsWindow(cntrl->m_hWnd))
+	{
+		cntrl->GetWindowRect(rect);
+		ScreenToClient(rect);
+		cntrl->SetWindowPos(NULL,0,0,cx-200,rect.Height(),SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE);
+	}
+
+	//text window enlarges
+	cntrl = GetDlgItem(IDC_TEXT);
+	if(cntrl && IsWindow(cntrl->m_hWnd))
+	{
+		cntrl->SetWindowPos(NULL,0,0,cx-64,cy-352,SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE);
+		CheckTriggerOrAction(false);
+	}
+
+	//side buttons move right
+	i=0;
+	while(rightbuttons[i])
+	{
+		cntrl = GetDlgItem(rightbuttons[i]);
+		if(cntrl && IsWindow(cntrl->m_hWnd))
+		{
+			cntrl->GetWindowRect(rect);
+			ScreenToClient(rect);
+			cntrl->SetWindowPos(NULL,cx-180,rect.top,0,0,SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
+		}
+		i++;
+	}
+
+	i=0;
+	while(right2buttons[i])
+	{
+		cntrl = GetDlgItem(right2buttons[i]);
+		if(cntrl && IsWindow(cntrl->m_hWnd))
+		{
+			cntrl->GetWindowRect(rect);
+			ScreenToClient(rect);
+			cntrl->SetWindowPos(NULL,cx-85,rect.top,0,0,SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
+		}
+		i++;
+	}
+
+	//menu buttons move down
+	i=0;
+	while(bottombuttons[i])
+	{
+		cntrl = GetDlgItem(bottombuttons[i]);
+		if(cntrl && IsWindow(cntrl->m_hWnd))
+		{
+			cntrl->GetWindowRect(rect);
+			ScreenToClient(rect);
+			cntrl->SetWindowPos(NULL,rect.left,cy-32,0,0,SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
+		}
+		i++;
+	}
+}
+
+void CDialogEdit::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+	CDialog::OnGetMinMaxInfo(lpMMI);
+	lpMMI->ptMinTrackSize.x=700;
+	lpMMI->ptMinTrackSize.y=500;
+	lpMMI->ptMaxTrackSize.y=900;
+}
+
 BOOL CDialogEdit::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

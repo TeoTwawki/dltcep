@@ -823,6 +823,7 @@ int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhand
     return -2;
   }
   saventry.filename.ReleaseBuffer(-1);
+  saventry.filename.MakeUpper();
 
   if(read(finput, &saventry.uncompressed, sizeof(long)*2 )!=sizeof(long)*2 )
   {
@@ -831,15 +832,25 @@ int remove_from_sav(CString key, CString ext, int finput, int &maxlen, int fhand
   maxlen-=oflg+sizeof(oflg)+2*sizeof(long)+saventry.compressed;
 
   itemname=saventry.filename.Left(saventry.filename.Find('.'));
-  if(!key.IsEmpty() && (itemname.Find(key,0)==-1) )
-  {
-    lseek(finput,saventry.compressed,SEEK_CUR);
-    return 2; //no match
+  if(!key.IsEmpty() && !ext.IsEmpty()) {
+    if((itemname.Find(key,0)!=-1) && !saventry.filename.Right(4).CompareNoCase(ext) )
+    {
+      lseek(finput,saventry.compressed,SEEK_CUR);
+      return 2; //no match
+    }
   }
-  if(!ext.IsEmpty() || !(saventry.filename.Right(4).CompareNoCase(ext)) )
+  else
   {
-    lseek(finput,saventry.compressed,SEEK_CUR);
-    return 2; //no match
+    if(!key.IsEmpty() && (itemname.Find(key,0)!=-1) )
+    {
+      lseek(finput,saventry.compressed,SEEK_CUR);
+      return 2; //no match
+    }
+    if(!ext.IsEmpty() && !saventry.filename.Right(4).CompareNoCase(ext) )
+    {
+      lseek(finput,saventry.compressed,SEEK_CUR);
+      return 2; //no match
+    }
   }
   oflg=saventry.filename.GetLength()+1;
   //string length
@@ -5904,6 +5915,32 @@ void HackForLargeList(CFileDialog &m_getfiledlg)
   strncpy(external,m_getfiledlg.m_ofn.lpstrFile,MAXBUFFSIZE);
   m_getfiledlg.m_ofn.lpstrFile=external;
   m_getfiledlg.m_ofn.nMaxFile=MAXBUFFSIZE;
+}
+
+int ReadTempCreature(char *&creature, long &esize)
+{
+  int fhandle;
+  
+  fhandle=open("dltcep.tmp",O_RDWR|O_BINARY|O_TRUNC|O_CREAT|O_TEMPORARY, S_IWRITE|S_IREAD);
+  if(fhandle<1) return -2;
+  the_creature.WriteCreatureToFile(fhandle,0);
+  lseek(fhandle,0,SEEK_SET);
+  esize=filelength(fhandle);
+  if(creature) delete creature;
+  creature=new char[esize];
+  if(!creature)
+  {
+    close(fhandle);
+    return -3;
+  }
+  if(read(fhandle,creature,esize)!=esize)
+  {
+    close(fhandle);
+    return -2;
+  }
+  close(fhandle);
+  unlink("dltcep.tmp");
+  return 0;
 }
 
 int WriteTempCreature(char *creature, long esize)

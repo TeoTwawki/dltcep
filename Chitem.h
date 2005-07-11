@@ -148,6 +148,7 @@ extern UINT WM_FINDREPLACE;
 #define NUM_WEAPROF    54
 extern int act_num_weaprof;
 
+#define SLOT_SHIELD 2
 #define SLOT_WEAPON 9
 
 #define NUM_ITEMTYPE   0x4a
@@ -157,6 +158,10 @@ extern int act_num_weaprof;
 //bit 4 - invalid item in bg2
 
 extern int itvs2h[NUM_ITEMTYPE];
+
+#define IT2H_1HANDED 1
+#define IT2H_2HANDED 2
+#define IT2H_NOTBG2  4
 
 #define NUM_ANIMTYPES 11
 
@@ -539,6 +544,7 @@ void ConvertToV20Eff(creature_effect *v20effect, const feat_block *v10effect);
 int CheckDestination(CString area, CString entrance);
 int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd);
 void HackForLargeList(CFileDialog &m_getfiledlg);
+int ReadTempCreature(char *&creature, long &esize);
 int WriteTempCreature(char *creature, long esize);
 
 extern char BASED_CODE cfbFilter[];

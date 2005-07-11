@@ -195,6 +195,9 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   switch(revision)
   {
   case 22:
+    iwd2header.itemoffs=header.itemoffs;
+    iwd2header.itemslots=header.itemslots;
+    iwd2header.effectoffs=header.effectoffs;
     memcpy(&iwd2header.itemslots,&header.itemslots,5*sizeof(long)+8);
     if(write(fhandle,&iwd2header,sizeof(creature_iwd2_header) )!=sizeof(creature_iwd2_header) )
     { 	
@@ -202,12 +205,24 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
     }
     break;
   case 11: case 12:
+    pstheader.itemoffs=header.itemoffs;
+    pstheader.itemslots=header.itemslots;
+    pstheader.effectoffs=header.effectoffs;
+    pstheader.selectoffs=header.selectoffs;
+    pstheader.bookoffs=header.bookoffs;
+    pstheader.memoffs=header.memoffs;
     if(write(fhandle,&pstheader,sizeof(creature_pst_header) )!=sizeof(creature_pst_header) )
     { 	
    	  return -2; // short file, invalid item
     }
     break;
   case 90:
+    iwdheader.itemoffs=header.itemoffs;
+    iwdheader.itemslots=header.itemslots;
+    iwdheader.effectoffs=header.effectoffs;
+    iwdheader.selectoffs=header.selectoffs;
+    iwdheader.bookoffs=header.bookoffs;
+    iwdheader.memoffs=header.memoffs;
     if(write(fhandle,&iwdheader,sizeof(creature_iwd_header) )!=sizeof(creature_iwd_header) )
     { 	
    	  return -2; // short file, invalid item

@@ -40,7 +40,11 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_STARTAREA, tmpstr);
   StoreResref(tmpstr,the_game.header.mainarea);
 
+  DDX_Text(pDX, IDC_UNKNOWN1C, the_game.header.weather1);
+
   DDX_Text(pDX, IDC_WEATHER, the_game.header.weather2);
+
+  DDX_Text(pDX, IDC_UNKNOWN48, the_game.header.unknown48);
 
   tmp=the_game.header.weather2;
   j=1;
@@ -66,6 +70,8 @@ BEGIN_MESSAGE_MAP(CGameGeneral, CDialog)
 	ON_EN_KILLFOCUS(IDC_GAMETIME, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_GOLD, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_WEATHER, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN1C, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN48, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

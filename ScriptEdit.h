@@ -86,6 +86,7 @@ protected:
 	afx_msg void OnChangeText();
 	afx_msg void OnUpdateText();
 	virtual void OnCancel();
+	afx_msg void OnToolsLookupstrref();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

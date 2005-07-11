@@ -12,8 +12,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // CDialogEdit dialog
 
-//typedef HTREEITEM TRANSSTATE[2]; //reply/text
-
 class leaf_data : public CMap<HTREEITEM, HTREEITEM, int, int&>
 {
 public:
@@ -110,7 +108,7 @@ public:
 	CString	m_dialog;
 	int		m_value;
 	//}}AFX_DATA
-  //BOOL m_syntaxerror;
+  CString m_idsname;
   HTREEITEM m_currentselection;
   HTREEITEM m_currentselection_new;
   int m_activesection;
@@ -122,6 +120,7 @@ protected:
    CSearchNode m_searchdlg;
    char *m_treeflags;
    char *m_transflags;
+	 bool locked;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -142,6 +141,7 @@ protected:
   void EnableWindows(int enableflags, int actualflags);
   void RefreshMenu();
   void RefreshLeaf();
+	int GetRowCount();
   void CheckTriggerOrAction(int messages);
   void WalkOnTree(int command);
   void SearchNode();
@@ -201,8 +201,14 @@ protected:
 	afx_msg void OnToolspst();
 	virtual void OnCancel();
 	afx_msg void OnNewvalue();
+	afx_msg void OnToolsIdsbrowser();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+//	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+	afx_msg void OnEnChangeText();
 };
 
 //{{AFX_INSERT_LOCATION}}

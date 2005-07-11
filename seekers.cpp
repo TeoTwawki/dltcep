@@ -561,7 +561,7 @@ int CChitemDlg::check_itemtype(int itemtype)
   loc_entry dummy;
   
   if(chkflg&NOTYPECH) return 0;
-  if(!unlimited_itemtypes() && (itvs2h[itemtype]&4))
+  if(!unlimited_itemtypes() && (itvs2h[itemtype]&IT2H_NOTBG2))
   {
     log("This itemtype (%s) causes BG2 to crash.",format_itemtype(itemtype));
     return BAD_ITEMTYPE;
@@ -690,7 +690,7 @@ int CChitemDlg::check_attribute(unsigned long attr, int itemtype)
   ret=0;
   if(the_item.header.itmattr&ATTR_TWOHAND)
   {
-    val=2; //set
+    val=IT2H_2HANDED; //set
     if(!(chkflg&NOWPROCH) && bg2_weaprofs())
     {
       if(!the_item.header.weaprof)
@@ -700,7 +700,7 @@ int CChitemDlg::check_attribute(unsigned long attr, int itemtype)
       }
     }
   }
-  else val=1; //not set
+  else val=IT2H_1HANDED; //not set
   // 1 - only 1 handed, 2 - only 2 handed, 3 - both
   if(!(chkflg&NOTYPECH))
   {
@@ -2722,6 +2722,21 @@ bool CChitemDlg::match_area()
   return found;
 }
 
+void CChitemDlg::which_transition(int idx)
+{
+  int i;
+
+  for(i=0;i<the_dialog.transcount;i++)
+  {
+    if(the_dialog.dlgtrans[i].actionindex==idx)
+    {
+      log("Transition: %d",i);
+      return;
+    }
+  }
+  log("Not in any transition");
+}
+
 bool CChitemDlg::match_dialog()
 {
   int i,j,k;
@@ -2871,7 +2886,8 @@ bool CChitemDlg::match_dialog()
             action.opcode<=searchdata.feature2)
           {
             ret=true;
-            log("Found %s in block %d",lines[k],i+1);
+            log("Found %s in action %d",lines[k],i+1);
+            which_transition(i);
           }            
         }
         
@@ -2881,11 +2897,13 @@ bool CChitemDlg::match_dialog()
           {
             ret=true;
             log("Found %s in action #%d",action.var1,i+1);
+            which_transition(i);
           }
           if(!strnicmp(action.var2+6,searchdata.variable,32))
           {
             ret=true;
             log("Found %s in action #%d",action.var2+6,i+1);
+            which_transition(i);
           }
         }
         if(searchflags&MR)
@@ -2894,11 +2912,13 @@ bool CChitemDlg::match_dialog()
           {
             ret=true;
             log("Found %s in action #%d",action.var1,i+1);
+            which_transition(i);
           }
           if(!strnicmp(action.var2,searchdata.resource,8))
           {
             ret=true;
             log("Found %s in action #%d",action.var2,i+1);
+            which_transition(i);
           }
           for(j=0;j<3;j++)
           {
@@ -2906,6 +2926,7 @@ bool CChitemDlg::match_dialog()
             {
               ret=true;
               log("Found %s in action #%d ob #%d",action.obj[j].var,i+1, j+1);
+              which_transition(i);
             }
           }
         }
@@ -3540,6 +3561,13 @@ int CChitemDlg::check_creature()
     }
   }
 
+  switch(check_dialogres(the_creature.header.dialogresref,true) )
+  {
+    case -1:
+      ret|=BAD_RESREF;
+      log("Bad dialog reference '%-.8s' !", the_creature.header.dialogresref);
+  }
+
   if(!(chkflg&NODVARCH))
   {
     RetrieveVariable(tmpstr,the_creature.header.dvar);
@@ -3572,6 +3600,16 @@ int CChitemDlg::check_creature()
   return ret;
 }
 
+static bool check_twohanded(const char *poi)
+{
+  CString resref;
+
+  RetrieveResref(resref, poi);
+  the_item.header.itmattr=0;
+  if(read_item(resref)<0) return false; //actually this is an invalid item
+  return (the_item.header.itmattr&ATTR_TWOHAND)!=0;
+}
+
 int CChitemDlg::check_weaponslots()
 {
   int ret;
@@ -3600,11 +3638,18 @@ int CChitemDlg::check_weaponslots()
       }
     }
   }
-  //bg1 creatures don't have this?
-  if(!the_creature.header.effbyte)
+  if(the_creature.itemslots[SLOT_SHIELD]!=-1)
   {
-    return ret;
+    for(int k=0;k<4;k++)
+    {
+      j=the_creature.itemslots[SLOT_WEAPON+k];
+      if(check_twohanded(the_creature.items[j].itemname))
+      {
+        log("Two handed weapon (%-8s) equipped with shield!",the_creature.items[j].itemname);
+      }
+    }
   }
+
   i=*(short *) (the_creature.itemslots+the_creature.slotcount);
   switch(i)
   {
@@ -3612,10 +3657,14 @@ int CChitemDlg::check_weaponslots()
     //quiver
     break;
   case 0: case 1: case 2: case 3:
-    if(the_creature.itemslots[SLOT_WEAPON+i]==-1)
+    j = the_creature.itemslots[SLOT_WEAPON+i];
+    if(j==-1)
     {
-      ret|=BAD_ATTR;
-      log("Invalid equipped weapon index:%s, no weapon equipped there",get_slottype(i));
+      if(i!=0)
+      {
+        ret|=BAD_ATTR;
+        log("Invalid equipped weapon index:%s, no weapon equipped there",get_slottype(i));
+      }
     }
     break;
   case 1000:

@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by chitem.rc
 //
 #define IDC_CHECKSTORE                  3
@@ -1563,6 +1563,14 @@
 #define IDC_NIGHTMAP                    2272
 #define IDC_EDITTILE2                   2273
 #define IDC_CLEANUP                     2274
+#define IDC_EMBED                       2275
+#define IDC_U3A                         2276
+#define IDC_STATIC2                     2277
+#define IDC_STATIC3                     2278
+#define IDC_STATIC4                     2279
+#define IDC_STATIC5                     2280
+#define IDC_STATIC6                     2281
+
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1772,7 +1780,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33033
-#define _APS_NEXT_CONTROL_VALUE         2318
+#define _APS_NEXT_CONTROL_VALUE         2283
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

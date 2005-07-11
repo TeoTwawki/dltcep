@@ -13,6 +13,7 @@
 #include "options.h"
 #include "compat.h"
 #include "WeiduLog.h"
+#include "StrRefDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -145,6 +146,7 @@ BEGIN_MESSAGE_MAP(CScriptEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_CHECK, OnCheck)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	//}}AFX_MSG_MAP
   ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
@@ -1295,9 +1297,16 @@ void CScriptEdit::OnCancel()
 	CDialog::OnCancel();
 }
 
+void CScriptEdit::OnToolsLookupstrref() 
+{
+	CStrRefDlg dlg;
+	
+  dlg.DoModal();
+	RefreshMenu();
+}
+
 BOOL CScriptEdit::PreTranslateMessage(MSG* pMsg) 
 {
 	m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
-

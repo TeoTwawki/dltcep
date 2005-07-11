@@ -37,6 +37,8 @@ Carea::Carea()
   animheaders=NULL;
   mapnoteheaders=NULL;
   pstmapnoteheaders=NULL;
+  trapheaders=NULL;
+  effects=NULL;
   tileheaders=NULL;
   vertexheaders=NULL;
   explored=NULL;
@@ -68,6 +70,7 @@ Carea::Carea()
   doorcount=0;
   animcount=0;
   mapnotecount=0;
+  trapcount=0;
   tilecount=0;
   vertexcount=0;
   exploredsize=0;
@@ -108,6 +111,8 @@ void Carea::new_area()
   KillDoors();
   KillAnimations();
   KillMapnotes();
+  KillTraps();
+  KillEffects();
   KillTiles();
   KillVertices();
   KillVertexList();
@@ -769,6 +774,7 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   int esize;
   int fullsize;
   int ret;
+  int i;
 
   ImplodeVertices();
   ConsolidateItems();
@@ -784,7 +790,12 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   }
 
   header.actoroffset=fullsize;
-  fullsize+=header.actorcnt*sizeof(area_actor);             //actor
+  fullsize+=header.actorcnt*sizeof(area_actor);             //actor headers
+  for(i=0;i<actorcount;i++)                                 //actor data
+  {
+    actorheaders[i].creoffset=fullsize;
+    fullsize+=actorheaders[i].cresize;
+  }
   header.infooffset=fullsize;
   fullsize+=header.infocnt*sizeof(area_trigger);            //trigger (infopoint)
   header.spawnoffset=fullsize; 
@@ -818,7 +829,17 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   if(header.mapnotecnt)
   {
     header.mapnoteoffset=fullsize;
-    fullsize+=header.mapnotecnt*sizeof(area_mapnote);         //mapnotes
+    fullsize+=header.mapnotecnt*sizeof(area_mapnote);       //mapnotes
+  }
+  if(header.trapcnt && !pst_compatible_var())               //traps are not compatible with pst
+  {
+    for(i=0;i<trapcount;i++)
+    {
+      trapheaders[i].offset=fullsize;
+      fullsize += trapheaders[i].size;                      //trap effects
+    }
+    header.pstmapnotecnt=fullsize;
+    fullsize+=header.trapcnt*sizeof(area_trap);             //trap projectiles
   }
 
   if(calculate)
@@ -878,6 +899,15 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   {	
     ret=-2;
     goto endofquest;
+  }
+  for(i=0;i<actorcount;i++)
+  {
+    esize=actorheaders[i].cresize;
+    if(write(fh,credatapointers[i],esize)!=esize)
+    {
+      ret=-2;
+      goto endofquest;
+    }
   }
   //trigger (infopoint)
   esize=header.infocnt*sizeof(area_trigger);
@@ -1010,6 +1040,25 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   {
     esize=header.mapnotecnt*sizeof(area_mapnote);
     if(write(fh,mapnoteheaders,esize )!=esize )
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    int cnt, i;
+
+    cnt = 0;
+    for(i=0;i<trapcount;i++)
+    {
+      esize=trapheaders[i].size;
+      if(write(fh,effects+cnt, esize)!=esize )
+      {
+        ret=-2;
+        goto endofquest;
+      }
+      cnt +=esize/sizeof(creature_effect);
+    }
+    esize=header.trapcnt*sizeof(area_trap);
+    if(write(fh,trapheaders,esize )!=esize )
     {
       ret=-2;
       goto endofquest;
@@ -2261,6 +2310,7 @@ int Carea::ReadAreaFromFile(int fh, long ml)
     }
   }
 
+  //pst was converted to common format before
   if(header.mapnotecnt)
   {
     flg=adjust_actpointa(header.mapnoteoffset);
@@ -2275,7 +2325,7 @@ int Carea::ReadAreaFromFile(int fh, long ml)
       KillMapnotes();
       pstmapnoteheaders=new pst_area_mapnote[header.mapnotecnt];
       if(!pstmapnoteheaders) return -3;
-      mapnotecount=header.pstmapnotecnt;
+      mapnotecount=header.mapnotecnt;
     }
     esize=header.mapnotecnt*sizeof(pst_area_mapnote);
     if(read(fhandlea,pstmapnoteheaders,esize )!=esize )
@@ -2283,6 +2333,7 @@ int Carea::ReadAreaFromFile(int fh, long ml)
       return -2;
     }
     ConvertFromPstMapnote();
+    fullsizea+=esize;
   }
   else
   {
@@ -2298,8 +2349,62 @@ int Carea::ReadAreaFromFile(int fh, long ml)
     {
       return -2;
     }
+    fullsizea+=esize;
+
+    if(header.trapcnt)
+    {
+      flg=adjust_actpointa(header.pstmapnotecnt); //also trapoffset
+      if(flg<0) return flg;
+      if(flg) ret|=flg;
+    }
+    if(trapcount!=header.trapcnt)
+    {
+      KillTraps();
+      trapheaders=new area_trap[header.trapcnt];
+      if(!trapheaders) return -3;
+      trapcount=header.trapcnt;
+    }
+    esize=header.trapcnt*sizeof(area_trap);
+    if(read(fhandlea,trapheaders,esize )!=esize )
+    {
+      return -2;
+    }
+    fullsizea+=esize;
+
+    int i,cnt;
+    esize = 0;
+    cnt = 0;
+    for(i=0;i<trapcount;i++)
+    {
+      cnt+=trapheaders[i].size/sizeof(creature_effect);
+    }
+    if(effectcount!=cnt)
+    {
+      KillEffects();
+      effects=new creature_effect[cnt];
+      if(!effects) return -3;
+      effectcount=cnt;
+    }
+
+    cnt = 0;
+    for(i=0;i<trapcount;i++)
+    {
+      flg=adjust_actpointa(trapheaders[i].offset);
+      if(flg<0) return flg;
+      if(flg) ret|=flg;
+      esize = trapheaders[i].size;
+      if (esize>(effectcount-cnt)*(int) sizeof(creature_effect))
+      {
+        return -2;
+      }
+      if(read(fhandlea,effects+cnt,esize )!=esize )
+      {
+        return -2;
+      }
+      cnt+=esize/sizeof(creature_effect);
+      fullsizea+=esize;
+    }
   }
-  fullsizea+=esize;
 
   if(fullsizea!=maxlena)
   {

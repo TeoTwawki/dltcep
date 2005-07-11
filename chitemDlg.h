@@ -225,6 +225,7 @@ protected:
   void DecompressAcm(bool wavc_or_acm);
   void DecompressAcm2(bool wavc_or_acm);
   void CheckPrefix(CString key, int value);
+  void which_transition(int idx);
 	// Generated message map functions
 	//{{AFX_MSG(CChitemDlg)
 	virtual BOOL OnInitDialog();

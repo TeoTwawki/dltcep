@@ -46,7 +46,6 @@ protected:
   CToolTipCtrl m_tooltip;
 
   void RefreshDialog();
-  int ReadTempCreature(char *&creature, long &esize);
   void SaveGame(int save);
   int GetActualPosition(CComboBox &cb);
 

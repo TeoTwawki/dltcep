@@ -73,6 +73,8 @@ public:
   int variablecount;
   int doorcount;
   int mapnotecount;
+  int trapcount;
+  int effectcount;
   int tilecount;
   int exploredsize;
 
@@ -92,6 +94,8 @@ public:
   area_door *doorheaders;
   area_mapnote *mapnoteheaders;
   pst_area_mapnote *pstmapnoteheaders;
+  area_trap *trapheaders;
+  creature_effect *effects;
   area_tile *tileheaders;
   char *explored;
   char **credatapointers;
@@ -384,6 +388,24 @@ public:
       pstmapnoteheaders=NULL;
     }
     mapnotecount=0;
+  }
+  inline void KillTraps()
+  {
+    if(trapheaders)
+    {
+      delete[] trapheaders;
+      trapheaders=NULL;
+    }
+    trapcount=0;
+  }
+  inline void KillEffects()
+  {
+    if(effects)
+    {
+      delete[] effects;
+      effects=NULL;
+    }
+    effectcount=0;
   }
   inline void KillTiles()
   {

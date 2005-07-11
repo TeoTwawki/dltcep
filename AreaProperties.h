@@ -130,6 +130,7 @@ protected:
 	afx_msg void OnSetpos();
 	afx_msg void OnSetdest();
 	afx_msg void OnBrowse9();
+	afx_msg void OnEmbed();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -1073,7 +1073,7 @@ void CStoreItems::OnRemallitem()
     itemnum=0;
     for(i=0;i<NUM_ITEMTYPE;i++)
     {
-      if(!(itvs2h[i]&4) || (unlimited_itemtypes()) ) //maximum itemtype depends on setup
+      if(!(itvs2h[i]&IT2H_NOTBG2) || (unlimited_itemtypes()) ) //maximum itemtype depends on setup
       {
         the_store.itemtypes[i]=i;
         itemnum++;

@@ -480,7 +480,8 @@ Offset Size (data type) Description
 0x0000 2 (word) X coordinate
 0x0002 2 (word) Y coordinate
 0x0004 4 (dword) strref to dialog.tlk or TOH/TOT files
-0x0008 2 (word) unknown, I haven't noticed any differences after changing this offset. I have always seen value 1 or 0 here. 
+0x0008 2 (word) Flag for builtin mapnotes, mapnote comes from TOH : 0 or
+mapnote is builtin (TLK): 1
 0x000a 2 (word) For Baldur's Gate 2 this field specify the color of internal side of mark on worldmap :
 
     * 0 - Gray (default value)
@@ -492,7 +493,7 @@ Offset Size (data type) Description
     * 6 - Dark Blue
     * 7 - Light Gray 
 
-0x000c 4 (dword) Unknown, in BG2 at least it is probably some kind of Automaps counter ?! purpose unknown.
+0x000c 4 (dword) index+10 ?
 0x0010 36 (bytes) Unknown, unused
 V1.0 Tiled objects
 

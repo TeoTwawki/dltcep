@@ -1237,8 +1237,9 @@ typedef struct
   long intoffset;
   long mapnoteoffset;
   long mapnotecnt;
-  long pstmapnotecnt;
-  char unused[76];
+  long pstmapnotecnt; //also trapoffset
+  long trapcnt;
+  char unused[72];
 } area_header;
 
 typedef struct {
@@ -1491,7 +1492,8 @@ typedef struct {
   short framenum;
   short flags;
   short unknown36;
-  long unknown38;
+  short unknown38;//transparency
+  short unknown3a;//some flags?
   short unknown3c;
   short unknown3e;
   char bmp[8];  //palette bmp
@@ -1513,6 +1515,16 @@ typedef struct {
   long readonly;
   long unused[5];
 } pst_area_mapnote;
+
+typedef struct {
+  char projectile[8];
+  long offset;
+  long size;  
+  long unknown10;
+  short posx,posy;
+  short unknown18;
+  short unknown1a;
+} area_trap;
 
 typedef struct {
   char tilename[32];

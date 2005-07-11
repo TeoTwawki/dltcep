@@ -646,10 +646,12 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     cb=GetDlgItem(actorboxids[i++]);
     cb->EnableWindow(flg);
   }
-  cb=GetDlgItem(IDC_EDIT);
   if(flg)
   {
+    cb=GetDlgItem(IDC_EDIT);
     cb->EnableWindow(!!the_area.actorheaders[m_actornum].creoffset);
+    cb=GetDlgItem(IDC_EMBED);
+    cb->EnableWindow(!the_area.actorheaders[m_actornum].creoffset);
     tmpstr.Format("%d. %-.32s",m_actornum+1,the_area.actorheaders[m_actornum].actorname);
     DDX_Text(pDX, IDC_ACTORPICKER, tmpstr);    
 
@@ -742,7 +744,13 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr,the_area.actorheaders[m_actornum].dialog);
   }
-  else cb->EnableWindow(false);
+  else
+  {
+    cb=GetDlgItem(IDC_EDIT);
+    cb->EnableWindow(false);
+    cb=GetDlgItem(IDC_EMBED);
+    cb->EnableWindow(false);
+  }
 }
 
 //move itemdata to local variables
@@ -842,6 +850,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_BN_CLICKED(IDC_SETPOS, OnSetpos)
 	ON_BN_CLICKED(IDC_SETDEST, OnSetdest)
+	ON_BN_CLICKED(IDC_BROWSE9, OnBrowse9)
 	ON_EN_KILLFOCUS(IDC_CRERES, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
@@ -863,7 +872,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_FACE, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_ANIMATION, DefaultKillfocus)
 	ON_EN_CHANGE(IDC_AREA, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_BROWSE9, OnBrowse9)
+	ON_BN_CLICKED(IDC_EMBED, OnEmbed)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1129,6 +1138,28 @@ void CAreaActor::OnBrowse()
 	UpdateData(UD_DISPLAY);	
 }
 
+void CAreaActor::OnEmbed() 
+{
+  CString tmpname;
+
+	if(the_area.credatapointers[m_actornum]) return; //already embedded
+  RetrieveResref(tmpname,the_area.actorheaders[m_actornum].creresref);
+  if(read_creature(tmpname)<0)
+  {
+    return;
+  }
+  the_area.m_changed=true;
+  the_area.actorheaders[m_actornum].fields&=~1;
+  //reading creature into creature structure
+  //moving creature structure into area data
+  ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
+  the_area.actorheaders[m_actornum].creoffset=0xcdcdcdcd; //some fake nonzero value
+  tmpname.SetAt(0,'*');
+  StoreResref(tmpname,the_area.actorheaders[m_actornum].creresref);
+  RefreshActor();
+	UpdateData(UD_DISPLAY);	
+}
+
 void CAreaActor::OnEdit() 
 {
   CCreatureEdit dlg;
@@ -1141,9 +1172,20 @@ void CAreaActor::OnEdit()
   ret=WriteTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
   if(ret>=0)
   {
+    the_creature.m_savechanges=false;
     dlg.DoModal();
+    the_creature.m_savechanges=true;
   }
   itemname=tmpname;
+  if(MessageBox("Do you want to keep the changes made on the creature?","Area editor",MB_YESNO)==IDYES)
+  {
+    the_area.m_changed=true;
+    ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
+//    tmpname.SetAt(0,'*');
+//    StoreResref(itemname,the_area.actorheaders[m_actornum].creresref);
+    RefreshActor();
+    UpdateData(UD_DISPLAY);	
+  }
 }
 
 void CAreaActor::OnBrowse2() 
@@ -5718,12 +5760,12 @@ CAreaAnim::~CAreaAnim()
 }
 
 static int animboxids[]={IDC_ANIMPICKER, IDC_POSX, IDC_POSY, IDC_BAM,
-IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_U36, IDC_U38,IDC_U3C,IDC_U3E,
-IDC_BMP,IDC_U48,IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,IDC_FLAG5,
-IDC_FLAG6,IDC_FLAG7,IDC_FLAG8,IDC_FLAG9,IDC_FLAG10,IDC_FLAG11,IDC_FLAG12,
-IDC_FLAG13,IDC_FLAG14,IDC_FLAG15,IDC_FLAG16,IDC_BAMFRAME,IDC_PLAY,
-IDC_SCHEDULE,IDC_REMOVE, IDC_COPY, IDC_PASTE, IDC_BROWSE, IDC_BROWSE2,
-IDC_FIT,
+IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_U36, IDC_U38, IDC_U3A, IDC_U3C,
+IDC_U3E, IDC_BMP, IDC_U48, IDC_FLAG1, IDC_FLAG2, IDC_FLAG3, IDC_FLAG4,
+IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8, IDC_FLAG9, IDC_FLAG10,
+IDC_FLAG11, IDC_FLAG12, IDC_FLAG13, IDC_FLAG14, IDC_FLAG15, IDC_FLAG16,
+IDC_BAMFRAME, IDC_PLAY, IDC_SCHEDULE, IDC_REMOVE, IDC_COPY, IDC_PASTE,
+IDC_BROWSE, IDC_BROWSE2, IDC_FIT,
 0};
 void CAreaAnim::DoDataExchange(CDataExchange* pDX)
 {
@@ -5783,6 +5825,7 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_FLAGS, the_area.animheaders[m_animnum].flags);
     DDX_Text(pDX, IDC_U36,the_area.animheaders[m_animnum].unknown36);
     DDX_Text(pDX, IDC_U38,the_area.animheaders[m_animnum].unknown38);
+    DDX_Text(pDX, IDC_U3A,the_area.animheaders[m_animnum].unknown3a);
     DDX_Text(pDX, IDC_U3C,the_area.animheaders[m_animnum].unknown3c);
     DDX_Text(pDX, IDC_U3E,the_area.animheaders[m_animnum].unknown3e);
 
@@ -5861,13 +5904,10 @@ BOOL CAreaAnim::OnInitDialog()
 
 BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaAnim)
-	ON_CBN_KILLFOCUS(IDC_ANIMPICKER, OnKillfocusAnimpicker)
-	ON_CBN_SELCHANGE(IDC_ANIMPICKER, OnSelchangeAnimpicker)
-	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FRAME, OnKillfocusFrame)
 	ON_EN_KILLFOCUS(IDC_CYCLE, OnKillfocusCycle)
+	ON_CBN_KILLFOCUS(IDC_ANIMPICKER, OnKillfocusAnimpicker)
+	ON_CBN_SELCHANGE(IDC_ANIMPICKER, OnSelchangeAnimpicker)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
@@ -5884,13 +5924,6 @@ BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	ON_BN_CLICKED(IDC_FLAG14, OnFlag14)
 	ON_BN_CLICKED(IDC_FLAG15, OnFlag15)
 	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
-	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U36, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U38, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U3C, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U3E, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_BMP, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U48, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_COPY, OnCopy)
@@ -5901,6 +5934,17 @@ BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	ON_BN_CLICKED(IDC_PLAY, OnPlay)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_FIT, OnFit)
+	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U36, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U38, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U3C, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U3E, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_BMP, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U48, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U3A, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

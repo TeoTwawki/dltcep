@@ -890,12 +890,12 @@ Offset Size (data type) Description
 0x026f 1 (byte) Morale Recovery Time?
 0x0270 4 (dword) kit
 0x0274 8 (resref) creature script ("override" script?)
-0x0250 8 (resref) creature script ("special 2" script?)
-0x0258 8 (resref) creature script ("combat" script?)
-0x0260 8 (resref) creature script ("special 3" script?)
-0x0268 8 (resref) creature script ("movement" script?)
-0x0270 4 (dword) unknown
-0x0274 5x2 (word) Internals, see SetInternal
+0x027c 8 (resref) creature script ("special 2" script?)
+0x0284 8 (resref) creature script ("combat" script?)
+0x028c 8 (resref) creature script ("special 3" script?)
+0x0294 8 (resref) creature script ("movement" script?)
+0x029c 4 (dword) unknown
+0x02a0 5x2 (word) Internals, see SetInternal
 0x02aa 66 (bytes) unknown
 0x02ec 2 (word) Saved location X, see SaveLocation
 0x02ef 2 (word) Saved location Y
