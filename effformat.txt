@@ -49,7 +49,11 @@ Offset Size (data type) Description
 0x0060 4*2 (dword) unknown
 0x0068 8 (resref) VVC
 0x0070 8 (resref) 3. resource
-0x0078 4*5 (dword) unknown
+0x0078 4 Center X position
+0x007c 4 Center Y position
+0x0080 4 Unknown X position
+0x0084 4 Unknown Y position
+0x0088 4 (dword) unknown
 0x008c 8 (resref) Source of Effect
 0x0094 4*3 (dword) unknown
 0x00a0 32 (bytes) variable
