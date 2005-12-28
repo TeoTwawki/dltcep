@@ -653,7 +653,16 @@ Attention !: The values of this offset are written in big endian style.
 0x0258 8 (resref) creature script ("race" script?)
 0x0260 8 (resref) creature script ("general" script?)
 0x0268 8 (resref) creature script ("default" script?)
-0x0270 104 (bytes) unknown
+0x0270 2 (word) unknown
+0x0272 2 (word) unknown
+0x0274 2x5 (word) Internal variables
+0x027e 32 (char array) secondary death variable
+0x029e 32 (char array) tertiary death variable
+0x02be 2 (word) unknown
+0x02c0 2 (word) Saved X coordinate of character
+0x02c2 2 (word) Saved Y coordinate of character
+0x02c4 2 (word) Saved orientation
+0x02c6 18 (bytes) unknown
 0x02d8 1 (byte) "Enemy-Ally" type (see EA.IDS). This field and the next several require some explanation. It seems probable, due to the similar layout of these fields, that this is actually an object identifier. For reference, see the script compiler manual, but in short, it means that it has EA, GENERAL, RACE, CLASS, and SPECIFIC, among other things. This data could be used to explain the other unused fields. The only difficulty with this theory is that the byte which is currently listed as "gender" would normally be 'special case' according to the script compiler manual. On the other hand, the script compiler manual is poorly written and inaccurate in places, probably the result of a quick edit of an internal specification which was hacked into a public document.
 0x02d9 1 (byte) "General" type (see GENERAL.IDS).
 0x02da 1 (byte) "Race" type (see RACE.IDS).
@@ -662,8 +671,8 @@ Attention !: The values of this offset are written in big endian style.
 0x02dd 1 (byte) "Gender" type (see GENDER.IDS).
 0x02de 5 (bytes) unknown; however, see description at "Enemy-Ally" type byte above. If this is, in fact, an object id, then this here would be the 5 bytes which are used for functional specification of an object (see OBJECT.IDS). Functional specification of an object involves things like LastAttackerOf(Myself) or ProtectorOf(LastTalkedToBy(Protagonist)).
 0x02e3 1 (byte) "Alignment" type (see ALIGNMEN.IDS.)
-0x02e4 2 (word) unknown. This field and the next appear to hold two 16-bit words, both of which are usually 0xffff.
-0x02e6 2 (word) unknown
+0x02e4 2 (word) internal object identifier (global)
+0x02e6 2 (word) internal object identifier (local)
 0x02e8 32 (char array) This field determines the name of the "death variable" to set when this creature has been killed.
 0x0308 4 (dword) Known spells offset
 0x030c 4 (dword) Known spells count

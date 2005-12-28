@@ -2149,7 +2149,10 @@ int read_next_desc(FILE *fpoi)
     return 2;
   }
   index=atoi(tmp); //only dec
-  if(index<0 || index>=NUM_FEATS) return -1;
+  if(index<0 || index>=NUM_FEATS)
+  {
+    return -1;
+  }
 
   len=read_until(',',fpoi,tmp);
   if(!len)
@@ -2228,14 +2231,20 @@ int read_effect_descs()
   xorflag=0;
   position=0;
   fpoi=fopen(descpath,"rt");
-  if(fpoi<=0) return -1;
+  if(fpoi<=0)
+  {
+    return -2;
+  }
   ret=0;
   do
   {
     ret=read_next_desc(fpoi);
     if(ret)
     {
-      if(ret==2) ret=0;
+      if(ret==2)
+      {
+        ret=0;
+      }
       break;
     }
   }

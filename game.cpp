@@ -34,6 +34,7 @@ Cgame::Cgame()
   deathvariables=NULL;
   slocs=NULL;
 
+	//memset(qslots,0,sizeof(qslots));
   npccount=0;
   pccount=0;
   npcstructcount=0;
@@ -177,8 +178,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   }
   esize=((char *)&header.reputation-(char *)&header);
   memcpy(&pstheader,&header, esize);
-  esize=sizeof(header)-(header.curarea-header.filetype);
-  memcpy(pstheader.curarea,header.curarea,esize); //hack
+  memcpy(pstheader.curarea,header.curarea,8); //hack
   if(revision==12)
   {
     fullsize=sizeof(gam_pst_header);
@@ -187,21 +187,10 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   {
     fullsize=sizeof(gam_header);
   }
-  header.npcoffset=fullsize;
-  pstheader.npcoffset=fullsize;
-  fullsize+=header.npccount*(sizeof(gam_npc)+mysize);
   header.pcoffset=fullsize;
   pstheader.pcoffset=fullsize;
   fullsize+=header.pccount*(sizeof(gam_npc)+mysize);
-//  esize=fullsize;
-  for(i=0;i<header.npccount;i++)
-  {
-    if(npcs[i].cresize)
-    {
-      npcs[i].creoffset=fullsize;
-      fullsize+=npcs[i].cresize;
-    }
-  }
+
   for(i=0;i<header.pccount;i++)
   {
     if(pcs[i].cresize)
@@ -210,24 +199,47 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
       fullsize+=pcs[i].cresize;
     }
   }
-  header.variableoffset=fullsize;
-  pstheader.variableoffset=fullsize;
-  fullsize+=header.variablecount*sizeof(gam_variable);
+
+  header.npcoffset=fullsize;
+  pstheader.npcoffset=fullsize;
+  fullsize+=header.npccount*(sizeof(gam_npc)+mysize);
+
+  for(i=0;i<header.npccount;i++)
+  {
+    if(npcs[i].cresize)
+    {
+      npcs[i].creoffset=fullsize;
+      fullsize+=npcs[i].cresize;
+    }
+  }
+
   if(revision==12)
   {
+    if(!mazedata)
+    {
+      mazedata=new gam_mazedata;
+			memset(mazedata,0,sizeof(mazedata));
+      if(!mazedata) return -3;
+    }
     pstheader.mazeoffset=fullsize;
     fullsize+=sizeof(gam_mazedata);
+	  pstheader.variableoffset=fullsize;
+		pstheader.variablecount=header.variablecount;
+	  fullsize+=pstheader.variablecount*sizeof(gam_variable);
     pstheader.dvaroffset=fullsize;
-    fullsize+=header.dvarcount*sizeof(gam_variable);
+    fullsize+=pstheader.dvarcount*sizeof(gam_variable);
+	  pstheader.journaloffset=fullsize;
   }
   else
   {
     header.unknown1offset=fullsize;
     pstheader.unknown1offset=fullsize;
     fullsize+=header.unknown1count*sizeof(gam_unknown1);
+	  header.variableoffset=fullsize;
+	  fullsize+=header.variablecount*sizeof(gam_variable);
+	  header.journaloffset=fullsize;
   }
-  header.journaloffset=fullsize;
-  pstheader.journaloffset=fullsize;
+
   fullsize+=header.journalcount*sizeof(gam_journal);
   if(revision==12)
   {
@@ -266,17 +278,6 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
       return -2;
     }
   }
-  for(i=0;i<header.npccount;i++)
-  {
-    if(write(fhandle,npcs+i,sizeof(gam_npc) )!=sizeof(gam_npc) )
-    {
-      return -2;
-    }
-    if(write(fhandle,npcextensions+i,mysize)!=mysize)
-    {
-      return -2;
-    }
-  }
   for(i=0;i<header.pccount;i++)
   {
     if(write(fhandle,pcs+i,sizeof(gam_npc) )!=sizeof(gam_npc) )
@@ -289,13 +290,6 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     }
   }
 
-  for(i=0;i<header.npccount;i++)
-  {
-    if(write(fhandle,npcstructs[i],npcs[i].cresize) !=npcs[i].cresize)
-    {
-      return -2;
-    }
-  }
   for(i=0;i<header.pccount;i++)
   {
     if(write(fhandle,pcstructs[i],pcs[i].cresize) !=pcs[i].cresize)
@@ -304,17 +298,37 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     }
   }
 
-  esize=header.variablecount*sizeof(gam_variable);
-  if(write(fhandle,variables,esize)!=esize)
+  for(i=0;i<header.npccount;i++)
   {
-    return -2;
+    if(write(fhandle,npcs+i,sizeof(gam_npc) )!=sizeof(gam_npc) )
+    {
+      return -2;
+    }
+    if(write(fhandle,npcextensions+i,mysize)!=mysize)
+    {
+      return -2;
+    }
   }
+
+  for(i=0;i<header.npccount;i++)
+  {
+    if(write(fhandle,npcstructs[i],npcs[i].cresize) !=npcs[i].cresize)
+    {
+      return -2;
+    }
+  }
+
   if(revision==12)
   {
     if(write(fhandle,mazedata,sizeof(gam_mazedata) )!=sizeof(gam_mazedata) )
     {
       return -2;
     }
+	  esize=header.variablecount*sizeof(gam_variable);
+		if(write(fhandle,variables,esize)!=esize)
+		{
+			return -2;
+		}
     esize=pstheader.dvarcount*sizeof(gam_variable);
     if(write(fhandle,deathvariables,esize)!=esize)
     {
@@ -328,7 +342,13 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     {
       return -2;
     }
+	  esize=header.variablecount*sizeof(gam_variable);
+		if(write(fhandle,variables,esize)!=esize)
+		{
+			return -2;
+		}
   }
+
   esize=header.journalcount*sizeof(gam_journal);
   if(write(fhandle,journals,esize)!=esize)
   {
@@ -360,8 +380,8 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
       write(fhandle,familiardata,4);
     }
   }
-  esize=header.sloccount*sizeof(gam_sloc);
-  if(write(fhandle,variables,esize)!=esize)
+  esize=sloccount*sizeof(gam_sloc);
+  if(write(fhandle,slocs,esize)!=esize)
   {
     return -2;
   }
@@ -622,7 +642,6 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     
     if(!mazedata)
     {
-      KillMazeData();
       mazedata=new gam_mazedata;
       if(!mazedata) return -3;
     }
@@ -635,19 +654,19 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     fullsize+=esize;
     
     //read deathvariables
-    flg=adjust_actpoint(header.dvaroffset);
+    flg=adjust_actpoint(pstheader.dvaroffset);
     if(flg<0)
     {
       return flg;
     }
-    if(deathvariablecount!=header.dvarcount)
+    if(deathvariablecount!=pstheader.dvarcount)
     {
       KillDeathVariables();
-      deathvariables=new gam_variable[header.dvarcount];
+      deathvariables=new gam_variable[pstheader.dvarcount];
       if(!deathvariables) return -3;
-      deathvariablecount=header.dvarcount;
+      deathvariablecount=pstheader.dvarcount;
     }
-    esize=sizeof(gam_variable)*header.dvarcount;
+    esize=sizeof(gam_variable)*pstheader.dvarcount;
     if(read(fhandle,deathvariables, esize)!=esize)
     {
       return -2;
@@ -679,6 +698,12 @@ int Cgame::ReadGameFromFile(int fh, long ml)
 
   if(header.familiaroffset)
   {
+    flg=adjust_actpoint(header.familiaroffset);
+    if(flg<0)
+    {
+      return flg;
+    }
+    if(flg) ret|=flg;
     if(revision==12)
     {
       esize=260; //another blatant hack
@@ -733,7 +758,8 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       return -2;
     }
     fullsize+=esize;
-  }
+  } else sloccount = 0;
+
   if(revision==22) //this is a hack for iwd2
   {
     fullsize+=4;

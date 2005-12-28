@@ -73,6 +73,7 @@
 #define LARGEWINDOW 0x800000//larger graphical window for areas
 #define CENTER           0x1000000//center vertex
 #define IGNOREOVERRIDE   0x2000000//ignores override when exploding chitin.key
+#define CHECKSIZE        0x4000000//ignore filesizes
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -205,6 +206,7 @@ protected:
 	afx_msg void OnLargeWindow();
 	afx_msg void OnCenter();
 	afx_msg void OnOverride();
+	afx_msg void OnSizecheck();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

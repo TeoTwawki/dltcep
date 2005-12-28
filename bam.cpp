@@ -39,6 +39,7 @@
 #include "bam.h"
 #include "zlib.h"
 #include "oct_quan.h"
+#include "options.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -765,6 +766,113 @@ int Cbam::ExplodeBamData(bool onlyheader)
   return gret;
 }
 
+inline bool emptycol(BYTE *memory, int count, int increment, BYTE data)
+{
+  for(int i=0;i<count;i++)
+  {
+    if (memory[i*increment]!=data) return false;
+  }
+  return true;
+}
+
+inline bool emptyline(BYTE *memory, int count, BYTE data)
+{
+  for(int i=0;i<count;i++)
+  {
+    if (memory[i]!=data) return false;
+  }
+  return true;
+}
+
+bool Cbam::ShrinkFrame(int nFrameWanted)
+{
+  int sx,sy;
+  int dx,dy;
+  int xw,yh;
+  int i;
+  BYTE *newdata;
+  bool compress, ret;
+
+  sx=0;
+  sy=0;
+  xw=dx=m_pFrames[nFrameWanted].wWidth;
+  yh=dy=m_pFrames[nFrameWanted].wHeight;
+  if (!dy || !dx) {
+    return false;
+  }
+  compress=!(m_pFrames[nFrameWanted].dwFrameDataOffset&0x80000000);
+  if (compress)
+  {
+    m_pFrameData[nFrameWanted].RLEDecompression(m_header.chTransparentIndex);
+  }
+  for(i=0;i<dy;i++)
+  {
+    if (!emptyline(m_pFrameData[nFrameWanted].pFrameData+dx*i,dx, m_header.chTransparentIndex))
+    {
+      break;
+    }
+  }
+  sy=i;
+  for(i=dy;i>sy;i--)
+  {
+    if (!emptyline(m_pFrameData[nFrameWanted].pFrameData+dx*(i-1),dx, m_header.chTransparentIndex))
+    {
+      break;
+    }
+  }
+  dy=i;
+  
+  for(i=0;i<dx;i++)
+  {
+    //no problem that dy was already altered, the last lines are empty anyway
+    //no problem to check the first empty lines either
+    if (!emptycol(m_pFrameData[nFrameWanted].pFrameData+i,dy, dx, m_header.chTransparentIndex))
+    {
+      break;
+    }
+  }
+  sx=i;
+  for(i=dx;i>sx;i--)
+  {
+    //no problem that dy was already altered, the last lines are empty anyway
+    //no problem to check the first empty lines either
+    if (!emptycol(m_pFrameData[nFrameWanted].pFrameData+i-1,dy, dx, m_header.chTransparentIndex))
+    {
+      break;
+    }
+  }
+  dx=i;
+
+  ret=(sx!=0 || sy!=0 || dx!=xw || dy!=yh);
+  if (ret)
+  {
+    int x,y;
+    i=(dx-sx)*(dy-sy);
+    newdata = new BYTE[i];
+
+    for(y=sy;y<dy;y++)
+    {
+      x = dx-sx;
+      memcpy(newdata+(y-sy)*x, m_pFrameData[nFrameWanted].pFrameData+y*xw+sx,x);
+    }
+    free (m_pFrameData[nFrameWanted].pFrameData);
+    m_pFrameData[nFrameWanted].pFrameData = newdata;
+    m_pFrameData[nFrameWanted].nFrameSize = i;
+    //no real danger of data loss, sy should be under 256
+    //wcentery can hold 32767
+    m_pFrames[nFrameWanted].wCenterY=(short) (m_pFrames[nFrameWanted].wCenterY-sy);
+    m_pFrames[nFrameWanted].wCenterX=(short) (m_pFrames[nFrameWanted].wCenterX-sx);
+    m_pFrames[nFrameWanted].wWidth=(unsigned short) (dx-sx);
+    m_pFrames[nFrameWanted].wHeight=(unsigned short) (dy-sy);    
+  }
+  if (compress)
+  {
+    m_pFrames[nFrameWanted].dwFrameDataOffset&=0x7fffffff;
+    m_pFrameData[nFrameWanted].RLECompression(m_header.chTransparentIndex);
+  }
+  return ret;
+}
+
 int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
 {
   DWORD *prFrameBuffer=NULL;        //buffer for the whole frame (raw form)
@@ -835,10 +943,47 @@ int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
   }
   //cpoint is required due to one of the color reduction algorithms
   oc.BuildTree(prFrameBuffer,GetFrameData(nFrameWanted),CPoint(nFrameSize,1),m_palette);
+  m_palettesize=1024; //this could be better estimated
 endofquest:
   if(prFrameBuffer) delete [] prFrameBuffer;
   if(pRawData) delete [] pRawData;
   return ret;
+}
+
+static int ReadHeader(int fhandle, bmp_header &sHeader)
+{
+  bmpos2_header tmp;
+
+  memset(&sHeader,0,sizeof(bmp_header));
+  //reading the common part
+  if(read(fhandle,&sHeader,18)!=18)
+  {
+    return -2;
+  }
+  //OS/2 BMP
+  if (sHeader.headersize==12)
+  {
+    if(read(fhandle,((char *) (&tmp))+18,sizeof(bmpos2_header)-18)!=sizeof(bmpos2_header)-18 )
+    {
+      return -2;
+    }
+    sHeader.width=tmp.width;
+    sHeader.height=tmp.height;
+    sHeader.planes=tmp.planes;
+    sHeader.bits=tmp.bits;
+    sHeader.size=tmp.width*tmp.height;
+    return 0;
+  }
+  //Windows BMP?
+  if (sHeader.headersize!=0x28)
+  {
+    return -2;
+  }
+  if(read(fhandle,((char *) (&sHeader))+18,sizeof(bmp_header)-18)!=sizeof(bmp_header)-18 )
+  {
+    return -2;
+  }
+  return 0;
 }
 
 int Cbam::ReadBmpFromFile(int fhandle, int ml)
@@ -846,6 +991,7 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
   bmp_header sHeader;      //BMP header
   unsigned char *pcBuffer; //buffer for a scanline
   int scanline;            //size of a scanline in bytes (ncols * bytesize of a pixel)
+  int tmpsize;
   long original;
   unsigned int y;
   unsigned int nSourceOff; //the source offset in the original scanline (which we cut up)
@@ -856,13 +1002,20 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
   if(ml<0) ml=filelength(fhandle);
   if(ml<0) return -2;
   original=tell(fhandle);
+  ret=ReadHeader(fhandle, sHeader);
+  if(ret)
+  {
+    return ret;
+  }
+  /*
   if(read(fhandle,&sHeader,sizeof(bmp_header))!=sizeof(bmp_header) )
   {
     return -2;
   }
+  */
   if((*(unsigned short *) sHeader.signature)!='MB') return -2; //BM
   if(sHeader.fullsize>(unsigned long) ml) return -2;
-  if(sHeader.headersize!=0x28) return -2;
+  //if(sHeader.headersize!=0x28) return -2;
   if(sHeader.planes!=1) return -1;                  //unsupported
   if(sHeader.compression!=BI_RGB) return -1;        //unsupported
   if(sHeader.height<0 || sHeader.width<0) return -1; //unsupported
@@ -876,17 +1029,40 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
       else sHeader.colors=16;
     }
     m_palettesize=sHeader.colors*sizeof(RGBQUAD);
-    if(read(fhandle,&m_palette, m_palettesize)!=m_palettesize)
+    if(sHeader.headersize==12)
     {
-      return -2;
+      unsigned char *tmppal = (unsigned char *) malloc(3*sHeader.colors);
+      if (!tmppal)
+      {
+        return -3;
+      }
+      tmpsize = 3*sHeader.colors;
+      if(read(fhandle,tmppal, tmpsize)!=tmpsize)
+      {
+        free(tmppal);
+        return -2;
+      }
+      for(unsigned int i=0;i<sHeader.colors;i++)
+      {
+        m_palette[i]=*(COLORREF *) (tmppal+i*3)&0xffffff;
+      }
+      free(tmppal);
+    }
+    else
+    {
+      tmpsize=m_palettesize;
+      if(read(fhandle,&m_palette, m_palettesize)!=m_palettesize)
+      {
+        return -2;
+      }
     }
   }
   else
   {
-    m_palettesize=0;
+    tmpsize=m_palettesize=0;
   }
   //check if the file fits in the claimed length
-  if(sHeader.offset!=m_palettesize+sHeader.headersize+((unsigned char *) &sHeader.headersize-(unsigned char *) &sHeader) ) return -2;
+  if(sHeader.offset!=tmpsize+sHeader.headersize+((unsigned char *) &sHeader.headersize-(unsigned char *) &sHeader) ) return -2;
   scanline=(sHeader.width*sHeader.bits+7)>>3;
   if(scanline&3) scanline+=4-(scanline&3);
   
@@ -999,7 +1175,8 @@ int Cbam::ReadPltFromFile(int fhandle, int ml)
   int ret;
 
   if(ml<0) ml=filelength(fhandle);
-  if((ml<sizeof(plt_header)) || (ml>100000) ) return -2; //file is bad
+  if(ml<sizeof(plt_header) ) return -2; //file is bad
+  if(!(editflg&CHECKSIZE) && ml>100000) return -2;
   if(read(fhandle,&m_pltheader,sizeof(plt_header) )!=sizeof(plt_header) )
   {
     return -2;
@@ -1073,7 +1250,9 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
   int ret;
 
   if(ml<0) ml=filelength(fhandle);
-  if((ml<sizeof(INF_BAM_HEADER)) || (ml>10000000) ) return -2; //file is bad
+
+  if(ml<sizeof(INF_BAM_HEADER)) return -2; //file is bad
+  if(!(editflg&CHECKSIZE) && ml>10000000) return -2;
 
   //we assume it is a compressed header (compressed headers are shorter)
   if(read(fhandle,&c_header,sizeof(INF_BAMC_HEADER) )!=sizeof(INF_BAMC_HEADER) )
@@ -1123,7 +1302,7 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
 
   if(onlyheader) c_header.nExpandSize=sizeof(INF_BAM_HEADER);
 
-  if(c_header.nExpandSize>10000000) //don't handle bams larger than 10M
+  if(!(editflg&CHECKSIZE) && c_header.nExpandSize>10000000) //don't handle bams larger than 10M
   {
     delete [] pCData;
     return -4; //illegal data

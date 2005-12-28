@@ -45,6 +45,13 @@ BOOL CAreaSong::OnInitDialog()
     m_battlecontrol.AddString(tmpstr);
     m_u2control.AddString(tmpstr);
   }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -132,6 +139,14 @@ BEGIN_MESSAGE_MAP(CAreaSong, CDialog)
 	ON_BN_CLICKED(IDC_MUSWIN, OnMuswin)
 	ON_BN_CLICKED(IDC_MUSBATTLE, OnMusbattle)
 	ON_BN_CLICKED(IDC_MUSLOSE, OnMuslose)
+	ON_BN_CLICKED(IDC_PLAY, OnPlay)
+	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
+	ON_BN_CLICKED(IDC_PLAY2, OnPlay2)
+	ON_BN_CLICKED(IDC_PLAY3, OnPlay3)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
+	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -285,9 +300,72 @@ void CAreaSong::OnMuslose()
   Musiclist(the_area.songheader.songs[4]);
 }
 
+void CAreaSong::OnPlay() 
+{
+	play_acm(the_area.songheader.dayambi1,false,false);
+}
+
+void CAreaSong::OnBrowse() 
+{
+  pickerdlg.m_restype=REF_WAV;
+  RetrieveResref(pickerdlg.m_picked,the_area.songheader.dayambi1);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.songheader.dayambi1);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaSong::OnPlay1() 
+{
+	play_acm(the_area.songheader.nightambi1,false,false);
+}
+
+void CAreaSong::OnBrowse1() 
+{
+  pickerdlg.m_restype=REF_WAV;
+  RetrieveResref(pickerdlg.m_picked,the_area.songheader.nightambi1);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.songheader.nightambi1);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaSong::OnPlay2() 
+{
+	play_acm(the_area.songheader.dayambi2,false,false);
+}
+
+void CAreaSong::OnBrowse2() 
+{
+  pickerdlg.m_restype=REF_WAV;
+  RetrieveResref(pickerdlg.m_picked,the_area.songheader.dayambi2);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.songheader.dayambi2);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaSong::OnPlay3() 
+{
+	play_acm(the_area.songheader.nightambi2,false,false);
+}
+
+void CAreaSong::OnBrowse3() 
+{
+  pickerdlg.m_restype=REF_WAV;
+  RetrieveResref(pickerdlg.m_picked,the_area.songheader.nightambi2);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.songheader.nightambi2);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
 BOOL CAreaSong::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+  m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }

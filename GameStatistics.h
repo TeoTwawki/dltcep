@@ -24,6 +24,10 @@ public:
 	CString	m_text;
 	//}}AFX_DATA
   gam_npc_extension *m_stats;
+  char (*m_wstr)[8];
+  short *m_wcnt;
+  char (*m_sstr)[8];
+  short *m_scnt;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -44,6 +48,11 @@ protected:
 	afx_msg void OnDefaultKillfocus();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnKillfocusStrref();
+	afx_msg void OnSelchangeWeapon();
+	afx_msg void OnSelchangeSpellpicker();
+	afx_msg void OnKillfocusPicker();
+	afx_msg void OnBrowse();
+	afx_msg void OnBrowse2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

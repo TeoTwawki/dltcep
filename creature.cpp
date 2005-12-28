@@ -120,7 +120,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   case 90:
     fullsize=sizeof(creature_iwd_header);
   	memcpy(header.filetype,"CRE V9.0",8);
-    memcpy(&iwdheader,&header,iwdheader.unknown270-(char *) &iwdheader);
+    memcpy(&iwdheader,&header,(char *) &iwdheader.unknown270-(char *) &iwdheader);
     memcpy(&iwdheader.idsea,&header.idsea,header.dialogresref-(char *) &header.idsea+8);
     break;
   }
@@ -672,7 +672,7 @@ redo:
       return -2;
     }
     revision=90;
-    memcpy(&header,&iwdheader,iwdheader.unknown270-(char *) &iwdheader);
+    memcpy(&header,&iwdheader,(char *) &iwdheader.unknown270-(char *) &iwdheader);
     memcpy(&header.idsea,&iwdheader.idsea,header.dialogresref-(char *) &header.idsea+8);
   }
   else if(!memcmp(header.revision,"V2.2",4) )
@@ -764,7 +764,10 @@ redo:
   if(header.effbyte==1)
   {
     effects=new creature_effect[header.effectcnt];
-    if(!effects) return -3;
+    if(!effects)
+    {
+      return -3;
+    }
     effectcount=header.effectcnt;
     esize=effectcount*sizeof(creature_effect);
     if(read(fhandle, effects, esize )!=esize )
@@ -775,7 +778,10 @@ redo:
   else
   {
     oldeffects=new feat_block[header.effectcnt];
-    if(!oldeffects) return -3;
+    if(!oldeffects)
+    {
+      return -3;
+    }
     effectcount=header.effectcnt;
     esize=effectcount*sizeof(feat_block);
     if(read(fhandle, oldeffects, esize )!=esize )

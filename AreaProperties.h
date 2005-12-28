@@ -163,6 +163,7 @@ public:
  
   int m_triggernum;
   CString m_infostr;
+	CString m_dlgstr;
   CStatic m_cursoricon;
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -204,7 +205,6 @@ protected:
 	afx_msg void OnTunk5();
 	afx_msg void OnTunk6();
 	afx_msg void OnTunk7();
-	afx_msg void OnKillfocusInfostr();
 	afx_msg void OnCursor();
 	afx_msg void OnUnknown();
 	afx_msg void OnDropdownEntrancename();
@@ -218,6 +218,7 @@ protected:
 	afx_msg void OnKillfocusRegiontype();
 	afx_msg void OnEditpolygon();
 	afx_msg void OnSelection();
+	afx_msg void OnString();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

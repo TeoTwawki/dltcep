@@ -370,6 +370,8 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_REDUCEORIENTATION, OnReduceorientation)
 	ON_COMMAND(ID_MERGEBAM, OnMergebam)
 	ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
+	ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
+	ON_COMMAND(ID_FRAME_MINIMIZEFRAME, OnFrameMinimizeframe)
 	ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
@@ -394,7 +396,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
-	ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
+	ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -790,12 +792,44 @@ void CBamEdit::DefaultKillfocus()
 	UpdateData(UD_DISPLAY);
 }
 
+
+void CBamEdit::OnToolsMinimalframe() 
+{
+  int i;
+  bool val, ret = 0;
+
+	for(i=0;i<the_bam.m_header.wFrameCount;i++)
+  {
+    val = the_bam.ShrinkFrame(i);
+    ret |= val;
+  }
+  if(ret)
+  {
+    MessageBox("BAM altered","BAM Editor",MB_OK);
+  }
+  UpdateData(UD_DISPLAY);
+}
+
+void CBamEdit::OnFrameMinimizeframe() 
+{
+  int i;
+
+  i=m_framenum_control.GetCurSel();
+  if (i<0) return;
+  if (the_bam.ShrinkFrame(i))
+  {
+    MessageBox("Frame altered","BAM Editor",MB_OK);
+  }
+  UpdateData(UD_DISPLAY);
+}
+
 void CBamEdit::OnCenterPos() 
 {
   CPoint point;
   int i;
 
   i=m_framenum_control.GetCurSel();
+  if (i<0) return;
   point=the_bam.GetFrameSize(i);
   the_bam.SetFramePos(i,point.x/2,point.y/2);
   UpdateData(UD_DISPLAY);
@@ -1520,8 +1554,10 @@ void CBamEdit::OnReversecycle()
   int i;
 
   nCycle=m_cyclenum_control.GetCurSel();
+  if (nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
   CycleData.y--;
+  if (CycleData.y<0) return;
   for(i=CycleData.y/2;i>=0;i--)
   {
     the_bam.SwapFrames(CycleData.x+i,CycleData.x+CycleData.y-i);
@@ -1537,8 +1573,10 @@ void CBamEdit::OnShiftForward()
   int i;
 
   nCycle=m_cyclenum_control.GetCurSel();
+  if (nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
   CycleData.y--;
+  if (CycleData.y<0) return;
   for(i=CycleData.y;i;i--)
   {
     the_bam.SwapFrames(CycleData.x+i,CycleData.x+i-1);
@@ -1553,8 +1591,10 @@ void CBamEdit::OnShiftBackward()
   int i;
 
   nCycle=m_cyclenum_control.GetCurSel();
+  if (nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
   CycleData.y--;
+  if (CycleData.y<0) return;
   for(i=0;i<CycleData.y;i++)
   {
     the_bam.SwapFrames(CycleData.x+i,CycleData.x+i+1);

@@ -44,6 +44,7 @@ protected:
   void RClick();
   void Click(int flg);
   void SaveTable(int save);
+	void RefreshSelection();
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
 	//{{AFX_MSG(C2DAEdit)
@@ -71,6 +72,7 @@ protected:
 	afx_msg void OnToolsCapitalize();
 	afx_msg void OnToolsLookupstrref();
 	afx_msg void OnOrder();
+	afx_msg void OnToolsAddsparkdata();
 	//}}AFX_MSG
 	afx_msg void OnKillfocusEditlink();
   afx_msg void OnCustomdrawMyList ( NMHDR* pNMHDR, LRESULT* pResult );
@@ -87,6 +89,7 @@ public:
 	CIDSEdit(CWnd* pParent = NULL);   // standard constructor
   void NewIDS();
   void SetReadOnly(int arg) { m_readonly=arg; }
+	long OnFindReplace(WPARAM wParam, LPARAM lParam);
 
 // Dialog Data
 	//{{AFX_DATA(CIDSEdit)
@@ -111,12 +114,15 @@ public:
 
 // Implementation
 protected:
+	CFindReplaceDialog *m_searchdlg;
   CToolTipCtrl m_tooltip;
 
   void RefreshDialog();
   void SetHex();
   void SaveIDS(int save);
-
+	bool perform_search(int idx, int match, CString srch);
+	void do_search(int direction,int match,CString search);
+	void RefreshSelection();
 	// Generated message map functions
 	//{{AFX_MSG(CIDSEdit)
 	afx_msg void OnLoad();
@@ -132,6 +138,7 @@ protected:
 	afx_msg void OnRemove();
 	afx_msg void OnFour();
 	afx_msg void OnSave();
+	afx_msg void OnEditFindid();
 	//}}AFX_MSG
 	afx_msg void OnKillfocusEditlink();
   afx_msg void OnCustomdrawMyList ( NMHDR* pNMHDR, LRESULT* pResult );

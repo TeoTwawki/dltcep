@@ -127,6 +127,7 @@ int Write2daListToFile(CString daname, CStringList &refs, CString columname);
 int ReadWeapProfs(loc_entry entry);
 int Read2da(loc_entry entry, CStringList &refs);
 int Read2daRow(loc_entry entry, CStringList &refs, int first);
+int Read2daStringFromFile(int fhandle, CString2List &refs, int length, int column);
 int Read2daString(loc_entry entry, CString2List &refs, int startcolumn);
 int Read2daStrref(loc_entry entry, CIntMapInt &refs, int column);
 int Read2daArray(loc_entry entry, CStringMapArray &refs, int columns); //maximum 3

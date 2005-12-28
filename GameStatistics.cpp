@@ -32,6 +32,10 @@ void CGameStatistics::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WEAPON, m_weaponpicker);
 	DDX_Text(pDX, IDC_MPVNAME, m_text);
 	//}}AFX_DATA_MAP
+	int pos1 = m_weaponpicker.GetCurSel();
+	if (pos1<0) pos1=0;
+	int pos2 = m_spellpicker.GetCurSel();
+	if (pos2<0) pos2=0;
   switch(the_game.revision)
   {
   case 12: //pst
@@ -48,11 +52,15 @@ void CGameStatistics::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX,IDC_KILLNUM,m_stats->gpn.totalkillnum);
     DDX_Text(pDX,IDC_KILLXP2,m_stats->gpn.killxp);
     DDX_Text(pDX,IDC_KILLNUM2,m_stats->gpn.killnum);
+		GetDlgItem(IDC_VOICESET)->EnableWindow(false);
     break;
   case 22: //iwd2
     RetrieveVariable(tmpstr,m_stats->gwn.name,true);
     DDX_Text(pDX,IDC_NAME, tmpstr);
     StoreVariable(tmpstr,m_stats->gwn.name,true);
+    RetrieveVariable(tmpstr,m_stats->gwn.voiceset);
+    DDX_Text(pDX,IDC_VOICESET, tmpstr);
+    StoreName(tmpstr,m_stats->gwn.voiceset);
     RetrieveResref(tmpstr,m_stats->gwn.soundset);
     DDX_Text(pDX,IDC_SOUNDREF, tmpstr);
     StoreResref(tmpstr,m_stats->gwn.soundset);
@@ -68,6 +76,9 @@ void CGameStatistics::DoDataExchange(CDataExchange* pDX)
     RetrieveVariable(tmpstr,m_stats->gin.name,true);
     DDX_Text(pDX,IDC_NAME, tmpstr);
     StoreVariable(tmpstr,m_stats->gin.name,true);
+    RetrieveVariable(tmpstr,m_stats->gin.voiceset);
+    DDX_Text(pDX,IDC_VOICESET, tmpstr);
+    StoreName(tmpstr,m_stats->gin.voiceset);
     RetrieveResref(tmpstr,m_stats->gin.soundset);
     DDX_Text(pDX,IDC_SOUNDREF, tmpstr);
     StoreResref(tmpstr,m_stats->gin.soundset);
@@ -93,14 +104,27 @@ void CGameStatistics::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX,IDC_KILLNUM,m_stats->gbn.totalkillnum);
     DDX_Text(pDX,IDC_KILLXP2,m_stats->gbn.killxp);
     DDX_Text(pDX,IDC_KILLNUM2,m_stats->gbn.killnum);
+		GetDlgItem(IDC_VOICESET)->EnableWindow(false);
     break;
   }
+	RetrieveResref(tmpstr,m_wstr[pos1]);
+	DDX_Text(pDX,IDC_ITEM, tmpstr);
+	StoreResref(tmpstr,m_wstr[pos1]);
+	DDX_Text(pDX,IDC_COUNT, m_wcnt[pos1]);
+	RetrieveResref(tmpstr,m_sstr[pos2]);
+	DDX_Text(pDX,IDC_SPELL, tmpstr);
+	StoreResref(tmpstr,m_sstr[pos2]);
+	DDX_Text(pDX,IDC_COUNT2, m_scnt[pos2]);
 }
 
 BEGIN_MESSAGE_MAP(CGameStatistics, CDialog)
 	//{{AFX_MSG_MAP(CGameStatistics)
 	ON_EN_KILLFOCUS(IDC_TALKNUM, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
+	ON_CBN_SELCHANGE(IDC_WEAPON, OnSelchangeWeapon)
+	ON_CBN_SELCHANGE(IDC_SPELLPICKER, OnSelchangeSpellpicker)
+	ON_EN_KILLFOCUS(IDC_ITEM, OnKillfocusPicker)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_EN_KILLFOCUS(IDC_MPVXP, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_KILLNUM, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_KILLNUM2, OnDefaultKillfocus)
@@ -108,6 +132,10 @@ BEGIN_MESSAGE_MAP(CGameStatistics, CDialog)
 	ON_EN_KILLFOCUS(IDC_KILLXP2, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_NAME, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SOUNDREF, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_COUNT, OnKillfocusPicker)
+	ON_EN_KILLFOCUS(IDC_SPELL, OnKillfocusPicker)
+	ON_EN_KILLFOCUS(IDC_COUNT2, OnKillfocusPicker)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -116,6 +144,33 @@ END_MESSAGE_MAP()
 
 BOOL CGameStatistics::OnInitDialog() 
 {
+  switch(the_game.revision)
+  {
+  case 12:
+    m_wstr=m_stats->gpn.favweap;
+    m_wcnt=m_stats->gpn.favwpcnt;
+    m_sstr=m_stats->gpn.favspell;
+    m_scnt=m_stats->gpn.favspcnt;
+    break;
+  case 22:
+    m_wstr=m_stats->gwn.favweap;
+    m_wcnt=m_stats->gwn.favwpcnt;
+    m_sstr=m_stats->gwn.favspell;
+    m_scnt=m_stats->gwn.favspcnt;
+    break;
+  case 11:
+    m_wstr=m_stats->gin.favweap;
+    m_wcnt=m_stats->gin.favwpcnt;
+    m_sstr=m_stats->gin.favspell;
+    m_scnt=m_stats->gin.favspcnt;
+    break;
+  default: //bg1, bg2
+    m_wstr=m_stats->gbn.favweap;
+    m_wcnt=m_stats->gbn.favwpcnt;
+    m_sstr=m_stats->gbn.favspell;
+    m_scnt=m_stats->gbn.favspcnt;
+    break;
+  }
 	CDialog::OnInitDialog();
 	OnKillfocusStrref();	
   //tooltips
@@ -132,66 +187,30 @@ BOOL CGameStatistics::OnInitDialog()
 
 void CGameStatistics::RefreshDialog()
 {
-  char (*astr)[8];
-  short *acnt;
   CString tmpstr;
+	int pos;
   int i;
 
   if(!m_weaponpicker) return;
-
+	pos = m_weaponpicker.GetCurSel();
+	if (pos<0) pos=0;
   m_weaponpicker.ResetContent();
-  switch(the_game.revision)
-  {
-  case 12:
-    astr=m_stats->gpn.favweap;
-    acnt=m_stats->gpn.favwpcnt;
-    break;
-  case 22:
-    astr=m_stats->gwn.favweap;
-    acnt=m_stats->gwn.favwpcnt;
-    break;
-  case 11:
-    astr=m_stats->gin.favweap;
-    acnt=m_stats->gin.favwpcnt;
-    break;
-  default: //bg1, bg2
-    astr=m_stats->gbn.favweap;
-    acnt=m_stats->gbn.favwpcnt;
-    break;
-  }
   for(i=0;i<4;i++)
   {
-    tmpstr.Format("%s %d",astr[i], acnt[i]);
+    tmpstr.Format("%8.8s %d",m_wstr[i], m_wcnt[i]);
     m_weaponpicker.AddString(tmpstr);
   }
-  m_weaponpicker.SetCurSel(0);
+  m_weaponpicker.SetCurSel(pos);
 
+	pos = m_spellpicker.GetCurSel();
+	if (pos<0) pos=0;
   m_spellpicker.ResetContent();
-  switch(the_game.revision)
-  {
-  case 12:
-    astr=m_stats->gpn.favspell;
-    acnt=m_stats->gpn.favspcnt;
-    break;
-  case 22:
-    astr=m_stats->gwn.favspell;
-    acnt=m_stats->gwn.favspcnt;
-    break;
-  case 11:
-    astr=m_stats->gin.favspell;
-    acnt=m_stats->gin.favspcnt;
-    break;
-  default:
-    astr=m_stats->gbn.favspell;
-    acnt=m_stats->gbn.favspcnt;
-    break;
-  }
   for(i=0;i<4;i++)
   {
-    tmpstr.Format("%s %d",astr[i], acnt[i]);
+    tmpstr.Format("%8.8s %d",m_sstr[i], m_scnt[i]);
     m_spellpicker.AddString(tmpstr);
   }
-  m_spellpicker.SetCurSel(0);
+  m_spellpicker.SetCurSel(pos);
 }
 
 void CGameStatistics::OnDefaultKillfocus() 
@@ -221,8 +240,61 @@ void CGameStatistics::OnKillfocusStrref()
   UpdateData(UD_DISPLAY);
 }
 
+void CGameStatistics::OnSelchangeWeapon() 
+{
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameStatistics::OnSelchangeSpellpicker() 
+{
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameStatistics::OnKillfocusPicker() 
+{
+  UpdateData(UD_RETRIEVE);
+	RefreshDialog();
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameStatistics::OnBrowse() 
+{
+  CString tmpstr;
+	int pos;
+  
+	pos = m_weaponpicker.GetCurSel();
+	if (pos<0) pos=0;
+  pickerdlg.m_restype=REF_ITM;
+
+  RetrieveResref(pickerdlg.m_picked,m_wstr[pos]);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,m_wstr[pos]);
+  }
+	RefreshDialog();
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameStatistics::OnBrowse2() 
+{
+  CString tmpstr;
+	int pos;
+  
+	pos = m_spellpicker.GetCurSel();
+	if (pos<0) pos=0;
+  pickerdlg.m_restype=REF_SPL;
+  RetrieveResref(pickerdlg.m_picked,m_sstr[pos]);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,m_sstr[pos]);
+  }
+	RefreshDialog();
+	UpdateData(UD_DISPLAY);
+}
+
 BOOL CGameStatistics::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

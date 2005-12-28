@@ -46,7 +46,7 @@ protected:
   
   long OnFindReplace(WPARAM wParam, LPARAM lParam);
   int perform_search_and_replace(int idx, int mode, int match, CString search, CString replace);
-  int do_search_and_replace(int direction,int mode,int match,CString search,CString replace);
+  void do_search_and_replace(int direction,int mode,int match,CString search,CString replace);
   int decompile(CString &filepath, CString tmpname);
   int compile(CString filepath);
   CString GetLine(int idx);

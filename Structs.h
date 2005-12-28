@@ -603,11 +603,14 @@ typedef struct
   unsigned char unused2[8];
   char vvc[8];
   char resource3[8];
-  unsigned char unused3[20];
+  long sx, sy;
+  long dx, dy;
+  long unused3;
   char source[8];
   unsigned char unused4[12];
   char variable[32];
-  unsigned char unused5[8];
+  long duration2;
+  long unused5;
   long sectype;
   unsigned char unused6[60];
 } eff_header;
@@ -688,7 +691,7 @@ typedef struct
   unsigned char pickpock;
   unsigned char fatigue;
   unsigned char intox;
-  unsigned char luck;
+  char luck;
   unsigned char unused[21];
   unsigned char tracking;
   unsigned long unused2[8];
@@ -717,8 +720,8 @@ typedef struct
   unsigned char idsgender;
   unsigned char idsinternal[5];
   unsigned char idsalign;
-  short unknown27c;
-  short unknown27e;
+  short globalID;
+  short localID;
   char dvar[32];
   long bookoffs;
   long bookcnt;
@@ -788,7 +791,7 @@ typedef struct
   unsigned char pickpock;
   unsigned char fatigue;
   unsigned char intox;
-  unsigned char luck;
+  char luck;
   unsigned char profs[21];
   unsigned char tracking;
   unsigned long unused2[8];
@@ -834,8 +837,8 @@ typedef struct
   unsigned char idsgender;
   unsigned char idsinternal[5];
   unsigned char idsalign;
-  short unknown320;
-  short unknown322;
+  short globalID;
+  short localID;
   char dvar[32];
   long bookoffs;
   long bookcnt;
@@ -904,7 +907,7 @@ typedef struct
   unsigned char pickpock;
   unsigned char fatigue;
   unsigned char intox;
-  unsigned char luck;
+  char luck;
   unsigned char profs[21];
   unsigned char tracking;
   unsigned long unused2[8];
@@ -925,7 +928,13 @@ typedef struct
   unsigned char unknown243;
   long kit;
   char scripts[5][8];
-  char unknown270[104];
+  long unknown270;
+  short internals[5];
+  char scriptname[32];
+  char scriptname2[32];
+  short unknown;
+  short savedx, savedy, savedir; //saved location
+  char unknown2be[18];
   unsigned char idsea;
   unsigned char idsgeneral;
   unsigned char idsrace;
@@ -934,8 +943,8 @@ typedef struct
   unsigned char idsgender;
   unsigned char idsinternal[5];
   unsigned char idsalign;
-  short unknown2e4;
-  short unknown2e6;
+  short globalID;
+  short localID;
   char dvar[32];
   long bookoffs;
   long bookcnt;
@@ -996,7 +1005,7 @@ typedef struct
   unsigned char unknown61[4];
   unsigned char fatigue;
   unsigned char intox;
-  unsigned char luck;
+  char luck;
   unsigned char turnundead;
   unsigned char unknown69[33];
   unsigned char totlevel;
@@ -1037,8 +1046,8 @@ typedef struct
   unsigned char idsgender;
   unsigned char idsinternal[5]; //func spec
   unsigned char idsalign;
-  short unknown390; 
-  short unknown392; 
+  short globalID;
+  short localID;
   char dvar[32];
   char unknown3b4[6];  //3 words
   long spelloffs[IWD2_SPSLOTNUM][9]; //7 types: bard, cleric, druid, paladin, ranger, sorc, wizard
@@ -1354,7 +1363,7 @@ typedef struct {
   char scriptref[8]; //script of this trigger  
   char unknown[48];
   short pointx, pointy;
-  long unused2;
+  long dialogstrref; //at least in pst, trigger points can talk
   char dialogref[8];
 } area_trigger;
 
@@ -1492,10 +1501,11 @@ typedef struct {
   short framenum;
   short flags;
   short unknown36;
-  short unknown38;//transparency
-  short unknown3a;//some flags?
-  short unknown3c;
-  short unknown3e;
+  short unknown38;
+  short transparency;
+  short current; //current frame?
+  unsigned char progress;
+  unsigned char skipcycle;
   char bmp[8];  //palette bmp
   long unknown48;
 } area_anim;
@@ -1672,8 +1682,8 @@ typedef struct {
   long journaloffset;
   long reputation;
   char curarea[8];
-  long dvaroffset;
-  long dvarcount;
+  long controls;
+  long unknown64;
   long familiaroffset;
   long slocoffset;
   long sloccount;
@@ -1738,12 +1748,14 @@ typedef struct {
   //turning undead = 4
   short action;   
   short happiness;
-  char unknown2c[112];
-  char resrefs[3][8];
-  char unknownb4[12];
+  char unknown2c[96];
 } gam_npc;
 
 typedef struct {
+  short weapons[4];
+  short wslots[4];
+  char quickspells[3][8];
+  char unknownb4[12];
   char name[32];
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
@@ -1763,6 +1775,10 @@ typedef struct {
 } gam_bg_npc;
 
 typedef struct {
+  short weapons[4];
+  short wslots[4];
+  char quickspells[3][8];
+  char unknownb4[12];
   char name[32];
   long unknowne0;
   long unknowne4;
@@ -1784,6 +1800,10 @@ typedef struct {
 } gam_pst_npc;
 
 typedef struct {
+  short weapons[4];
+  short wslots[4];
+  char quickspells[3][8];
+  char unknownb4[12];
   char name[32];
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
@@ -1804,7 +1824,13 @@ typedef struct {
 } gam_iwd_npc;
 
 typedef struct {
-  char unknown00[254];
+  short weapons[8];
+  short wslots[8];
+  char quickspells[9][8];
+  char qsclass[9];
+  char unknown[13];
+  char unknown00[144];
+	long qslots[9];
   char name[32];
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
@@ -1936,6 +1962,18 @@ typedef struct {
   unsigned long colors;       //0
   unsigned long impcolors;    //important colors
 } bmp_header;
+
+typedef struct {
+  char signature[2]; //BM
+  unsigned long fullsize;     //offset+width*height
+  unsigned long unknown1;      //zero, reserved
+  unsigned long offset;       //0x36
+  unsigned long headersize;   //0x0c (12) (the size of the rest of the header)
+  unsigned short width;
+  unsigned short height;
+  unsigned short planes;      //1 ?
+  unsigned short bits;        //24 3*8?
+} bmpos2_header;
 
 //tbg & iap
 

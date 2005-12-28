@@ -214,6 +214,10 @@ int CScriptEdit::RunWeidu(CString syscommand)
   {
     ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(0); 
   }
+  if(global_changed[1]==true)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(1); 
+  }
   unlink(WEIDU_LOG);
   res=my_system(syscommand);
   
@@ -300,6 +304,10 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
   if(global_changed[0]==true)
   {
     ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(0); 
+  }
+  if(global_changed[1]==true)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(1); 
   }
   syscommand=AssembleWeiduCommandLine(filepath,weidudecompiled); //export
   res=RunWeidu(syscommand);
@@ -986,7 +994,7 @@ long CScriptEdit::OnFindReplace(WPARAM /*wParam*/, LPARAM /*lParam*/)
   match=!m_searchdlg->MatchCase()+(!!m_searchdlg->MatchWholeWord())*2; 
   search=m_searchdlg->GetFindString();
   replace=m_searchdlg->GetReplaceString();
-  mode=do_search_and_replace(direction,mode,match,search,replace);
+  do_search_and_replace(direction,mode,match,search,replace);
   m_infind=0;
   OnSetfocusText();
   return 0;
@@ -1063,7 +1071,7 @@ int CScriptEdit::perform_search_and_replace(int idx, int mode, int match, CStrin
   return found;
 }
 
-int CScriptEdit::do_search_and_replace(int direction,int mode,int match,CString search,CString replace)
+void CScriptEdit::do_search_and_replace(int direction,int mode,int match,CString search,CString replace)
 {
   CString what;
   CString operation;
@@ -1074,7 +1082,7 @@ int CScriptEdit::do_search_and_replace(int direction,int mode,int match,CString 
 
   idx=m_text_control.LineFromChar(-1);
   linecount=m_text_control.GetLineCount();
-  if(!linecount) return -1;
+  if(!linecount) return;
   if(idx<0 || idx>=linecount)
   {
     idx=0;
@@ -1133,7 +1141,7 @@ int CScriptEdit::do_search_and_replace(int direction,int mode,int match,CString 
   {
     if(MessageBox(operation+" hit the "+what+" of the list, do you want to continue ?",operation,MB_SYSTEMMODAL|MB_YESNO)==IDNO)
     {
-      return found;
+      return;
     }
     
     if(direction>0)
@@ -1174,7 +1182,7 @@ int CScriptEdit::do_search_and_replace(int direction,int mode,int match,CString 
   {
     MessageBox("Couldn't find any entries containing: "+search);
   }
-  return found;
+  return;
 }
 
 void CScriptEdit::OnOptionsAutocheck() 

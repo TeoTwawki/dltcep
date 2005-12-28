@@ -37,7 +37,7 @@ CStrRefDlg::CStrRefDlg(CWnd* pParent /*=NULL*/)
 void CStrRefDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-  m_maxstr.Format("/ %d",tlk_headerinfo[0].entrynum);
+  m_maxstr.Format("/ %d",tlk_headerinfo[choosedialog].entrynum);
 	//{{AFX_DATA_MAP(CStrRefDlg)
 	DDX_Text(pDX, IDC_SOUND, m_sound);
 	DDV_MaxChars(pDX, m_sound, 8);
@@ -49,7 +49,7 @@ void CStrRefDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SPIN, m_spin_control);
 	DDX_Control(pDX, IDC_STRREF, m_strref_control);
 	//}}AFX_DATA_MAP
-  m_spin_control.SetRange32(0,tlk_headerinfo[0].entrynum);
+  m_spin_control.SetRange32(0,tlk_headerinfo[choosedialog].entrynum);
 }
 
 BEGIN_MESSAGE_MAP(CStrRefDlg, CDialog)
@@ -69,6 +69,8 @@ BEGIN_MESSAGE_MAP(CStrRefDlg, CDialog)
 	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
 	ON_COMMAND(ID_CHECKSOUND, OnChecksound)
 	ON_COMMAND(ID_CHECKTAG, OnChecktag)
+	ON_COMMAND(ID_TOOLS_SYNCHRONISETLKS, OnToolsSynchronisetlks)
+	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	//}}AFX_MSG_MAP
   ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
@@ -83,11 +85,12 @@ void CStrRefDlg::OnUpdateStrref()
   if(!m_refresh) return;
   GetDlgItem(IDC_STRREF)->GetWindowText(strref);
   m_strref=strtonum(strref);
-  m_tag=resolve_tlk_tag(m_strref);
-  m_text=resolve_tlk_text(m_strref);
-  m_sound=resolve_tlk_soundref(m_strref);
-  strref="Edit TLK ";
-  if(global_changed[0]==true) strref+="*";
+  m_tag=resolve_tlk_tag(m_strref,choosedialog);
+  m_text=resolve_tlk_text(m_strref,choosedialog);
+  m_sound=resolve_tlk_soundref(m_strref,choosedialog);
+  if (choosedialog) strref="Edit DialogF.tlk ";
+  else strref="Edit Dialog.tlk ";
+  if(global_changed[choosedialog]==true) strref+="*";
   SetWindowText(strref);
   UpdateData(UD_DISPLAY);
 }
@@ -97,7 +100,7 @@ void CStrRefDlg::OnKillfocusText()
   CString old;
 
 	UpdateData(UD_RETRIEVE);
-  old=resolve_tlk_text(m_strref);
+  old=resolve_tlk_text(m_strref,choosedialog);
   if(old==m_text) return;
   if(editflg&TLKCHANGE)
   {
@@ -107,16 +110,16 @@ void CStrRefDlg::OnKillfocusText()
     }
   }
 
-  if(tlk_headerinfo[0].entrynum==-1)
+  if(tlk_headerinfo[choosedialog].entrynum==-1)
   {
-    memcpy(tlk_headerinfo[0].signature,"TLK V1  ",8);
-    tlk_headerinfo[0].entrynum=0;
-    store_tlk_text(0,"<NO TEXT>");
+    memcpy(tlk_headerinfo[choosedialog].signature,"TLK V1  ",8);
+    tlk_headerinfo[choosedialog].entrynum=0;
+    store_tlk_text(0,"<NO TEXT>",choosedialog);
     m_strref=1;
   }
-	if(m_strref>0 && m_strref<=tlk_headerinfo[0].entrynum) //allow = so we can add strings
+	if(m_strref>0 && m_strref<=tlk_headerinfo[choosedialog].entrynum) //allow = so we can add strings
   {
-    m_strref=store_tlk_text(m_strref, m_text);
+    m_strref=store_tlk_text(m_strref, m_text, choosedialog);
   }
 end:
   old.Format("%d",m_strref);
@@ -129,7 +132,7 @@ void CStrRefDlg::OnKillfocusSound()
   CString old;
 
 	UpdateData(UD_RETRIEVE);
-  old=resolve_tlk_soundref(m_strref);
+  old=resolve_tlk_soundref(m_strref,choosedialog);
   if(old==m_sound) return;
   if(editflg&TLKCHANGE)
   {
@@ -139,9 +142,9 @@ void CStrRefDlg::OnKillfocusSound()
     }
   }
 
-	if(m_strref>0 && m_strref<tlk_headerinfo[0].entrynum)
+	if(m_strref>0 && m_strref<tlk_headerinfo[choosedialog].entrynum)
   {
-    m_strref=store_tlk_soundref(m_strref, m_sound);
+    m_strref=store_tlk_soundref(m_strref, m_sound,choosedialog);
   }
 }
 
@@ -155,11 +158,11 @@ void CStrRefDlg::OnTag()
     }
   }
 
-	if(m_strref>0 && m_strref<tlk_headerinfo[0].entrynum)
+	if(m_strref>0 && m_strref<tlk_headerinfo[choosedialog].entrynum)
   {
-    toggle_tlk_tag(m_strref);	
+    toggle_tlk_tag(m_strref,choosedialog);	
   }
-  m_tag=resolve_tlk_tag(m_strref);
+  m_tag=resolve_tlk_tag(m_strref,choosedialog);
 }
 
 void CStrRefDlg::OnPlay() 
@@ -244,15 +247,15 @@ int perform_search_and_replace_sound(int idx, int mode, CString search, CString 
   CString tmpstr;
   int tmpstart;
 
-  RetrieveResref(tmpstr,tlk_entries[0][idx].reference.soundref);
+  RetrieveResref(tmpstr,tlk_entries[choosedialog][idx].reference.soundref);
   tmpstart=tmpstr.Find(search);
   if(tmpstart!=-1)
   {
     if(mode)
     {
       tmpstr.Replace(search,replace);
-      StoreResref(tmpstr,tlk_entries[0][idx].reference.soundref);
-      global_changed[0]=true;
+      StoreResref(tmpstr,tlk_entries[choosedialog][idx].reference.soundref);
+      global_changed[choosedialog]=true;
     }
     return true;
   }
@@ -278,59 +281,59 @@ int perform_search_and_replace(int idx, int mode, int match, CString search, CSt
   switch(mode)
   {
   case SR_SEARCH:
-    tmp2=tlk_entries[0][idx].text;
+    tmp2=tlk_entries[choosedialog][idx].text;
     if(match&1) // case insensitive trick
     {
       tmp2.MakeLower();
     }
     if(match&2) // full word trick
     {
-      tmp2=" "+tlk_entries[0][idx].text+" "; //in this
+      tmp2=" "+tlk_entries[choosedialog][idx].text+" "; //in this
     }
     if(tmp2.Find(srch) !=-1) found=true;
     break;
   case SR_REPLACE: case SR_ALL:
-    tmplen=tlk_entries[0][idx].text.GetLength();
+    tmplen=tlk_entries[choosedialog][idx].text.GetLength();
     if(match&2)
     {
-      tlk_entries[0][idx].text=" "+tlk_entries[0][idx].text+" ";
+      tlk_entries[choosedialog][idx].text=" "+tlk_entries[choosedialog][idx].text+" ";
     }
     if(match&1)
     {
-      tmp2=tlk_entries[0][idx].text;
+      tmp2=tlk_entries[choosedialog][idx].text;
       tmp2.MakeLower();
       tmpstart=tmp2.Find(srch);
       if(tmpstart==-1) ch=0;
       else
       {
-        tlk_entries[0][idx].text.Delete(tmpstart,len);
-        tlk_entries[0][idx].text.Insert(tmpstart,replace);
+        tlk_entries[choosedialog][idx].text.Delete(tmpstart,len);
+        tlk_entries[choosedialog][idx].text.Insert(tmpstart,replace);
         ch=true;        
       }
     }
     else
     {
-      ch=tlk_entries[0][idx].text.Replace(srch,replace);
+      ch=tlk_entries[choosedialog][idx].text.Replace(srch,replace);
     }
     if(match&2)
     {
-      tlk_entries[0][idx].text=tlk_entries[0][idx].text.Mid(1,tmplen);
+      tlk_entries[choosedialog][idx].text=tlk_entries[choosedialog][idx].text.Mid(1,tmplen);
     }
     if(ch)
     {
-      tlk_entries[0][idx].reference.length=tlk_entries[0][idx].text.GetLength();
-      if(!tlk_entries[0][idx].reference.length)
+      tlk_entries[choosedialog][idx].reference.length=tlk_entries[choosedialog][idx].text.GetLength();
+      if(!tlk_entries[choosedialog][idx].reference.length)
       {
-        if(tlk_entries[0][idx].reference.soundref[0]) tlk_entries[0][idx].reference.flags=2; //only sound reference
+        if(tlk_entries[choosedialog][idx].reference.soundref[choosedialog]) tlk_entries[choosedialog][idx].reference.flags=2; //only sound reference
         else
         {
-          tlk_entries[0][idx].reference.flags=0; //deleted entry
-          tlk_entries[0][idx].reference.pitch=0;
-          tlk_entries[0][idx].reference.volume=0;
-          memset(tlk_entries[0][idx].reference.soundref,0,sizeof(resref_t));
+          tlk_entries[choosedialog][idx].reference.flags=0; //deleted entry
+          tlk_entries[choosedialog][idx].reference.pitch=0;
+          tlk_entries[choosedialog][idx].reference.volume=0;
+          memset(tlk_entries[choosedialog][idx].reference.soundref,0,sizeof(resref_t));
         }         
       }
-      global_changed[0]=true;
+      global_changed[choosedialog]=true;
       found=true;
     }
     break;
@@ -346,11 +349,11 @@ int CStrRefDlg::do_search_and_replace(int direction,int mode,int match,CString s
   CString what;
   
   idx=m_strref;
-  if(idx<0 || idx>=tlk_headerinfo[0].entrynum)
+  if(idx<0 || idx>=tlk_headerinfo[choosedialog].entrynum)
   {
     idx=0;
   }
-  if(!tlk_headerinfo[0].entrynum) return -1;
+  if(!tlk_headerinfo[choosedialog].entrynum) return -1;
   oldidx=idx;
 
   if(m_mode) //search for string
@@ -388,7 +391,7 @@ int CStrRefDlg::do_search_and_replace(int direction,int mode,int match,CString s
   {
     idx+=direction;
   }
-  while(direction<1? idx : idx<tlk_headerinfo[0].entrynum)
+  while(direction<1? idx : idx<tlk_headerinfo[choosedialog].entrynum)
   {
     if(perform_search_and_replace(idx,mode,match,search,replace,m_mode))
     {
@@ -418,7 +421,7 @@ int CStrRefDlg::do_search_and_replace(int direction,int mode,int match,CString s
     }
     else
     {
-      idx=tlk_headerinfo[0].entrynum-1;
+      idx=tlk_headerinfo[choosedialog].entrynum-1;
     }
     while(idx!=oldidx)
     {
@@ -501,7 +504,7 @@ void CStrRefDlg::OnTrim()
   CString tmpstr;
 
 	OnKillfocusStrref();
-  if(tlk_headerinfo[0].entrynum<1)
+  if(tlk_headerinfo[choosedialog].entrynum<1)
   {
     MessageBox("Can't truncate an empty file.","Warning",MB_OK);
     return;
@@ -509,8 +512,7 @@ void CStrRefDlg::OnTrim()
   tmpstr.Format("Do you really want to remove all entries above #%ld.",m_strref);
   if(MessageBox(tmpstr,"Truncate",MB_YESNO)==IDYES)
   {
-    if(truncate_references(m_strref+1,0)) global_changed[0]=true;
-    if(truncate_references(m_strref+1,1)) global_changed[1]=true;
+    if(truncate_references(m_strref+1,choosedialog)) global_changed[choosedialog]=true;
   	UpdateData(UD_DISPLAY);
   }
 }
@@ -520,14 +522,14 @@ void CStrRefDlg::OnClear()
 	massclear mscDlg;
 	
   OnKillfocusStrref();
-  mscDlg.SetRange(0,tlk_headerinfo[0].entrynum-1, m_strref);
+  mscDlg.SetRange(0,tlk_headerinfo[choosedialog].entrynum-1, m_strref);
   mscDlg.SetText("Clearing an interval of entries");  
   if(mscDlg.DoModal()==IDOK)
   {
     while(mscDlg.m_from<=mscDlg.m_to)
     {
-      store_tlk_soundref(mscDlg.m_from,"");
-      store_tlk_text(mscDlg.m_from++,"*!*");
+      store_tlk_soundref(mscDlg.m_from,"",choosedialog);
+      store_tlk_text(mscDlg.m_from++,"*!*",choosedialog);
     }
   }
 }
@@ -536,7 +538,7 @@ void CStrRefDlg::OnKillfocusStrref()
 {
   CString old;
 
-	if(m_strref>tlk_headerinfo[0].entrynum)
+	if(m_strref>tlk_headerinfo[choosedialog].entrynum)
   {
     m_strref=0;
   }
@@ -554,28 +556,28 @@ void CStrRefDlg::OnChecksound()
   int chg;
 
   chg=0;
-  for(i=0;i<tlk_headerinfo[0].entrynum;i++)
+  for(i=0;i<tlk_headerinfo[choosedialog].entrynum;i++)
   {
-    tmpref=resolve_tlk_soundref(i);
+    tmpref=resolve_tlk_soundref(i,choosedialog);
     if(tmpref.IsEmpty())
     {
-      tlk_entries[0][i].reference.pitch=tlk_entries[0][i].reference.volume=0;
-      if(tlk_entries[0][i].text.IsEmpty())
+      tlk_entries[choosedialog][i].reference.pitch=tlk_entries[choosedialog][i].reference.volume=0;
+      if(tlk_entries[choosedialog][i].text.IsEmpty())
       {
-        if(tlk_entries[0][i].reference.flags)
+        if(tlk_entries[choosedialog][i].reference.flags)
         {
           chg=1;
-          tlk_entries[0][i].reference.flags=0;
+          tlk_entries[choosedialog][i].reference.flags=0;
         }
       }
       continue;
     }
     else
     {
-      if(tlk_entries[0][i].reference.flags&2)
+      if(tlk_entries[choosedialog][i].reference.flags&2)
       {
         chg=1;
-        tlk_entries[0][i].reference.flags|=2;
+        tlk_entries[choosedialog][i].reference.flags|=2;
       }
     }
 
@@ -590,7 +592,7 @@ void CStrRefDlg::OnChecksound()
       if(ret==IDYES)
       {
         chg=1;
-        store_tlk_soundref(i,"");
+        store_tlk_soundref(i,"",choosedialog);
       }
     }
   }
@@ -603,10 +605,23 @@ void CStrRefDlg::OnChecktag()
   int chg;
 
   chg=0;
-  for(i=0;i<tlk_headerinfo[0].entrynum;i++)
+  for(i=0;i<tlk_headerinfo[choosedialog].entrynum;i++)
   {
   }	
   if(!chg) MessageBox("No problem found!","Tlk editor",MB_OK);
+}
+
+void CStrRefDlg::OnToolsSynchronisetlks() 
+{
+  if(whichdialog)
+  {
+    synchronise();
+    UpdateData(UD_DISPLAY);
+  }
+  else
+  {
+    MessageBox("You should enable both TLK's first",MB_OK);
+  }
 }
 
 BOOL CStrRefDlg::PreTranslateMessage(MSG* pMsg) 

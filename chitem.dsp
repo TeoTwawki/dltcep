@@ -125,6 +125,10 @@ SOURCE=.\AreaSong.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AreaTriggerString.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\bam.cpp
 # End Source File
 # Begin Source File
@@ -241,6 +245,10 @@ SOURCE=.\IapDialog.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\IcewindCre.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ImageView.cpp
 # End Source File
 # Begin Source File
@@ -302,6 +310,10 @@ SOURCE=.\packer.cpp
 # Begin Source File
 
 SOURCE=.\PaletteEdit.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PCInfo.cpp
 # End Source File
 # Begin Source File
 
@@ -494,6 +506,10 @@ SOURCE=.\AreaSong.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\AreaTriggerString.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\bam.h
 # End Source File
 # Begin Source File
@@ -610,6 +626,10 @@ SOURCE=.\IapDialog.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\IcewindCre.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ImageView.h
 # End Source File
 # Begin Source File
@@ -687,6 +707,10 @@ SOURCE=.\packer.h
 # Begin Source File
 
 SOURCE=.\PaletteEdit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PCInfo.h
 # End Source File
 # Begin Source File
 

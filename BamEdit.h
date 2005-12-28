@@ -131,6 +131,8 @@ protected:
 	afx_msg void OnMergebam();
 	afx_msg void OnCycleAlignframes();
 	afx_msg void OnCycleDropframe10();
+	afx_msg void OnFrameMinimizeframe();
+	afx_msg void OnToolsMinimalframe();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

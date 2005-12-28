@@ -62,22 +62,13 @@ Offset Size (data type) Description
 0x0020 4 (dword) This field indicates the following :
 
     Bit 1: looping
+    Bit 2: ?
+    Bit 4: ?
     Bit 8: explosion sound (secondary)
-    
-    * 00= Play only the first sound (0x0078 , no graphic or second sound (0x0080)
-    * 01= Play both sounds (repeat the second for the duration of the effect) but without graphic
-    * 02= Play both sounds, one after the other, for the duration of the effect (without graphic)
-    * 03= same as 01
-    * 04= same as 02
-    * 05= same as 01
-    * 06= same as 02
-    * 07= same as 01
-    * 08= Play the BAM sequence only once with both sounds, ignore Y and Z positions and repeat this for the duration of the effect.
-    * 09= Play the BAM sequence with both sound, the first only once and the other for the duration of the effect, ignore Y and Z positions.
-    * 0A=same as 08
-    * 0B=same as 09
-    * 0C= Play the BAM sequence only once with both sounds, use Y and Z positions and repeat this for the duration of the effect.
-    * 0D= Play the BAM sequence with both sound, the first only once and the other for the duration of the effect, use Y and Z positions.
+    Bit 0x10: ?
+    Bit 0x20: ?
+    Bit 0x40: not covered by walls
+    Bit 0x80: ?
 
 0x0024 4 (dword) unknown
 0x0028 4 (dword) X position (used with 0x0020 if it is set to 0C or 0D, as Y and Z). 00 is the smallest.

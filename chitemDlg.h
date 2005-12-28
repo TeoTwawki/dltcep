@@ -109,6 +109,7 @@ protected:
   void read_cd_locations();
   int scan_2da();
   int scan_chitin();
+  void resync();
   int scan_dialog_both(bool refresh=false);
   int scan_dialog(bool refresh=false, int which=0);
   int generate_acm_list();
@@ -324,6 +325,7 @@ protected:
 	afx_msg void OnHelpReadme();
 	afx_msg void OnSkimsav();
 	afx_msg void OnUsedialogf();
+	afx_msg void OnToolsDecompile();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

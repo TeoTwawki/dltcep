@@ -793,7 +793,14 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   fullsize+=header.actorcnt*sizeof(area_actor);             //actor headers
   for(i=0;i<actorcount;i++)                                 //actor data
   {
-    actorheaders[i].creoffset=fullsize;
+    if (actorheaders[i].cresize)
+    {
+      actorheaders[i].creoffset=fullsize;
+    }
+    else
+    {
+      actorheaders[i].creoffset=0;
+    }
     fullsize+=actorheaders[i].cresize;
   }
   header.infooffset=fullsize;
@@ -1852,7 +1859,7 @@ int Carea::ReadActorData()
   if(!credatapointers) return -3;
   for(i=0;i<actorcount;i++)
   {
-    if(actorheaders[i].creoffset)
+    if(actorheaders[i].creoffset && actorheaders[i].cresize)
     {
       credatapointers[i]=new char[actorheaders[i].cresize];
       if(!credatapointers[i]) return -3;
@@ -1866,7 +1873,12 @@ int Carea::ReadActorData()
       if(flg) return -2;
       fullsizea+=actorheaders[i].cresize; 
     }
-    else credatapointers[i]=NULL;
+    else 
+    {
+      credatapointers[i]=NULL;
+      actorheaders[i].creoffset=0;
+      actorheaders[i].cresize=0;
+    }
   }
 
   return 0;

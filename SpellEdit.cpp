@@ -46,6 +46,14 @@ void CSpellEdit::NewSpell()
   the_spell.header.unknown0c=the_spell.header.unknown54=9999999;
   the_spell.header.unknown38=1;
   the_spell.m_changed=false;
+  if(iwd2_structures())
+  {
+    the_spell.revision=20;
+  }
+  else
+  {
+    the_spell.revision=1;
+  }
 }
 
 BEGIN_MESSAGE_MAP(CSpellEdit, CDialog)

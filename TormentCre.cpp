@@ -86,16 +86,38 @@ BEGIN_MESSAGE_MAP(CTormentCre, CDialog)
 	ON_EN_KILLFOCUS(IDC_CARMOR, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_CSKIN, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_COLOR, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR1, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR2, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR3, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR4, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR5, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR6, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ATTR7, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CTormentCre message handlers
 
+int FillPaletteOffsets(CComboBox *cb)
+{
+  int value;
+  CString tmpstr;
+
+  cb->ResetContent();
+  for(value=0x80;value<0x100;value+=0x10)
+  {
+    tmpstr.Format("0x%02x",value);
+    cb->AddString(tmpstr);
+  }
+  return 0;
+}
+
 BOOL CTormentCre::OnInitDialog() 
 {
   POSITION pos;
   CComboBox *cb;
+  unsigned int i;
 
 	CDialog::OnInitDialog();
 
@@ -108,6 +130,12 @@ BOOL CTormentCre::OnInitDialog()
 
 	cb=(CComboBox *) GetDlgItem(IDC_IDSSPECIES);
   FillCombo("RACE",cb,2);
+
+  for(i=IDC_ATTR1;i<=IDC_ATTR7;i++)
+  {
+    cb=(CComboBox *) GetDlgItem(i);
+    FillPaletteOffsets(cb);
+  }
 
   UpdateData(UD_DISPLAY);
 	return TRUE;

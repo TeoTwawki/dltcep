@@ -52,7 +52,7 @@ Offset Size (data type) Description
 0x004c 4 (dword) Count of journal entries
 0x0050 4 (dword) Offset to journal entries (near end of file)
 
-Now, the format diverges a little between BG2 and PT. In BG2, the next fields in the header look like:
+Now, the format diverges a little between BG2 and PST. In BG2, the next fields in the header look like:
 Offset Size (data type) Description
 0x0054 4 (dword) Reputation
 0x0058 8 (resref) Current area
@@ -92,38 +92,57 @@ Offset Size (data type) Description
 0x0028 2 (word) Modal action
 0x002a 2 (word) Happiness 
 0x002c 96 (bytes) Unknown
-0x008c 2*4 (word*4) QuickWeapon Slots
-0x0094 8 (resref) Unknown
-0x009c 3*8 (resref array) QuickSpell Slots
-0x00b4 2*3 (word*3) QuickItem Slots
-0x00ba 6 (bytes) Unknown
 
 For BG/TotSC:
+0x008c 2*4 (word*4) QuickWeapon Slots
+0x0094 2*4 (word*4) QuickWeapon enablers
+0x009c 3*8 (resref array) QuickSpell Slots
+0x00b4 2*3 (word*3) QuickItem Slots
+0x00ba 2*3 (word*3) QuickItem Slots enablers
 0x00c0 32 (bytes) Name
 0x00e0 4 (dword) Talkcount
 0x00e4 116 bytes (Char stats) stats for this character
-0x0158 8 bytes Unknown
+0x0158 8 (resref) Soundset
 
 For Torment:
-0x00c0 32 (bytes) Name
-0x00e0 2*4 (dword) Unknown
+0x008c 2*4 (word*4) QuickWeapon Slots
+0x0094 2*4 (word*4) QuickWeapon enablers
+0x009c 3*8 (resref array) QuickSpell Slots
+0x00b4 2*5 (word*5) QuickItem Slots
+0x00be 2*5 (word*5) QuickItem Slots enablers
+0x00c8 32 (bytes) Name
 0x00e8 4 (dword) Talkcount
 0x00ec 116 bytes (Char stats) stats for this character
-0x0160 8 bytes Unknown
+0x0160 8 (resref) Soundset
 
 For Icewind Dale:
+0x008c 2*4 (word*4) QuickWeapon Slots
+0x0094 2*4 (word*4) QuickWeapon enablers
+0x009c 3*8 (resref array) QuickSpell Slots
+0x00b4 2*3 (word*3) QuickItem Slots
+0x00ba 2*3 (word*3) QuickItem Slots enablers
 0x00c0 32 (bytes) Name
 0x00e0 4 (dword) Talkcount
 0x00e4 116 bytes (Char stats) stats for this character
-0x0158 8 bytes Unknown
-0x0160 32 (bytes) Unknown
+0x0158 8 (resref) Soundset
+0x0160 32 (bytes) Sound Folder
 
 For Icewind Dale 2:
-0x00c0 254 (bytes) Unknown
+0x008c 2*8 (word*8) QuickWeapon Slots
+0x009c 2*8 (word*8) QuickWeapon enablers
+0x00ac 9*8 (resref array) QuickSpell Slots
+0x00f4 9*8 (byte array) QuickSpell Classes
+0x00fd 1 (byte) Unknown
+0x00fe 2*3 (word*3) QuickItem Slots
+0x0104 2*3 (word*3) QuickItem Slots enablers
+0x010a 9*8 (resref array) QuickInnate Slots
+0x0152 4*18 (dword*18) Unknown
+0x01ac 9 (word) Configurable action slots (last 9)
 0x01be 32 (bytes) Name
 0x01de 4 (dword) Talkcount
 0x01e2 116 bytes (Char stats) stats for this character
-0x0256 8 bytes Unknown
+0x0256 8 (resref) Soundset
+0x025e 32 (bytes) Sound Folder
 
 GAME V1.1 Character stats (i.e. most powerful vanquished, etc)
 Offset Size (data type) Description
@@ -138,6 +157,7 @@ Offset Size (data type) Description
 0x0044 4*2 (word array) favorite spell count
 0x004c 4*8 (resref array) Favorite weapons
 0x006c 4*2 (word) favorite weapon count
+
 GAME V1.1 Game variables (plot variables)
 
 These structures represent variables with a textual name an an integer value. Most variables are in some namespace or other -- a namespace being a 6-byte character string. Most variables go in the "GLOBAL" namespace, though some go in area-specific namespaces.

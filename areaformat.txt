@@ -14,7 +14,8 @@ Description
 This file format describes the content of an area, rather than its visual representation. It contains the list of actors, items, entrances and exits, spawn points, and other area-associated info. Essentially, this format is all about how the characters interact with the area and how the area responds, whereas the WED file is all about how the area appears graphically.
 AREA file versions
 
-    * V1.0: Baldur's Gate, Planescape: Torment, Icewind Dale, BG2 SoA 
+    * V1.0: Baldur's Gate, Icewind Dale, BG2 SoA
+    * V1.09: Planescape: Torment
     * V9.1: Icewind Dale II
 
 AREA V1.0
@@ -36,8 +37,9 @@ Note: The order of the sections in an AREA file do actually vary. In many files 
     * "Explored" bitmask
     * Doors
     * Animations
-    * Automap notes
+    * Automap notes (different for PST, not present in BG1)
     * Tiled objects
+    * Projectile traps (bg2)
     * Songs entries
     * Sleep option interruption by appearing creatures
 
@@ -120,7 +122,15 @@ Also here I have noticed some weird values in PS:T - for example in city areas -
 0x00c0 4 (dword) Offset to  Interruption of rest party option section )
 0x00c4 4 (dword) offset of the automap note section, if any
 0x00c8 4 (dword) Number of entries in the automap note section
-0x00cc 4*20 (dword) Unknown,unused
+0x00cc 4 (dword) offset of the projectile traps section, if any
+0x00d0 4 (dword) Number of projectile traps
+0x00d4 4*18 (dword) Unknown,unused
+
+V1.09 File header (PST)
+0x00c4 4 (dword) always 0xffffffff
+0x00c8 4 (dword) offset of the automap note section, if any
+0x00cc 4 (dword) Number of entries in the automap note section
+0x00d0 4*19 (dword) Unknown,unused
 
 V9.1 File header (Same as V1.0 but 16 bytes longer)
 0x0054 4*4 (dword) Unknown,unused

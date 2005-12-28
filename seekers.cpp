@@ -71,10 +71,10 @@ unsigned __int64 itvswp[NUM_ITEMTYPE]={
     0,0,0,0x73,0,0,0,0,0,//31
     0,0,0,0,0,0,0,0
 };
-//slings may be kender, barbarian or sling
+//slings may be kender, barbarian or sling (65,66,67)
 unsigned __int64 itvswp_dltc[NUM_ITEMTYPE]={
   0,0,0,0,0,0,0,0,0,0,//9
-    0,0,0,0,0,0x5f,0x5c,0x5e,0x64656b,0x5a,0x595b,//14
+    0,0,0,0,0,0x68,0x5c,0x5e,0x656667,0x5a,0x595b,//14
     0x5d,0x5e,0x5e,0x6a,0x73,0x6265,0x63,0,0x60,0x6167,//1e
     0,0,0,0,0,0,0,0,0,0,//28
     0,0,0,0,0,0,0,0,0,//31
@@ -2002,13 +2002,9 @@ bool CChitemDlg::match_creature()
   int featblock, itemidx;
   unsigned short idx;
   search_data tmpdata;
+  bool id;
 
-#ifdef _DEBUG
-  if(the_creature.header.flags&0xffff0000)
-  {
-    log("Found 0x%x", the_creature.header.flags);
-  }
-#endif
+  id=(the_creature.header.effbyte!=0);
   itemidx=featblock=0;
   idx=0;
   memset(&tmpdata,0,sizeof(tmpdata) );
@@ -2130,7 +2126,7 @@ bool CChitemDlg::match_creature()
     found=false;
     for(featblock=0;featblock<the_creature.header.effectcnt;featblock++)
     {
-      if(the_creature.header.effbyte)
+      if(id)
       {
         tmpdata.feature=(short) the_creature.effects[featblock].feature;
         tmpdata.param1=the_creature.effects[featblock].par1.parl;
@@ -2153,7 +2149,7 @@ bool CChitemDlg::match_creature()
     if(!found) return false; 
   }
 
-  if(searchflags&MV)
+  if(id && (searchflags&MV))
   {
     found=false;
     if(tmpdata.which==-1)
@@ -2215,7 +2211,14 @@ bool CChitemDlg::match_creature()
       {
         for(featblock=0;featblock<the_creature.header.effectcnt;featblock++)
         {
-          memcpy(tmpdata.resource,the_creature.effects[featblock].resource,8);
+          if (id)
+          {
+            memcpy(tmpdata.resource,the_creature.effects[featblock].resource,8);
+          }
+          else
+          {
+            memcpy(tmpdata.resource,the_creature.oldeffects[featblock].vvc,8);
+          }
           if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
           {
             found=true;
@@ -2225,7 +2228,14 @@ bool CChitemDlg::match_creature()
       }
       else
       {
-        memcpy(tmpdata.resource,the_creature.effects[featblock].resource,8);
+        if (id)
+        {
+          memcpy(tmpdata.resource,the_creature.effects[featblock].resource,8);
+        }
+        else
+        {
+          memcpy(tmpdata.resource,the_creature.oldeffects[featblock].vvc,8);
+        }
         if(searchdata.resource[0])
         {
           if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
@@ -2251,7 +2261,7 @@ bool CChitemDlg::match_creature()
   {
     log("Found opcode %s (%d %d) in #%d. embedded effect",get_opcode_text(tmpdata.feature),tmpdata.param1,tmpdata.param2,featblock+1);
   }
-  if(searchflags&MV)
+  if(id && (searchflags&MV) )
   {
     log("Found variable %-.32s (%d) in #%d. embedded effect",tmpdata.variable,the_creature.effects[featblock].par1,featblock+1);
   }
@@ -2746,9 +2756,9 @@ bool CChitemDlg::match_dialog()
   trigger trigger;
   action action;
   
+  ret=0;
   if(searchflags&MS)
   {
-    ret=0;
     for(i=0;i<the_dialog.statecount;i++)
     {
       if(the_dialog.dlgstates[i].actorstr==searchdata.strref)
@@ -2778,7 +2788,7 @@ bool CChitemDlg::match_dialog()
   
   if(searchflags&(MR| MV| MI) )
   {
-    ret=false;
+    ret=0;
     for(i=0;i<the_dialog.sttriggercount;i++)
     {
       lines=explode(the_dialog.sttriggers[i],'\n',linecnt);
@@ -2792,7 +2802,7 @@ bool CChitemDlg::match_dialog()
           j=trigger.opcode&~0x4000;
           if(j>=searchdata.itemtype && j<=searchdata.itemtype2)
           {
-            ret=true;
+            ret=1;
             log("Found %s in state trigger #%d",lines[k],i+1);
           }
         }
@@ -2800,12 +2810,12 @@ bool CChitemDlg::match_dialog()
         {
           if(!strnicmp(trigger.var1+6,searchdata.variable,32))
           {
-            ret=true;
+            ret=1;
             log("Found %s in state trigger #%d",trigger.var1,i+1);
           }
           if(!strnicmp(trigger.var2+6,searchdata.variable,32))
           {
-            ret=true;
+            ret=1;
             log("Found %s in state trigger #%d",trigger.var2,i+1);
           }
         }
@@ -2813,7 +2823,7 @@ bool CChitemDlg::match_dialog()
         {
           if(!strnicmp(trigger.trobj.var,searchdata.resource,8))
           {
-            ret=true;
+            ret=1;
             log("Found %s in state trigger #%d",trigger.trobj.var,i+1);
           }
         }
@@ -2837,7 +2847,7 @@ bool CChitemDlg::match_dialog()
           j=trigger.opcode&~0x4000;
           if(j>=searchdata.itemtype && j<=searchdata.itemtype2)
           {
-            ret=true;
+            ret=1;
             log("Found %s in transition trigger #%d",lines[k],i+1);
           }
         }
@@ -2845,20 +2855,20 @@ bool CChitemDlg::match_dialog()
         {
           if(!strnicmp(trigger.var1+6,searchdata.variable,32))
           {
-            ret=true;
-            log("Found %s in transition trigger #%d",trigger.var1+6,i+1);
+            ret=1;
+            log("Found %s in transition trigger #%d",trigger.var1,i+1);
           }
           if(!strnicmp(trigger.var2+6,searchdata.variable,32))
           {
-            ret=true;
-            log("Found %s in transition trigger #%d",trigger.var2+6,i+1);
+            ret=1;
+            log("Found %s in transition trigger #%d",trigger.var2,i+1);
           }
         }
         if(searchflags&MR)
         {
           if(!strnicmp(trigger.trobj.var,searchdata.resource,8))
           {
-            ret=true;
+            ret=1;
             log("Found %s in transition trigger #%d",trigger.trobj.var,i+1);
           }
         }
@@ -2885,7 +2895,7 @@ bool CChitemDlg::match_dialog()
           if(action.opcode>=searchdata.feature &&
             action.opcode<=searchdata.feature2)
           {
-            ret=true;
+            ret=1;
             log("Found %s in action %d",lines[k],i+1);
             which_transition(i);
           }            
@@ -2895,14 +2905,14 @@ bool CChitemDlg::match_dialog()
         {
           if(!strnicmp(action.var1+6,searchdata.variable,32))
           {
-            ret=true;
+            ret=1;
             log("Found %s in action #%d",action.var1,i+1);
             which_transition(i);
           }
           if(!strnicmp(action.var2+6,searchdata.variable,32))
           {
-            ret=true;
-            log("Found %s in action #%d",action.var2+6,i+1);
+            ret=1;
+            log("Found %s in action #%d",action.var2,i+1);
             which_transition(i);
           }
         }
@@ -2910,13 +2920,13 @@ bool CChitemDlg::match_dialog()
         {
           if(!strnicmp(action.var1,searchdata.resource,8))
           {
-            ret=true;
+            ret=1;
             log("Found %s in action #%d",action.var1,i+1);
             which_transition(i);
           }
           if(!strnicmp(action.var2,searchdata.resource,8))
           {
-            ret=true;
+            ret=1;
             log("Found %s in action #%d",action.var2,i+1);
             which_transition(i);
           }
@@ -2924,7 +2934,7 @@ bool CChitemDlg::match_dialog()
           {
             if(!strnicmp(action.obj[j].var,searchdata.resource,8))
             {
-              ret=true;
+              ret=1;
               log("Found %s in action #%d ob #%d",action.obj[j].var,i+1, j+1);
               which_transition(i);
             }
@@ -4253,6 +4263,7 @@ int CChitemDlg::check_area_door()
         strref,i+1,doorname,p1x,p1y);
       break;
     }
+    /* no dialogs in doors
     switch(check_dialogres(the_area.doorheaders[i].dialogref,false) )
     {
     case -1:
@@ -4260,6 +4271,7 @@ int CChitemDlg::check_area_door()
       log("Non existent dialog (%-.8s) for door #%d (%-.32s [%d.%d])",
           the_area.doorheaders[i].dialogref,i+1,doorname,p1x,p1y);
     }
+    */
 
     switch(check_triggerref(the_area.doorheaders[i].regionlink,the_area.doorheaders[i].flags&1))
     {
@@ -4623,10 +4635,13 @@ int CChitemDlg::check_area_trigger()
         }
       }
     }
+    /*what is this
     if(ttype&AR_INFO)
     {
       
     }
+    */
+    /* no dialog
     switch(check_dialogres(the_area.triggerheaders[i].dialogref,true) )
     {
     case -1:
@@ -4634,6 +4649,7 @@ int CChitemDlg::check_area_trigger()
       log("Invalid dialog reference '%-.8s' in active region #%d (%-.32s [%d.%d])",
           the_area.triggerheaders[i].dialogref,i+1,infoname,px,py);
     }
+    */
     switch(check_scriptref(the_area.triggerheaders[i].scriptref,true) )
     {
     case -1:
@@ -4865,11 +4881,19 @@ int CChitemDlg::check_wed()
   tilecount=the_area.overlayheaders[0].height*the_area.overlayheaders[0].width;
   for(i=0;i<tilecount;i++)
   {
-    idx=(unsigned short) the_area.overlaytileindices[i];
-    if(idx>=the_area.overlaytilecount)
+    if(the_area.overlaytileheaders[i].counttileprimary-1>10)
     {
       ret|=BAD_EXTHEAD;
-      log("Invalid tile in [%d.%d]",i%the_area.overlayheaders[0].width,i%the_area.overlayheaders[0].width);
+      log("Invalid tile in [%d.%d] (animation count)",i%the_area.overlayheaders[0].width,i/the_area.overlayheaders[0].width);
+      continue;
+    }
+
+    idx=the_area.overlaytileheaders[i].firsttileprimary;
+    idx=(unsigned short) the_area.overlaytileindices[idx];
+    if(idx>=the_area.overlaytileidxcount)
+    {
+      ret|=BAD_EXTHEAD;
+      log("Invalid tile in [%d.%d]",i%the_area.overlayheaders[0].width,i/the_area.overlayheaders[0].width);
     }
   }
   pos=the_area.doortilelist.GetHeadPosition();
@@ -5593,7 +5617,7 @@ int CChitemDlg::check_ascii_strref(CString value, CString row)
   return 0;
 }
 
-int CChitemDlg::check_kits_bg2(bool tob)
+int CChitemDlg::check_kits_bg2(bool /*tob*/)
 {
   loc_entry tmploc;
   CStringList weaclasses, kitclasses;

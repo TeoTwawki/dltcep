@@ -38,6 +38,8 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void Musiclist(int idx);
 
 	// Generated message map functions
@@ -61,6 +63,14 @@ protected:
 	afx_msg void OnMuswin();
 	afx_msg void OnMusbattle();
 	afx_msg void OnMuslose();
+	afx_msg void OnPlay();
+	afx_msg void OnPlay1();
+	afx_msg void OnPlay2();
+	afx_msg void OnPlay3();
+	afx_msg void OnBrowse();
+	afx_msg void OnBrowse1();
+	afx_msg void OnBrowse3();
+	afx_msg void OnBrowse2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

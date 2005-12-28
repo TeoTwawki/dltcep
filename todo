@@ -20,3 +20,4 @@ if opening both, but not the same #of strrefs, then ask for sync
 18. startcutscene should be the last action in dialog blocks
 19. wed->overlay->extract tiles (crash?)
 20. classflags 1: no interrupt, 2: glowing?
+21. classflags: 14: can activate npc cannot activate triggers

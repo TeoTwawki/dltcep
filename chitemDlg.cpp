@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.7"
+#define PRG_VERSION "6.7i"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -221,6 +221,7 @@ ON_COMMAND(ID_CHECK_PROJECTILE, OnCheckProjectile)
 	ON_COMMAND(ID_TISPACK, OnTispack)
 	ON_COMMAND(ID_HELP_README, OnHelpReadme)
 	ON_COMMAND(ID_SKIMSAV, OnSkimsav)
+	ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
 ON_COMMAND(ID_COMPAT, OnCompat)
 ON_COMMAND(ID_SEARCH_ITEM, OnFinditem)
 ON_COMMAND(ID_SEARCH_SPELL, OnFindspell)
@@ -245,7 +246,7 @@ ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
 	ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
 	ON_BN_CLICKED(IDC_CHECKPROJ, OnCheckArea)
-	ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
+	ON_COMMAND(ID_TOOLS_DECOMPILE, OnToolsDecompile)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -427,6 +428,7 @@ BOOL CChitemDlg::OnInitDialog()
   newitem=FALSE;
   m_progressdlg=0;
   m_panicbutton=0;
+  choosedialog=0;
 
   if(bgfolder.IsEmpty())
   {
@@ -652,7 +654,15 @@ int CChitemDlg::scan_2da()
   }
   else
   {
-    if(!bg1_compatible_area())
+		if(bg1_compatible_area())
+		{
+			//this file will come with the install
+			int fhandle = open(theApp.m_defpath+"\\bg1music.2da", O_BINARY|O_RDONLY);
+			if (fhandle>0) {
+				Read2daStringFromFile(fhandle, songlist, -1, 0);
+			}
+		}
+    else
     {
       idrefs.Lookup("SONGS",tmploc);
       val=ReadSongIds(tmploc, songlist); //pst
@@ -728,8 +738,6 @@ int CChitemDlg::scan_2da()
 
   if(iwd2_structures())
   {
-//    idrefs.Lookup("SLOTS",tmploc);
-//    val=ReadIds2(tmploc, slot_names,IWD2_SLOT_COUNT);
     darefs.Lookup("RT_FURY", tmploc);
     val=Read2daInt(tmploc, rnditems, 1); //removeall=1
     darefs.Lookup("RT_NORM", tmploc);
@@ -737,6 +745,7 @@ int CChitemDlg::scan_2da()
 
 //this is the slot setup
     for(i=0;i<IWD2_SLOT_COUNT;i++) slot_names[i]=iwd2_slot_names[i];
+    base_slot=43;
   }
   else
   {
@@ -745,27 +754,26 @@ int CChitemDlg::scan_2da()
       darefs.Lookup("RNDTRES", tmploc);
       val=Read2daInt(tmploc, rnditems, 1); //adding more items
     }
-
-    if(bg1_compatible_area())
+    
+    if(pst_compatible_var())
     {
-      idrefs.Lookup("SLOTS",tmploc);
-      val=ReadIds2(tmploc, slot_names,SLOT_COUNT);
-      if(val<0)
-      {
-        MessageBox("slots.ids not found, slot names are unavailable.","Warning",MB_ICONEXCLAMATION|MB_OK);
-      }
+      for(i=0;i<PST_SLOT_COUNT;i++) slot_names[i]=pst_slot_names[i];
     }
     else
     {
-      if(pst_compatible_var())
-      {
-        for(i=0;i<PST_SLOT_COUNT;i++) slot_names[i]=pst_slot_names[i];
-      }
-      else
-      {
-        for(i=0;i<SLOT_COUNT;i++) slot_names[i]=bg2_slot_names[i];
-      }
+      for(i=0;i<SLOT_COUNT;i++) slot_names[i]=bg2_slot_names[i];
     }
+    base_slot=35;
+  }
+  idrefs.Lookup("SLOTS",tmploc);
+  val=ReadIds4(tmploc, internal_slot_names);
+  if(val<0)
+  {
+    MessageBox("slots.ids not found, slot names are unavailable.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  }
+  else
+  {
+    internal_slot_names.Lookup("slot_weapon", base_slot);
   }
   
   if(pst_compatible_var())
@@ -874,8 +882,15 @@ int CChitemDlg::scan_2da()
   return 0;
 }
 
-void resync()
+void CChitemDlg::resync()
 {
+  CString tmpstr;
+
+  if (tlk_headerinfo[0].entrynum!=tlk_headerinfo[1].entrynum)
+  {
+    tmpstr.Format("Male tlk #=%d Female tlk #=%d\nResynchronise them in string editor!",tlk_headerinfo[0].entrynum,tlk_headerinfo[1].entrynum);
+    MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
+  }
 }
 
 int CChitemDlg::scan_dialog_both(bool refresh)
@@ -885,9 +900,14 @@ int CChitemDlg::scan_dialog_both(bool refresh)
   ret=scan_dialog(refresh,0);
   if(ret) return ret;
   if(optflg&BOTHDIALOG) {
+    whichdialog=1;
     ret=scan_dialog(refresh,1);
     if(ret) return ret;
     resync();
+  }
+  else
+  {
+    whichdialog=0;
   }
   return ret;
 }
@@ -944,7 +964,7 @@ int CChitemDlg::scan_dialog(bool refresh, int which)
     return -3;
   }
 
-  start_progress(maxref,"Reading dialog.tlk");
+  start_progress(maxref,which?"Reading DialogF.tlk":"Reading Dialog.tlk");
   if((unsigned long) tlk_headerinfo[which].start!=tlk_headerinfo[which].entrynum*sizeof(tlk_reference)+sizeof(tlk_header))
   {
     if(MessageBox("The .tlk file appears to be corrupted, shall I try to fix it?","Warning",MB_ICONQUESTION|MB_YESNO)==IDYES )
@@ -2638,9 +2658,12 @@ void CChitemDlg::OnCompat()
       MessageBox("Setup isn't complete.");
       return;
     }
-  	if(read_effect_descs())
+    int tmp=read_effect_descs();
+  	if(tmp)
     {
-      MessageBox("There was an error while processing the effect descriptions.","Warning",MB_ICONWARNING|MB_OK);
+      CString tmpstr;
+      tmpstr.Format("There was an error while processing the effect descriptions.\nErrorcode: %d\n",tmp);
+      MessageBox(tmpstr,"Warning",MB_ICONWARNING|MB_OK);
     }
     scan_chitin();
     scan_override();
@@ -2674,14 +2697,15 @@ void CChitemDlg::RefreshMenu()
   pMenu=GetMenu();
   if(pMenu)
   {
-//    pMenu->ModifyMenu(ID_COMPAT, 0, ID_COMPAT, setupname);
     m_tooltip.Activate(!!tooltips); 
     pMenu->CheckMenuItem(ID_TOOLTIPS, MF_SET(tooltips) );
     
     pMenu->CheckMenuItem(ID_PROGRESS, MF_SET(do_progress));
 
     pMenu->CheckMenuItem(ID_READONLY, MF_SET(readonly));
-        
+
+    pMenu->CheckMenuItem(ID_USEDIALOGF, MF_SET(choosedialog));
+    
     for(i=0;logmenu[i];i++)
     {
       pMenu->CheckMenuItem(logmenu[i], MF_SET(i==logtype));      
@@ -2738,11 +2762,13 @@ void CChitemDlg::OnProgress()
 
 void CChitemDlg::OnUsedialogf() 
 {
-  if(optflg&BOTHDIALOG)
+  if(whichdialog)
   {
-	  whichdialog=!whichdialog;
+    if (choosedialog) choosedialog=0;
+    else choosedialog=1;
   }
-  else whichdialog=0;
+  else choosedialog=0;
+  RefreshMenu();
 }
 
 void CChitemDlg::OnReadonly() 
@@ -3232,6 +3258,85 @@ void CChitemDlg::OnCreateIAP()
   dlg.DoModal();
 }
 
+void CChitemDlg::OnToolsDecompile() 
+{
+  POSITION pos;
+  CString filepath;
+  CString tmpstr;
+  int idx;
+  int res;
+
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  if(weidupath.IsEmpty())
+  {
+    MessageBox("Please set up WeiDU before use.","Dialog editor",MB_OK|MB_ICONSTOP);
+    return;
+  }
+
+  if(!file_exists(weidupath) )
+  {
+    MessageBox("WeiDU executable not found.","Dialog editor",MB_OK|MB_ICONSTOP);
+    return;
+  }
+
+  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilterDlg );
+  HackForLargeList(m_getfiledlg);
+  m_getfiledlg.m_ofn.lpstrTitle="Which dialogs to decompile?";
+
+  if( m_getfiledlg.DoModal() != IDOK ) return;
+  pos=m_getfiledlg.GetStartPosition();
+
+  if(!pos)
+  {
+    return;
+  }
+
+  chdir(bgfolder);
+  mkdir(weidudecompiled);
+  if(!dir_exists(weidudecompiled) )
+  {
+    tmpstr.Format("%s cannot be created as output path.",weidudecompiled);
+      MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
+    return;
+  }
+
+  //flush tlk
+  if(global_changed[0]==true)
+  {
+    write_file_progress(0); 
+  }
+  if(global_changed[1]==true)
+  {
+    write_file_progress(1); 
+  }
+
+  unlink(WEIDU_LOG);
+  while(pos)
+  {
+    filepath=m_getfiledlg.GetNextPathName(pos);
+    idx = filepath.ReverseFind('.');
+    if (idx >= 0)
+		  changeitemname(filepath.Left(idx));
+	  else
+      changeitemname(filepath);
+
+    tmpstr=AssembleWeiduCommandLine(itemname+".dlg", weidudecompiled); //export
+    res=my_system(tmpstr);
+    if(res)
+    {
+      tmpstr.Format("'%s' returned: %d",tmpstr, res);
+      MessageBox(tmpstr,"Dialog Editor",MB_OK|MB_ICONSTOP);
+    }
+  }
+  //no need to rescan dialog.tlk, we decompiled stuff!
+}
+
 void CChitemDlg::OnTispack() 
 {
   POSITION pos;
@@ -3299,6 +3404,7 @@ void CChitemDlg::Compressbif(bool cbf_or_bifc)
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
+
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   CFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
   HackForLargeList(m_getfiledlg);

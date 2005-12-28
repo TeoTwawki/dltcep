@@ -35,19 +35,13 @@ Offset Size (data type) Description
     * bit 0 (0x01) : User allowed to buy
     * bit 1 (0x02) : User allowed to sell
     * bit 2 (0x04) : User allowed to identify items
-    * bit 3 (0x08) : User allowed to steal
-    * bit 4 (0x10) : User allowed to purchase cures
-    * bit 5 (0x20) : User allowed to donate money
+    * bit 3 (0x08) : User allowed to steal (not in V9.0)
+    * bit 4 (0x10) : User allowed to donate money (doesn't set anything)
+    * bit 5 (0x20) : User allowed to purchase cures
     * bit 6 (0x40) : User allowed to purchase drinks
-    * bit 7        : Unknown
-    * bit 8        : Unknown
-    * bit 9 (0x200): Quality 1
-    * bit 10 (0x400): Quality 2
-    * bit 11        : Unknown
-    * bit 12        : Unknown
-    * bit 13 (0x2000): Buy Fenced Goods
-    * bit 14        : Unknown
-    * bit 15        : Unknown
+    * bit 7 (0x80) : Unknown
+    * bit 8 (0x100): Unknown
+    * bit 9 (0x200): Buy Fenced Goods ?
 
 0x0014 4 (dword) Store "sell price markup" (percentage of base price store charges for items)
 0x0018 4 (dword) Store "buy price markup" (percentage of base price store is willing to pay)

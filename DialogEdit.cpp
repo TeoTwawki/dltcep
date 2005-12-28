@@ -2915,6 +2915,10 @@ int CDialogEdit::RunWeidu(CString syscommand)
   {
     ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(0); 
   }
+  if(global_changed[1]==true)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(1); 
+  }
   unlink(WEIDU_LOG);
   res=my_system(syscommand);
   if(weiduflg&WEI_LOGGING)

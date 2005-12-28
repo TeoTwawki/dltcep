@@ -197,6 +197,7 @@ public:
   int FlipFrame(int nFrameWanted);
   int SwapFrames(int a, int b); //swaps frames in lookup table
   int Reallocate(int x, int y);
+  bool ShrinkFrame(int nFrameWanted);
 
   inline int GetTransparentIndex()
   {

@@ -71,6 +71,7 @@ ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,
 char BASED_CODE szFilterKey[] = "chitin.key|chitin.key|All files (*.*)|*.*||";
 char BASED_CODE szFilterTbg[] = "Tbg files (*.tbg)|*.tbg|All files (*.*)|*.*||";
 char BASED_CODE szFilterWeidu[] = "Dialog source files (*.d)|*.d|All files (*.*)|*.*||";
+char BASED_CODE szFilterDlg[] = "Dialog files (*.dlg)|*.dlg|All files (*.*)|*.*||";
 char BASED_CODE szFilterWeiduAll[] = "Source files (*.d;*.baf)|*.d;*.baf|Dialog source files (*.d)|*.d|Script source files (*.baf)|*.baf|All files (*.*)|*.*||";
 char BASED_CODE szFilterBifc[] = "Bifc files (*.bif)|*.bif|All files (*.*)|*.*||";
 char BASED_CODE szFilterBif[] = "Biff files (*.bif)|*.bif|All files (*.*)|*.*||";
@@ -89,7 +90,7 @@ CString bg2_slot_names[SLOT_COUNT]={"0-Helmet","1-Armor","2-Shield","3-Gloves","
 "15-Quiver 3","16-Unknown","17-Cloak","18-Quick item 1","19-Quick item 2","20-Quick item 3",
 "21-Inventory 1","22-Inventory 2","23-Inventory 3","24-Inventory 4","25-Inventory 5","26-Inventory 6",
 "27-Inventory 7","28-Inventory 8","29-Inventory 9","30-Inventory 10","31-Inventory 11","32-Inventory 12",
-"33-Inventory 13","34-Inventory 14","35-Inventory 15","36-Inventory 16","37-Fist"};
+"33-Inventory 13","34-Inventory 14","35-Inventory 15","36-Inventory 16","37-Magic"};
 
 CString pst_slot_names[PST_SLOT_COUNT]={"0-Earring","1-Armor","2-L.Tattoo","3-Gloves","4-L.Ring","5-R.Ring","6-Eyeball",
 "7-R.Tattoo","8-Boots","9-Weapon 1","10-Weapon 2","11-Weapon 3","12-Weapon 4","13-Quiver 1","14-Quiver 2",
@@ -97,16 +98,16 @@ CString pst_slot_names[PST_SLOT_COUNT]={"0-Earring","1-Armor","2-L.Tattoo","3-Gl
 "23-Quick item 4","24-Quick item 5","25-Inventory 1","26-Inventory 2","27-Inventory 3","28-Inventory 4","29-Inventory 5","30-Inventory 6",
 "31-Inventory 7","32-Inventory 8","33-Inventory 9","34-Inventory 10","35-Inventory 11","36-Inventory 12",
 "37-Inventory 13","38-Inventory 14","39-Inventory 15","40-Inventory 16","41-Inventory 17","42-Inventory 18",
-"43-Inventory 19","44-Inventory 20","45-Unknown"};
+"43-Inventory 19","44-Inventory 20","45-Magic"};
 
-CString iwd2_slot_names[IWD2_SLOT_COUNT]={"0-Helmet","1-Armor","2-Shield","3-Gloves","4-L.Ring","5-R.Ring","6-Amulet",
+CString iwd2_slot_names[IWD2_SLOT_COUNT]={"0-Helmet","1-Armor","2-Unknown","3-Gloves","4-L.Ring","5-R.Ring","6-Amulet",
 "7-Belt","8-Boots","9-Weapon 1","10-Shield 1","11-Weapon 2","12-Shield 2","13-Weapon 3","14-Shield 3","15-Weapon 4","16-Shield 4",
-"17-Cloak","18-Quiver 1","19-Quiver 2","20-Quiver 3","21-Fist","22-Quick item 1","23-Quick item 2","24-Quick item 3",
+"17-Quiver 1","18-Quiver 2","19-Quiver 3","20-Unknown","21-Cloak","22-Quick item 1","23-Quick item 2","24-Quick item 3",
 "25-Inventory 1","26-Inventory 2","27-Inventory 3","28-Inventory 4","29-Inventory 5","30-Inventory 6",
 "31-Inventory 7","32-Inventory 8","33-Inventory 9","34-Inventory 10","35-Inventory 11","36-Inventory 12",
 "37-Inventory 13","38-Inventory 14","39-Inventory 15","40-Inventory 16",
 "41-Inventory 17","42-Inventory 18","43-Inventory 19","44-Inventory 20","45-Inventory 21","46-Inventory 22",
-"47-Inventory 23","48-Inventory 24","49-Unknown"};
+"47-Inventory 23","48-Inventory 24","49-Magic"};
 
 int itvs2h[NUM_ITEMTYPE]={
   1,1,1,1,1,1,1,1,1,1,//9
@@ -131,6 +132,7 @@ int tooltips;
 int do_progress;
 int readonly;
 int whichdialog;
+int choosedialog;
 unsigned long chkflg;
 unsigned long editflg;
 unsigned long optflg;
@@ -173,6 +175,8 @@ CStringMapArray store_spell_desc;
 CStringList sectype_names;
 CStringList school_names;
 CString2List songlist;
+int base_slot=35;
+CStringMapInt internal_slot_names;
 CString slot_names[IWD2_SLOT_COUNT]; //IWD2 has more slots
 CString snd_slots[SND_SLOT_COUNT];
 CString action_defs[MAX_ACTION];
@@ -538,7 +542,7 @@ int strtonum(CString str)
   int len;
   
   len=str.GetLength()-2;
-  if((len>0) && (str[0]=='0') && (str[1]=='x') )
+  if((len>0) && (str[0]=='0') && ((str[1]=='x') || (str[1]=='X')) )
   {
     return (int) strtoul(str.Right(len),0,16);
   }
@@ -1508,22 +1512,70 @@ int resolve_tbg_entry(long reference, tbg_tlk_reference &ref)
   return 0;
 }
 
-CString resolve_tlk_text(long reference)
+void synchronise()
+{
+  tlk_entry * newtlkentries;
+  int from, to;
+  int source, target;
+  int i;
+
+  if (tlk_headerinfo[0].entrynum==tlk_headerinfo[1].entrynum) return;
+  if (tlk_headerinfo[0].entrynum<tlk_headerinfo[1].entrynum)
+  {
+    source = 1;
+    target = 0;
+  }
+  else
+  {
+    source = 0;
+    target = 1;
+  }
+  from = tlk_headerinfo[target].entrynum;
+  to = tlk_headerinfo[source].entrynum;
+  ((CChitemDlg *) AfxGetMainWnd())->start_progress(to,"Synchronising TLKs");
+  if(to<0)
+  {
+    return;
+  }
+  memcpy(&tlk_headerinfo[target], &tlk_headerinfo[source], sizeof(tlk_header) );
+  global_changed[target]=true;
+
+  newtlkentries=new tlk_entry[tlk_headerinfo[source].entrynum];
+  for(i=0;i<from;i++)
+  {
+    newtlkentries[i]=tlk_entries[target][i];
+  }
+
+  if(from!=-1)
+  {
+    delete [] tlk_entries[target];
+  }
+  tlk_entries[target]=newtlkentries;
+
+  for(i=from;i<to;i++)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->set_progress(i); 
+    tlk_entries[target][i].reference=tlk_entries[source][i].reference;
+    tlk_entries[target][i].text=tlk_entries[source][i].text;
+  }
+  ((CChitemDlg *) AfxGetMainWnd())->end_progress();
+}
+CString resolve_tlk_text(long reference, int which)
 {
   CString tmp;
   
   if(reference<0) return "<Not Available>";
-  if(reference>=tlk_headerinfo[whichdialog].entrynum) return "<Invalid Reference>";
-  tmp=tlk_entries[whichdialog][reference].text;
+  if(reference>=tlk_headerinfo[which].entrynum) return "<Invalid Reference>";
+  tmp=tlk_entries[which][reference].text;
   tmp.Replace("\n","\r\n");
   return tmp;
 }
 
-BOOL match_tlk_text(long reference, CString text, int ignorecase)
+BOOL match_tlk_text(long reference, CString text, int ignorecase, int which)
 {
   CString tmp;
 
-  tmp=resolve_tlk_text(reference);
+  tmp=resolve_tlk_text(reference, which);
   if(ignorecase)
   {
     tmp.MakeLower();
@@ -1532,7 +1584,7 @@ BOOL match_tlk_text(long reference, CString text, int ignorecase)
   return tmp.Find(text)!=-1;
 }
 
-int store_tlk_data(long reference, CString text, CString sound)
+int store_tlk_data(long reference, CString text, CString sound, int which)
 {
   CString tmpsound;
   int i;
@@ -1541,32 +1593,34 @@ int store_tlk_data(long reference, CString text, CString sound)
   
   text.Replace("\r\n","\n");
   if(reference<=0) newentry=true;
-  if(reference>=tlk_headerinfo[0].entrynum) newentry=true;
-  if(newentry)
+  if(reference>=tlk_headerinfo[which].entrynum) newentry=true;
+  //don't look for existing entries if ==, because we want to
+  //create a brand new entry in synchronise
+  if(newentry && reference!=tlk_headerinfo[which].entrynum)
   {
-    //since we want to avoid to include a new entry at all costs
-    //there is a shortcut to reuse existing entries
-    for(i=0;i<tlk_headerinfo[0].entrynum;i++) 
+    //since we want to avoid to include a new entry at almost
+    //all costs there is a shortcut to reuse existing entries
+    for(i=0;i<tlk_headerinfo[which].entrynum;i++) 
     {
-      RetrieveResref(tmpsound, tlk_entries[0][i].reference.soundref);
-      if(tlk_entries[0][i].text==text)
+      RetrieveResref(tmpsound, tlk_entries[which][i].reference.soundref);
+      if(tlk_entries[which][i].text==text)
       { //feature: always update sound for matching strings
         if(tmpsound.IsEmpty())
         {
-          store_tlk_soundref(i,sound);
+          store_tlk_soundref(i,sound,which);
         }
         return i;
       }
     }
     if(!(editflg&RECYCLE)) //if we recycle string references
     {
-      for(i=0;i<tlk_headerinfo[0].entrynum;i++)
+      for(i=0;i<tlk_headerinfo[which].entrynum;i++)
       {
-        if(tlk_entries[0][i].text==DELETED_REFERENCE)
+        if(tlk_entries[which][i].text==DELETED_REFERENCE)
         {
           newentry=false;
           reference=i;
-          store_tlk_soundref(i,sound);
+          store_tlk_soundref(i,sound,which);
           break;
         }
       }
@@ -1574,40 +1628,40 @@ int store_tlk_data(long reference, CString text, CString sound)
   }
   if(newentry)
   {
-    reference=tlk_headerinfo[0].entrynum++;
-    newtlkentries=new tlk_entry[tlk_headerinfo[0].entrynum];
+    reference=tlk_headerinfo[which].entrynum++;
+    newtlkentries=new tlk_entry[tlk_headerinfo[which].entrynum];
     if(!newtlkentries)
     {
-      tlk_headerinfo[0].entrynum--;
-      return -3; //failed due to memory 
+      tlk_headerinfo[which].entrynum--;
+      return -3; //failed due to lack of memory 
     }
-    for(i=0;i<tlk_headerinfo[0].entrynum-1;i++)
+    for(i=0;i<tlk_headerinfo[which].entrynum-1;i++)
     {
-      newtlkentries[i]=tlk_entries[0][i];
+      newtlkentries[i]=tlk_entries[which][i];
     }
 
-    delete [] tlk_entries[0];
-    tlk_entries[0]=newtlkentries;
-    tlk_entries[0][reference].text="";
-    memset(&tlk_entries[0][reference].reference,0,sizeof(tlk_reference) );
+    delete [] tlk_entries[which];
+    tlk_entries[which]=newtlkentries;
+    tlk_entries[which][reference].text="";
+    memset(&tlk_entries[which][reference].reference,0,sizeof(tlk_reference) );
   }
   if(text.GetLength())
   {
-    tlk_entries[0][reference].reference.flags|=1;
-    if(text.Find('<')>=0) tlk_entries[0][reference].reference.flags|=4; //tagged text
-    else tlk_entries[0][reference].reference.flags&=~4; //non-tagged text
+    tlk_entries[which][reference].reference.flags|=1;
+    if(text.Find('<')>=0) tlk_entries[which][reference].reference.flags|=4; //tagged text
+    else tlk_entries[which][reference].reference.flags&=~4; //non-tagged text
   }
-  else tlk_entries[0][reference].reference.flags&=~5;
-  store_tlk_soundref(reference,sound);
-  if(tlk_entries[0][reference].text!=text)
+  else tlk_entries[which][reference].reference.flags&=~5;
+  store_tlk_soundref(reference,sound,which);
+  if(tlk_entries[which][reference].text!=text)
   {
-    tlk_entries[0][reference].text=text;
-    global_changed[0]=true;
+    tlk_entries[which][reference].text=text;
+    global_changed[which]=true;
   }
   return reference;
 }
 
-int store_tlk_text(long reference, CString text)
+int store_tlk_text(long reference, CString text, int which)
 {
   int i;
   tlk_entry *newtlkentries;
@@ -1615,20 +1669,20 @@ int store_tlk_text(long reference, CString text)
   
   text.Replace("\r\n","\n");
   if(reference<=0) newentry=true;
-  if(reference>=tlk_headerinfo[0].entrynum) newentry=true;
+  if(reference>=tlk_headerinfo[which].entrynum) newentry=true;
   if(newentry)
   {
     //since we want to avoid to include a new entry at all costs
     //there is a shortcut to reuse existing entries
-    for(i=0;i<tlk_headerinfo[0].entrynum;i++) 
+    for(i=0;i<tlk_headerinfo[which].entrynum;i++) 
     {
-      if(tlk_entries[0][i].text==text) return i;
+      if(tlk_entries[which][i].text==text) return i;
     }    
     if(!(editflg&RECYCLE)) //if we recycle string references
     {
-      for(i=0;i<tlk_headerinfo[0].entrynum;i++) 
+      for(i=0;i<tlk_headerinfo[which].entrynum;i++) 
       {
-        if(tlk_entries[0][i].text==DELETED_REFERENCE)
+        if(tlk_entries[which][i].text==DELETED_REFERENCE)
         {
           newentry=false;
           reference=i;
@@ -1639,73 +1693,73 @@ int store_tlk_text(long reference, CString text)
   }
   if(newentry)
   {
-    reference=tlk_headerinfo[0].entrynum++;
-    newtlkentries=new tlk_entry[tlk_headerinfo[0].entrynum];
+    reference=tlk_headerinfo[which].entrynum++;
+    newtlkentries=new tlk_entry[tlk_headerinfo[which].entrynum];
     if(!newtlkentries)
     {
-      tlk_headerinfo[0].entrynum--;
+      tlk_headerinfo[which].entrynum--;
       return -3; //failed due to memory 
     }
-    for(i=0;i<tlk_headerinfo[0].entrynum-1;i++)
+    for(i=0;i<tlk_headerinfo[which].entrynum-1;i++)
     {
-      newtlkentries[i]=tlk_entries[0][i];
+      newtlkentries[i]=tlk_entries[which][i];
     }
 
-    delete [] tlk_entries[0];
-    tlk_entries[0]=newtlkentries;
-    tlk_entries[0][reference].text="";
-    memset(&tlk_entries[0][reference].reference,0,sizeof(tlk_reference) );
+    delete [] tlk_entries[which];
+    tlk_entries[which]=newtlkentries;
+    tlk_entries[which][reference].text="";
+    memset(&tlk_entries[which][reference].reference,0,sizeof(tlk_reference) );
   }
   if(text.GetLength())
   {
-    tlk_entries[0][reference].reference.flags|=1;
-    if(text.Find('<')>=0) tlk_entries[0][reference].reference.flags|=4; //tagged text
-    else tlk_entries[0][reference].reference.flags&=~4; //non-tagged text
+    tlk_entries[which][reference].reference.flags|=1;
+    if(text.Find('<')>=0) tlk_entries[which][reference].reference.flags|=4; //tagged text
+    else tlk_entries[which][reference].reference.flags&=~4; //non-tagged text
   }
-  else tlk_entries[0][reference].reference.flags&=~5;
-  if(tlk_entries[0][reference].reference.soundref[0])
+  else tlk_entries[which][reference].reference.flags&=~5;
+  if(tlk_entries[which][reference].reference.soundref[0])
   {
-    tlk_entries[0][reference].reference.flags|=2;
+    tlk_entries[which][reference].reference.flags|=2;
   }
   else
   {
-    tlk_entries[0][reference].reference.flags&=~2;
+    tlk_entries[which][reference].reference.flags&=~2;
   }
-  if(tlk_entries[0][reference].text!=text)
+  if(tlk_entries[which][reference].text!=text)
   {
-    tlk_entries[0][reference].text=text;
-    global_changed[0]=true;
+    tlk_entries[which][reference].text=text;
+    global_changed[which]=true;
   }
   return reference;
 }
 
-bool resolve_tlk_tag(long reference)
+bool resolve_tlk_tag(long reference, int which)
 {
   if(reference<=0) return false;
-  if(reference>=tlk_headerinfo[0].entrynum) return false;
-  return !!(tlk_entries[0][reference].reference.flags&4);
+  if(reference>=tlk_headerinfo[which].entrynum) return false;
+  return !!(tlk_entries[which][reference].reference.flags&4);
 }
 
-bool toggle_tlk_tag(long reference)
+bool toggle_tlk_tag(long reference, int which)
 {
   if(reference<=0) return false;
-  if(reference>=tlk_headerinfo[0].entrynum) return false;
-  tlk_entries[0][reference].reference.flags^=4;
-  global_changed[0]=true;
-  return !!(tlk_entries[0][reference].reference.flags&4);
+  if(reference>=tlk_headerinfo[which].entrynum) return false;
+  tlk_entries[which][reference].reference.flags^=4;
+  global_changed[which]=true;
+  return !!(tlk_entries[which][reference].reference.flags&4);
 }
 
-CString resolve_tlk_soundref(long reference)
+CString resolve_tlk_soundref(long reference, int which)
 {
   CString retval;
 
   if(reference<0) return "";
-  if(reference>=tlk_headerinfo[0].entrynum) return "";
-  RetrieveResref(retval, tlk_entries[0][reference].reference.soundref);
+  if(reference>=tlk_headerinfo[which].entrynum) return "";
+  RetrieveResref(retval, tlk_entries[which][reference].reference.soundref);
   return retval;
 }
 
-int store_tlk_soundref(long reference, CString sound)
+int store_tlk_soundref(long reference, CString sound, int which)
 {
   CString tmpsound;
   int i;
@@ -1713,32 +1767,32 @@ int store_tlk_soundref(long reference, CString sound)
   bool newentry=false;
 
   if(reference<=0) newentry=true;
-  if(reference>=tlk_headerinfo[0].entrynum) newentry=true;
+  if(reference>=tlk_headerinfo[which].entrynum) newentry=true;
   if(newentry)
   {
-    reference=tlk_headerinfo[0].entrynum++;
-    newtlkentries=new tlk_entry[tlk_headerinfo[0].entrynum];
+    reference=tlk_headerinfo[which].entrynum++;
+    newtlkentries=new tlk_entry[tlk_headerinfo[which].entrynum];
     if(!newtlkentries)
     {
-      tlk_headerinfo[0].entrynum--;
-      return -3; //failed due to memory 
+      tlk_headerinfo[which].entrynum--;
+      return -3; //failed due to lack of memory 
     }
-    for(i=0;i<tlk_headerinfo[0].entrynum-1;i++)
+    for(i=0;i<tlk_headerinfo[which].entrynum-1;i++)
     {
-      newtlkentries[i]=tlk_entries[0][i];
+      newtlkentries[i]=tlk_entries[which][i];
     }
-    delete [] tlk_entries[0];
-    tlk_entries[0]=newtlkentries;
-    tlk_entries[0][reference].text="";
-    memset(&tlk_entries[0][reference].reference,0,sizeof(tlk_reference) );
+    delete [] tlk_entries[which];
+    tlk_entries[which]=newtlkentries;
+    tlk_entries[which][reference].text="";
+    memset(&tlk_entries[which][reference].reference,0,sizeof(tlk_reference) );
   }
   //don't report a change if there is no change
-  RetrieveResref(tmpsound, tlk_entries[0][reference].reference.soundref);
+  RetrieveResref(tmpsound, tlk_entries[which][reference].reference.soundref);
   if(sound==tmpsound) return reference;
-  if(sound.IsEmpty()) tlk_entries[0][reference].reference.flags&=~2;
-  else tlk_entries[0][reference].reference.flags|=2;
-  StoreResref(sound, tlk_entries[0][reference].reference.soundref);
-  global_changed[0]=true;
+  if(sound.IsEmpty()) tlk_entries[which][reference].reference.flags&=~2;
+  else tlk_entries[which][reference].reference.flags|=2;
+  StoreResref(sound, tlk_entries[which][reference].reference.soundref);
+  global_changed[which]=true;
   return reference;
 }
 
@@ -2288,19 +2342,33 @@ int find_attacknum(CString anum)
   if(anum.Right(2)=="/2") return (strtonum(anum)-1)/2+6;
   return strtonum(anum);
 }
-
+/*
 int slottypenums[NUM_SLOTTYPE]={0,1,2,3,1000,65512,65513,65514};
 CString slottypes[NUM_SLOTTYPE]={"0-Weapon 1","1-Weapon 2","2-Weapon 3","3-Weapon 4",
 "1000-No slot","65512-Quiver 1","65513-Quiver 2","65514-Quiver 3"};
+*/
 
 CString get_slottype(int slottype)
 {
+  CString key;
+  int value;
   CString tmp;
-  int i;
-  
-  for(i=0;i<NUM_SLOTTYPE;i++)
+  POSITION pos;
+
+  if (slottype==1000)
   {
-    if(slottypenums[i]==slottype) return slottypes[i];
+    return "1000-No slot";
+  }
+
+  pos=internal_slot_names.GetStartPosition();
+  while(pos)
+  {
+    internal_slot_names.GetNextAssoc(pos, key, value);
+    if ((unsigned short) (value-base_slot)==(unsigned short) slottype)
+    {
+      tmp.Format("%d-%s",(unsigned short) (value-base_slot), key);
+      return tmp;
+    }
   }
   tmp.Format("%d-Unknown",slottype);
   return tmp;
@@ -2420,7 +2488,7 @@ CString get_missile_type(int mtype)
 }
 
 opcode_struct opcodes[NUM_FEATS];
-static int strref_opcodes_tob[]={103,139,180,181,206,253,254,290,-1};
+static int strref_opcodes_tob[]={103,139,180,181,206,253,254,267,290,-1};
 static int strref_opcodes_iwd[]={103,139,180,181,283,-1};
 static int opcode_opcodes_tob[]={101,198,-1};
 static int opcode_opcodes_iwd[]={101,198,261,276,-1};
@@ -5531,6 +5599,16 @@ colortype colors[COLORNUM]={
   colortype(0xDADADA,"Solid Gray (no gradient)"),
 };
 
+void MakeGradientArray(unsigned long *array, int GradientIndex)
+{
+  int j;
+
+  for(j=0;j<5;j++)
+  {
+    array[j]=colors[GradientIndex].rgb[j*12/5];
+  }
+}
+
 void MakeGradientBitmap(HBITMAP &hb, int GradientIndex)
 {
   COLORREF bits[16*16];
@@ -5912,9 +5990,12 @@ int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd)
 //working on multi selection correctly
 void HackForLargeList(CFileDialog &m_getfiledlg)
 {
-  strncpy(external,m_getfiledlg.m_ofn.lpstrFile,MAXBUFFSIZE);
-  m_getfiledlg.m_ofn.lpstrFile=external;
-  m_getfiledlg.m_ofn.nMaxFile=MAXBUFFSIZE;
+  if (m_getfiledlg.m_ofn.nMaxFile<MAXBUFFSIZE)
+  {
+    strncpy(external,m_getfiledlg.m_ofn.lpstrFile,MAXBUFFSIZE);
+    m_getfiledlg.m_ofn.lpstrFile=external;
+    m_getfiledlg.m_ofn.nMaxFile=MAXBUFFSIZE;
+  }
 }
 
 int ReadTempCreature(char *&creature, long &esize)

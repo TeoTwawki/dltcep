@@ -388,6 +388,16 @@ void CPaletteEdit::ExecuteStep(int &fr, int &fg, int &fb, int &ftmp, int functio
       fg-=ftmp;
     }
     break;
+  case 21: //darken
+    fr = fr*fr/255;
+    fg = fg*fg/255;
+    fb = fb*fb/255;
+    break;
+  case 22: //contrast
+    fr = fr*fr/128;
+    fg = fg*fg/128;
+    fb = fb*fb/128;
+    break;
   }
   if(fr>255) fr=255;
   else if(fr<0) fr=0;
@@ -397,7 +407,7 @@ void CPaletteEdit::ExecuteStep(int &fr, int &fg, int &fb, int &ftmp, int functio
   else if(fb<0) fb=0;
 }
 
-#define SCRIPT 21
+#define SCRIPT 23
 
 int CPaletteEdit::ExecuteScript(int &fr, int &fg, int &fb, int &ftmp)
 {

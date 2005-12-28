@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include "chitem.h"
 #include "options.h"
+#include "compat.h" //bothdialog
 #include "tbg.h"
 #include "TextView.h"
 
@@ -1296,7 +1297,11 @@ int Ctbg::ImportFile()
     }
     if(tmptext!=text || tmpsound!=sound)
     {        
-      reference=store_tlk_data(-1, text, sound);
+      reference=store_tlk_data(-1, text, sound, 0);
+      if (optflg&BOTHDIALOG)
+      {
+        store_tlk_data(reference, text, sound, 1);
+      }
       *(long *) (filedata+offset)=reference;
     }
     

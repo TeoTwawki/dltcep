@@ -1913,7 +1913,7 @@ void CSpellTool::OnDodurations()
     }
     for(j=0;j<the_spell.extheaders[i].fbcount;j++)
     {
-      k=the_spell.extheaders[i].fboffs+j;
+      k=GetFBC(i)+j;
       if(k>=0 && k<the_spell.featblkcount)
       {
         if(!the_spell.featblocks[k].timing)
@@ -1947,7 +1947,7 @@ void CSpellTool::OnDodamages()
     }
     for(j=0;j<the_spell.extheaders[i].fbcount;j++)
     {
-      k=the_spell.extheaders[i].fboffs+j;
+      k=GetFBC(i)+j;
       if(k>=0 && k<the_spell.featblkcount)
       {
         //modify only the damage effect

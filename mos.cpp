@@ -8,6 +8,7 @@
 #include "mos.h"
 #include "zlib.h"
 #include "oct_quan.h"
+#include "options.h"
 
 #define PIXEL_INCREMENT  17
 
@@ -1279,7 +1280,9 @@ int Cmos::ReadMosFromFile(int fhandle, int ml)
   int ret;
   
   if(ml<0) ml=filelength(fhandle);
-  if((ml<sizeof(INF_MOS_HEADER)) || (ml>10000000) ) return -2; //file is bad
+  if(ml<sizeof(INF_MOS_HEADER) ) return -2; //file is bad
+  if(!(editflg&CHECKSIZE) && ml>10000000) return -2;
+
   if(read(fhandle,&c_header,sizeof(INF_MOSC_HEADER) )!=sizeof(INF_MOSC_HEADER) )
   {
     return -2;
@@ -1322,7 +1325,7 @@ int Cmos::ReadMosFromFile(int fhandle, int ml)
     return -2;//cannot read compressed data
   }
   
-  if(c_header.nExpandSize>25000000) //don't handle mos larger than 25M
+  if(!(editflg&CHECKSIZE) && c_header.nExpandSize>25000000) //don't handle mos larger than 25M
   {
     delete [] pCData;
     return -2; //illegal data

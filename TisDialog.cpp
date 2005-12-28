@@ -300,7 +300,11 @@ BOOL CTisDialog::OnInitDialog()
     GetDlgItem(tisdialogids[i])->ShowWindow(m_tis_or_mos==1);
   }
   //this button has no meaning in plain tis editor, we need the wed info
-  if(!m_tileheaders) GetDlgItem(IDC_OPEN)->ShowWindow(false);
+  if(!m_tileheaders)
+  {
+    GetDlgItem(IDC_OPEN)->ShowWindow(false);
+    GetDlgItem(IDC_LOAD)->ShowWindow(false);
+  }
   switch(m_tis_or_mos)
   {
   case 5:
@@ -359,8 +363,15 @@ void CTisDialog::OnLoad()
   DWORD i,x,y;
   DWORD nFrameWanted;
 
+  if (!m_tileheaders)
+  {
+    return;
+  }
   pickerdlg.m_restype=REF_TIS;
-  pickerdlg.DoModal();
+  if(pickerdlg.DoModal()==IDCANCEL)
+  {
+    return;
+  }
   if(read_tis(pickerdlg.m_picked,&tmpmos, false) )
   {
     MessageBox("Can't load overlay tileset.","Tile editor",MB_ICONWARNING|MB_OK);

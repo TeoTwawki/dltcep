@@ -19,9 +19,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CGameGeneral)
 	enum { IDD = IDD_GAMEGENERAL };
-		// NOTE: the ClassWizard will add data members here
+	CSliderCtrl	m_slider_control;
 	//}}AFX_DATA
-
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -32,6 +31,7 @@ public:
 
 // Implementation
 protected:
+	CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CGameGeneral)
@@ -44,7 +44,10 @@ protected:
 	afx_msg void OnFlag6();
 	afx_msg void OnFlag7();
 	afx_msg void OnFlag8();
+	afx_msg void OnBrowse();
+	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
+	afx_msg void OnDefaultKillfocusX(NMHDR *, LRESULT *);
 	DECLARE_MESSAGE_MAP()
 };
 

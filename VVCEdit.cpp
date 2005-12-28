@@ -249,7 +249,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
 	ON_BN_CLICKED(IDC_MIRROR2, OnMirror2)
 	ON_BN_CLICKED(IDC_BLEND, OnBlend)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN90, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN90, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG2, DefaultKillfocus)
@@ -287,8 +287,9 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN40, OnKillfocusSequencing)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN94, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN94, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN8C, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_WALL, OnWall)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -459,7 +460,7 @@ void CVVCEdit::OnCheck()
 }
 
 int checkbuttons[]={
-  IDC_LOOP, IDC_U2, IDC_U3, IDC_USEBAM, 0
+  IDC_LOOP, IDC_U2, IDC_U3, IDC_USEBAM, -1, -1, IDC_WALL, 0
 };
 
 int posbuttons[]={IDC_POS1, IDC_POS2,0
@@ -475,8 +476,11 @@ void CVVCEdit::RefreshDialog()
   bit=1;
 	for(i=0;i<32 && checkbuttons[i];i++)
   {
-    chkbutton=(CButton *) GetDlgItem(checkbuttons[i]);
-    chkbutton->SetCheck(!!(the_videocell.header.sequencing&bit));
+    if (checkbuttons[i]!=-1)
+    {
+      chkbutton=(CButton *) GetDlgItem(checkbuttons[i]);
+      chkbutton->SetCheck(!!(the_videocell.header.sequencing&bit));
+    }
     bit<<=1;
   }
   bit=1;
@@ -569,6 +573,12 @@ void CVVCEdit::OnU3()
 void CVVCEdit::OnUsebam() 
 {
 	the_videocell.header.sequencing^=8;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnWall() 
+{
+	the_videocell.header.sequencing^=64;
   UpdateData(UD_DISPLAY);
 }
 
@@ -716,10 +726,4 @@ BOOL CVVCEdit::PreTranslateMessage(MSG* pMsg)
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
-}
-
-void CVVCEdit::OnDefaultKillfocus() 
-{
-	// TODO: Add your control notification handler code here
-	
 }

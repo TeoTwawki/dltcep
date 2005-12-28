@@ -73,7 +73,7 @@ protected:
 	afx_msg void OnMirror2();
 	afx_msg void OnBlend();
 	virtual void OnCancel();
-	afx_msg void OnDefaultKillfocus();
+	afx_msg void OnWall();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

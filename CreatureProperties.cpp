@@ -8,6 +8,7 @@
 #include "EffEdit.h"
 #include "CreatureProperties.h"
 #include "TormentCre.h"
+#include "IcewindCre.h"
 #include "2da.h"
 #include "tbg.h"
 #include "options.h"
@@ -1078,6 +1079,7 @@ CCreatureSkills::~CCreatureSkills()
 void CCreatureSkills::DoDataExchange(CDataExchange* pDX)
 {
   creature_header tmpheader;
+  short value;
 
   memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
@@ -1094,7 +1096,11 @@ void CCreatureSkills::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_STEALTH, the_creature.header.stealth);
   DDX_Text(pDX, IDC_FINDTRAP, the_creature.header.findtrap);
   DDX_Text(pDX, IDC_PICKPOCKET, the_creature.header.pickpock);
-  DDX_Text(pDX, IDC_LUCK, the_creature.header.luck);
+
+  value=the_creature.header.luck;
+  DDX_Text(pDX, IDC_LUCK, value);
+  DDV_MinMaxInt(pDX, value, -127,127);
+  the_creature.header.luck=(char) value;
   DDX_Text(pDX, IDC_TRACKING, the_creature.header.tracking);
 
   DDX_Text(pDX, IDC_AC, the_creature.header.natac);
@@ -1892,14 +1898,21 @@ void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
   {
     DDX_Text(pDX,IDC_U21+i, the_creature.header.unused2[i]);
   }
-  DDX_Text(pDX,IDC_U29, the_creature.header.unknown27c);
-  DDV_MinMaxInt(pDX,the_creature.header.unknown27c,-32768,32767);
-  DDX_Text(pDX,IDC_U30, the_creature.header.unknown27e);
-  DDV_MinMaxInt(pDX,the_creature.header.unknown27e,-32768,32767);
+  DDX_Text(pDX,IDC_U29, the_creature.header.globalID);
+  DDV_MinMaxInt(pDX,the_creature.header.globalID,-32768,32767);
+  DDX_Text(pDX,IDC_U30, the_creature.header.localID);
+  DDV_MinMaxInt(pDX,the_creature.header.localID,-32768,32767);
   DDX_Text(pDX, IDC_REPUTATION, the_creature.header.reputation);
 
   cb=(CButton *) GetDlgItem(IDC_TORMENT);
-  if(cb) cb->EnableWindow(the_creature.revision==12);
+  bool pst = the_creature.revision==12;
+  bool iwd = the_creature.revision==90;
+  if(cb)
+  {
+    cb->ShowWindow(pst||iwd);
+    if(pst) cb->SetWindowText("Torment specific");
+    else cb->SetWindowText("Icewind specific");
+  }
 
   if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
   {
@@ -2207,20 +2220,40 @@ void CCreatureUnknown::OnKillfocusReputation()
 
 void CCreatureUnknown::OnTorment() 
 {
-	CTormentCre dlg;
+  switch(the_creature.revision)
+  {
+  case 12:
+    {
+	    CTormentCre dlg;
 	
-  dlg.DoModal();
+      dlg.DoModal();
+    }
+    break;
+  case 90:
+    {
+	    IcewindCre dlg;
+	
+      dlg.DoModal();
+    }
+  }
 }
 
 void CCreatureUnknown::OnClearall() 
 {
   memset(the_creature.header.unused,0,sizeof(the_creature.header.unused) );	
   memset(the_creature.header.unused2,0,sizeof(the_creature.header.unused2) );	
-  the_creature.header.sex=1;
+  if(the_creature.header.idsgender==2) //female?
+  {
+    the_creature.header.sex=2;
+  }
+  else
+  {
+    the_creature.header.sex=1;
+  }
   the_creature.header.unknown243=0;
   memset(the_creature.header.idsinternal,0,sizeof(the_creature.header.idsinternal) );	
-  the_creature.header.unknown27c=-1;
-  the_creature.header.unknown27e=-1;
+  the_creature.header.globalID=-1;
+  the_creature.header.localID=-1;
   the_creature.header.reputation=0;
   UpdateData(UD_DISPLAY);
 }
@@ -2622,14 +2655,28 @@ void CCreatureItem::RefreshSpellPicker(int pos)
 BOOL CCreatureItem::OnInitDialog() 
 {
   CComboBox *cb;
-  int i;
+  CWnd *cw;
+  CString tmpstr, key;
+  POSITION pos;
+  int value;
 
 	CPropertyPage::OnInitDialog();
+  cw=GetDlgItem(IDC_UNDROPPABLE);
+  if (the_creature.revision==90) {
+    cw->SetWindowText("Magical");
+  }
+  else {
+    cw->SetWindowText("No drop");
+  }
   cb=(CComboBox *) GetDlgItem(IDC_SELECTED);
   cb->ResetContent();
-  for(i=0;i<NUM_SLOTTYPE;i++)
+  cb->AddString("1000-No slot");
+  pos = internal_slot_names.GetStartPosition();
+  while(pos)
   {
-    cb->AddString(slottypes[i]);
+    internal_slot_names.GetNextAssoc(pos, key, value);
+    tmpstr.Format("%d-%s",(unsigned short) (value-base_slot), key);
+    cb->AddString(tmpstr);
   }
 	RefreshItem();
 

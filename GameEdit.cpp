@@ -11,6 +11,7 @@
 #include "CreatureEdit.h"
 #include "GameGeneral.h"
 #include "GameStatistics.h"
+#include "PCInfo.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -30,21 +31,22 @@ CGameEdit::CGameEdit(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 }
 
-static int npcboxids[]={IDC_NPCPICKER, IDC_AREA, IDC_BROWSE1, IDC_XPOS, IDC_YPOS,
-IDC_FACE, IDC_CRERES, IDC_BROWSE2, IDC_DELNPC, IDC_JOINABLE, IDC_EDIT2, IDC_EDITLINK2, 0};
+static int npcboxids[]={IDC_NPCPICKER, IDC_AREA, IDC_BROWSE1,
+IDC_XPOS, IDC_YPOS, IDC_FACE, IDC_CRERES, IDC_BROWSE2, IDC_DELNPC,
+IDC_JOINABLE, IDC_EDIT2, IDC_EDITLINK2, IDC_EDITBLOCK2, 0};
 
 static int varboxids[]={IDC_VARIABLEPICKER, IDC_VARNAME, IDC_VALUE,
 IDC_REMOVEVAR, IDC_VARIABLES, 0};
 
 static int dvarboxids[]={IDC_VARIABLEPICKER2, IDC_VARNAME2, IDC_VALUE2,
-IDC_REMOVEVAR2, IDC_DVAR, 0, IDC_ADDVAR2, IDC_SCREEN}; //this is a hack for the last element
+IDC_REMOVEVAR2, IDC_DVAR, 0, IDC_ADDVAR2}; //this is a hack for the last element
 
 static journalids[]={IDC_JOURNALPICKER, IDC_STRREF, IDC_CHAPTER, 
 IDC_SECTION,IDC_TIME, IDC_JOURNAL, IDC_DELJOURNAL,0};
 
 static familiarids[]={IDC_FAMILIARPICKER, IDC_FAMILIAR,0 };
 
-static pcboxids[]={IDC_PARTY, IDC_CREATURENUM, IDC_EDIT, IDC_EDITLINK, 0};
+static pcboxids[]={IDC_PARTY, IDC_CREATURENUM, IDC_EDIT, IDC_EDITLINK, IDC_EDITBLOCK, 0};
 
 void CGameEdit::DoDataExchange(CDataExchange* pDX)
 {
@@ -142,7 +144,7 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
 
   if(the_game.revision==12)
   {
-    flg=!!the_game.header.dvarcount;
+    flg=!!the_game.pstheader.dvarcount;
     for(i=0;dvarboxids[i];i++)
     {
       GetDlgItem(dvarboxids[i])->EnableWindow(flg);
@@ -152,7 +154,7 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
     //this element is always false on revision=12
     GetDlgItem(dvarboxids[++i])->EnableWindow(false); 
     pos=GetActualPosition(m_dvarpicker);
-    if(pos>=0 && pos<the_game.header.dvarcount)
+    if(pos>=0 && pos<the_game.pstheader.dvarcount)
     {
       RetrieveVariable(tmpstr, the_game.deathvariables[pos].variablename);
       DDX_Text(pDX, IDC_VARNAME2, tmpstr);
@@ -168,8 +170,7 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
       GetDlgItem(dvarboxids[i])->EnableWindow(false);
     }
     GetDlgItem(dvarboxids[++i])->EnableWindow(false);
-    GetDlgItem(dvarboxids[++i])->EnableWindow(true);
-    DDX_Text(pDX, IDC_SCREEN, the_game.header.dvaroffset);
+    GetDlgItem(dvarboxids[++i])->EnableWindow(true);    
   }
 
   if(the_game.header.journalcount)
@@ -230,7 +231,6 @@ CString ResolveName(char *customname, creature_header *creatureheader)
 {
   CString ret;
 
-  if(the_game.revision==22) customname+=254; //iwd2 hack
   if(*(unsigned int *) customname!=-1)
   {
     ret=CString(customname);
@@ -255,7 +255,16 @@ void CGameEdit::RefreshDialog()
   {
     if(!the_game.npcs[i].creresref[0])
     {
-      name=ResolveName((char *) (the_game.npcextensions+i),(creature_header *) the_game.npcstructs[i] );
+      char *tmp;
+      if(the_game.revision==22)
+      {
+        tmp = the_game.npcextensions[i].gwn.name;
+      }
+      else
+      {
+        tmp = the_game.npcextensions[i].gbn.name;
+      }
+      name=ResolveName(tmp,(creature_header *) the_game.npcstructs[i] );
     }
     else name.Format("%-.8s",the_game.npcs[i].creresref);
     tmpstr.Format("%d. %s (%-.8s)", i+1, name, the_game.npcs[i].curarea);
@@ -268,7 +277,16 @@ void CGameEdit::RefreshDialog()
   m_creaturenum_control.ResetContent();
   for(i=0;i<the_game.header.pccount;i++)
   {    
-    tmpstr.Format("%d. %s",i+1,ResolveName((char *) (the_game.pcextensions+i),(creature_header *) the_game.pcstructs[i] ) );
+      char *tmp;
+      if(the_game.revision==22)
+      {
+        tmp = the_game.pcextensions[i].gwn.name;
+      }
+      else
+      {
+        tmp = the_game.pcextensions[i].gbn.name;
+      }
+    tmpstr.Format("%d. %s",i+1,ResolveName(tmp,(creature_header *) the_game.pcstructs[i] ) );
     m_creaturenum_control.SetItemData(m_creaturenum_control.AddString(tmpstr),i);
   }
   m_creaturenum_control.SetCurSel(pos);
@@ -288,7 +306,7 @@ void CGameEdit::RefreshDialog()
     pos=m_dvarpicker.GetCurSel();
     if(pos<0) pos=0;
     m_dvarpicker.ResetContent();
-    for(i=0;i<the_game.header.dvarcount;i++)
+    for(i=0;i<the_game.pstheader.dvarcount;i++)
     {
       tmpstr.Format("%-.32s (%d)",the_game.deathvariables[i].variablename, the_game.deathvariables[i].value);
       m_dvarpicker.SetItemData(m_dvarpicker.AddString(tmpstr),i);
@@ -376,7 +394,15 @@ void CGameEdit::NewGame()
 
   memset(&the_game.header,0,sizeof(gam_header) );
   memset(&the_game.pstheader,0,sizeof(gam_pst_header) );
+  the_game.header.unknown48=-1; //seems to be always -1
   the_game.header.unknown1count=100;
+	//formations (except pst)
+	the_game.header.reputation=100;
+  the_game.header.formations[0]=6;
+	the_game.header.formations[1]=8;
+	the_game.header.formations[2]=1;
+	the_game.header.formations[3]=9;
+	the_game.header.formations[4]=5;
   the_game.unknowns1=new gam_unknown1[the_game.header.unknown1count];
   if(!the_game.unknowns1) the_game.header.unknown1count=0;
   memset(the_game.unknowns1,0,the_game.header.unknown1count*sizeof(gam_unknown1) );
@@ -454,7 +480,6 @@ BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_CHAPTER, OnKillfocusChapter)
 	ON_EN_KILLFOCUS(IDC_TIME, OnKillfocusTime)
 	ON_EN_KILLFOCUS(IDC_SECTION, OnKillfocusSection)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_CBN_KILLFOCUS(IDC_CREATURENUM, OnKillfocusCreaturenum)
@@ -463,12 +488,13 @@ BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
 	ON_BN_CLICKED(IDC_EDIT2, OnEdit2)
 	ON_BN_CLICKED(IDC_EDITLINK2, OnEditlink2)
 	ON_BN_CLICKED(IDC_GENERAL, OnGeneral)
+	ON_BN_CLICKED(IDC_EDITBLOCK, OnPCData)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_EN_KILLFOCUS(IDC_SCREEN, OnKillfocusScreen)
+	ON_BN_CLICKED(IDC_EDITBLOCK2, OnEditblock2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -715,34 +741,6 @@ void CGameEdit::OnBrowse2()
   RefreshDialog();
 }
 
-int CGameEdit::ReadTempCreature(char *&creature, long &esize)
-{
-  int fhandle;
-  
-  if(MessageBox("Do you want to keep the changes made on the creature?","Game editor",MB_YESNO)==IDYES)
-  {
-    fhandle=open("tmp.cre",O_RDWR|O_BINARY|O_TRUNC|O_CREAT|O_TEMPORARY, S_IWRITE|S_IREAD);
-    if(fhandle<1) return -2;
-    the_creature.WriteCreatureToFile(fhandle,0);
-    lseek(fhandle,0,SEEK_SET);
-    esize=filelength(fhandle);
-    if(creature) delete creature;
-    creature=new char[esize];
-    if(!creature)
-    {
-      close(fhandle);
-      return -3;
-    }
-    if(read(fhandle,creature,esize)!=esize)
-    {
-      close(fhandle);
-      return -2;
-    }
-    close(fhandle);
-  }
-  return 0;
-}
-
 void CGameEdit::OnEdit() 
 {
   CString tmpname;
@@ -754,7 +752,17 @@ void CGameEdit::OnEdit()
 	if(creaturenum<0) return;
   //creatureedit
   tmpname=itemname;
-  itemname=ResolveName((char *) (the_game.pcextensions+creaturenum),(creature_header *) the_game.pcstructs[creaturenum] );
+  char *tmp;
+  if(the_game.revision==22)
+  {
+    tmp = the_game.pcextensions[creaturenum].gwn.name;
+  }
+  else
+  {
+    tmp = the_game.pcextensions[creaturenum].gbn.name;
+  }
+
+  itemname=ResolveName(tmp,(creature_header *) the_game.pcstructs[creaturenum] );
   ret=WriteTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
   if(ret>=0)
   {
@@ -763,7 +771,10 @@ void CGameEdit::OnEdit()
     the_creature.m_savechanges=true;
   }
   itemname=tmpname;
-  ReadTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
+  if(MessageBox("Do you want to keep the changes made on the creature?","Game editor",MB_YESNO)==IDYES)
+  {
+    ReadTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
+  }
 }
 
 void CGameEdit::OnEdit2() 
@@ -778,7 +789,17 @@ void CGameEdit::OnEdit2()
   if(!the_game.npcs[creaturenum].cresize || !the_game.npcstructs[creaturenum]) return;
   //creatureedit
   tmpname=itemname;
-  itemname=ResolveName((char *) (the_game.npcextensions+creaturenum),(creature_header *) the_game.npcstructs[creaturenum] );
+  char *tmp;
+  if(the_game.revision==22)
+  {
+    tmp = the_game.npcextensions[creaturenum].gwn.name;
+  }
+  else
+  {
+    tmp = the_game.npcextensions[creaturenum].gbn.name;
+  }
+
+  itemname=ResolveName(tmp,(creature_header *) the_game.npcstructs[creaturenum] );
   ret=WriteTempCreature(the_game.npcstructs[creaturenum],the_game.npcs[creaturenum].cresize);
   if(ret>=0)
   {
@@ -787,7 +808,10 @@ void CGameEdit::OnEdit2()
     the_creature.m_savechanges=true;
   }
   itemname=tmpname;
-  ReadTempCreature(the_game.npcstructs[creaturenum],the_game.npcs[creaturenum].cresize);
+  if(MessageBox("Do you want to keep the changes made on the creature?","Game editor",MB_YESNO)==IDYES)
+  {
+    ReadTempCreature(the_game.npcstructs[creaturenum],the_game.npcs[creaturenum].cresize);
+  }
 }
 
 void CGameEdit::OnEditlink() 
@@ -812,19 +836,6 @@ void CGameEdit::OnEditlink2()
 	if(creaturenum<0) return;
   dlg.m_stats=the_game.npcextensions+creaturenum;
   dlg.DoModal();
-}
-
-void CGameEdit::OnBrowse() 
-{
-  CString tmpstr;
-  
-  pickerdlg.m_restype=REF_ARE;
-  RetrieveResref(pickerdlg.m_picked,the_game.header.mainarea);
-  if(pickerdlg.DoModal()==IDOK)
-  {
-    StoreResref(pickerdlg.m_picked,the_game.header.mainarea);
-  }
-  RefreshDialog();
 }
 
 void CGameEdit::OnAddnpc() 
@@ -995,7 +1006,7 @@ void CGameEdit::OnDelvar2()
   int pos;
 
 	pos=GetActualPosition(m_dvarpicker);
-  if(pos<0 || pos>the_game.header.dvarcount) return;  
+  if(pos<0 || pos>the_game.pstheader.dvarcount) return;  
   newvars=new gam_variable[the_game.deathvariablecount--];
   if(!newvars)
   {
@@ -1006,7 +1017,7 @@ void CGameEdit::OnDelvar2()
   memcpy(newvars+pos,the_game.deathvariables+pos+1, (the_game.deathvariablecount-pos)*sizeof(gam_variable) );
   delete [] the_game.deathvariables;
   the_game.deathvariables=newvars;  
-  the_game.header.dvarcount=the_game.deathvariablecount;
+  the_game.pstheader.dvarcount=the_game.deathvariablecount;
   if(pos==the_game.deathvariablecount) pos--;
   m_dvarpicker.SetCurSel(pos);
   RefreshDialog();
@@ -1018,15 +1029,15 @@ void CGameEdit::OnAddvar2()
   int pos;
 
   pos=GetActualPosition(m_dvarpicker)+1;
-  if(pos>the_game.header.dvarcount) pos=the_game.header.dvarcount;
-  newvars=new gam_variable[the_game.header.dvarcount+1];
+  if(pos>the_game.pstheader.dvarcount) pos=the_game.pstheader.dvarcount;
+  newvars=new gam_variable[the_game.pstheader.dvarcount+1];
   memcpy(newvars,the_game.deathvariables,pos*sizeof(gam_variable) );
   memcpy(newvars+pos+1,the_game.deathvariables+pos, (the_game.deathvariablecount-pos)*sizeof(gam_variable) );
   delete [] the_game.deathvariables;
   memset(newvars+pos,0,sizeof(gam_variable));
   the_game.deathvariables=newvars;
   the_game.deathvariablecount++;
-  the_game.header.dvarcount=the_game.deathvariablecount;
+  the_game.pstheader.dvarcount=the_game.deathvariablecount;
   RefreshDialog();
 }
 
@@ -1127,25 +1138,7 @@ void CGameEdit::OnDeljournal()
   m_journalpicker.SetCurSel(pos);
   RefreshDialog();
 }
-/*
-void CGameEdit::OnKillfocusStartarea() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
 
-void CGameEdit::OnKillfocusGametime() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CGameEdit::OnKillfocusGold() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-*/
 void CGameEdit::OnJoinable() 
 {
 	the_game.KillNPCs();
@@ -1172,7 +1165,7 @@ void CGameEdit::OnVariables()
 void CGameEdit::OnDvar() 
 {
   the_game.KillDeathVariables();
-  the_game.header.dvarcount=0;
+  the_game.pstheader.dvarcount=0;
   m_dvarpicker.SetCurSel(-1);
   RefreshDialog();
 }
@@ -1191,10 +1184,37 @@ void CGameEdit::OnKillfocusCreaturenum()
 	UpdateData(UD_DISPLAY);
 }
 
-void CGameEdit::OnKillfocusScreen() 
+void CGameEdit::OnGeneral() 
 {
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
+	CGameGeneral dlg;
+
+  dlg.DoModal();	
+}
+
+void CGameEdit::OnPCData() 
+{
+  CPCInfo dlg;
+  int creaturenum;
+
+	creaturenum=m_creaturenum_control.GetCurSel();
+	if(creaturenum<0) return;
+	dlg.m_data=the_game.pcs+creaturenum;
+	dlg.m_stat=the_game.pcextensions+creaturenum;
+  dlg.DoModal();
+  RefreshDialog();
+}
+
+void CGameEdit::OnEditblock2() 
+{
+  CPCInfo dlg;
+  int creaturenum;
+
+	creaturenum=m_npcpicker.GetCurSel();
+	if(creaturenum<0) return;
+	dlg.m_data=the_game.npcs+creaturenum;
+	dlg.m_stat=the_game.npcextensions+creaturenum;
+  dlg.DoModal();
+  RefreshDialog();
 }
 
 BOOL CGameEdit::PreTranslateMessage(MSG* pMsg) 
@@ -1203,9 +1223,3 @@ BOOL CGameEdit::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
-void CGameEdit::OnGeneral() 
-{
-	CGameGeneral dlg;
-
-  dlg.DoModal();	
-}

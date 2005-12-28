@@ -95,7 +95,6 @@ protected:
 	afx_msg void OnKillfocusChapter();
 	afx_msg void OnKillfocusTime();
 	afx_msg void OnKillfocusSection();
-	afx_msg void OnBrowse();
 	afx_msg void OnCheck();
 	afx_msg void OnEdit();
 	afx_msg void OnKillfocusCreaturenum();
@@ -104,7 +103,8 @@ protected:
 	afx_msg void OnEdit2();
 	afx_msg void OnEditlink2();
 	afx_msg void OnGeneral();
-	afx_msg void OnKillfocusScreen();
+	afx_msg void OnPCData();
+	afx_msg void OnEditblock2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

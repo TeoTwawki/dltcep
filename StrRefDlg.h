@@ -66,6 +66,7 @@ protected:
 	afx_msg void OnKillfocusStrref();
 	afx_msg void OnChecksound();
 	afx_msg void OnChecktag();
+	afx_msg void OnToolsSynchronisetlks();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

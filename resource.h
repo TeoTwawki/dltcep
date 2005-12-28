@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
+// Microsoft Developer Studio generated include file.
 // Used by chitem.rc
 //
 #define IDC_CHECKSTORE                  3
@@ -254,7 +254,9 @@
 #define IDS_SETFRAME                    226
 #define IDD_GAMEPCINFO                  226
 #define IDS_DELFRAME                    227
+#define IDD_CREATUREIWD                 227
 #define IDS_CENTERFRAME                 228
+#define IDD_AREATRIGGERSTRINGS          228
 #define IDS_BAM                         229
 #define IDS_FRAME15                     230
 #define IDS_VVCFLAG                     231
@@ -380,8 +382,8 @@
 #define IDC_GCENTER                     1077
 #define IDC_REMOVE2                     1078
 #define IDC_SHORTDESC                   1079
-#define IDC_REMOVE3                     1079
 #define IDC_MCLASS                      1080
+#define IDC_STRREF2                     1081
 #define IDC_LONGDESC                    1082
 #define IDC_MSPECIFIC                   1083
 #define IDC_MGENDER                     1084
@@ -394,7 +396,6 @@
 #define IDC_LONGDESCREF                 1091
 #define IDC_LOAD                        1092
 #define IDC_PAR_UNDEFINED               1093
-#define IDC_LOAD2                       1093
 #define IDC_DESTX                       1094
 #define IDC_PAR_COLOR                   1095
 #define IDC_VALUE                       1096
@@ -471,8 +472,8 @@
 #define IDC_FLAG14                      1167
 #define IDC_FLAG15                      1168
 #define IDC_FLAG16                      1169
-#define IDC_SPEED                       1170
-#define IDC_IDENTIFY                    1171
+#define IDC_FLAG17                      1170
+#define IDC_FLAG18                      1171
 #define IDC_TARGETNUM                   1172
 #define IDC_PROJFRAME                   1173
 #define IDC_DURATION                    1174
@@ -523,6 +524,7 @@
 #define IDC_CUREPRICE                   1219
 #define IDC_UNKNOWN42                   1220
 #define IDC_PRICECHANGE                 1221
+#define IDC_SPEED                       1222
 #define IDC_UNKNOWN50                   1223
 #define IDC_EFFTARGET                   1224
 #define IDC_UNKNOWN154                  1225
@@ -549,8 +551,9 @@
 #define IDC_UNKNOWN1C                   1246
 #define IDC_EQUIPNUM                    1247
 #define IDC_DAMAGETYPE                  1248
+#define IDC_REMOVE3                     1249
 #define IDC_EFFOPCODE                   1250
-#define IDC_EFFOPCODE2                  1252
+#define IDC_EFFOPCODE2                  1251
 #define IDC_DESCOPEN                    1252
 #define IDC_UNKNOWN4                    1253
 #define IDC_PARLABEL1                   1254
@@ -617,7 +620,7 @@
 #define IDC_USE2                        1315
 #define IDC_USE3                        1316
 #define IDC_COUNT                       1317
-#define IDC_UNLIMITED                   1318
+#define IDC_COUNT2                      1318
 #define IDC_STORETYPE                   1319
 #define IDC_STORENAME                   1320
 #define IDC_BUYING                      1321
@@ -760,7 +763,6 @@
 #define IDC_EXCLUDE                     1458
 #define IDC_SELECTION                   1459
 #define IDC_UNKNOWN0C                   1460
-#define IDC_UNKNOWN23                   1461
 #define IDC_SELECTION2                  1461
 #define IDC_UNKNOWN28                   1462
 #define IDC_UNKNOWN2C                   1463
@@ -836,6 +838,9 @@
 #define IDC_POS1Y                       1534
 #define IDC_POS2Y                       1535
 #define IDC_TPOSX                       1536
+#define IDC_UNKNOWN23                   1537
+#define IDC_UNLIMITED                   1538
+#define IDC_LOAD2                       1539
 #define IDC_CURSORIDX                   1540
 #define IDC_CURSOR                      1541
 #define IDC_DESTAREA                    1542
@@ -945,14 +950,14 @@
 #define IDC_SMALL                       1647
 #define IDC_BROWSE3                     1648
 #define IDC_BROWSE4                     1649
-#define IDC_SPEAR                       1650
-#define IDC_MAXACTOR                    1651
-#define IDC_BROWSE12                    1652
-#define IDC_MORNING                     1653
-#define IDC_AFTERNOON                   1654
-#define IDC_TIMEOFDAY                   1655
-#define IDC_DVAR                        1656
-#define IDC_DESTRUCTED                  1657
+#define IDC_BROWSE5                     1650
+#define IDC_BROWSE6                     1651
+#define IDC_BROWSE7                     1652
+#define IDC_BROWSE8                     1653
+#define IDC_BROWSE9                     1654
+#define IDC_BROWSE10                    1655
+#define IDC_BROWSE11                    1656
+#define IDC_BROWSE12                    1657
 #define IDC_DESCICON                    1658
 #define IDC_V1                          1659
 #define IDC_V11                         1660
@@ -1005,10 +1010,10 @@
 #define IDC_AMBI1N                      1707
 #define IDC_AMBI2N                      1708
 #define IDC_AXE                         1709
-#define IDC_BROWSE9                     1710
-#define IDC_BROWSE10                    1711
-#define IDC_BROWSE11                    1712
-#define IDC_VOLUMED                     1713
+#define IDC_INFOSTR2                    1710
+#define IDC_MORNING                     1711
+#define IDC_AFTERNOON                   1712
+#define IDC_TIMEOFDAY                   1713
 #define IDC_VOLUMEN                     1714
 #define IDC_AMBIENTPICKER               1715
 #define IDC_MAXAMBIENT                  1716
@@ -1030,10 +1035,12 @@
 #define IDC_UNKNOWN9C                   1732
 #define IDC_UNKNOWNA0                   1733
 #define IDC_UNKNOWNA2                   1734
+#define IDC_DVAR                        1735
+#define IDC_DESTRUCTED                  1736
 #define IDC_UNKNOWNAC                   1737
 #define IDC_DEFAULT                     1738
 #define IDC_DROPFRAME                   1739
-#define IDC_BROWSE5                     1740
+#define IDC_SPEAR                       1740
 #define IDC_BLUNT                       1741
 #define IDC_SPIKED                      1742
 #define IDC_DIALOG                      1743
@@ -1047,6 +1054,7 @@
 #define IDC_DIFF                        1751
 #define IDC_MAXITEM                     1752
 #define IDC_ITEMNUMPICKER               1753
+#define IDC_VOLUMED                     1754
 #define IDC_UNKNOWN20                   1756
 #define IDC_CLASS                       1757
 #define IDC_EXTEFFPASTE                 1758
@@ -1061,7 +1069,7 @@
 #define IDC_MAXVARIABLE                 1767
 #define IDC_MAXNOTE                     1768
 #define IDC_SCRIPTNAME                  1769
-#define IDC_MAXDOOR                     1770
+#define IDC_SCRIPTNAME2                 1770
 #define IDC_DOORPICKER                  1771
 #define IDC_DELEXP                      1772
 #define IDC_DOORID                      1773
@@ -1093,11 +1101,10 @@
 #define IDC_UNKNOWN01                   1801
 #define IDC_UNKNOWN0E                   1802
 #define IDC_BROWSE1                     1803
-#define IDC_BROWSE6                     1804
+#define IDC_MAXACTOR                    1804
 #define IDC_SPARKCOLOUR                 1805
-#define IDC_BROWSE7                     1806
 #define IDC_X                           1807
-#define IDC_BROWSE8                     1808
+#define IDC_MAXDOOR                     1808
 #define IDC_Y                           1809
 #define IDC_BROWSE13                    1810
 #define IDC_Z                           1811
@@ -1227,8 +1234,6 @@
 #define IDC_ANIMATION                   1935
 #define IDC_STOLEN                      1936
 #define IDC_EVIL                        1937
-#define IDC_UNDROPPABLE                 1937
-#define IDC_NODROP                      1937
 #define IDC_EGNEUTRAL                   1938
 #define IDC_TBG                         1939
 #define IDC_OTHERMAX                    1940
@@ -1309,8 +1314,6 @@
 #define IDC_PASTE                       2015
 #define IDC_UNKNOWN90                   2016
 #define IDC_COPY2                       2017
-#define IDC_UNKNOWN94                   2017
-#define IDC_LASTSAVED                   2018
 #define IDC_UNKNOWN8C                   2018
 #define IDC_PASTE2                      2019
 #define IDC_WEATHER                     2020
@@ -1338,6 +1341,7 @@
 #define IDC_TAG                         2043
 #define IDC_REMBAF                      2044
 #define IDC_CWDBAF                      2045
+#define IDC_UNDROPPABLE                 2046
 #define IDC_CHECK                       2047
 #define IDC_DECOMPRESS                  2048
 #define IDC_NOCHECK                     2049
@@ -1369,12 +1373,10 @@
 #define IDC_AMBINUMPICKER               2075
 #define IDC_EDITLINK                    2076
 #define IDC_PST                         2077
-#define IDC_EDITLINK2                   2077
 #define IDC_IDS                         2078
 #define IDC_DELETE                      2079
 #define IDC_EDIT                        2080
 #define IDC_FROMSP                      2081
-#define IDC_EDIT2                       2081
 #define IDC_TOSP                        2082
 #define IDC_MITEM                       2083
 #define IDC_RED                         2084
@@ -1429,7 +1431,9 @@
 #define IDC_MAXX                        2133
 #define IDC_MAXY                        2134
 #define IDC_LABEL2                      2135
+#define IDC_EDITLINK2                   2136
 #define IDC_ADDALT                      2137
+#define IDC_NODROP                      2138
 #define IDC_WINDOWPICKER                2139
 #define IDC_PROBLEM                     2140
 #define IDC_HIDDEN                      2141
@@ -1494,7 +1498,6 @@
 #define IDC_REMOVEBIF                   2200
 #define IDC_CTRLCNT                     2201
 #define IDC_PAR3                        2202
-#define IDC_DOLEVELS                    2203
 #define IDC_PAR4                        2203
 #define IDC_LEVELINC                    2204
 #define IDC_DODAMAGES                   2205
@@ -1525,6 +1528,10 @@
 #define IDC_PREV                        2230
 #define IDC_FILL                        2231
 #define IDC_WEIDU                       2232
+#define IDC_DOLEVELS                    2233
+#define IDC_IDENTIFY                    2234
+#define IDC_UNKNOWN94                   2235
+#define IDC_LASTSAVED                   2236
 #define IDC_ZIP                         2237
 #define IDC_OVERLAY                     2238
 #define IDC_FIXALTER                    2239
@@ -1534,6 +1541,7 @@
 #define IDC_POS2                        2243
 #define IDC_EDITBLOCK                   2244
 #define IDC_STH1                        2245
+#define IDC_EDITBLOCK2                  2245
 #define IDC_STH2                        2246
 #define IDC_STH3                        2247
 #define IDC_STH4                        2248
@@ -1570,7 +1578,23 @@
 #define IDC_STATIC4                     2279
 #define IDC_STATIC5                     2280
 #define IDC_STATIC6                     2281
-
+#define IDC_SIZECHECK                   2284
+#define IDC_WALL                        2285
+#define IDC_VOICESET                    2286
+#define IDC_ITEM                        2287
+#define IDC_SPELL                       2288
+#define IDC_HAPPINESS                   2289
+#define IDC_SPELL1                      2290
+#define IDC_SPELL2                      2291
+#define IDC_SPELL3                      2292
+#define IDC_EDIT2                       2293
+#define IDC_SPELL4                      2293
+#define IDC_SPELL5                      2294
+#define IDC_SLIDER                      2295
+#define IDC_SPELL6                      2295
+#define IDC_SPELL7                      2296
+#define IDC_SPELL8                      2297
+#define IDC_SPELL9                      2298
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1772,6 +1796,12 @@
 #define ID_TOOLS_EXPLODE                33030
 #define ID_TOOLS_IMPLODE                33031
 #define ID_RELOAD                       33032
+#define ID_TOOLS_SYNCHRONISETLKS        33033
+#define ID_TOOLS_ADDSPARKDATA           33034
+#define ID_TOOLS_DECOMPILE              33035
+#define ID_TOOLS_MINIMALFRAME           33036
+#define ID_FRAME_MINIMIZEFRAME          33037
+#define ID_EDIT_FINDID                  33038
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1779,8 +1809,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33033
-#define _APS_NEXT_CONTROL_VALUE         2283
+#define _APS_NEXT_COMMAND_VALUE         33039
+#define _APS_NEXT_CONTROL_VALUE         2298
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

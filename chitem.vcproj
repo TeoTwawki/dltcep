@@ -320,6 +320,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\AreaTriggerString.cpp">
+			</File>
+			<File
 				RelativePath="bam.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -866,6 +869,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\IcewindCre.cpp">
+			</File>
+			<File
 				RelativePath="ImageView.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -1184,6 +1190,9 @@
 						BasicRuntimeChecks="3"
 						BrowseInformation="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\PCInfo.cpp">
 			</File>
 			<File
 				RelativePath="Polygon.cpp">
@@ -1976,6 +1985,9 @@
 				RelativePath="AreaSong.h">
 			</File>
 			<File
+				RelativePath=".\AreaTriggerString.h">
+			</File>
+			<File
 				RelativePath="bam.h">
 			</File>
 			<File
@@ -2063,6 +2075,9 @@
 				RelativePath="IapDialog.h">
 			</File>
 			<File
+				RelativePath=".\IcewindCre.h">
+			</File>
+			<File
 				RelativePath="ImageView.h">
 			</File>
 			<File
@@ -2121,6 +2136,9 @@
 			</File>
 			<File
 				RelativePath="PaletteEdit.h">
+			</File>
+			<File
+				RelativePath=".\PCInfo.h">
 			</File>
 			<File
 				RelativePath="Polygon.h">

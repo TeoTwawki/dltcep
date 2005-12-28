@@ -11,6 +11,7 @@
 #include "2DAEdit.h"
 #include "StrRefDlg.h"
 #include "progressbar.h"
+#include "ColorPicker.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -98,12 +99,13 @@ BEGIN_MESSAGE_MAP(C2DAEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_TOOLS_CAPITALIZEENTRIES, OnToolsCapitalize)
 	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
+	ON_BN_CLICKED(IDC_ORDER, OnOrder)
 	ON_EN_KILLFOCUS(IDC_DEFAULT, DefaultKillfocus)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_BN_CLICKED(IDC_ORDER, OnOrder)
+	ON_COMMAND(ID_TOOLS_ADDSPARKDATA, OnToolsAddsparkdata)
 	//}}AFX_MSG_MAP
   ON_EN_KILLFOCUS(IDC_EDITLINK,OnKillfocusEditlink)
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_2DA, OnCustomdrawMyList)
@@ -284,16 +286,18 @@ void C2DAEdit::RefreshDialog()
   POSITION pos;
   CString *tmppoi;
   int i,j;
-  int width;
+  int width, minwidth;
 
   SetWindowText("Edit 2DA: "+itemname);
   m_2da_control.DeleteAllItems();
   while(m_2da_control.DeleteColumn(0));
   m_2da_control.SetItemCount(the_2da.cols);
+  if (m_integer) minwidth = 50;
+  else minwidth = 100;
   for(i=0;i<the_2da.cols;i++)
   {
     width=10*the_2da.collabels[i].GetLength();
-    if(width<50) width=50;
+    if(width<minwidth) width=minwidth;
     m_2da_control.InsertColumn(i,the_2da.collabels[i],LVCFMT_LEFT,width);
   }
   pos=the_2da.data->GetHeadPosition();
@@ -304,6 +308,10 @@ void C2DAEdit::RefreshDialog()
     for(j=1;j<the_2da.cols;j++)
     {
       m_2da_control.SetItemText(i, j, tmppoi[j]);
+      if (tmppoi[j].Left(3)=="RGB")
+      {
+        the_2da.defvalue="RGB(0,0,0)";
+      }
     }
   }
   m_integer=!invalidnumber(the_2da.defvalue);
@@ -601,6 +609,12 @@ escape:
   }
 }
 
+void C2DAEdit::RefreshSelection()
+{
+	m_2da_control.EnsureVisible(m_item, false);
+	m_2da_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+}
+
 void C2DAEdit::OnRow2() 
 {
   CString *row;
@@ -618,8 +632,7 @@ void C2DAEdit::OnRow2()
   {
     m_2da_control.SetItemText(m_item,i, row[i]);
   }
-  m_2da_control.EnsureVisible(m_item,false);
-  m_2da_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+  RefreshSelection();
 //  RefreshDialog();
 }
 
@@ -660,8 +673,7 @@ void C2DAEdit::OnRemove()
   {
     m_2da_control.DeleteItem(m_item);
     if(m_item>=the_2da.rows) m_item=the_2da.rows-1;
-    m_2da_control.EnsureVisible(m_item,false);
-    m_2da_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+    RefreshSelection();
   }
   else MessageBox("Cannot remove row!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
 }
@@ -734,6 +746,40 @@ void C2DAEdit::OnOrder()
   RefreshDialog();
 }
 
+void C2DAEdit::OnToolsAddsparkdata() 
+{
+  CString *tmppoi;
+  CString tmpstr;
+  int i;
+
+  if (m_item<0)
+  {
+    return;
+  }
+  if (the_2da.cols!=6)
+  {
+    return;
+  }
+  tmppoi=(CString *) the_2da.data->GetAt(the_2da.data->FindIndex(m_item));
+  if (!tmppoi)
+  {
+    return;
+  }
+  colordlg.m_picked=0;
+  if(colordlg.DoModal()==IDOK)
+  {
+    unsigned long colors[5];
+
+    MakeGradientArray(colors, (unsigned char) colordlg.m_picked);
+    for (i=0;i<5;i++)
+    {
+      tmpstr.Format("RGB(%d,%d,%d)",((colors[i]>>16)&255),((colors[i]>>8)&255), (colors[i]&255));
+      tmppoi[i+1]=tmpstr;
+    }
+    RefreshDialog();
+  }
+}
+
 void C2DAEdit::OnToolsCapitalize() 
 {
   POSITION pos;
@@ -784,6 +830,7 @@ CIDSEdit::CIDSEdit(CWnd* pParent /*=NULL*/)
   m_inedit=false;
   m_item=0;
   m_subitem=0;
+	m_searchdlg=NULL;
 }
 
 void CIDSEdit::DoDataExchange(CDataExchange* pDX)
@@ -920,9 +967,11 @@ BEGIN_MESSAGE_MAP(CIDSEdit, CDialog)
 	ON_COMMAND(ID_REMOVE, OnRemove)
 	ON_COMMAND(ID_ORDER, OnOrder)
 	ON_COMMAND(ID_ADD, OnRow)
+	ON_COMMAND(ID_EDIT_FINDID, OnEditFindid)
 	//}}AFX_MSG_MAP
   ON_EN_KILLFOCUS(IDC_EDITLINK,OnKillfocusEditlink)
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_IDS, OnCustomdrawMyList)
+	ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1125,6 +1174,93 @@ void CIDSEdit::OnKillfocusEditlink()
   }
 }
 
+bool CIDSEdit::perform_search(int idx, int match, CString srch)
+{
+	CString *row=(CString *)the_ids.data->GetAt(the_ids.data->FindIndex(idx));
+	if(row)
+	{
+		CString tmp2 = row[1];
+		
+		if(match&1) // case insensitive trick
+    {
+      tmp2.MakeLower();
+    }
+    if(match&2) // full word trick
+    {
+      tmp2=" "+tlk_entries[choosedialog][idx].text+" "; //in this
+    }
+    if(tmp2.Find(srch) !=-1) return true;
+	}
+
+	return false;
+}
+
+void CIDSEdit::do_search(int direction, int match, CString search)
+{
+	int idx;
+	int start, end;
+
+	if (direction==0) direction=-1;
+
+	if (direction<0) end=-1;
+	else end=the_ids.rows;
+
+	if (direction<0) start=the_ids.rows-1;
+	else start=0;
+	for(idx=m_item+direction;idx!=end;idx+=direction)
+	{
+		if(perform_search(idx,match,search))
+		{
+			m_item=idx;
+			RefreshSelection();
+			return;
+		}
+	}
+	for(idx=start;idx!=m_item;idx+=direction)
+	{
+		if(perform_search(idx,match,search))
+		{
+			m_item=idx;
+			RefreshSelection();
+			return;
+		}
+	}
+
+}
+
+long CIDSEdit::OnFindReplace(WPARAM /*wParam*/, LPARAM /*lParam*/)
+{
+  int direction;
+  int match;
+  CString search;
+  CString replace;
+
+  if(!m_searchdlg) return 0;
+  if(m_searchdlg->IsTerminating() )
+  {
+    m_searchdlg=NULL;
+    return 0;
+  }
+  direction=m_searchdlg->SearchDown();
+  //matchcase is cheaper, therefore it is marked 0
+  match=!m_searchdlg->MatchCase()+(!!m_searchdlg->MatchWholeWord())*2; 
+  search=m_searchdlg->GetFindString();  
+  do_search(direction,match,search);
+  return 0;
+}
+
+void CIDSEdit::OnEditFindid() 
+{
+	m_searchdlg=new CFindReplaceDialog;
+	m_searchdlg->Create(true,"",NULL, FR_DOWN, this);
+}
+
+void CIDSEdit::RefreshSelection()
+{
+	m_ids_control.EnsureVisible(m_item, false);
+	m_ids_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+}
+
 void CIDSEdit::OnRemove() 
 {
   if(m_item<0)
@@ -1135,8 +1271,7 @@ void CIDSEdit::OnRemove()
 	if(the_ids.RemoveRow(m_item))
   {
     m_ids_control.DeleteItem(m_item);
-    m_ids_control.EnsureVisible(m_item, false);
-    m_ids_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+    RefreshSelection();
   }
   else
   {
@@ -1164,8 +1299,7 @@ void CIDSEdit::OnRow()
   the_ids.AddRow(m_item,def,tmpstr);
   m_ids_control.InsertItem(m_item, def);
   m_ids_control.SetItemText(m_item, 1, tmpstr);
-  m_ids_control.EnsureVisible(m_item, false);
-  m_ids_control.SetItemState(m_item, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED);
+  RefreshSelection();
   UpdateData(UD_DISPLAY);
 }
 
@@ -1822,4 +1956,3 @@ BOOL CMUSEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
-

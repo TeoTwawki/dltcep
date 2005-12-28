@@ -320,7 +320,7 @@ extern CString ammo_types[NUM_AMTYPE];
 #define M_BOLT     1
 #define M_BULLET   2
 
-#define NUM_SLOTTYPE 8
+//#define NUM_SLOTTYPE 8
 
 #define NUM_FEATS 458 //hardcoded feature number (iwd2)
 
@@ -476,8 +476,8 @@ extern CString DELETED_REFERENCE;
 #define ST_BUY   2
 #define ST_ID    4
 #define ST_STEAL 8
-#define ST_CURE  16
-#define ST_DONAT 32
+#define ST_DONAT 16
+#define ST_CURE  32
 #define ST_DRINK 64
 #define ST_UNKN1  128
 #define ST_UNKN2  256
@@ -629,6 +629,7 @@ extern int logtype;
 extern int tooltips;
 extern int do_progress;
 extern int readonly;
+extern int choosedialog;
 extern int whichdialog;
 extern unsigned long chkflg;
 extern unsigned long editflg;
@@ -648,6 +649,8 @@ extern CStringMapInt rnditems;
 extern CStringList sectype_names;
 extern CStringList school_names;
 extern CString2List songlist;
+extern CStringMapInt internal_slot_names;
+extern int base_slot;
 extern CString bg2_slot_names[SLOT_COUNT];
 extern CString pst_slot_names[PST_SLOT_COUNT];
 extern CString iwd2_slot_names[IWD2_SLOT_COUNT];
@@ -701,6 +704,7 @@ extern char tbgext[NUM_OBJTYPE+1];
 extern char BASED_CODE szFilterKey[];
 extern char BASED_CODE szFilterTbg[];
 extern char BASED_CODE szFilterWeidu[];
+extern char BASED_CODE szFilterDlg[];
 extern char BASED_CODE szFilterWeiduAll[];
 extern char BASED_CODE szFilterBifc[];
 extern char BASED_CODE szFilterBif[];
@@ -712,7 +716,6 @@ extern unsigned short animtypes[NUM_ANIMTYPES][3];
 extern CString animnames[NUM_ANIMTYPES];
 extern CString itemanimations[NUM_ANIMIDX];
 extern unsigned short animidx[NUM_ANIMIDX];
-extern CString slottypes[NUM_SLOTTYPE];
 extern CString save_types[NUM_STYPE];
 extern CString save_types2[NUM_STYPE2];
 extern CString resist_types[NUM_RTYPE];
@@ -1019,6 +1022,8 @@ int write_map(CString key, CString filepath);
 int read_src(CString key);
 int read_creature(CString key);
 int write_creature(CString key, CString filepath);
+//pick 5 values from the gradient list
+void MakeGradientArray(unsigned long *, int GradientIndex);
 void MakeGradientBitmap(HBITMAP &hb, int GradientIndex);
 CString GetMapTypeValue(int maptype, int value);
 int read_bmp(CString key,HBITMAP &hb);
@@ -1047,15 +1052,16 @@ int write_wav(CString key, void *memory, long samples_written, int wav_or_acm);
 int check_reference(long reference, int loretoid=0);
 
 /// tlk handler
+void synchronise();
 bool truncate_references(long maxnumber, int which);
-CString resolve_tlk_text(long reference);
-int store_tlk_data(long reference, CString text, CString sound);
-BOOL match_tlk_text(long reference, CString text, int ignorecase);
-int store_tlk_text(long reference, CString text);
-bool resolve_tlk_tag(long reference);
-bool toggle_tlk_tag(long reference);
-int store_tlk_soundref(long reference, CString sound);
-CString resolve_tlk_soundref(long reference);
+CString resolve_tlk_text(long reference, int which=0);
+int store_tlk_data(long reference, CString text, CString sound, int which=0);
+BOOL match_tlk_text(long reference, CString text, int ignorecase, int which=0);
+int store_tlk_text(long reference, CString text, int which=0);
+bool resolve_tlk_tag(long reference, int which=0);
+bool toggle_tlk_tag(long reference, int which=0);
+int store_tlk_soundref(long reference, CString sound, int which=0);
+CString resolve_tlk_soundref(long reference, int which=0);
 
 /////////////////////////////////////////////////////////////////////////////
 

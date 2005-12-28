@@ -76,8 +76,8 @@ void CCreatureEdit::NewCreature()
   //-1 is -1 always
   memset(the_creature.header.strrefs,-1,sizeof(the_creature.header.strrefs) );
   the_creature.header.sex=1;
-  the_creature.header.unknown27c=-1;
-  the_creature.header.unknown27e=-1;
+  the_creature.header.globalID=-1;
+  the_creature.header.localID=-1;
   memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );
   *(int *) (the_creature.itemslots+the_creature.slotcount)=1000;
   memcpy(the_creature.header.colours,defaultcolors,7);
