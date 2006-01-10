@@ -469,7 +469,7 @@ void CKeyEdit::AddResource(int type, int bifidx, int locidx, CString ref)
   fileloc.index=locidx;
   fileloc.size=-1;
   fileloc.bifindex=(unsigned short) bifidx;
-  fileloc.cdloc=0;
+  fileloc.cdloc=0xffff;
   fileloc.resref=ref+ext;
   resources[type]->SetAt(ref,fileloc);
   key_headerinfo.numref++;
@@ -1107,7 +1107,7 @@ void CKeyEdit::OnReadd()
     fileloc.index=locidx;
     fileloc.size=-1;
     fileloc.bifindex=(unsigned short) bifidx;
-    fileloc.cdloc=0;
+    fileloc.cdloc=0xffff;
     fileloc.resref=ref+ext;
     //another cheesy, fishy hack for the different path of sounds
     if(!fileloc.bifname.CompareNoCase("data\\desound.bif") )

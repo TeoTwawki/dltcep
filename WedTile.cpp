@@ -114,6 +114,29 @@ void CWedTile::RefreshTile()
   CString tmpstr, tiles;
   int i,j;
   int mx,my;
+  CWnd *cw;
+
+  if(m_pdooridx)
+  {
+    cw=GetDlgItem(IDC_PREVIEW);
+    cw->EnableWindow(true);
+    cw=GetDlgItem(IDC_OPEN);
+    cw->EnableWindow(true);
+    cw=GetDlgItem(IDC_ADDALT);
+    cw->EnableWindow(true);
+    cw->SetWindowText("Add tile");
+    cw=GetDlgItem(IDC_REMOVE);
+    cw->EnableWindow(m_maxtile>0);
+    cw->SetWindowText("Remove tile");
+    cw=GetDlgItem(IDC_LOAD);
+    cw->EnableWindow(true);
+    cw->SetWindowText("Set door (tis)");
+    cw=GetDlgItem(IDC_LOAD2);
+    cw->EnableWindow(true);
+    cw->SetWindowText("Set door (bmp)");
+    cw=GetDlgItem(IDC_LOAD3);
+    cw->ShowWindow(true);
+  }
 
   if(!m_tilepicker) return;
   switch(the_mos.m_overlay)
@@ -275,28 +298,6 @@ BOOL CWedTile::OnInitDialog()
   }
   cw=GetDlgItem(IDC_OVERLAY);
   if(cw) cw->EnableWindow(the_mos.m_overlay>0);
-  if(m_pdooridx)
-  {
-    cw=GetDlgItem(IDC_PREVIEW);
-    cw->EnableWindow(true);
-    cw=GetDlgItem(IDC_OPEN);
-    cw->EnableWindow(true);
-    cw=GetDlgItem(IDC_ADDALT);
-    cw->EnableWindow(true);
-    cw->SetWindowText("Add tile");
-    cw=GetDlgItem(IDC_REMOVE);
-    cw->EnableWindow(true);
-    cw->SetWindowText("Remove tile");
-    cw=GetDlgItem(IDC_LOAD);
-    cw->EnableWindow(true);
-    cw->SetWindowText("Set door (tis)");
-    cw=GetDlgItem(IDC_LOAD2);
-    cw->EnableWindow(true);
-    cw->SetWindowText("Set door (bmp)");
-    cw=GetDlgItem(IDC_LOAD3);
-    cw->ShowWindow(true);
-  }
-
   m_preview.InitView(IW_SHOWGRID|IW_OVERLAY|IW_MARKTILE, &the_mos); //initview must be before create
   m_preview.m_showgrid=true;
   m_preview.Create(IDD_IMAGEVIEW,this);
@@ -471,6 +472,10 @@ void CWedTile::OnRemove()
   the_area.wedchanged=true;
   if(m_pdooridx)
   {
+    if (m_maxtile<=0)
+    {
+      return;
+    }
     pos=the_area.doortilelist.FindIndex(m_doornum);
 
     //remove m_tilenum

@@ -165,9 +165,13 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     mysize=sizeof(gam_pst_npc);
     memcpy(&header,"GAMEV1.1",8); //be aware, pst is 1.1 too!
     break;
-  case 20:
+  case 20: //bg2, or soa part of tob
     mysize=sizeof(gam_bg_npc); 
     memcpy(&header,"GAMEV2.0",8);
+    break;
+  case 21: //tob
+    mysize=sizeof(gam_bg_npc);
+    memcpy(&header,"GAMEV2.1",8);
     break;
   case 22:
     mysize=sizeof(gam_iwd2_npc);
@@ -437,27 +441,26 @@ int Cgame::ReadGameFromFile(int fh, long ml)
   {
     return -2;
   }
-  if(memcmp(header.revision,"V1.1",4) )
+  
+  if(!memcmp(header.revision,"V2.2",4) )
   {
-    if(memcmp(header.revision,"V2.0",4) )
-    {
-      if(memcmp(header.revision,"V2.2",4) )
-      {
-        return -2;
-      }
-      else
-      {
-        revision=22;      
-        mysize=sizeof(gam_iwd2_npc);
-      }
-    }
-    else
-    {
-      revision=20;
-      mysize=sizeof(gam_bg_npc);
-    }
-  }    
-  else
+    revision=22;      
+    mysize=sizeof(gam_iwd2_npc);
+    goto revision;
+  }
+  if(!memcmp(header.revision,"V2.1",4) )
+  {
+    revision=21;
+    mysize=sizeof(gam_bg_npc);
+    goto revision;
+  }
+  if(!memcmp(header.revision,"V2.0",4) )
+  {
+    revision=20;
+    mysize=sizeof(gam_bg_npc);
+    goto revision;
+  }
+  if(!memcmp(header.revision,"V1.1",4) )
   { //this is a hack for PST
     if((header.pcoffset==184) || (header.variableoffset==184) )
     {
@@ -482,8 +485,10 @@ int Cgame::ReadGameFromFile(int fh, long ml)
         mysize=sizeof(gam_iwd_npc);
       }      
     }
+    goto revision;
   }
-
+  return -2;
+revision:
   //read pcs
   flg=adjust_actpoint(header.pcoffset);
   if(flg<0)
@@ -736,7 +741,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
   }
   else memset(&familiar,0,sizeof(familiar) );
 
-  if(revision==20)
+  if(revision==20 || revision==21)
   {
     flg=adjust_actpoint(header.slocoffset);
     if(flg<0)

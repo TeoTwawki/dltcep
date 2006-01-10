@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.7i"
+#define PRG_VERSION "6.7j"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -1045,6 +1045,8 @@ void CChitemDlg::read_cd_locations()
     }
     cds[i].ReleaseBuffer();
   }
+  //relocating cds in case they cannot be found
+  
 }
 
 int CChitemDlg::scan_chitin()
@@ -1077,9 +1079,20 @@ int CChitemDlg::scan_chitin()
     bifs=NULL;
   }
 
-  if(chkflg&IGNORECHITIN) return 0;
   if(bgfolder.IsEmpty()) return 0;
-  read_cd_locations();
+  if(editflg&IGNORECD)
+  {
+    cds[0]=bgfolder;
+    for(i=1;i<NUM_CD;i++)
+    {
+      cds[i].Format("%sCD%d\\",bgfolder,i+1);
+    }
+  }
+  else
+  {
+    read_cd_locations();
+  }
+  if(chkflg&IGNORECHITIN) return 0;
   
   duplo=!(chkflg&NODUPLO);
   chfilename.Format("%schitin.key",bgfolder);
@@ -1171,7 +1184,7 @@ int CChitemDlg::scan_chitin()
     fileloc.index=locidx;
     fileloc.size=-1;
     fileloc.bifindex=(unsigned short) bifidx;
-    fileloc.cdloc=0;
+    fileloc.cdloc=0xffff;
     fileloc.resref=ref+ext;
     //another cheesy, fishy hack for the different path of sounds
     if(!fileloc.bifname.CompareNoCase("data\\desound.bif") )
@@ -1244,7 +1257,7 @@ int CChitemDlg::gather_override(CString folder, int where)
       {
         fileloc.bifindex=0xffff;
         fileloc.index=-2;
-        fileloc.cdloc=0;  //not found in chitin, we should initialize it
+        fileloc.cdloc=0xffff;  //not found in chitin, we should initialize it
         ovrnum[type]++;
         if((chkflg&NOMISS) && !where) //don't scream about files in music
         {
@@ -1312,7 +1325,7 @@ int CChitemDlg::CollectAcms()
   ret=0;
   fileloc.bifindex=0xffff;
   fileloc.size=-1;
-  fileloc.cdloc=0;
+  fileloc.cdloc=0xffff;
   fileloc.index=-2;
   if(!the_mus.data) return -2;
   pos=the_mus.data->GetHeadPosition();

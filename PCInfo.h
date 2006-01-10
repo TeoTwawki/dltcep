@@ -24,6 +24,10 @@ public:
 	gam_npc *m_data;
 	gam_npc_extension *m_stat;
   char (*quickspells)[8];
+  short *quickweapons;
+  short *quickwslots;
+  short *quickitems;
+  short *quickslots;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -40,6 +44,7 @@ protected:
 
   void BrowseSpell(int x);
   void Wslot(int x);
+  void Islot(int x);
 
 	// Generated message map functions
 	//{{AFX_MSG(CPCInfo)
@@ -64,6 +69,11 @@ protected:
 	afx_msg void OnFlag16();
 	afx_msg void OnFlag17();
 	afx_msg void OnFlag18();
+	afx_msg void OnU16();
+	afx_msg void OnU17();
+	afx_msg void OnU18();
+	afx_msg void OnU19();
+	afx_msg void OnU20();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -74,6 +74,7 @@
 #define CENTER           0x1000000//center vertex
 #define IGNOREOVERRIDE   0x2000000//ignores override when exploding chitin.key
 #define CHECKSIZE        0x4000000//ignore filesizes
+#define IGNORECD         0x8000000//ignore cd locations in game cfg
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -207,6 +208,7 @@ protected:
 	afx_msg void OnCenter();
 	afx_msg void OnOverride();
 	afx_msg void OnSizecheck();
+	afx_msg void OnCd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

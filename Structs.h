@@ -1361,8 +1361,9 @@ typedef struct {
   short launchx,launchy;
   char key[8];
   char scriptref[8]; //script of this trigger  
-  char unknown[48];
   short pointx, pointy;
+  char unknown[44];
+  short pstpointx, pstpointy;
   long dialogstrref; //at least in pst, trigger points can talk
   char dialogref[8];
 } area_trigger;
@@ -1501,7 +1502,7 @@ typedef struct {
   short framenum;
   short flags;
   short unknown36;
-  short unknown38;
+  short height;
   short transparency;
   short current; //current frame?
   unsigned char progress;
@@ -1755,7 +1756,8 @@ typedef struct {
   short weapons[4];
   short wslots[4];
   char quickspells[3][8];
-  char unknownb4[12];
+  short quickitems[3];
+  short quickslots[3];
   char name[32];
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
@@ -1778,10 +1780,9 @@ typedef struct {
   short weapons[4];
   short wslots[4];
   char quickspells[3][8];
-  char unknownb4[12];
+  short quickitems[5];
+  short quickslots[5];
   char name[32];
-  long unknowne0;
-  long unknowne4;
   long talkcount; //numtimestalkedto
   long nameofmpv; //name of most powerful vanquished
   long xpofmpv;   //xp of most powerful vanquished
@@ -1803,7 +1804,8 @@ typedef struct {
   short weapons[4];
   short wslots[4];
   char quickspells[3][8];
-  char unknownb4[12];
+  short quickitems[3];
+  short quickslots[3];
   char name[32];
   long talkcount;
   long nameofmpv; //name of most powerful vanquished
@@ -1828,7 +1830,9 @@ typedef struct {
   short wslots[8];
   char quickspells[9][8];
   char qsclass[9];
-  char unknown[13];
+  char unknown;
+  short quickitems[3];
+  short quickslots[3];
   char unknown00[144];
 	long qslots[9];
   char name[32];

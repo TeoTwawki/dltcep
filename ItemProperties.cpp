@@ -48,8 +48,8 @@ static CString ClassUsabilityBits11[26]=
  "Fighter", "No faction", "Fighter/Mage", "Dustmen",
  "Mercykillers", "Indeps", "Fighter/Thief", "Mage",
  "Mage/Thief", "Dak'kon", "Fall-From-Grace", "Thief",
- "Vhailor", "Ingus", "Morte", "Nordom",
- "22", "Annah", "24", "Nameless One", "26"
+ "Vhailor", "Ignus", "Morte", "Nordom",
+ "27", "Annah", "29", "Nameless One", "31"
 };
 
 static CString ClassUsabilityBits[58]=

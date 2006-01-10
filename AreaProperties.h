@@ -219,6 +219,7 @@ protected:
 	afx_msg void OnEditpolygon();
 	afx_msg void OnSelection();
 	afx_msg void OnString();
+	afx_msg void OnSet2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -1468,8 +1468,16 @@ void CAreaTrigger::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr, the_area.triggerheaders[m_triggernum].dialogref);
 
-    DDX_Text(pDX, IDC_POS1X2, the_area.triggerheaders[m_triggernum].pointx);
-    DDX_Text(pDX, IDC_POS1Y2, the_area.triggerheaders[m_triggernum].pointy);
+    if (pst_compatible_var())
+    {
+      DDX_Text(pDX, IDC_POS1X2, the_area.triggerheaders[m_triggernum].pstpointx);
+      DDX_Text(pDX, IDC_POS1Y2, the_area.triggerheaders[m_triggernum].pstpointy);
+    }
+    else
+    {
+      DDX_Text(pDX, IDC_POS1X2, the_area.triggerheaders[m_triggernum].pointx);
+      DDX_Text(pDX, IDC_POS1Y2, the_area.triggerheaders[m_triggernum].pointy);
+    }
   }
 }
 #pragma warning(default:4706)   
@@ -1572,6 +1580,7 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_REGIONTYPE, OnKillfocusRegiontype)
 	ON_BN_CLICKED(IDC_EDITPOLYGON, OnEditpolygon)
 	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
+	ON_BN_CLICKED(IDC_STRING, OnString)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
@@ -1591,7 +1600,7 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y2, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_STRING, OnString)
+	ON_BN_CLICKED(IDC_SET2, OnSet2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2040,6 +2049,43 @@ void CAreaTrigger::OnSet()
     point=dlg.GetPoint(GP_POINT);
     the_area.triggerheaders[m_triggernum].launchx=(short) point.x;
     the_area.triggerheaders[m_triggernum].launchy=(short) point.y;
+  }
+  RefreshTrigger();
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaTrigger::OnSet2() 
+{
+  CImageView dlg;
+  CPoint point;
+
+  if(SetupSelectPoint(0)) return;
+  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
+  //the cursors are loaded in 'the_bam' now
+  if(pst_compatible_var())
+  {
+    point.x=the_area.triggerheaders[m_triggernum].pstpointx;
+    point.y=the_area.triggerheaders[m_triggernum].pstpointy;
+  }
+  else
+  {
+    point.x=the_area.triggerheaders[m_triggernum].pointx;
+    point.y=the_area.triggerheaders[m_triggernum].pointy;
+  }
+  dlg.SetupAnimationPlacement(&the_bam, point.x, point.y,0);
+  if(dlg.DoModal()==IDOK)
+  {
+    point=dlg.GetPoint(GP_POINT);
+    if (pst_compatible_var())
+    {
+      the_area.triggerheaders[m_triggernum].pstpointx=(short) point.x;
+      the_area.triggerheaders[m_triggernum].pstpointy=(short) point.y;
+    }
+    else
+    {
+      the_area.triggerheaders[m_triggernum].pointx=(short) point.x;
+      the_area.triggerheaders[m_triggernum].pointy=(short) point.y;
+    }
   }
   RefreshTrigger();
   UpdateData(UD_DISPLAY);
@@ -3417,7 +3463,7 @@ static int containerboxids[]={IDC_CONTAINERPICKER,IDC_POSX,IDC_POSY, IDC_TYPE,
 IDC_LOCKED,IDC_DIFF,IDC_KEY,IDC_TRAPPED, IDC_DETECT,IDC_REMOVAL,IDC_DETECTED,
 IDC_TPOSX, IDC_TPOSY, IDC_SCRIPT, IDC_POS1X, IDC_POS1Y, IDC_POS2X, IDC_POS2Y,
 IDC_ITEMNUMPICKER,IDC_MAXITEM,IDC_ITEMRES,IDC_USE1,IDC_USE2,IDC_USE3,IDC_FLAGS,
-IDC_UNKNOWN80,IDC_UNKNOWN82,IDC_STRREF, IDC_TEXT,IDC_RECALCBOX, IDC_EDITPOLYGON,
+IDC_UNKNOWN80,IDC_UNKNOWN56,IDC_STRREF, IDC_TEXT,IDC_RECALCBOX, IDC_EDITPOLYGON,
 IDC_SCRIPTNAME,IDC_UNKNOWN8,IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN,IDC_NODROP,
 IDC_BROWSE, IDC_BROWSE2,IDC_BROWSE3,IDC_ADDITEM,IDC_DELITEM,IDC_UNKNOWN,
 IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_SET, IDC_SELECTION,IDC_HIDDEN, IDC_NOPC,
@@ -3500,8 +3546,8 @@ void CAreaContainer::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr,32);
     StoreName(tmpstr,the_area.containerheaders[m_containernum].trapname);
 
+    DDX_Text(pDX, IDC_UNKNOWN56, the_area.containerheaders[m_containernum].unknown56);
     DDX_Text(pDX, IDC_UNKNOWN80, the_area.containerheaders[m_containernum].unknown80);
-    DDX_Text(pDX, IDC_UNKNOWN82, the_area.containerheaders[m_containernum].unknown82);
 
     DDX_Text(pDX, IDC_POS1X, the_area.containerheaders[m_containernum].p1x);
     DDX_Text(pDX, IDC_POS1Y, the_area.containerheaders[m_containernum].p1y);
@@ -3670,8 +3716,8 @@ BEGIN_MESSAGE_MAP(CAreaContainer, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_POS2X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2Y, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN8, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN56, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN80, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN82, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_KEY, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DETECTED, DefaultKillfocus)
@@ -5832,7 +5878,7 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
 
     DDX_Text(pDX, IDC_FLAGS, the_area.animheaders[m_animnum].flags);
     DDX_Text(pDX, IDC_U36,the_area.animheaders[m_animnum].unknown36);
-    DDX_Text(pDX, IDC_U38,the_area.animheaders[m_animnum].unknown38);
+    DDX_Text(pDX, IDC_U38,the_area.animheaders[m_animnum].height);
 		DDX_Text(pDX, IDC_U3A,the_area.animheaders[m_animnum].transparency);
 		DDX_Text(pDX, IDC_U3C,the_area.animheaders[m_animnum].current);
     DDX_Text(pDX, IDC_U3E,the_area.animheaders[m_animnum].progress);
@@ -6779,4 +6825,3 @@ BEGIN_MESSAGE_MAP(CAreaPropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CAreaPropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-

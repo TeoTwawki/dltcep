@@ -92,9 +92,9 @@ CString bg2_slot_names[SLOT_COUNT]={"0-Helmet","1-Armor","2-Shield","3-Gloves","
 "27-Inventory 7","28-Inventory 8","29-Inventory 9","30-Inventory 10","31-Inventory 11","32-Inventory 12",
 "33-Inventory 13","34-Inventory 14","35-Inventory 15","36-Inventory 16","37-Magic"};
 
-CString pst_slot_names[PST_SLOT_COUNT]={"0-Earring","1-Armor","2-L.Tattoo","3-Gloves","4-L.Ring","5-R.Ring","6-Eyeball",
-"7-R.Tattoo","8-Boots","9-Weapon 1","10-Weapon 2","11-Weapon 3","12-Weapon 4","13-Quiver 1","14-Quiver 2",
-"15-Quiver 3","16-Quiver 4","17-Quiver 5","18-Unknown","19-Cloak","20-Quick item 1","21-Quick item 2","22-Quick item 3",
+CString pst_slot_names[PST_SLOT_COUNT]={"0-L.Ear/Lens","1-Chest","2-Upper tattoo","3-R.Hand","4-L.Ring","5-R.Ring","6-R.Ear/Eye",
+"7-R.Tattoo","8-Wrist","9-Weapon 1","10-Weapon 2","11-Weapon 3","12-Weapon 4","13-Quiver 1","14-Quiver 2",
+"15-Quiver 3","16-Quiver 4","17-Quiver 5","18-Unknown","19-L.Tattoo","20-Quick item 1","21-Quick item 2","22-Quick item 3",
 "23-Quick item 4","24-Quick item 5","25-Inventory 1","26-Inventory 2","27-Inventory 3","28-Inventory 4","29-Inventory 5","30-Inventory 6",
 "31-Inventory 7","32-Inventory 8","33-Inventory 9","34-Inventory 10","35-Inventory 11","36-Inventory 12",
 "37-Inventory 13","38-Inventory 14","39-Inventory 15","40-Inventory 16","41-Inventory 17","42-Inventory 18",
@@ -998,7 +998,7 @@ int locate_bif(loc_entry &fileloc)
   int fhandle;
   char header[8];
 
-  if(fileloc.cdloc)
+  if(fileloc.cdloc!=0xffff)
   {
     return open(cds[fileloc.cdloc]+fileloc.bifname,O_BINARY|O_RDONLY);
   }
@@ -3727,7 +3727,7 @@ int pst_trigger_flags[MAX_TRIGGER]={
 //0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   pO,   //havespellRES (0x31)
 //0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 
     OO,   OO,   VO,   VO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
@@ -3780,7 +3780,7 @@ int pst_action_flags[MAX_ACTION]={
 // 20,   21,   22,   23,   24,   25,   26,   27,   28,   29,  
     OO,   OO,   OO,   OO,   OO,   OO,   SO,   OO,   OO,   OO,  
 // 30,   31,   32,   33,   34,   35,   36,   37,   38,   39,  
-    VO,   OO,   OO,   OO,   IO,   OO,   OO,   OO,   OO,   OO,  
+    VO,   pO,   OO,   OO,   IO,   OO,   OO,   OO,   OO,   OO,   //spellRES (31)
 // 40,   41,   42,   43,   44,   45,   46,   47,   48,   49,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 // 50,   51,   52,   53,   54,   55,   56,   57,   58,   59,  
@@ -3806,7 +3806,7 @@ int pst_action_flags[MAX_ACTION]={
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   OO,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
-    OO,   wO,   OO,   OO,   OO,   VO,   OO,   MO,   OO,   IO,  
+    pO,   wO,   OO,   OO,   OO,   VO,   OO,   MO,   OO,   IO,  
 //170,  171,  172,  173,  174,  175,  176,  177,  178,  179,  
     OO,   OO,   OO,   jr,   OO,   OO,   OO,   OO,   OO,   OO,  
 //180,  181,  182,  183,  184,  185,  186,  187,  188,  189,  
@@ -6799,7 +6799,7 @@ int CStringMapLocEntry::Lookup(CString key, loc_entry &loc)
 {
   loc.bifname.Empty();
   loc.resref.Empty();
-  loc.cdloc=0;
+  loc.cdloc=0xffff;
   loc.index=0;
   loc.size=-1;
   loc.bifindex=0;

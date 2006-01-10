@@ -2503,15 +2503,15 @@ bool CChitemDlg::match_area()
   bool found;
   search_data tmpdata;
 
-#if 0
+#if 1
 
   int i;
 
   for(i=0;i<the_area.doorcount;i++)
   {
-    if(the_area.doorheaders[i].openscript[0])
+    if(the_area.doorheaders[i].flags&32)
     {
-      log("%d Using script: %.8s",i,the_area.doorheaders[i].openscript);
+      log("%d Using mystery flag",i,the_area.doorheaders[i].doorname);
     }
   }
 

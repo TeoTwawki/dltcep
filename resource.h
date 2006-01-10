@@ -1595,6 +1595,8 @@
 #define IDC_SPELL7                      2296
 #define IDC_SPELL8                      2297
 #define IDC_SPELL9                      2298
+#define IDC_CD                          2298
+#define IDC_UNKNOWN56                   2299
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1810,7 +1812,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33039
-#define _APS_NEXT_CONTROL_VALUE         2298
+#define _APS_NEXT_CONTROL_VALUE         2300
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

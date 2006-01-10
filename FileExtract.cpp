@@ -402,7 +402,7 @@ void CFileExtract3::OnOK()
   char header[8];
   int maxlen;
   int finput, fhandle;
-  int ret;
+  int ret=0;
 
   UpdateData(UD_RETRIEVE);
   m_num_extract=0;
@@ -502,6 +502,21 @@ void CFileExtract3::OnOK()
 endofquest:
   if(fhandle>0) close(fhandle);
   close(finput);
+  if(skim_sav)
+  {
+    if (ret==1)
+    {
+      rename(m_filename,m_filename+".old");
+      if (!file_exists(m_filename))
+      {
+        rename(m_filename+".tmp",m_filename);
+      }
+      else
+      {
+        MessageBox("Couldn't rename file!","Extract",MB_ICONWARNING|MB_OK);
+      }
+    }
+  }
 }
 
 BOOL CFileExtract3::OnInitDialog() 

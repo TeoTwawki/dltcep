@@ -50,14 +50,39 @@ void CPCInfo::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_HAPPINESS, m_data->happiness);
   DDX_Text(pDX, IDC_ACTION, m_data->action);
   DDX_Text(pDX, IDC_SELECTED, m_data->selected);
-  
+
+  if (the_game.revision==12)
+  {
+    for(i=0;i<5;i++)
+    {
+      DDX_Text(pDX,IDC_U11+i,quickitems[i]);
+      db = (CButton *) GetDlgItem(IDC_U16+i);
+      db->SetCheck(quickslots[i]==0);
+    }
+  }
+  else
+  {
+    for(i=0;i<3;i++)
+    {
+      DDX_Text(pDX,IDC_U11+i,quickitems[i]);
+      db = (CButton *) GetDlgItem(IDC_U16+i);
+      db->SetCheck(quickslots[i]==0);
+    }
+    for(i=3;i<5;i++)
+    {
+      dw = GetDlgItem(IDC_U11+i);
+      dw->EnableWindow(false);
+      dw = GetDlgItem(IDC_U16+i);
+      dw->EnableWindow(false);
+    }
+  }
   if (the_game.revision==22)
   {
     for(i=0;i<9;i++)
     {
-      RetrieveResref(tmpstr,m_stat->gwn.quickspells[i]);
+      RetrieveResref(tmpstr,quickspells[i]);
       DDX_Text(pDX,IDC_SPELL1+i, tmpstr);
-      StoreResref(tmpstr,m_stat->gwn.quickspells[i]);	
+      StoreResref(tmpstr,quickspells[i]);	
     }
     for(i=0;i<9;i++)
     {
@@ -65,9 +90,9 @@ void CPCInfo::DoDataExchange(CDataExchange* pDX)
     }
     for(i=0;i<8;i++)
     {
-      DDX_Text(pDX,IDC_FLAG1+i,m_stat->gwn.weapons[i]);
+      DDX_Text(pDX,IDC_FLAG1+i,quickweapons[i]);
       db = (CButton *) GetDlgItem(IDC_FLAG11+i);
-      db->SetCheck(m_stat->gwn.wslots[i]==0);
+      db->SetCheck(quickwslots[i]==0);
     }
   }
   else
@@ -75,9 +100,9 @@ void CPCInfo::DoDataExchange(CDataExchange* pDX)
     //going with the bg struct as it is the same
     for(i=0;i<3;i++)
     {
-      RetrieveResref(tmpstr,m_stat->gbn.quickspells[i]);
+      RetrieveResref(tmpstr,quickspells[i]);
       DDX_Text(pDX,IDC_SPELL1+i, tmpstr);
-      StoreResref(tmpstr,m_stat->gbn.quickspells[i]);	
+      StoreResref(tmpstr,quickspells[i]);	
     }
     for(i=3;i<9;i++)
     {
@@ -93,9 +118,9 @@ void CPCInfo::DoDataExchange(CDataExchange* pDX)
     }
     for(i=0;i<4;i++)
     {
-      DDX_Text(pDX,IDC_FLAG1+i,m_stat->gbn.weapons[i]);
+      DDX_Text(pDX,IDC_FLAG1+i,quickweapons[i]);
       db = (CButton *) GetDlgItem(IDC_FLAG11+i);
-      db->SetCheck(m_stat->gbn.wslots[i]==0);
+      db->SetCheck(quickwslots[i]==0);
     }
     for(i=0;i<4;i++)
     {
@@ -129,6 +154,11 @@ BEGIN_MESSAGE_MAP(CPCInfo, CDialog)
 	ON_BN_CLICKED(IDC_FLAG15, OnFlag15)
 	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
 	ON_BN_CLICKED(IDC_FLAG17, OnFlag17)
+	ON_BN_CLICKED(IDC_FLAG18, OnFlag18)
+	ON_BN_CLICKED(IDC_U16, OnU16)
+	ON_BN_CLICKED(IDC_U17, OnU17)
+	ON_BN_CLICKED(IDC_U18, OnU18)
+	ON_BN_CLICKED(IDC_U19, OnU19)
 	ON_EN_KILLFOCUS(IDC_XPOS, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YPOS, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_AREA, OnDefaultKillfocus)
@@ -162,7 +192,10 @@ BEGIN_MESSAGE_MAP(CPCInfo, CDialog)
 	ON_EN_KILLFOCUS(IDC_SPELL7, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPELL8, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPELL9, OnDefaultKillfocus)
-	ON_BN_CLICKED(IDC_FLAG18, OnFlag18)
+	ON_EN_KILLFOCUS(IDC_U11, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U12, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U13, OnDefaultKillfocus)
+	ON_BN_CLICKED(IDC_U20, OnU20)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -174,13 +207,29 @@ BOOL CPCInfo::OnInitDialog()
 	CComboBox *cb;
 	int i;
 
-  if (the_game.revision==22)
+  switch (the_game.revision)
   {
+  case 22:
     quickspells = m_stat->gwn.quickspells;
-  }
-  else
-  {
+    quickitems = m_stat->gwn.quickitems;
+    quickslots = m_stat->gwn.quickslots;
+    quickweapons = m_stat->gwn.weapons;
+    quickwslots = m_stat->gwn.wslots;
+    break;
+  case 12:
+    quickspells = m_stat->gpn.quickspells;
+    quickitems = m_stat->gpn.quickitems;
+    quickslots = m_stat->gpn.quickslots;
+    quickweapons = m_stat->gpn.weapons;
+    quickwslots = m_stat->gpn.wslots;
+    break;
+  default:
     quickspells = m_stat->gbn.quickspells;
+    quickitems = m_stat->gbn.quickitems;
+    quickslots = m_stat->gbn.quickslots;
+    quickweapons = m_stat->gbn.weapons;
+    quickwslots = m_stat->gbn.wslots;
+    break;
   }
 
 	CDialog::OnInitDialog();
@@ -294,27 +343,13 @@ void CPCInfo::OnBrowse11()
 
 void CPCInfo::Wslot(int x)
 {
-  if (the_game.revision==22)
+  if (quickwslots[x])
   {
-	  if (m_stat->gwn.wslots[x])
-    {
-      m_stat->gwn.wslots[x]=0;
-    }
-    else
-    {
-      m_stat->gwn.wslots[x]=-1;
-    }
+    quickwslots[x]=0;
   }
   else
   {
-	  if (m_stat->gbn.wslots[x])
-    {
-      m_stat->gbn.wslots[x]=0;
-    }
-    else
-    {
-      m_stat->gbn.wslots[x]=-1;
-    }
+    quickwslots[x]=-1;
   }
 }
 
@@ -356,6 +391,43 @@ void CPCInfo::OnFlag17()
 void CPCInfo::OnFlag18() 
 {
 	Wslot(7);
+}
+
+void CPCInfo::Islot(int x)
+{
+  if (quickslots[x])
+  {
+    quickslots[x]=0;
+  }
+  else
+  {
+    quickslots[x]=-1;
+  }
+}
+
+void CPCInfo::OnU16() 
+{
+  Islot(0);
+}
+
+void CPCInfo::OnU17() 
+{
+  Islot(1);
+}
+
+void CPCInfo::OnU18() 
+{
+  Islot(2);
+}
+
+void CPCInfo::OnU19() 
+{
+  Islot(3);
+}
+
+void CPCInfo::OnU20() 
+{
+  Islot(4);
 }
 
 BOOL CPCInfo::PreTranslateMessage(MSG* pMsg) 
