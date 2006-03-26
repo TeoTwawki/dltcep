@@ -629,7 +629,7 @@ IDD_VVCEDIT DIALOGEX 0, 0, 400, 239
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Edit Video Cell:"
 MENU IDR_VVC
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_BAM,7,18,63,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,76,18,28,14
@@ -653,8 +653,8 @@ BEGIN
     PUSHBUTTON      "Play",IDC_PLAY2,81,194,28,14
     CONTROL         "Translucent",IDC_TRANSPARENT,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,118,15,53,10
-    CONTROL         "Brightest",IDC_BRIGHTEST,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,118,28,43,10
+    CONTROL         "Blend",IDC_BRIGHTEST,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,118,28,34,10
     CONTROL         "Greyscale",IDC_GREY,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,182,28,47,10
     CONTROL         "Glowing",IDC_GLOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
@@ -5904,8 +5904,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,7,0,10
- PRODUCTVERSION 6,7,0,10
+ FILEVERSION 6,7,0,11
+ PRODUCTVERSION 6,7,0,11
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5923,14 +5923,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "Checks, extracts and modifies different filetypes made for IE engines\0"
-            VALUE "FileVersion", "6, 7, 0, 10\0"
+            VALUE "FileVersion", "6, 7, 0, 11\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2006 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 6.7j\0"
-            VALUE "ProductVersion", "6, 7, 0, 10\0"
+            VALUE "ProductName", "DLTC Editor Pro 6.7k\0"
+            VALUE "ProductVersion", "6, 7, 0, 11\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6878,6 +6878,12 @@ BEGIN
     IDC_DUALFLAGS, 0x403, 20, 0
 0x7830, 0x3038, 0x3030, 0x5720, 0x7361, 0x6920, 0x206e, 0x6150, 0x7472, 
 0x0079, 
+    IDC_DUALFLAGS, 0x403, 22, 0
+0x7830, 0x3031, 0x3030, 0x2030, 0x6948, 0x6464, 0x6e65, 0x2820, 0x5749, 
+0x3244, 0x0029, 
+    IDC_DUALFLAGS, 0x403, 28, 0
+0x7830, 0x3032, 0x3030, 0x2030, 0x6e49, 0x7576, 0x6e6c, 0x7265, 0x6261, 
+0x656c, 0x2820, 0x5749, 0x3244, 0x0029, 
     IDC_NUMATTACKS, 0x403, 2, 0
 0x0030, 
     IDC_NUMATTACKS, 0x403, 2, 0

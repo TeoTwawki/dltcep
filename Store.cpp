@@ -72,18 +72,20 @@ int Cstore::WriteStoreToFile(int fhandle, int calculate)
     memcpy(header.filetype,"STORV1.1",8); //has different stored item structure
     break;
   }
+  //drinks, stored items, spells, itemtypes
+
   header.drinkoffset=fullsize;
-  //cure offset
   fullsize+=header.drinkcount*sizeof(store_drink);
-  header.cureoffset=fullsize;
-  //purchased offset
-  fullsize+=header.curecount*sizeof(store_cure);
-  header.pitemoffset=fullsize;
-  //stored items offset
-  fullsize+=header.pitemcount*sizeof(long);
+
   header.offset=fullsize;
   if(revision==11) fullsize+=header.itemcount*sizeof(store_item_entry11);
   else fullsize+=header.itemcount*sizeof(store_item_entry);
+
+  header.cureoffset=fullsize;
+  fullsize+=header.curecount*sizeof(store_cure);
+
+  header.pitemoffset=fullsize;
+  fullsize+=header.pitemcount*sizeof(long);
 
   if(calculate)
   {
@@ -107,18 +109,7 @@ int Cstore::WriteStoreToFile(int fhandle, int calculate)
   {
     return -2;
   }
-  //cure
-  esize=header.curecount*sizeof(store_cure);
-  if(write(fhandle,cures,esize)!=esize)
-  {
-    return -2;
-  }
-  //purchased items
-  esize=header.pitemcount*sizeof(long);
-  if(write(fhandle,itemtypes,esize)!=esize)
-  {
-    return -2;
-  }
+
   //stored items, doing it one by one because of the different
   //structure sizes
   if(revision==11) esize=sizeof(store_item_entry11);
@@ -129,6 +120,20 @@ int Cstore::WriteStoreToFile(int fhandle, int calculate)
     {
       return -2;
     }
+  }
+
+  //cure
+  esize=header.curecount*sizeof(store_cure);
+  if(write(fhandle,cures,esize)!=esize)
+  {
+    return -2;
+  }
+
+  //purchased items
+  esize=header.pitemcount*sizeof(long);
+  if(write(fhandle,itemtypes,esize)!=esize)
+  {
+    return -2;
   }
   m_changed=false;
   return 0;

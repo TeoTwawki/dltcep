@@ -167,7 +167,7 @@ extern int itvs2h[NUM_ITEMTYPE];
 
 #define NUM_ANIMIDX  37
 #define NUM_STYPE  6
-#define NUM_STYPE2  4
+#define NUM_STYPE2 4
 
 #define NUM_STORETYPE  6
 //store types

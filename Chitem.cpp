@@ -2803,7 +2803,7 @@ CString save_types[NUM_STYPE]={
 };
 
 CString save_types2[NUM_STYPE2]={
-  "0-None","1-Fortitude","2-Reflex","4-Will"
+  "0-None","4-Fortitude","8-Reflex","16-Will"
 };
 
 CString get_save_type(int stype)
@@ -2815,9 +2815,9 @@ CString get_save_type(int stype)
     switch(stype)
     {
     case 0: return save_types2[0]; break;
-    case 1: return save_types2[1]; break;
-    case 2: return save_types2[2]; break;
-    case 4: return save_types2[3]; break;
+    case 4: return save_types2[1]; break;
+    case 8: return save_types2[2]; break;
+    case 16: return save_types2[3]; break;
     }
   }
   else
