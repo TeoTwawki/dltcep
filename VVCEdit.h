@@ -74,6 +74,7 @@ protected:
 	afx_msg void OnBlend();
 	virtual void OnCancel();
 	afx_msg void OnWall();
+	afx_msg void OnRed();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

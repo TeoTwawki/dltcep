@@ -656,11 +656,11 @@ BEGIN
     CONTROL         "Blend",IDC_BRIGHTEST,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,118,28,34,10
     CONTROL         "Greyscale",IDC_GREY,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,182,28,47,10
+                    WS_TABSTOP,182,41,47,10
     CONTROL         "Glowing",IDC_GLOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    182,41,41,10
-    CONTROL         "Red tint",IDC_TINT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,182,54,41,10
+                    182,54,41,10
+    CONTROL         "Red tint",IDC_RED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    182,67,41,10
     CONTROL         "Looping",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     118,97,41,10
     EDITTEXT        IDC_UNKNOWN10,241,25,40,14,ES_AUTOHSCROLL
@@ -746,6 +746,8 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN8C,241,193,40,14,ES_AUTOHSCROLL
     CONTROL         "Covers walls",IDC_WALL,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,118,149,55,10
+    CONTROL         "Tint",IDC_TINT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    182,28,28,10
 END
 
 IDD_CFB DIALOGEX 0, 0, 324, 236

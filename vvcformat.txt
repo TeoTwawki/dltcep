@@ -39,8 +39,8 @@ Offset Size (data type) Description
 	Bit 0x80:
 
   0x001a 1 (byte) 
-	Bit 1:
-	Bit 2:
+	Bit 1: Tint1
+	Bit 2: Tint2 (both tint flags need to be set for lightmap tint)
 	Bit 4:
 	Bit 8: Greyscale
 	Bit 0x10:

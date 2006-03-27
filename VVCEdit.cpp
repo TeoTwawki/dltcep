@@ -28,8 +28,8 @@ CVVCEdit::CVVCEdit(CWnd* pParent /*=NULL*/)
 
 static int tranboxid1[]={0,IDC_TRANSPARENT,0,IDC_BRIGHTEST,IDC_MIRROR,IDC_MIRROR2,0,0};
 static int tranboxid2[]={0,0,0,0,0,0,0,0};
-static int tranboxid3[]={IDC_BLEND,0,0,IDC_GREY,0,IDC_GLOW,0,0};
-static int tranboxid4[]={0,IDC_TINT,0,0,0,0,0,0};
+static int tranboxid3[]={IDC_BLEND,IDC_TINT,0,IDC_GREY,0,IDC_GLOW,0,0};
+static int tranboxid4[]={0,IDC_RED,0,0,0,0,0,0};
 
 void CVVCEdit::checkflags(int *boxids, int value)
 {
@@ -249,6 +249,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
 	ON_BN_CLICKED(IDC_MIRROR2, OnMirror2)
 	ON_BN_CLICKED(IDC_BLEND, OnBlend)
+	ON_BN_CLICKED(IDC_WALL, OnWall)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN90, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
@@ -289,7 +290,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN40, OnKillfocusSequencing)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN94, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN8C, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_WALL, OnWall)
+	ON_BN_CLICKED(IDC_RED, OnRed)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -677,15 +678,16 @@ void CVVCEdit::OnMirror2()
   UpdateData(UD_DISPLAY);
 }
 
+//this isn't blend?
 void CVVCEdit::OnBlend() 
 {
 	the_videocell.header.colouring^=1;
   UpdateData(UD_DISPLAY);
 }
 
-void CVVCEdit::OnGlow() 
+void CVVCEdit::OnTint() 
 {
-	the_videocell.header.colouring^=0x20;
+	the_videocell.header.colouring^=2;
   UpdateData(UD_DISPLAY);
 }
 
@@ -695,7 +697,13 @@ void CVVCEdit::OnGrey()
   UpdateData(UD_DISPLAY);
 }
 
-void CVVCEdit::OnTint() 
+void CVVCEdit::OnGlow() 
+{
+	the_videocell.header.colouring^=0x20;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnRed() 
 {
 	the_videocell.header.col2^=2;
   UpdateData(UD_DISPLAY);
