@@ -20,9 +20,9 @@ Offset Size (data type) Description
 0x0018 1 (dword) various flags, broken up by bytes below:
   0x0018 1 (Byte) 
 	Bit 1:
-	Bit 2: Translucent
+	Bit 2: Half transparent
 	Bit 4: //if this bit was set, then 0x10 should contain non-zero, probably a transparency mask???
-	Bit 8: Transparent
+	Bit 8: Blended (dark parts are transparent)
 	Bit 0x10: Mirror Y axis if required
 	Bit 0x20: Mirror X axis if required
 	Bit 0x40:
@@ -61,10 +61,10 @@ Offset Size (data type) Description
 0x001c 4 (dword) unknown, always 0, Useless?
 0x0020 4 (dword) This field indicates the following :
 
-    Bit 1: looping
+    Bit 1: looping second sequence
     Bit 2: ?
-    Bit 4: ?
-    Bit 8: explosion sound (secondary)
+    Bit 4: position used?
+    Bit 8: explosion sound (secondary)/BAM used?
     Bit 0x10: ?
     Bit 0x20: ?
     Bit 0x40: not covered by walls
@@ -78,7 +78,6 @@ Offset Size (data type) Description
 0x0038 4 (dword) unknown
 0x003c 4 (dword) unknown
 0x0040 4 (dword) position
-
 0x0044 4 (dword) unknown
 0x0048 4 (dword) unknown
 0x004c 4 (dword) Distance between the head of the character and the BAM. 00 is the lowest and FF is the highest. (Almost as 0x002c) Z position.
@@ -91,9 +90,7 @@ Offset Size (data type) Description
 0x0070 8 (resref ?) unknown
 0x0078 8 (resref) resref to the WAVC file (usually from SFXSound.bif in BG2) - sound of starting sequences of animation
 0x0080 8 (resref) resref to the WAVC file (usually from SFXSound.bif in BG2) - sound of animation in its duration
-0x0088 356 (bytes) unknown, unused
-
-
-Additional comments:
+0x0088 8 (resref ?) unknown, unused
 0x0090 4 cycle number of 3rd bam sequence
-0x0094 8 resref sound resource
+0x0094 8 (resref) sound resource of 3rd sequence (release)
+0x009c 336 (bytes) unknown, unused
