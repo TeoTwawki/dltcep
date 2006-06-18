@@ -46,6 +46,7 @@ protected:
 	afx_msg void OnFlag8();
 	afx_msg void OnBrowse();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnBrowse2();
 	//}}AFX_MSG
 	afx_msg void OnDefaultKillfocusX(NMHDR *, LRESULT *);
 	DECLARE_MESSAGE_MAP()

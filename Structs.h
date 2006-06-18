@@ -542,9 +542,9 @@ typedef struct {
   short lightx;
   short lighty;
   char bmp[8]; //sttravl.. (a bmp filename)
-  char colours[7]; //more colours
+  unsigned char colours[7]; //more colours
   unsigned char smokepuff;
-  char smokecols[7];
+  unsigned char smokecols[7];
   unsigned char aim; // 1 or 5
   unsigned short smokeanim;  //from animate IDS
   char trailbam[3][8];
@@ -607,12 +607,14 @@ typedef struct
   long dx, dy;
   long unused3;
   char source[8];
-  unsigned char unused4[12];
+  long unused4;
+  long projectile;//the effect uses this projectile
+  long unused6;  
   char variable[32];
-  long duration2;
-  long unused5;
+  long unused7;
+  long unused8;
   long sectype;
-  unsigned char unused6[60];
+  unsigned char unused9[60];
 } eff_header;
 
 //+2 is for the equipped item info (dword)
@@ -812,7 +814,10 @@ typedef struct
   unsigned char unknown243;
   long kit;
   char scripts[5][8];
-  char unknown270[52];
+  char unknown270[36];
+  long overlayoffs;
+  long overlaysize;
+  char unknown29c[8];
   char internals[20]; //2a4
   long unknown; //2b8
   char bestiary[32]; //2bc
@@ -1140,11 +1145,14 @@ typedef struct {
   char vvc[8];
   unsigned char unused3[28];
   char source[8];
-  unsigned char unused4[12];
+  long unused4;
+  long projectile;//the effect uses this projectile
+  long unused6;  
   char variable[32];
-  unsigned char unused5[8];
+  long unused7;
+  long unused8;
   long sectype;
-  unsigned char unused6[60];
+  unsigned char unused9[60];
 } creature_effect;
 
 typedef struct

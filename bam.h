@@ -99,7 +99,7 @@ struct INF_BAM_FRAME
 	WORD		wHeight;
 	short		wCenterX;
 	short		wCenterY;
-	DWORD		dwFrameDataOffset;		// bit 31 is a flag for RLE. 1 = RLE
+	DWORD		dwFrameDataOffset;		// bit 31 is a flag for RLE. 0 = RLE
 };
 
 class INF_BAM_FRAMEDATA
@@ -130,6 +130,9 @@ public:
   void ReorderPixels(COLORREF *palette, BYTE chTransparentIndex, 
       BYTE chNewTransparentIndex, bool bIsCompressed);
   void MarkPixels(COLORREF *palette, BYTE chTransparentIndex, bool bIsCompressed);
+	int INF_BAM_FRAMEDATA::TakePartialBamData(const LPBYTE pRawBits, unsigned int nWidth,
+			unsigned int nHeight, unsigned int nDataWidth, unsigned int nDataSkip,
+			unsigned int nRowSkip, unsigned int nMaxLength);
   int TakeBamData(const LPBYTE pRawBits, unsigned int nWidth, unsigned int nHeight,
        BYTE chTransparentIndex, bool bIsCompressed, unsigned int nMaxLength);
   int TakePltData(const LPWORD pRawBits, plt_header &sHeader, int row);
@@ -165,6 +168,9 @@ public:
   int GetCycleCount();
   int DetachFrameData(int nFrameWanted);
   CPoint GetFrameSize(int nFrameWanted);
+  void GetEmpty(INF_BAM_FRAMEDATA *fdata);
+	void GetSplitQuarter(INF_BAM_FRAMEDATA *fdata, int nFrameWanted, 
+    int skipwidth, int skipheight, int splitwidth, int splitheight);
   LPBYTE GetFrameData(int nFrameWanted);
   int SetFrameData(int nFrameWanted, LPBYTE pFrameData, const CPoint &cpFrameSize);
   CPoint GetFramePos(int nFrameWanted);
@@ -191,6 +197,7 @@ public:
   int FindFrame(int nFrameWanted, int &nIndex); //finds the first cycle containing this frame
   int GetFrameIndex(int nCycle, int nIndex);
   int SetFrameIndex(int nCycle, int nIndex, int nFrameIndex);
+  int SetFrameSize(int nFrameWanted, int x, int y);
   int SetFramePos(int nFrameWanted, int x, int y);
    //use RGB(128,128,128) for a greyscale
   void ConvertToGrey(COLORREF shade, bool keepgray=false);
@@ -198,6 +205,7 @@ public:
   int SwapFrames(int a, int b); //swaps frames in lookup table
   int Reallocate(int x, int y);
   bool ShrinkFrame(int nFrameWanted);
+	bool CopyStructure(Cbam &original, int skipwidth, int skipheight, int width, int height);
 
   inline int GetTransparentIndex()
   {

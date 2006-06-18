@@ -135,6 +135,8 @@ protected:
 	afx_msg void OnToolsMinimalframe();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void SplitBAM();
 };
 
 //{{AFX_INSERT_LOCATION}}

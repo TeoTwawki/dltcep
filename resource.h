@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by chitem.rc
 //
 #define IDC_CHECKSTORE                  3
@@ -1804,6 +1804,7 @@
 #define ID_TOOLS_MINIMALFRAME           33036
 #define ID_FRAME_MINIMIZEFRAME          33037
 #define ID_EDIT_FINDID                  33038
+#define ID_TOOLS_SPLITFRAMES            33039
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1811,7 +1812,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33039
+#define _APS_NEXT_COMMAND_VALUE         33040
 #define _APS_NEXT_CONTROL_VALUE         2301
 #define _APS_NEXT_SYMED_VALUE           120
 #endif

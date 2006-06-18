@@ -171,6 +171,44 @@ int INF_BAM_FRAMEDATA::TakeBmp4Data(const LPBYTE pRawBits, bmp_header &sHeader, 
   return 0;
 }
 
+int INF_BAM_FRAMEDATA::TakePartialBamData(const LPBYTE pRawBits, unsigned int nWidth,
+                                   unsigned int nHeight, unsigned int nDataWidth,
+																	 unsigned int nDataSkip, unsigned int nRowSkip,
+																	 unsigned int nMaxLength)
+{
+	if (nWidth+nDataSkip>nDataWidth)
+	{
+		abort();
+		return -1;
+	}
+	unsigned int nNumPixels = nWidth*nHeight;
+
+  if(pFrameData) delete [] pFrameData;  //deletes the old data
+
+	pFrameData=new BYTE[nNumPixels];
+	if(!pFrameData) return -3;             //memory problem
+	nFrameSize=nNumPixels;
+
+	LPBYTE source = pRawBits;
+	LPBYTE dest = pFrameData;
+
+	source+=nDataWidth*nRowSkip;
+	nMaxLength-=nDataWidth*nRowSkip;
+	for(unsigned int i=0;i<nHeight;i++)
+	{
+		if (nMaxLength<nDataSkip+nWidth)
+		{
+			abort();
+			return -1;
+		}
+		memcpy(dest,source+nDataSkip,nWidth);
+		source+=nDataWidth;
+		nMaxLength-=nDataWidth;
+    dest+=nWidth;
+	}
+	return 0;
+}
+
 int INF_BAM_FRAMEDATA::TakeBamData(const LPBYTE pRawBits, unsigned int nWidth,
                                    unsigned int nHeight, BYTE chTransparentIndex,
                                    bool bIsCompressed, unsigned int nMaxLength)
@@ -1416,6 +1454,17 @@ int Cbam::SwapFrames(int a, int b)
   return 0;
 }
 
+int Cbam::SetFrameSize(int nFrameWanted, int x, int y)
+{
+  if(nFrameWanted<0) return (DWORD) -1;
+  if(!m_pFrames) return -1;
+	if (m_nFrames <= nFrameWanted )  //not enough frames
+		return -1;
+  m_pFrames[nFrameWanted].wWidth=(short) x;
+  m_pFrames[nFrameWanted].wHeight=(short) y;
+  return 0;
+}
+
 int Cbam::SetFramePos(int nFrameWanted, int x, int y)
 {
   if(nFrameWanted<0) return (DWORD) -1;
@@ -1830,6 +1879,49 @@ int Cbam::DetachFrameData(int nFrameWanted)
   m_pFrameData[nFrameWanted].pFrameData=NULL;
   new_bam();
   return 0;
+}
+
+static BYTE empty_frame[1];
+
+void Cbam::GetEmpty(INF_BAM_FRAMEDATA *fdata)
+{
+  empty_frame[0]=m_header.chTransparentIndex;
+  LPBYTE bits=empty_frame;
+  fdata->TakePartialBamData(bits, 1, 1, 1, 0, 0, 1);
+}
+
+void Cbam::GetSplitQuarter(INF_BAM_FRAMEDATA *fdata, int nFrameWanted, int skipwidth, int skipheight, int splitwidth, int splitheight)
+{
+	bool RLE;
+	bool ret;
+  CPoint p;
+
+	LPBYTE bits = GetFrameData(nFrameWanted);
+	if (!bits)
+		return;
+
+  RLE=GetFrameRLE(nFrameWanted);
+  ret = SetFrameRLE(nFrameWanted, false);
+
+	if (!ret)
+	{
+		goto end_of_quest;
+	}
+  bits = GetFrameData(nFrameWanted); //this is needed because of rle decompression
+  p = GetFrameSize(nFrameWanted);
+	//
+	fdata->TakePartialBamData(bits, splitwidth, splitheight, p.x, skipwidth, skipheight, p.x*p.y);
+	//
+end_of_quest:
+	SetFrameRLE(nFrameWanted, RLE);
+	if (!ret)
+	{
+		return;
+	}
+	if (RLE)
+	{
+		fdata->RLECompression(m_header.chTransparentIndex);
+	}
 }
 
 LPBYTE Cbam::GetFrameData(int nFrameWanted)
@@ -2321,5 +2413,105 @@ bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nW
 	hOriginal = (HBITMAP)bmpNew;
 	bmpNew.Detach();
 
+	return true;
+}
+
+bool Cbam::CopyStructure(Cbam &original, int skipwidth, int skipheight, int width, int height)
+{
+	if (&original==this)
+	{
+		return false;
+	}
+	int i,j;
+
+	new_bam();
+	m_nSaveOrder=original.GetSaveOrder();
+	m_bCompressed=original.m_bCompressed;
+	m_palettesize=original.m_palettesize;
+	memcpy(&m_header,&original.m_header, sizeof(original.m_header));
+	memcpy(m_palette,original.m_palette, sizeof(original.m_palette));
+	//m_name shouldn't be set, as there is no reading into this object 
+	//even if there is reading, it should be empty
+	//c_header shouldn't be set
+
+	//setting up cycle data
+	m_nCycles=original.GetCycleCount();
+	m_pCycles=new INF_BAM_CYCLE[m_nCycles];
+  if (!m_pCycles)
+  {
+    return false;
+  }
+  for(i=0;i<m_nCycles;i++)
+	{
+		CPoint p=original.GetCycleData(i);
+		SetCycleData(i,p.x,p.y);
+	}
+
+	//setting up empty frames
+	m_nFrames=original.GetFrameCount();
+	m_pFrames=new INF_BAM_FRAME[m_nFrames];
+  if (!m_pFrames)
+  {
+    return false;
+  }
+	for(i=0;i<m_nFrames;i++)
+	{
+    memset(m_pFrames+i,0,sizeof(INF_BAM_FRAME) );
+    CPoint p=original.GetFramePos(i);
+    SetFramePos(i,p.x, p.y);
+	}
+	
+	//setting up frame lookup
+	m_nFrameLookupSize = original.m_nFrameLookupSize;
+	m_pFrameLookup = new short[m_nFrameLookupSize];
+  if (!m_pFrameLookup)
+  {
+    return false;
+  }
+	memset(m_pFrameLookup,0,sizeof(short)*m_nFrameLookupSize);
+	for(i=0;i<m_nCycles;i++)
+	{
+		CPoint p=original.GetCycleData(i);
+		for(j=0;j<p.y;j++)
+		{
+			SetFrameIndex(i,j, original.GetFrameIndex(i, j));
+		}
+	}
+
+  //setting up framedata
+  m_pFrameData = new INF_BAM_FRAMEDATA[m_nFrames];
+  if (!m_pFrameData)
+  {
+    return false;
+  }
+  for(i=0;i<m_nFrames;i++)
+  {
+    CPoint p = original.GetFrameSize(i);
+    int splitwidth=width;
+    int splitheight=height;
+    if (splitwidth+skipwidth>p.x)
+    {
+      splitwidth=p.x-skipwidth;
+      if (splitwidth<0) splitwidth=0;
+    }
+    if (splitheight+skipheight>p.y)
+    {
+      splitheight=p.y-skipheight;
+      if (splitheight<0) splitheight=0;
+    }
+
+    if (splitwidth==0 || splitheight==0)
+    {
+      splitwidth=1;
+      splitheight=1;
+      original.GetEmpty(m_pFrameData+i);
+    }
+    else
+    {
+      original.GetSplitQuarter(m_pFrameData+i, i, skipwidth, skipheight, splitwidth, splitheight);
+    }
+    SetFrameSize(i, splitwidth, splitheight);
+    SetFramePos(i,m_pFrames[i].wCenterX+skipwidth,m_pFrames[i].wCenterY+skipheight);
+  }
 	return true;
 }

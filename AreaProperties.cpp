@@ -4034,14 +4034,15 @@ void CAreaContainer::OnAdd()
   newvertex=new area_vertex[0];
   //this is strange, but i couldn't do it simpler
   //beware of any combination of door/trigger/container counts
-  if(the_area.triggercount)
+  if(the_area.doorcount)
   {
-    the_area.vertexheaderlist.InsertAfter(the_area.vertexheaderlist.FindIndex(the_area.triggercount+count-1), newvertex);
+    //we should insert our stuff before the first door
+    the_area.vertexheaderlist.InsertBefore(the_area.vertexheaderlist.FindIndex(the_area.triggercount+count), newvertex);
   }
   else
   {
-    //we should insert our stuff before the first door
-    the_area.vertexheaderlist.InsertBefore(the_area.vertexheaderlist.FindIndex(count), newvertex);
+    //if there is no door, then we insert after the last element
+    the_area.vertexheaderlist.InsertAfter(NULL, newvertex);
   }
 
   memcpy(newcontainers, the_area.containerheaders, count*sizeof(area_container));

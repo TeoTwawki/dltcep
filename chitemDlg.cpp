@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.7l"
+#define PRG_VERSION "6.8a"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -75,10 +75,6 @@ protected:
   //}}AFX_VIRTUAL
   
   // Implementation
-protected:
-  //{{AFX_MSG(CAboutDlg)
-  //}}AFX_MSG
-  DECLARE_MESSAGE_MAP()
 };
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
@@ -95,11 +91,6 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_VERSION, m_version);
   //}}AFX_DATA_MAP
 }
-
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
-//{{AFX_MSG_MAP(CAboutDlg)
-  //}}AFX_MSG_MAP
-END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CChitemDlg dialog
@@ -815,8 +806,11 @@ int CChitemDlg::scan_2da()
   darefs.Lookup("SPAWNGRP",tmploc);
   Read2daRow(tmploc, spawngroup, 0); //no error reporting
 
+  pro_references.RemoveAll();
+  pro_titles.RemoveAll();
+
   //these are not present in the blackisle branch
-  if(tob_specific())
+  if(tob_specific() )
   {
     val=get_idsfile("FIREBALL",true);
     if(val<0)
@@ -831,7 +825,18 @@ int CChitemDlg::scan_2da()
       MessageBox("missile.ids not found, projectiles won't be described.","Warning",MB_ICONEXCLAMATION|MB_OK);
     }    
   }
-  else pro_titles.RemoveAll();
+  else
+  {
+    idrefs.Lookup("MISSILE",tmploc);
+
+    val=ReadIds(tmploc, pro_references,1);
+    if (val<0) {
+ 		  int fhandle = open(theApp.m_defpath+"\\missile.ids", O_BINARY|O_RDONLY);
+      if (fhandle>0) {
+        ReadIdsFromFile(fhandle, pro_references, 1, -1);
+      }
+    }
+  }
 
   if(!has_xpvar() && !pst_compatible_var())
   {
@@ -855,7 +860,6 @@ int CChitemDlg::scan_2da()
   }
   else  //these are present in all blackisle but not in bioware
   {
-    pro_references.RemoveAll();
     dial_references.RemoveAll(true);
     val=get_idsfile("CLOWNCLR", true);
     if(val<0)

@@ -23,7 +23,7 @@ CStringMapCompiler trigger_data;
 
 static int position=0;
 static int xorflag=0;
-static int maxlength=0;
+static int maxlength=-1;
 
 char external[MAXBUFFSIZE];
 
@@ -83,7 +83,7 @@ int skip_string(FILE *fpoi, char chr)
   return 0;
 }
 
-int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int maxlength=0)
+int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int length=0)
 {
   int i,j,k;
   char ch;
@@ -109,7 +109,7 @@ int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int maxlength=0)
         if(tmpbuff)
         {
           tmpbuff[k++]=pattern[j];
-          if(k>=maxlength)
+          if(k>=length)
           {
             return 3; //buffer overflow
           }
@@ -119,7 +119,7 @@ int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int maxlength=0)
       if(tmpbuff && ch!='\r')
       {
         tmpbuff[k++]=ch; //don't add \r we would remove it later anyway
-        if(k>=maxlength)
+        if(k>=length)
         {
           return 3; //buffer overflow
         }
@@ -1110,7 +1110,7 @@ void ReadBeastIni(CStringList &beasts)
   fclose(fpoi);
 }
 
-int read_until(char c, FILE *fpoi, CString &ret, int maxlength=65535)
+int read_until(char c, FILE *fpoi, CString &ret, int length=65535)
 {
   int stop, act;
   char *poi;
@@ -1132,18 +1132,20 @@ int read_until(char c, FILE *fpoi, CString &ret, int maxlength=65535)
       flg=false;
     }
     else flg=true;
-    if(stop<maxlength)
+    if(stop<length)
     {
       poi[stop++]=(char) chr;
     }
-    if(stop>act) return -1;
+    if(stop>act) {
+      return -1;
+    }
     if(stop==act )
     {
       ret.ReleaseBuffer(act);
       poi=ret.GetBuffer(act=act+MAXIDSIZE);
     }
   }
-  while( (stop<=maxlength) && poi[stop]!=EOF);
+  while( stop<=length );
   ret.ReleaseBuffer(stop);
   return stop;
 }
@@ -2136,6 +2138,8 @@ int compile_action(CString line, action &action, bool inoverride)
   return 0;
 }
 
+static int check_val;
+
 int read_next_desc(FILE *fpoi)
 {
   CString tmpstr;
@@ -2165,32 +2169,20 @@ int read_next_desc(FILE *fpoi)
   {
     return -1;
   }
-  if(opcodes[index].opcodetext.IsEmpty())
+  if(!opcodes[index].opcodetext.IsEmpty())
   {
-    opcodes[index].opcodetext=tmp;
+    tmpstr.Format("Problem reading effect list at %d previous(%d)!\n",index, check_val);
+    MessageBox(0,tmpstr,"Warning",MB_ICONSTOP);
   }
+  check_val = index;
+
+  opcodes[index].opcodetext=tmp;
 
   read_until('"',fpoi,tmp);
 //  skip_string(fpoi,',');
 //  skip_string(fpoi,'"');
   len=read_until('"',fpoi,tmp);
-  if(opcodes[index].par1.IsEmpty())
-  {
-    opcodes[index].par1=tmp;
-  }
-
-  read_until('"',fpoi,tmp);
-//  skip_string(fpoi,',');
-//  skip_string(fpoi,'"');
-  len=read_until('"',fpoi,tmp);
-  if(!len)
-  {
-    return -1;
-  }
-  if(opcodes[index].par2.IsEmpty())
-  {
-    opcodes[index].par2=tmp;
-  }
+  opcodes[index].par1=tmp;
 
   read_until('"',fpoi,tmp);
 //  skip_string(fpoi,',');
@@ -2200,10 +2192,17 @@ int read_next_desc(FILE *fpoi)
   {
     return -1;
   }
-  if(opcodes[index].opcodedesc.IsEmpty())
+  opcodes[index].par2=tmp;
+
+  read_until('"',fpoi,tmp);
+//  skip_string(fpoi,',');
+//  skip_string(fpoi,'"');
+  len=read_until('"',fpoi,tmp);
+  if(!len)
   {
-    opcodes[index].opcodedesc=tmp;  
+    return -1;
   }
+  opcodes[index].opcodedesc=tmp;  
 
   skip_string(fpoi,'\n');
   return 0;
@@ -2236,6 +2235,7 @@ int read_effect_descs()
     return -2;
   }
   ret=0;
+  check_val=0;
   do
   {
     ret=read_next_desc(fpoi);

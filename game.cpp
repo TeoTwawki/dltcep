@@ -247,7 +247,8 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   fullsize+=header.journalcount*sizeof(gam_journal);
   if(revision==12)
   {
-    fullsize+=260; //additional crap for pst
+    pstheader.familiaroffset=fullsize;
+    fullsize+=260; //additional size for pst (bestiary)
   }
   else
   {
@@ -258,9 +259,9 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
       familiar.offset=fullsize;
     }
     if(revision==22) fullsize+=4;
+    header.slocoffset=fullsize;
+    fullsize+=header.sloccount*sizeof(gam_sloc);
   }
-  header.slocoffset=fullsize;
-  fullsize+=header.sloccount*sizeof(gam_sloc);
 
   if(calculate)
   {
@@ -446,19 +447,19 @@ int Cgame::ReadGameFromFile(int fh, long ml)
   {
     revision=22;      
     mysize=sizeof(gam_iwd2_npc);
-    goto revision;
+    goto read_pc;
   }
   if(!memcmp(header.revision,"V2.1",4) )
   {
     revision=21;
     mysize=sizeof(gam_bg_npc);
-    goto revision;
+    goto read_pc;
   }
   if(!memcmp(header.revision,"V2.0",4) )
   {
     revision=20;
     mysize=sizeof(gam_bg_npc);
-    goto revision;
+    goto read_pc;
   }
   if(!memcmp(header.revision,"V1.1",4) )
   { //this is a hack for PST
@@ -485,10 +486,10 @@ int Cgame::ReadGameFromFile(int fh, long ml)
         mysize=sizeof(gam_iwd_npc);
       }      
     }
-    goto revision;
+    goto read_pc;
   }
   return -2;
-revision:
+read_pc:
   //read pcs
   flg=adjust_actpoint(header.pcoffset);
   if(flg<0)

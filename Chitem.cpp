@@ -2005,7 +2005,7 @@ CString format_spellslot(unsigned int spellslot)
   return tmp;
 }
 
-CString spelltypes[NUM_SPELLTYPE+1]={"0-Special","1-Wizard","2-Cleric","3-Unknown","4-Innate"};
+CString spelltypes[NUM_SPELLTYPE+1]={"0-Special","1-Wizard","2-Cleric","3-Unknown","4-Innate","5-Song"};
 
 CString format_spelltype(unsigned int spelltype)
 {
@@ -2838,8 +2838,8 @@ CString get_save_type(int stype)
 
 CString timing_types[NUM_TMTYPE]={
   "0-Duration","1-Permanent","2-While equiped","3-Delayed duration",
-    "4-Delayed","5-Delayed?","6-Duration?","7-Permanent?","8-Permanent?",
-    "9-Permanent After Death","10-Trigger"
+    "4-Delayed","5-Delayed?","6-Delayed duration absolute","7-Delayed absolute","8-Permanent not saved",
+    "9-Permanent after death","10-Trigger"
 };
 
 int has_duration[]={TIMING_DURATION,TIMING_DELDDUR,TIMING_DELAYED,
@@ -2865,15 +2865,15 @@ CString get_timing_type(int tmtype)
 CString get_duration_label(int tmtype)
 {
   if(tmtype<0 || tmtype>=NUM_TMTYPE)
-  {    
+  {
     return "N/A";
   }
   return duration_labels[tmtype];
 }
 
 CString efftarget_types[NUM_ETTYPE]={
-  "0 None","1 Self","2 Pre-Target","3 Party","4 Global","5 Not in Party",
-  "6 Not Evil","7 Unknown","8 Except self","9 Original caster",
+  "0 None","1 Self","2 Pre-Target","3 Party","4 All living","5 Not in party",
+  "6 Not evil","7 Unknown","8 Except self","9 Original caster",
   "10 Unknown","11 Unknown","12 Unknown",
   "13 Unknown",
 };
@@ -2914,12 +2914,12 @@ CString get_projectile_id(int pronum, int offset)
     tmp1=pro_titles.GetAt(pos);
     if(!tmp1.GetLength())
     {
-      tmp1="Unknown";
+      tmp1="???";
     }
   }
   else
   {
-    tmp1="Unknown";
+    tmp1="???";
   }
 
   pos=pro_references.FindIndex(pronum);
@@ -5599,21 +5599,23 @@ colortype colors[COLORNUM]={
   colortype(0xDADADA,"Solid Gray (no gradient)"),
 };
 
-void MakeGradientArray(unsigned long *array, int GradientIndex)
+void MakeGradientArray(unsigned long *array, unsigned int GradientIndex)
 {
   int j;
 
+  if (GradientIndex>=COLORNUM) GradientIndex=0;
   for(j=0;j<5;j++)
   {
     array[j]=colors[GradientIndex].rgb[j*12/5];
   }
 }
 
-void MakeGradientBitmap(HBITMAP &hb, int GradientIndex)
+void MakeGradientBitmap(HBITMAP &hb, unsigned int GradientIndex)
 {
   COLORREF bits[16*16];
   int j;
 
+  if (GradientIndex>=COLORNUM) GradientIndex=0;
   for(j=0;j<16*16;j++)
   {
     bits[j]=colors[GradientIndex].rgb[(j&15)*12/16];

@@ -1,0 +1,387 @@
+IDS V1.0
+1 None
+2 Arrow
+3 Arrow Exploding
+4 Arrow Flaming
+5 Arrow Heavy
+6 Arrow (Non-Magical)
+7 Axe
+8 Axe Exploding
+9 Axe Flaming
+10 Axe Heavy
+11 Axe (Non-Magical)
+12 Bolt
+13 Bolt Exploding
+14 Bolt Flaming
+15 Bolt Heavy
+16 Bolt (Non-Magical)
+17 Bullet
+18 Bullet Exploding
+19 Bullet Flaming
+20 Bullet Heavy
+21 Bullet (Non-Magical)
+22 Burning Hands
+23 Call Lightning
+24 Chromatic Orb
+25 Cone Of Cold
+26 Cone Of Fire
+27 Dagger
+28 Dagger Exploding
+29 Dagger Flaming
+30 Dagger Heavy
+31 Dagger (Non-Magical)
+32 Dart
+33 Dart Exploding
+34 Dart Flaming
+35 Dart Heavy
+36 Dart (Non-Magical)
+37 Magic Missile
+38 Fireball
+39 Ice Fragments
+40 Lightning Bolt
+41 Skipping Stone
+42 Sleep
+43 Skeleton Animation
+44 Smoke Ball
+45 Smoke Large
+46 Smoke Small
+47 Sparkle Blue
+48 Sparkle Gold
+49 Sparkle Purple
+50 Sparkle Ice
+51 Sparkle Stone
+52 Sparkle Black
+53 Sparkle Chromatic
+54 Sparkle Red
+55 Sparkle Green
+56 Spear
+57 Spear Exploding
+58 Spear Flaming
+59 Spear Heavy
+60 Spear (Non-Magical)
+61 Star Sprite
+62 Stoned
+63 Web Travel
+64 Web Ground
+65 Gaze
+66 Holy Might
+67 Flame Strike
+68 Magic Missiles 1
+69 Magic Missiles 2
+70 Magic Missiles 3
+71 Magic Missiles 4
+72 Magic Missiles 5
+73 Magic Missiles 6
+74 Magic Missiles 7
+75 Magic Missiles 8
+76 Magic Missiles 9
+77 Magic Missiles 10
+78 Magic Missiles 11
+79 Invisible travelling
+80 Fire bolt
+81 Call lightning chain 1
+82 Call lightning chain 2
+83 Call lightning chain 3
+84 Call lightning chain 4
+85 Call lightning chain 5
+86 Call lightning chain 6
+87 Call lightning chain 7
+88 Call lightning chain 8
+89 Call lightning chain 9
+90 Call lightning chain 10
+91 Call lightning chain 11
+92 Fire storm
+93 Call lightning storm
+94 Instant area effect
+95 Stinking Cloud
+96 Skull trap
+97 Color spray
+98 Ice storm
+99 Fire wall
+100 Glyph
+101 Grease
+102 Flame arrow green
+103 Flame arrow blue
+104 Fireball green
+105 Fireball blue
+106 Potion
+107 Potion Exploding
+108 Acid Blob
+109 Agannazar's Scorcher
+110 Travel Door
+111 Glow Necromancy
+112 Glow Alteration
+113 Glow Enchantment
+114 Glow Abjuration
+115 Glow Illusion
+116 Glow Conjure
+117 Glow Invocation
+118 Glow Divination
+119 Hit Necromancy air
+120 Hit Necromancy earth
+121 Hit Necromancy water
+122 Hit Alteration air
+123 Hit Alteration earth
+124 Hit Alteration water
+125 Hit Enchantment air
+126 Hit Enchantment earth
+127 Hit Enchantment water
+128 Hit Abjuration air
+129 Hit Abjuration earth
+130 Hit Abjuration water
+131 Hit Illusion air
+132 Hit Illusion earth
+133 Hit Illusion water
+134 Hit Conjure air
+135 Hit Conjure earth
+136 Hit Conjure water
+137 Hit Invocation air
+138 Hit Invocation earth
+139 Hit Invocation water
+140 Hit Divination air
+141 Hit Divination earth
+142 Hit Divination water
+143 Hit Mushroom fire
+144 Hit Mushroom grey
+145 Hit Mushroom green
+146 Hit Shaft fire
+147 Hit Shaft light
+148 Hit Swirl white
+149 Sparkle Area Blue
+150 Sparkle Area Gold
+151 Sparkle Area Purple
+152 Sparkle Area Ice
+153 Sparkle Area Stone
+154 Sparkle Area Black
+155 Sparkle Area Chromatic
+156 Sparkle Area Red
+157 Sparkle Area Green
+158 Instant Area (Party Only)
+159 Instant Area (Not Party)
+160 Sparkle Area Blue (Party Only)
+161 Sparkle Area Gold (Party Only)
+162 Sparkle Area Purple (Party Only)
+163 Sparkle Area Ice (Party Only)
+164 Sparkle Area Stone (Party Only)
+165 Sparkle Area Black (Party Only)
+166 Sparkle Area Chromatic (Party Only)
+167 Sparkle Area Red (Party Only)
+168 Sparkle Area Green (Party Only)
+169 Sparkle Area Blue (Not Party)
+170 Sparkle Area Gold (Not Party)
+171 Sparkle Area Purple (Not Party)
+172 Sparkle Area Ice (Not Party)
+173 Sparkle Area Stone (Not Party)
+174 Sparkle Area Black (Not Party)
+175 Sparkle Area Chromatic (Not Party)
+176 Sparkle Area Red (Not Party)
+177 Sparkle Area Green (Not Party)
+178 Sparkle Area Magenta (not party)
+179 Sparkle Area Orange (not party)
+180 Sparkle Area Magenta (party only)
+181 Sparkle Area Orange (party only)
+182 Sparkle Area Magenta
+183 Sparkle Area Orange
+184 Sparkle Magenta
+185 Sparkle Orange
+186 Non sprite Area
+187 CloudKill
+188 Flame arrow ice
+189 Cow
+190 Hold Person
+191 Scorcher Ice
+192 Acid Blob Mustard
+193 Acid Blob Grey
+194 Acid Blob Ochre
+195 Red Holy Might
+196 Hit necromancy area
+197 Hit alteration area
+198 Hit enchantment area
+199 Hit abjuration area
+200 Hit illusion area
+201 Hit conjure area
+202 Hit invocation area
+203 Hit divination area
+204 Fireball White
+205 Instant area effect small
+206 Lightning Bolt Ground
+207 Lightning No Bounce
+208 Hit Finger of Death
+209 Malavon's Rage
+210 Chain Lightning
+211 Acid Storm
+212 Death Fog
+213 Spike Stones
+214 Incendiary Cloud
+215 Produce Fire
+216 Insect Plague
+217 Snilloc's Snowball Swarm
+218 Icewind Magic Missile
+219 Hit Abjuration
+220 Hit Alteration
+221 Hit Invocation
+222 Hit Necromancy
+223 Hit Conjuration
+224 Hit Enchantment
+225 Hit Illusion
+226 Hit Divination
+227 Travel Abjuration
+228 Travel Alteration
+229 Travel Invocation
+230 Travel Necromancy
+231 Travel Conjuration
+232 Travel Enchantment
+233 Travel Illusion
+234 Travel Divination
+235 Entangle
+236 Bless
+237 Curse
+238 Remove Fear
+239 Detect Evil
+240 Detect Invisibility
+241 Horror
+242 Resist Fear
+243 Chant
+244 Find Traps
+245 Silence 15' Radius
+246 Dispel Magic
+247 Haste
+248 Slow
+249 Hold Animal
+250 Remove Paralysis
+251 Icelance
+252 Strength of One
+253 Prayer
+254 Confusion (Wizard)
+255 Emotion
+256 Malison
+257 Defensive Harmony
+258 Protection From Evil 10' Radius
+259 Cloak of Fear
+260 Recitation
+261 Otiluke's Resilient Sphere
+262 Static Charge
+263 Hold Monster
+264 Chaos
+265 Shroud of Flame
+266 Righteous Wrath of the Faithful
+267 Death Spell
+268 Disintegrate
+269 Otiluke's Freezing Sphere
+270 Fire Seed
+271 Sol's Searing Orb
+272 Prismatic Spray
+273 Mass Invisibility
+274 Sunray
+275 Confusion (Priest)
+276 Symbol of Pain
+277 Symbol of Hopelessness
+278 Power Word Kill
+279 Malavon's Corrosive Fog
+280 Salamander Aura
+281 Umber Hulk Gaze
+282 Bombardier Beetle Cloud
+283 Zombie Lord Aura
+284 Iron Golem Cloud
+285 Myconid Spores
+286 Incendiary Cloud Explosion
+287 Incendiary Cloud Idling
+288 Heavenly Inferno
+289 Area Hit Monster Summoning
+290 Area Hit Animal Summoning
+291 Area Hit Conjure Earth Elemental
+292 Area Hit Conjure Fire Elemental
+293 Area Hit Conjure Water Elemental
+294 Portal Animation Flipping Hack Open
+295 Horror Trap
+296 Winter Wolf Breath
+297 Portal Animation Flipping Hack Close
+298 Alicorn Lance
+299 Soul Eater
+300 Spike Growth
+301 Cloudburst
+302 Smashing Wave
+303 Thorn Spray
+304 Wall of Moonlight
+305 Whirlwind
+306 Earthquake
+307 Mist of Eldath
+308 Circle of Bones
+309 Cloud of Pestilence
+310 Undead Ward
+311 Blade Barrier
+312 Spiritual Wrath
+313 Lance of Disruption
+314 Mordenkainen's Force Missiles
+315 Shout
+316 Vitriolic Sphere
+317 Suffocate
+318 Abi-Dalzim's Horrid Wilting
+319 Great Shout
+320 Mournful Wail
+321 Death Knell
+322 War Cry
+323 Undying Lament
+324 Mordenkainen's Force Missiles 1
+325 Mordenkainen's Force Missiles 2
+326 Mordenkainen's Force Missiles 3
+327 Mordenkainen's Force Missiles 4
+328 Mordenkainen's Force Missiles 5
+329 Mordenkainen's Force Missiles 6
+330 Mordenkainen's Force Missiles 7
+331 Mordenkainen's Force Missiles 8
+332 Mordenkainen's Force Missiles 9
+333 Mordenkainen's Force Missiles 10
+334 Mordenkainen's Force Missiles 11
+335 Sunfire
+336 Power Word Blind
+337 Holy Smite
+338 Unholy Blight
+339 Greater Command
+340 Holy Word
+341 Unholy Word
+342 Great Roar
+343 Will O' Wisp Spray
+344 Retribution (Single Projectile)
+345 Retribution
+346 Sekolah's Fire
+347 Blue Glow
+348 Dragon Gem Cutscene
+349 Dragon Breath
+350 Crypt Thing Teleport
+351 Mustard Jelly Vapor
+352 Summon Cornugons
+353 Container Glow
+354 Container Glow Bad
+355 Crypt Thing Teleport (Fighter)
+356 Crypt Thing Teleport (Thief)
+357 Hold Undead
+358 Invisibility 10' Radius
+359 Mass Cure
+360 Delayed Blast Fireball
+361 Area Hit Gate
+362 Wail of the Banshee
+363 Symbol, Fear
+364 Symbol, Stun
+365 Symbol, Death
+366 Meteor Swarm
+367 Improved Haste
+368 Frost Fingers
+369 Gedlee's Electric Loop
+370 Wall of Fire
+371 Aura of Vitality
+372 Banishment
+373 Mass Dominate
+374 Mind Flayer Psionic Blast
+375 Boulder
+376 Turn Undead
+377 Mind Fog
+378 Half Dragon Acid Breath
+379 Half Dragon Fire Breath
+380 Half Dragon Lightning Breath
+381 Guardian Acid Breath
+382 Ultrablast
+383 Boulder, Big (Trap)
+384 Fire Trap
+385 Acid Trap
+386 Chimera Fire Breath

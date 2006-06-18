@@ -45,7 +45,9 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 		RetrieveResref(tmpstr,the_game.pstheader.mainarea);
 		DDX_Text(pDX, IDC_STARTAREA, tmpstr);
 		StoreResref(tmpstr,the_game.pstheader.mainarea);
-		cw = GetDlgItem(IDC_SCREEN);
+		DDX_Text(pDX, IDC_AREA, tmpstr);
+		StoreResref(tmpstr,the_game.pstheader.curarea);
+    cw = GetDlgItem(IDC_SCREEN);
 		cw->EnableWindow(false);
 		DDX_Text(pDX, IDC_UNKNOWN48, the_game.pstheader.unknown48);
 		cw = GetDlgItem(IDC_SLIDER);
@@ -64,6 +66,9 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 		RetrieveResref(tmpstr,the_game.header.mainarea);
 		DDX_Text(pDX, IDC_STARTAREA, tmpstr);
 		StoreResref(tmpstr,the_game.header.mainarea);
+    RetrieveResref(tmpstr,the_game.header.curarea);
+		DDX_Text(pDX, IDC_AREA, tmpstr);
+		StoreResref(tmpstr,the_game.header.curarea);
 		DDX_Text(pDX, IDC_SCREEN, the_game.header.controls);
     DDX_Text(pDX, IDC_UNKNOWN48, the_game.header.unknown48);
 		i = the_game.header.formation;
@@ -102,6 +107,7 @@ BEGIN_MESSAGE_MAP(CGameGeneral, CDialog)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_EN_KILLFOCUS(IDC_GAMETIME, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_GOLD, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_WEATHER, OnDefaultKillfocus)
@@ -114,6 +120,7 @@ BEGIN_MESSAGE_MAP(CGameGeneral, CDialog)
 	ON_EN_KILLFOCUS(IDC_U3, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U4, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U5, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_AREA, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER, OnDefaultKillfocusX)
 END_MESSAGE_MAP()
@@ -211,3 +218,16 @@ void CGameGeneral::OnBrowse()
 	UpdateData(UD_DISPLAY);
 }
 
+
+void CGameGeneral::OnBrowse2() 
+{
+  CString tmpstr;
+  
+  pickerdlg.m_restype=REF_ARE;
+  RetrieveResref(pickerdlg.m_picked,the_game.header.curarea);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_game.header.curarea);
+  }
+	UpdateData(UD_DISPLAY);
+}

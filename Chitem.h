@@ -184,7 +184,7 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define STI_STOLEN      4
 #define STI_NODROP      8
 
-#define NUM_SPELLTYPE  4
+#define NUM_SPELLTYPE  5
 //spell types
 #define SP_SPECIAL 0
 #define SP_WIZARD 1
@@ -1023,8 +1023,8 @@ int read_src(CString key);
 int read_creature(CString key);
 int write_creature(CString key, CString filepath);
 //pick 5 values from the gradient list
-void MakeGradientArray(unsigned long *, int GradientIndex);
-void MakeGradientBitmap(HBITMAP &hb, int GradientIndex);
+void MakeGradientArray(unsigned long *, unsigned int GradientIndex);
+void MakeGradientBitmap(HBITMAP &hb, unsigned int GradientIndex);
 CString GetMapTypeValue(int maptype, int value);
 int read_bmp(CString key,HBITMAP &hb);
 int read_bmp(CString key, Cbam *cb, int lazy=0); //cb can't be NULL due to polymorphism

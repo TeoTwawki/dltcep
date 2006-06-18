@@ -22,7 +22,7 @@ public:
 	CListCtrl	m_colorpicker;
 	//}}AFX_DATA
   CImageList colorlist;
-  int m_picked;
+  unsigned int m_picked;
   bool m_uninitialised;
 // Overrides
 	// ClassWizard generated virtual function overrides

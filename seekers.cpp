@@ -4878,7 +4878,19 @@ int CChitemDlg::check_wed()
   {
     return ret;
   }
-  tilecount=the_area.overlayheaders[0].height*the_area.overlayheaders[0].width;
+	i=the_area.overlayheaders[0].height;
+	if (i>60 || i<5)
+	{
+		ret|=BAD_EXTHEAD;
+		log("Invalid area height (5-60)");
+	}
+	j=the_area.overlayheaders[0].width;
+	if (j>80 || j<5)
+	{
+		ret|=BAD_EXTHEAD;
+		log("Invalid area width (5-80)");
+	}
+  tilecount=i*j;
   for(i=0;i<tilecount;i++)
   {
     if(the_area.overlaytileheaders[i].counttileprimary-1>10)

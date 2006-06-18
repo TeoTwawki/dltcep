@@ -27,11 +27,13 @@ Ccreature::Ccreature()
   items=NULL;
   effects=NULL;
   oldeffects=NULL;
+  pst_unknown_data=NULL;
   bookcount=0;
   selectcount=0;
   memocount=0;
   itemcount=0;
   effectcount=0;
+  pst_data_size=0;
   revision=10;
   memset(iwd2_spells,0,sizeof(iwd2_spells));
   m_savechanges=true;
@@ -45,6 +47,7 @@ Ccreature::~Ccreature()
   KillItems();
   KillEffects();
   KillIwd2Spells();
+  KillPstData();
 }
 int Ccreature::adjust_actpoint(long offset)
 {
@@ -834,6 +837,29 @@ redo:
   flg=fix_items();
   if(flg<0) return flg;
   ret|=flg;
+  if ((revision==12) && pstheader.overlaysize)
+  {
+    flg = adjust_actpoint(pstheader.overlayoffs);
+    if(flg<0) return flg;
+    ret|=flg;
+    if(pst_data_size!=pstheader.overlaysize)
+    {
+      KillPstData();
+      pst_unknown_data = new char[pstheader.overlaysize];
+      if(!pst_unknown_data) return -3;
+      pst_data_size = pstheader.overlaysize;
+    }
+    if (read(fhandle, pst_unknown_data, pst_data_size)!=pst_data_size)
+    {
+      return -2;
+    }
+    fullsize+=pstheader.overlaysize;
+  }
+  else
+  {
+    KillPstData();
+  }
+
   if(maxlen!=fullsize)
   {
     return 2; //incorrect length

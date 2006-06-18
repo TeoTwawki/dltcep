@@ -183,7 +183,7 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
 
   DDX_Text(pDX, IDC_PAR3, the_effect.header.par3);
   DDX_Text(pDX, IDC_PAR4, the_effect.header.par4);
-  DDX_Text(pDX, IDC_U3, the_effect.header.u3);
+  DDX_Text(pDX, IDC_U3, the_effect.header.projectile);
   DDX_Text(pDX, IDC_U4, the_effect.header.u4);
   DDX_Text(pDX, IDC_U5, the_effect.header.u5);
 }
@@ -705,7 +705,7 @@ void CEffEdit::OnKillfocusEffopcode()
   opcode=m_effopcode_control.FindStringExact(0,m_opcode);
   if(opcode<0)
   {
-    opcode=atoi(m_opcode);
+    opcode=strtonum(m_opcode);
   }
   else opcode=m_effopcode_control.GetItemData(opcode);
   if(opcode>=0)

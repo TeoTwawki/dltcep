@@ -9,6 +9,7 @@
 #include "chitemDlg.h"
 #include "BamEdit.h"
 #include "PaletteEdit.h"
+#include ".\bamedit.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -19,6 +20,7 @@ static char THIS_FILE[] = __FILE__;
 //bam play flags
 #define PLAYBAM     1
 #define CONTINUOUS  2
+#define MAX_DIMENSION 200
 
 static char BASED_CODE szFilter[] = "Animation files (*.bam)|*.bam|All files (*.*)|*.*||";
 static char BASED_CODE szFilter2[] = "Bitmap files (*.bmp)|*.bmp|Paperdoll files (*.plt)|*.plt|All files (*.*)|*.*||";
@@ -397,6 +399,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
 	ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
+	ON_COMMAND(ID_TOOLS_SPLITFRAMES, SplitBAM)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1763,7 +1766,6 @@ void CBamEdit::OnAlign()
   UpdateData(UD_DISPLAY);
 }
 
-
 void CBamEdit::OnCycleAlignframes() 
 {
   CPoint point;
@@ -1783,6 +1785,60 @@ void CBamEdit::OnCycleAlignframes()
     the_bam.SetFramePos(the_bam.m_pFrameLookup[CycleData.x+i],point.x,point.y);
   }
   UpdateData(UD_DISPLAY);
+}
+
+static inline int GetSplitSize(int scale)
+{
+	int div = (scale+MAX_DIMENSION-1)/MAX_DIMENSION;
+	return scale/div;
+}
+
+void CBamEdit::SplitBAM()
+{
+	CPoint p;
+	int i,j;
+	int fc = the_bam.GetFrameCount();
+	int width = 0;
+	int height = 0;
+	Cbam tmpbam;
+
+	for(i=0;i<fc;i++)
+	{
+		p=the_bam.GetFrameSize(i);
+		if (width<p.x)
+		{
+			width=p.x;
+		}
+		if (height<p.y)
+		{
+			height=p.y;
+		}
+	}
+	if (width<MAX_DIMENSION && height<MAX_DIMENSION)
+	{
+		MessageBox("This BAM doesn't require splitting.","BAM Editor",MB_OK);
+		return;
+	}
+  CString tmpstr;
+  CString key;
+  int quarter = 0;
+	int wsplit = GetSplitSize(width);
+  int hsplit = GetSplitSize(height);
+	for(i=0;i<width;i+=wsplit)
+	{
+		for(j=0;j<height;j+=hsplit)
+		{
+      int ws = wsplit;
+      int hs = hsplit;
+
+      if (i+ws>width) ws=width-i;
+      if (j+hs>height) hs=height-j;
+			tmpbam.CopyStructure(the_bam, i, j, ws, hs);
+      key.Format("%s.%d",itemname, quarter++);
+      tmpstr="";
+      write_bam(key,tmpstr,&tmpbam);
+		}
+	}
 }
 
 void CBamEdit::OnDecompress() 

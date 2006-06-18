@@ -805,7 +805,7 @@ void CProjEdit::OnAttr16()
 
 void CProjEdit::OnMpsmoke() 
 {
-  colordlg.m_picked=the_projectile.header.smokecols[m_smokecoloridx];
+  colordlg.m_picked=(unsigned char) the_projectile.header.smokecols[m_smokecoloridx];
   if(colordlg.DoModal()==IDOK)
   {
     the_projectile.header.smokecols[m_smokecoloridx]=(unsigned char) colordlg.m_picked;
@@ -818,7 +818,7 @@ void CProjEdit::OnMpsmoke()
 void CProjEdit::RefreshSmoke(int idx)
 {
 	m_smokecoloridx=idx;	
-  MakeGradientBitmap(hbs, the_projectile.header.smokecols[m_smokecoloridx]);
+  MakeGradientBitmap(hbs, (unsigned char) the_projectile.header.smokecols[m_smokecoloridx]);
   m_mpsmoke.SetBitmap(hbs);
   UpdateData(UD_DISPLAY);
 }
