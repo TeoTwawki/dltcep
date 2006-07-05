@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "6.8a"
+#define PRG_VERSION "6.8c"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -1140,6 +1140,7 @@ int CChitemDlg::scan_chitin()
     poi=bifs[bifidx].bifname.GetBufferSetLength(bifentry.namelen);
     read(fhandle,poi,bifentry.namelen);
     bifs[bifidx].bifname.ReleaseBuffer();
+    bifs[bifidx].bifname.Replace(":","\\");
     bifs[bifidx].biflen=bifentry.biflen;
     bifs[bifidx].location=bifentry.location;
     lseek(fhandle,tmpofs,SEEK_SET);

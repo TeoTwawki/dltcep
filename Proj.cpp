@@ -43,6 +43,7 @@ int Cproj::WriteProjectileToFile(int fhandle, int calculate)
   }
   if(header.type!=3)
   {
+    m_changed=false;
     return 0;
   }
   if(write(fhandle,&extension,sizeof(proj_extension) )!=sizeof(proj_extension) )

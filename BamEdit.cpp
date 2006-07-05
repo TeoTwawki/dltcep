@@ -1633,20 +1633,49 @@ void CBamEdit::OnFlipcycle()
   UpdateData(UD_DISPLAY);
 }
 
-void CBamEdit::OnCreatemirror() 
+void CBamEdit::Flip8Cycles(int nCount)
+{
+  CPoint CycleData;
+  int nCycle;
+  int x;
+
+  for(nCycle=0;nCycle<nCount;nCycle+=8)
+  {
+  //leftup
+    m_cyclenum_control.SetCurSel(nCycle+3);
+    OnCopycycle();
+    m_cyclenum_control.SetCurSel(nCycle+5);
+    OnPastecycle();
+    //left
+    m_cyclenum_control.SetCurSel(nCycle+2);
+    OnCopycycle();
+    m_cyclenum_control.SetCurSel(nCycle+6);
+    OnPastecycle();
+    //leftdown
+    m_cyclenum_control.SetCurSel(nCycle+1);
+    OnCopycycle();
+    m_cyclenum_control.SetCurSel(nCycle+7);
+    OnPastecycle();
+    //flipping the copies
+    for(x=5;x<8;x++)
+    {
+      m_cyclenum_control.SetCurSel(nCycle+x);
+      OnFlipcycle();
+    }
+  //dropping the frames from the old cycles
+    for(x=0;x<5;x++)
+    {
+      CycleData=the_bam.GetCycleData(nCycle+x);
+      the_bam.RemoveFrameFromCycle(nCycle+x,0,CycleData.y);
+    }
+  }
+}
+
+void CBamEdit::Flip5Cycles()
 {
   CPoint CycleData;
   int nCycle;
 
-  if(itemname.GetLength()>=8)
-  {
-    goto errorend;
-  }
-	if(the_bam.GetCycleCount()!=5)
-  {
-    goto errorend;
-  }
-	
   //leftup
   m_cyclenum_control.SetCurSel(3);
   OnCopycycle();
@@ -1677,12 +1706,30 @@ void CBamEdit::OnCreatemirror()
     CycleData=the_bam.GetCycleData(nCycle);
     the_bam.RemoveFrameFromCycle(nCycle,0,CycleData.y);
   }
+}
+
+void CBamEdit::OnCreatemirror() 
+{
+  if(itemname.GetLength()>=8)
+  {
+    goto errorend;
+  }
+  switch(the_bam.GetCycleCount())
+  {
+  case 5:
+    Flip5Cycles();
+    break;
+  case 8: case 16: case 24: case 32: case 40: case 48: case 56:
+    Flip8Cycles(the_bam.GetCycleCount());
+    break;
+  default:
+errorend:
+    MessageBox("This function works only on special animation bams.\nSee the manual!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    break;
+  }
   the_bam.DropUnusedFrame(1);
   itemname+="E";
-  RefreshDialog();
-  return;
-errorend:
-  MessageBox("This function works only on special animation bams.\nSee the manual!","Warning",MB_ICONEXCLAMATION|MB_OK);
+  RefreshDialog();  
 }
 
 void CBamEdit::OnDropallbutlast() 

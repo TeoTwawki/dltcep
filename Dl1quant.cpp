@@ -1,3 +1,4 @@
+/// // DL1QUANT.CPP - DL1 Color Quantization Class
 #include "stdafx.h"
 
 #include <windows.h>

@@ -68,6 +68,8 @@ protected:
   void AddonBam(Cbam &addon);
   void AddinBam(Cbam &addin);
   int WriteAllFrames(CString newname, Cbam &my_bam);
+  void Flip5Cycles();
+  void Flip8Cycles(int nCount);
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
