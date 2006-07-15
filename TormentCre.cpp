@@ -40,7 +40,7 @@ void CTormentCre::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_COLOR, the_creature.pstheader.colornum);
   DDV_MinMaxInt(pDX, the_creature.pstheader.colornum, 0,6);
 
-  tmpstr.Format("0x%x %s",the_creature.pstheader.idsspecies,IDSToken("RACE",the_creature.pstheader.idsspecies) );
+  tmpstr.Format("0x%x %s",the_creature.pstheader.idsspecies,IDSToken("RACE",the_creature.pstheader.idsspecies, true) );
   DDX_Text(pDX, IDC_IDSSPECIES, tmpstr);
   value=IDSKey("RACE", tmpstr);
   if(value==-1)

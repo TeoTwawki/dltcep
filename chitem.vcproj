@@ -626,6 +626,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Decompiler.cpp">
+			</File>
+			<File
 				RelativePath="dialog.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -2031,6 +2034,9 @@
 			</File>
 			<File
 				RelativePath="decoder.h">
+			</File>
+			<File
+				RelativePath=".\Decompiler.h">
 			</File>
 			<File
 				RelativePath="dialog.h">

@@ -2146,6 +2146,7 @@ class trigger
 {
 public:
   int opcode;
+  bool negate;
   int bytes[6]; //PST triggers got 2 extra bytes (points)
   char var1[6+32+1];
   char var2[6+32+1];
@@ -2153,6 +2154,7 @@ public:
   void Reset()
   {
     opcode=0;
+    negate=false;
     memset(bytes,0,sizeof(bytes));
     memset(var1,0,sizeof(var1));
     memset(var2,0,sizeof(var2));
@@ -2198,6 +2200,7 @@ class compiler_data//hashed compiler data
 public:
   int opcode;
   int parnum;
+  int parnumx; //prototype code (parameter count, but strings add 16)
   parameter_data *parameters;
 public:
   compiler_data()

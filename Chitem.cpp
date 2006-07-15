@@ -2552,7 +2552,7 @@ CString get_state_text(int state)
   CString tmp, tmpstr;
 
   get_idsfile("SPLSTATE",false);
-  tmp=IDSToken("SPLSTATE",state);
+  tmp=IDSToken("SPLSTATE",state, false);
   if(tmp.GetLength()) tmpstr.Format("%d %s",state,tmp);
   else tmpstr.Format("%d Unknown",state);
   return tmpstr;
@@ -2671,13 +2671,14 @@ char *idstype[NUM_IDS]={
 };
 
 char *idsname[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
-#define NUM_IDS_IWD  9
-char *idsname_iwd[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
-#define NUM_IDS_IWD2  9
-char *idsname_iwd2[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMNT"};
+#define NUM_IDS_IWD  7
+char *idsname_iwd[NUM_IDS_IWD]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
+#define NUM_IDS_IWD2  10
+char *idsname_iwd2[NUM_IDS_IWD2]={"EA","GENERAL","RACE","SUBRACE","CLASS","SPECIFIC","GENDER","ALIGNMNT","AVCLASS","CLASSMSK"};
 #define NUM_IDS_PST  9
 char *idsname_pst[NUM_IDS_PST]={"EA","TEAM","FACTION","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
 
+//for effects
 CString IDSType(int ids, bool addtwo)
 {
   if(addtwo) ids-=2;
@@ -2685,6 +2686,7 @@ CString IDSType(int ids, bool addtwo)
   return idstype[ids];
 }
 
+//for scripting
 CString IDSName(int ids, bool addtwo)
 {
   if(addtwo) ids-=2;
@@ -2725,7 +2727,7 @@ int IDSKey(CString filename, CString key)
 }
 
 //don't append number so this function could be used for decompile
-CString IDSToken(CString filename, int value)
+CString IDSToken(CString filename, int value, bool unused)
 {
   CString key;
   int tmp;
@@ -2746,7 +2748,13 @@ CString IDSToken(CString filename, int value)
       return key;
     }
   }
-  if((value==0) || (value==255)) return "unused";
+  if (unused)
+  {
+    if((value==0) || (value==255))
+    {
+      return "unused";
+    }
+  }
   return "";
 }
 
@@ -3154,6 +3162,10 @@ CString get_compile_error(int ret)
     return "Actions after Continue()";
   case CE_EMPTY_TOP_LEVEL:
     return "Empty top level condition, use True()";
+  case CE_INVALID_SPELL_LIST:
+    return "Invalid spell list length";
+  case CE_INVALID_SPELL_NUMBER:
+    return "Invalid spell number on list";
 
   case CE_BAD_IF:
     return "Bad IF";
@@ -3440,6 +3452,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define st CHECK_STRREF
 #define jr CHECK_JOURNAL
 #define TO sf(CHECK_STORE, IS_VAR)
+#define VA sf(ADD_VAR3, CHECK_SCOPE)
 #define VO sf(ADD_VAR, IS_VAR)
 #define TV sf(VALID_TAG,IS_VAR)
 #define tv sf(VALID_TAG,IS_VAR)|CHECK_STRREF
@@ -3471,7 +3484,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 
     OO,   OO,   VO,   VO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
-    OO,   OO,   OO,   mv,   mv,   mv,   IO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   VA,   VA,   VA,   IO,   OO,   OO,   OO,  
 //0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 
@@ -3487,7 +3500,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   PO,   OO,   OO,   OO,   OO,  
 //0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 
     OO,   OO,   GG,   GG,   GG,   LL,   LL,   LL,   OO,   OO,  
 //0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 
@@ -3572,7 +3585,7 @@ int tob_action_flags[MAX_ACTION]={
 //280,  281,  282,  283,  284,  285,  286,  287,  288,  289,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   st,   OO,  
 //290,  291,  292,  293,  294,  295,  296,  297,  298,  299,  
-    OO,   OO,   io,   DO,   DO,   CO,   OO,   VO,   OO,   OO,  
+    OO,   OO,   io,   DO,   DO,   CO,   OO,   mv,   OO,   OO,  
 //300,  301,  302,  303,  304,  305,  306,  307,  308,  309,  
     OO,   OO,   OO,   GO,   mv,   LO,   OO,   GO,   st,   OO,  
 //310,  311,  312,  313,  314,  315,  316,  317,  318,  319,  
@@ -3601,11 +3614,11 @@ int iwd2_trigger_flags[MAX_TRIGGER]={
 //0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 
     OO,   OO,   VO,   VO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
-    OO,   OO,   OO,   mv,   mv,   mv,   IO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   VA,   VA,   VA,   IO,   OO,   OO,   OO,  
 //0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   DV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   IO,   OO,   OO,  
 //0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 
@@ -3617,11 +3630,11 @@ int iwd2_trigger_flags[MAX_TRIGGER]={
 //0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   PO,   OO,   OO,   OO,   OO,  
 //0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 
-    OO,   OO,   OO,   OO,   OO,   VO,   vv,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   vO,   vv,   OO,   OO,   OO,  ////// VO
 //0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 
@@ -3804,7 +3817,7 @@ int pst_action_flags[MAX_ACTION]={
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
     IO,   mv,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
-    TO,   OO,   OO,   by,   by,   by,   by,   by,   by,   by,  
+    TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
     pO,   wO,   OO,   OO,   OO,   VO,   OO,   MO,   OO,   IO,  
 //170,  171,  172,  173,  174,  175,  176,  177,  178,  179,  
@@ -3816,7 +3829,7 @@ int pst_action_flags[MAX_ACTION]={
 //200,  201,  202,  203,  204,  205,  206,  207,  208,  209,  
     OO,   OO,   VV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //210,  211,  212,  213,  214,  215,  216,  217,  218,  219,  
-    OO,   OO,   sr,   sr,   OO,   OO,   OO,   OO,   OO,   OO,  
+    st,   st,   sr,   sr,   OO,   OO,   OO,   OO,   OO,   OO,  
 //220,  221,  222,  223,  224,  225,  226,  227,  228,  229,  
     OO,   OO,   IO,   II,   II,   OO,   OO,   VO,   VO,   VO,  
 //230,  231,  232,  233,  234,  235,  236,  237,  238,  239,  
@@ -4003,6 +4016,33 @@ void UpdateIEResource(CString key, int restype, CString filepath, int size)
 }
 
 ///////// Readers & writers/////////////////////
+
+int get_script_handle(CString key)
+{
+  loc_entry fileloc, wedfileloc;
+  int fhandle;
+  CString tmp;
+  
+  //is it a resref?
+  tmp = key;
+  tmp.Replace(".bcs","");
+  if(scripts.Lookup(tmp,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) return -2;
+    scripts.SetAt(tmp,fileloc);
+    return fhandle;
+  }
+
+  //is it a normal file with full filepath?
+  fhandle = open(key,O_RDONLY|O_BINARY);
+  if (fhandle>0)
+  {
+    return fhandle;
+  }
+
+  return -2;
+}
 
 int read_area(CString key)
 {
@@ -5744,7 +5784,7 @@ CString colortitle(unsigned int value)
 {
   CString tmpstr, tmp;
   
-  tmp=IDSToken("CLOWNCLR", value);
+  tmp=IDSToken("CLOWNCLR", value, false);
   if(tmp.IsEmpty())
   {
     if(value>=COLORNUM) tmpstr.Format("%d-Unknown",value);

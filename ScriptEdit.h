@@ -87,6 +87,9 @@ protected:
 	afx_msg void OnUpdateText();
 	virtual void OnCancel();
 	afx_msg void OnToolsLookupstrref();
+	afx_msg void OnOptionsUseinternalcompiler();
+	afx_msg void OnOptionsUseinternaldecompiler();
+	afx_msg void OnOptionsLogging();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

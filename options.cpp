@@ -31,7 +31,7 @@ static int EditDialogRefs[]=
   IDC_NOCHECK, IDC_STEREO, IDC_SORTEFFECT, IDC_EFFNUMBER, IDC_EATSPACE, //1024-16384
   IDC_WEIDUSTR, IDC_IDUSTR, IDC_PREVIEW, IDC_OCTREE, IDC_DITHER, //32768-0x80000
   IDC_W98,IDC_WEIDU, IDC_ZIP, IDC_WINDOWPICKER, IDC_CENTER, IDC_OVERRIDE,//0x100000-0x2000000
-  IDC_SIZECHECK, IDC_CD,                  //0x8000000
+  IDC_SIZECHECK, IDC_CD,IDC_INTDECOMP,IDC_INTCOMP,                  //0x4000000-0x20000000
 0};
 
 /////////////////////////////////////////////////////////////////////////////
@@ -378,6 +378,8 @@ BEGIN_MESSAGE_MAP(CEditOpt, CDialog)
 	ON_BN_CLICKED(IDC_OVERRIDE, OnOverride)
 	ON_BN_CLICKED(IDC_SIZECHECK, OnSizecheck)
 	ON_BN_CLICKED(IDC_CD, OnCd)
+	ON_BN_CLICKED(IDC_INTDECOMP, OnIntdecomp)
+	ON_BN_CLICKED(IDC_INTCOMP, OnIntcomp)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -534,6 +536,16 @@ void CEditOpt::OnSizecheck()
 void CEditOpt::OnCd() 
 {
 	editflg^=IGNORECD;
+}
+
+void CEditOpt::OnIntdecomp() 
+{
+	editflg^=INTERNALDECOMP;
+}
+
+void CEditOpt::OnIntcomp() 
+{
+	editflg^=INTERNALCOMPILER;
 }
 
 BOOL CEditOpt::PreTranslateMessage(MSG* pMsg) 

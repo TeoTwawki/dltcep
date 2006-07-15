@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
+// Microsoft Developer Studio generated include file.
 // Used by chitem.rc
 //
 #define IDC_CHECKSTORE                  3
@@ -1580,7 +1580,9 @@
 #define IDC_STATIC6                     2281
 #define IDC_SIZECHECK                   2284
 #define IDC_WALL                        2285
+#define IDC_INTDECOMP                   2285
 #define IDC_VOICESET                    2286
+#define IDC_INTCOMP                     2286
 #define IDC_ITEM                        2287
 #define IDC_SPELL                       2288
 #define IDC_HAPPINESS                   2289
@@ -1805,6 +1807,9 @@
 #define ID_FRAME_MINIMIZEFRAME          33037
 #define ID_EDIT_FINDID                  33038
 #define ID_TOOLS_SPLITFRAMES            33039
+#define ID_OPTIONS_USEINTERNALDECOMPILER 33040
+#define ID_OPTIONS_USEINTERNALCOMPILER  33041
+#define ID_OPTIONS_LOGGING              33042
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1812,7 +1817,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33040
+#define _APS_NEXT_COMMAND_VALUE         33043
 #define _APS_NEXT_CONTROL_VALUE         2301
 #define _APS_NEXT_SYMED_VALUE           120
 #endif

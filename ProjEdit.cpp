@@ -127,7 +127,7 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_AIM, tmpstr);
   the_projectile.header.aim=(unsigned char) strtonum(tmpstr);
 
-  tmpstr.Format("0x%04x %s",the_projectile.header.smokeanim,IDSToken("ANIMATE",the_projectile.header.smokeanim) );
+  tmpstr.Format("0x%04x %s",the_projectile.header.smokeanim,IDSToken("ANIMATE",the_projectile.header.smokeanim, false) );
   DDX_Text(pDX, IDC_SMOKETYPE, tmpstr);
   k=IDSKey("ANIMATE", tmpstr);
   if(k==-1)
@@ -1015,7 +1015,7 @@ void CProjExt::DoDataExchange(CDataExchange* pDX)
 
   DDX_Text(pDX, IDC_DELAY, the_projectile.extension.delay);
 
-  tmpstr.Format("0x%04x %s",the_projectile.extension.fragmentanim,IDSToken("ANIMATE",the_projectile.extension.fragmentanim) );
+  tmpstr.Format("0x%04x %s",the_projectile.extension.fragmentanim,IDSToken("ANIMATE",the_projectile.extension.fragmentanim, false) );
   DDX_Text(pDX, IDC_FRAGMENT, tmpstr);
   k=IDSKey("ANIMATE", tmpstr);
   if(k==-1)

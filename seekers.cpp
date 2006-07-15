@@ -2255,7 +2255,7 @@ bool CChitemDlg::match_creature()
   }
   if(searchflags&MT)
   {
-    log("Found 0x%x-%s",(unsigned short) tmpdata.itemtype,IDSToken("ANIMATE",(unsigned short) tmpdata.itemtype) );
+    log("Found 0x%x-%s",(unsigned short) tmpdata.itemtype,IDSToken("ANIMATE",(unsigned short) tmpdata.itemtype, false) );
   }
   if(searchflags&MF)
   {
@@ -3430,28 +3430,28 @@ int CChitemDlg::check_creature()
   {
     if(idsrace!=255)
     {
-      if(IDSToken("RACE",idsrace).IsEmpty())
+      if(IDSToken("RACE",idsrace, true).IsEmpty())
       {
         ret|=BAD_ATTR;
         log("Value %d isn't listed in race.ids",idsrace);
       }
       
-      if(IDSToken("EA",the_creature.header.idsea).IsEmpty())
+      if(IDSToken("EA",the_creature.header.idsea, true).IsEmpty())
       {
         ret|=BAD_ATTR;
         log("Value %d isn't listed in ea.ids",the_creature.header.idsea);
       }
-      if(IDSToken("GENERAL",the_creature.header.idsgeneral).IsEmpty())
+      if(IDSToken("GENERAL",the_creature.header.idsgeneral, true).IsEmpty())
       {
         ret|=BAD_ATTR;
         log("Value %d isn't listed in general.ids",the_creature.header.idsgeneral);
       }
-      if(IDSToken("CLASS",the_creature.header.idsclass).IsEmpty())
+      if(IDSToken("CLASS",the_creature.header.idsclass, true).IsEmpty())
       {
         ret|=BAD_ATTR;
         log("Value %d isn't listed in class.ids",the_creature.header.idsclass);
       }
-      if(IDSToken("GENDER",the_creature.header.idsgender).IsEmpty())
+      if(IDSToken("GENDER",the_creature.header.idsgender, true).IsEmpty())
       {
         ret|=BAD_ATTR;
         log("Value %d isn't listed in gender.ids",the_creature.header.idsgender);
@@ -3463,7 +3463,7 @@ int CChitemDlg::check_creature()
         log("Invalid alignment (0x%02x).", the_creature.header.idsalign);
       }
       
-      if(IDSToken("SPECIFIC",the_creature.header.idsspecific).IsEmpty())
+      if(IDSToken("SPECIFIC",the_creature.header.idsspecific, true).IsEmpty())
       {
         ret|=BAD_ATTR;
         log("Value %d isn't listed in specific.ids",the_creature.header.idsspecific);
@@ -3471,7 +3471,7 @@ int CChitemDlg::check_creature()
       idsrace=the_creature.header.enemy;
       if(idsrace && (idsrace!=255) ) //lets accept 255 and 0 too
       {
-        if(IDSToken("RACE",idsrace).IsEmpty())
+        if(IDSToken("RACE",idsrace, true).IsEmpty())
         {
           ret|=BAD_ATTR;
           log("Value %d for racial enemy isn't listed in race.ids",idsrace);
@@ -3492,7 +3492,7 @@ int CChitemDlg::check_creature()
     idsrace=the_creature.header.kit>>16;
     if(idsrace)
     {
-      if(IDSToken("KIT", idsrace).IsEmpty() )
+      if(IDSToken("KIT", idsrace, false).IsEmpty() )
       {
         ret|=BAD_ATTR;
         log("Value 0x%0x for kit isn't listed in kit.ids", idsrace);
@@ -3554,7 +3554,7 @@ int CChitemDlg::check_creature()
   if(!(chkflg&NOANIMCHK))
   {
     idsrace=the_creature.header.animid;
-    if(IDSToken("ANIMATE",idsrace).IsEmpty())
+    if(IDSToken("ANIMATE",idsrace, false).IsEmpty())
     {
       ret|=BAD_ANIM;
       log("Animation ID 0x%4x cannot be found in animation.ids!",idsrace);
@@ -3916,7 +3916,7 @@ int CChitemDlg::check_area_actors()
     if(!(chkflg&NOANIMCHK))
     {
       tmp=the_area.actorheaders[i].animation;
-      if(tmp && IDSToken("ANIMATE",tmp).IsEmpty())
+      if(tmp && IDSToken("ANIMATE",tmp, false).IsEmpty())
       {
         ret|=BAD_ANIM;
         log("Invalid animation (%04x) in actor header #%d (%-.32s [%d.%d]) may cause a crash!",

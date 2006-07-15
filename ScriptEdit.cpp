@@ -14,6 +14,7 @@
 #include "compat.h"
 #include "WeiduLog.h"
 #include "StrRefDlg.h"
+#include "Decompiler.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -47,8 +48,9 @@ CString format_parameters(compiler_data &compiler_data)
     switch(compiler_data.parameters[i].type)
     {
     case SPT_ZERO: add="0"; break;
-    case SPT_AREA1: case SPT_AREA2: add="qualifier"; break;
-    case SPT_VAR1: case SPT_VAR2: add="variable"; break;
+    case SPT_1AREA: case SPT_2AREA:
+    case SPT_AREA1: case SPT_AREA2: case SPT_AREA3: case SPT_AREA4: add="qualifier"; break;
+    case SPT_VAR1: case SPT_VAR2: case SPT_VAR3: case SPT_VAR4: add="variable"; break;
     case SPT_OBJECT:case SPT_OVERRIDE: case SPT_SECONDOB: add="object"; break;
     case SPT_INTEGER:case SPT_INTEGER2:case SPT_INTEGER3:
       if(compiler_data.parameters[i].idsfile.IsEmpty()) add="integer";
@@ -141,12 +143,15 @@ BEGIN_MESSAGE_MAP(CScriptEdit, CDialog)
 	ON_WM_HELPINFO()
 	ON_EN_CHANGE(IDC_TEXT, OnChangeText)
 	ON_EN_UPDATE(IDC_TEXT, OnUpdateText)
+	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
+	ON_COMMAND(ID_OPTIONS_USEINTERNALCOMPILER, OnOptionsUseinternalcompiler)
+	ON_COMMAND(ID_OPTIONS_USEINTERNALDECOMPILER, OnOptionsUseinternaldecompiler)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
+	ON_COMMAND(ID_OPTIONS_LOGGING, OnOptionsLogging)
 	//}}AFX_MSG_MAP
   ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
@@ -218,7 +223,10 @@ int CScriptEdit::RunWeidu(CString syscommand)
   {
     ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(1); 
   }
-  unlink(WEIDU_LOG);
+  if(weiduflg&WEI_LOGGING)
+  {
+    unlink(WEIDU_LOG);
+  }
   res=my_system(syscommand);
   
   if(weiduflg&WEI_LOGGING)
@@ -282,16 +290,21 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
   CString syscommand;
   int res;
 
+  unlink(bgfolder+weidudecompiled+"\\"+tmpname+".baf");
   res=0;
-  if(weidupath.IsEmpty())
+  //actually, if the bit is set, it means weidu is used
+  if(editflg&INTERNALDECOMP)
   {
-    MessageBox("Please set up WeiDU before use.","Script editor",MB_OK|MB_ICONSTOP);
-    return -1;
-  }
-  if(!file_exists(weidupath) )
-  {
-    MessageBox("WeiDU executable not found.","Script editor",MB_OK|MB_ICONSTOP);
-    return -1;
+    if(weidupath.IsEmpty())
+    {
+      MessageBox("Please set up WeiDU before use.","Script editor",MB_OK|MB_ICONSTOP);
+      return -1;
+    }
+    if(!file_exists(weidupath) )
+    {
+      MessageBox("WeiDU executable not found.","Script editor",MB_OK|MB_ICONSTOP);
+      return -1;
+    }
   }
   chdir(bgfolder);
   mkdir(weidudecompiled);
@@ -309,8 +322,25 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
   {
     ((CChitemDlg *) AfxGetMainWnd())->write_file_progress(1); 
   }
-  syscommand=AssembleWeiduCommandLine(filepath,weidudecompiled); //export
-  res=RunWeidu(syscommand);
+
+  if(editflg&INTERNALDECOMP)
+  {
+    syscommand=AssembleWeiduCommandLine(filepath,weidudecompiled); //export
+    res=RunWeidu(syscommand);
+  }
+  else
+  {
+    Decompiler *sdec = new Decompiler(weiduflg&WEI_LOGGING);
+    //setting up decompiler with options
+    res = sdec->Decompile(filepath, bgfolder+weidudecompiled+"\\"+tmpname+".baf");
+    //actually this is not needed, delete will close all anyway
+    sdec->CloseAll();
+    delete sdec;
+    if (res) {
+      MessageBox("Decompiler error.","Script editor",MB_OK|MB_ICONSTOP);
+      res = 0;
+    }
+  }
   filepath=bgfolder+weidudecompiled+"\\"+tmpname+".baf";
   return res;
 }
@@ -669,6 +699,9 @@ void CScriptEdit::RefreshMenu()
   {
     pMenu->CheckMenuItem(ID_OPTIONS_AUTOCHECK, MF_SET(!(editflg&NOCHECK)));
     pMenu->CheckMenuItem(ID_OPTIONS_LARGEINDENT, MF_SET(!(editflg&INDENT)));
+    pMenu->CheckMenuItem(ID_OPTIONS_USEINTERNALDECOMPILER, MF_SET(!(editflg&INTERNALDECOMP)));
+    pMenu->CheckMenuItem(ID_OPTIONS_USEINTERNALCOMPILER, MF_SET(!(editflg&INTERNALCOMPILER)));
+    pMenu->CheckMenuItem(ID_OPTIONS_LOGGING, MF_SET(weiduflg&WEI_LOGGING));
   }
 }
 
@@ -1194,6 +1227,24 @@ void CScriptEdit::OnOptionsAutocheck()
 void CScriptEdit::OnOptionsLargeindent() 
 {
 	editflg^=INDENT;
+	RefreshMenu();
+}
+
+void CScriptEdit::OnOptionsUseinternaldecompiler() 
+{
+	editflg^=INTERNALDECOMP;
+	RefreshMenu();
+}
+
+void CScriptEdit::OnOptionsUseinternalcompiler() 
+{
+	editflg^=INTERNALCOMPILER;
+	RefreshMenu();
+}
+
+void CScriptEdit::OnOptionsLogging() 
+{
+	weiduflg^=WEI_LOGGING;
 	RefreshMenu();
 }
 

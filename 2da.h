@@ -31,6 +31,41 @@ public:
       }
     }
   }
+
+  bool ReverseLookup(int data, int paramcount, CString &key, compiler_data &value)
+  {
+    POSITION pos;
+
+    pos=GetStartPosition();
+    while(pos)
+    {
+      GetNextAssoc(pos, key, value);
+      if(value.opcode==data)
+      {
+        if(value.parnumx==paramcount)
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool ReverseLookup(int data, CString &key, compiler_data &value)
+  {
+    POSITION pos;
+
+    pos=GetStartPosition();
+    while(pos)
+    {
+      GetNextAssoc(pos, key, value);
+      if(value.opcode==data)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
 };
 
 class C2da

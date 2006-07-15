@@ -50,11 +50,11 @@ CString CCreatureGeneral::FindKit(unsigned int kit)
   CString tmpstr, kitname;
   if(the_creature.revision!=22)
   {
-    kitname = IDSToken("KIT", kit>>16); //not iwd2
+    kitname = IDSToken("KIT", kit>>16, false); //not iwd2
   }
   else
   {
-    kitname = IDSToken("KIT", kit); //iwd2
+    kitname = IDSToken("KIT", kit, false); //iwd2
   }
   
   if(kitname.GetLength()) tmpstr.Format("0x%08x - %s",kit, kitname);
@@ -94,7 +94,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   tmpstr.Format("0x%08x",the_creature.header.state);
   DDX_Text(pDX, IDC_STATEFLAGS, tmpstr);
   the_creature.header.state=strtonum(tmpstr);
-  tmpstr.Format("0x%04x %s",the_creature.header.animid,IDSToken("ANIMATE",the_creature.header.animid) );
+  tmpstr.Format("0x%04x %s",the_creature.header.animid,IDSToken("ANIMATE",the_creature.header.animid, false) );
   DDX_Text(pDX, IDC_ANIMATION, tmpstr);
   the_creature.header.animid=IDSKey("ANIMATE", tmpstr);
   if(the_creature.header.animid==0xffffffff)
@@ -116,7 +116,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_MBREAK, the_creature.header.moralebreak);
   DDX_Text(pDX, IDC_MRECOVERY, the_creature.header.moralerecover);
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsea,IDSToken("EA",the_creature.header.idsea) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsea,IDSToken("EA",the_creature.header.idsea, true) );
   DDX_Text(pDX, IDC_IDSEA, tmpstr);
   value=IDSKey("EA",tmpstr);
   if(value==-1)
@@ -128,7 +128,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsea=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsgeneral,IDSToken("GENERAL",the_creature.header.idsgeneral) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsgeneral,IDSToken("GENERAL",the_creature.header.idsgeneral, true) );
   DDX_Text(pDX, IDC_IDSGENERAL, tmpstr);
   value=IDSKey("GENERAL", tmpstr);
   if(value==-1)
@@ -140,7 +140,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsgeneral=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsrace,IDSToken("RACE",the_creature.header.idsrace) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsrace,IDSToken("RACE",the_creature.header.idsrace, true) );
   DDX_Text(pDX, IDC_IDSRACE, tmpstr);
   value=IDSKey("RACE", tmpstr);
   if(value==-1)
@@ -152,7 +152,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsrace=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsclass,IDSToken("CLASS",the_creature.header.idsclass) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsclass,IDSToken("CLASS",the_creature.header.idsclass, true) );
   DDX_Text(pDX, IDC_IDSCLASS, tmpstr);
   value=IDSKey("CLASS", tmpstr);
   if(value==-1)
@@ -164,7 +164,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsclass=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsspecific,IDSToken("SPECIFIC",the_creature.header.idsspecific) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsspecific,IDSToken("SPECIFIC",the_creature.header.idsspecific, true) );
   DDX_Text(pDX, IDC_IDSSPECIFIC, tmpstr);
   value=IDSKey("SPECIFIC", tmpstr);
   if(value==-1)
@@ -176,7 +176,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsspecific=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsgender,IDSToken("GENDER",the_creature.header.idsgender) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsgender,IDSToken("GENDER",the_creature.header.idsgender, true) );
   DDX_Text(pDX, IDC_IDSGENDER, tmpstr);
   value=IDSKey("GENDER", tmpstr);
   if(value==-1)
@@ -188,7 +188,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsgender=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(pst_compatible_var()?"ALIGN":IDSName(ALIGN,false),the_creature.header.idsalign) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(pst_compatible_var()?"ALIGN":IDSName(ALIGN,false),the_creature.header.idsalign, true) );
   DDX_Text(pDX, IDC_IDSALIGNMENT, tmpstr);
   value=IDSKey(IDSName(ALIGN,false), tmpstr);
   if(value==-1)
@@ -200,7 +200,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsalign=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.enemy,IDSToken("RACE",the_creature.header.enemy) );
+  tmpstr.Format("0x%x %s",the_creature.header.enemy,IDSToken("RACE",the_creature.header.enemy, true) );
   DDX_Text(pDX, IDC_HATED, tmpstr);
   value=IDSKey("RACE", tmpstr);
   if(value==-1)

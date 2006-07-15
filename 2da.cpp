@@ -431,6 +431,8 @@ int ReadIdsFromFile4(int fhandle, CStringMapInt &refs, int length)
   {
     ret=read_string(fpoi, "\n",tmpref,sizeof(tmpref));
     if(ret<1) break;
+    //skip invalid line
+    if (memcmp(tmpref,"IDS",3)==0) continue;
     tmpref[MAXIDSIZE-1]=0;
     cnt=strtonum(tmpref);
     for(p1=0;(p1<MAXIDSIZE) && (tmpref[p1]!=' ') && tmpref[p1];p1++)
@@ -1151,8 +1153,6 @@ int read_until(char c, FILE *fpoi, CString &ret, int length=65535)
 }
 
 static CString validtypes="AIOPS0";
-//GG = sf(ADD_GLOBAL,ADD_GLOBAL)
-//static int merged[]={0x0303,-1};
 
 int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, int trigger_or_action)
 {
@@ -1169,7 +1169,6 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
   int pointcnt;
   int intcnt;
   int actioncnt;
-//  int speccnt;
   int stringcnt;
   int chkflag, flg;
 
@@ -1201,6 +1200,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
   if((flg&0xffff)==0xff00) flg=0x105; 
   if((flg&0xffff)==0xff01) flg=0x104; 
 
+  compiler_data.parnumx=0;
   parlist=prototype.Mid(p1+1, prototype.GetLength()-p1-2);
   params=explode(parlist, ',', compiler_data.parnum);
   if(!params)
@@ -1235,19 +1235,26 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
       case 'S': stringcnt++; break;
       }
     }
+    //calculate prototype code
+    compiler_data.parnumx=actioncnt+intcnt+pointcnt+objectcnt+stringcnt*16;
     if(actioncnt>1 || intcnt>3 || pointcnt>1 || objectcnt>2 || stringcnt>4)
     {
       goto endofquest;
     }
 
-    //special merged strings
-//    if(member_array(chkflag,merged)==-1) speccnt=1;
-
+    //comment out if not needed
+/*    
+    if (name.Compare("saveobjectlocation")==0)
+    {
+      nop();
+    }
+  */  
     objectcnt=0;
     pointcnt=0;
     intcnt=0;
     actioncnt=0;
     stringcnt=0;
+
     for(j=0;j<compiler_data.parnum;j++)
     {
       parpoi=&compiler_data.parameters[j];
@@ -1336,37 +1343,42 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
         //special strings
         if(stringcnt)
         {
-          if((flg&0xff)==ADD_VAR)
-          {
-            switch(stringcnt)
-            {
-            case 1:            
-              parpoi->type=SPT_AREA1;
-              goto endofcase;
-            case 3:            
-              parpoi->type=SPT_AREA2;
-              goto endofcase;
-            }            
-          }
-          if((flg&0xff)==ADD_VAR2)
-          {
-            switch(stringcnt)
-            {
-            case 1:
-              parpoi->type=SPT_VAR1;
-              goto endofcase;
-            case 3:            
-              parpoi->type=SPT_VAR2;
-              goto endofcase;
-            }            
-          }
           switch(flg&0xff)
           {
           case IS_VAR:
             break;
-          case ADD_GLOBAL: case ADD_LOCAL: case ADD_VAR3:
-          case ADD_VAR: parpoi->type=SPT_VAR2; flg<<=8; break;
-          case ADD_VAR2: parpoi->type=SPT_VAR2; flg<<=8; break;
+					case ADD_VAR3:
+          case ADD_GLOBAL:
+					case ADD_LOCAL:
+						parpoi->type=SPT_VAR2;
+						break;
+          case ADD_VAR:
+            switch(stringcnt)
+            {
+            case 1:            
+              parpoi->type=SPT_AREA1;
+              break;
+            case 3:            
+              parpoi->type=SPT_AREA2;
+              break;
+            default:
+              parpoi->type=SPT_VAR2; flg<<=8;
+            }
+            break;
+          case ADD_VAR2:
+            switch(stringcnt)
+            {
+            case 1:
+              parpoi->type=SPT_AREA3;
+              break;
+            case 3:            
+              parpoi->type=SPT_AREA4;
+              break;
+            default:
+              parpoi->type=SPT_VAR4; flg<<=8;
+            }            
+            break;
+					case CHECK_SCOPE: parpoi->type=SPT_2AREA; break;
           case CHECK_DEAD: parpoi->type=SPT_DEAD2; break;
           case CHECK_NUM: parpoi->type=SPT_NUMLIST2; break;
           case VALID_TAG:
@@ -1381,10 +1393,12 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           {
           case IS_VAR:
             break;
-          case ADD_GLOBAL: case ADD_LOCAL:
+          case ADD_GLOBAL: case ADD_LOCAL:case ADD_VAR3:
+						parpoi->type=SPT_VAR1;
+						break;
           case ADD_VAR: parpoi->type=SPT_VAR1; flg<<=8; break;
           case ADD_VAR2: parpoi->type=SPT_VAR3; flg<<=8; break;
-          case CHECK_SCOPE: parpoi->type=SPT_AREA1; break;
+          case CHECK_SCOPE: parpoi->type=SPT_1AREA; break;
           case ADD_DEAD: case CHECK_DEAD: parpoi->type=SPT_DEAD1; break;
           case CHECK_NUM: parpoi->type=SPT_NUMLIST1; break;
           case VALID_TAG:
@@ -1393,7 +1407,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           default: parpoi->type=SPT_RESREF1; break;
           }
         }
-endofcase:
+
         flg>>=8;
         stringcnt++;
         break;
@@ -1505,6 +1519,28 @@ int lookup_id(CString filename, CString token, int &value)
   if(!idsfile) return -99;   //internal error (no file loaded)
   if(idsfile->Lookup(token, value)) return 1; //resolved successfully
   return CE_INVALID_IDS_SYMBOL; //not an IDS lookup value
+}
+
+int check_spelllist(CString tmp)
+{
+  CString tmpstr;
+
+  int cnt=tmp.GetLength();
+  if (cnt%4)
+  {
+    return CE_INVALID_SPELL_LIST;
+  }
+  cnt/=4;
+  while(cnt--)
+  {
+    tmpstr = tmp.Mid(cnt*4,4);
+    tmpstr = IDSToken("SPELL", atoi(tmpstr), false);
+    if (tmpstr.IsEmpty())
+    {
+      return CE_INVALID_SPELL_NUMBER;
+    }
+  }
+  return 0;
 }
 
 int convert_strref(CString string)
@@ -1662,7 +1698,11 @@ int compile_trigger(CString line, trigger &trigger)
     return CE_FUNCTION_NOT_TERMINATED; //crap after closing bracket
   }
   name=line.Left(p1);
-  if(name.GetAt(0)=='!') name=name.Mid(1);
+  if(name.GetAt(0)=='!')
+  {
+    trigger.negate=true;
+    name=name.Mid(1);
+  }
   if(!trigger_data.Lookup(name, compiler_data) )
   {
     return CE_NON_EXISTENT_FUNCTION; //invalid trigger
@@ -1673,7 +1713,7 @@ int compile_trigger(CString line, trigger &trigger)
   tmpstr=line.Mid(p1+1, p2-p1-1);
   args=explode2(tmpstr, argnum);
   if(argnum<0) return argnum; //direct error from the argument explosion level
-  if(argnum>4)
+  if(argnum>5)
   {
     delete [] args;
     return CE_TOO_MANY_ARGUMENTS; //too many arguments
@@ -1734,7 +1774,8 @@ int compile_trigger(CString line, trigger &trigger)
       }
       break;
     case SPT_DEAD1:
-    case SPT_VAR1: 
+    case SPT_VAR1:
+    case SPT_VAR3:
       ret=convert_string(args[j],trigger.var1,32,-15);
       if(ret<0)
       {
@@ -1769,6 +1810,22 @@ int compile_trigger(CString line, trigger &trigger)
         return ret;
       }
       break;
+    case SPT_1AREA:
+      ret=convert_string(args[j],trigger.var1,6,-14);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      break;
+    case SPT_2AREA:
+      ret=convert_string(args[j],trigger.var2,6,-14);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      break;
     case SPT_AREA1: //area (only for var1)
       ret=convert_string(args[j],tmparea,6,-14);
       if(ret<0)
@@ -1784,7 +1841,24 @@ int compile_trigger(CString line, trigger &trigger)
       memmove(trigger.var1+6,trigger.var1,32);
       memcpy(trigger.var1,tmparea,6);
       break;
+    case SPT_AREA3:
+      ret=convert_string(args[j],tmparea,6,-14);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      if(strlen(tmparea)!=6)
+      {
+        delete [] args;
+        return CE_INVALID_SCOPE;
+      }
+      memmove(trigger.var1+7,trigger.var1,32);
+      memcpy(trigger.var1,tmparea,6);
+      trigger.var1[6]=':';
+      break;
     case SPT_VAR2:
+    case SPT_VAR4:
       ret=convert_string(args[j],trigger.var2,32,-15);
       if(ret<0)
       {
@@ -2000,6 +2074,7 @@ int compile_action(CString line, action &action, bool inoverride)
       }
       break;
     case SPT_VAR1:
+    case SPT_VAR3:
       ret=convert_string(args[j],action.var1,32,-15);
       if(ret<0)
       {
@@ -2007,6 +2082,20 @@ int compile_action(CString line, action &action, bool inoverride)
         return ret;
       }
 //check variable
+      break;
+    case SPT_NUMLIST1:
+      ret=convert_string(args[j],action.var1,32,-15);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      ret=check_spelllist(action.var1);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
       break;
     case SPT_COLUMN1:
       ret=convert_string(args[j],action.var1,32,-15);
@@ -2034,6 +2123,23 @@ int compile_action(CString line, action &action, bool inoverride)
         return ret;
       }
       break;
+    case SPT_AREA3: //area (only for var1)
+      ret=convert_string(args[j],tmparea,6,-14);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      if(strlen(tmparea)!=6)
+      {
+        delete [] args;
+        return CE_INVALID_SCOPE;
+      }
+      memmove(action.var1+7,action.var1,32);
+      memcpy(action.var1,tmparea,6);
+      action.var1[6]=':';
+      break;
+    case SPT_1AREA:
     case SPT_AREA1: //area (only for var1)
       ret=convert_string(args[j],tmparea,6,-14);
       if(ret<0)
@@ -2050,6 +2156,7 @@ int compile_action(CString line, action &action, bool inoverride)
       memcpy(action.var1,tmparea,6);
       break;
     case SPT_VAR2:
+    case SPT_VAR4:
       ret=convert_string(args[j],action.var2,32,-15);
       if(ret<0)
       {
@@ -2084,6 +2191,23 @@ int compile_action(CString line, action &action, bool inoverride)
         return ret;
       }
       break;
+    case SPT_AREA4:
+      ret=convert_string(args[j],tmparea,6,-14);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      if(strlen(tmparea)!=6)
+      {
+        delete [] args;
+        return CE_INVALID_SCOPE;
+      }
+      memmove(action.var2+7,action.var2,32);
+      memcpy(action.var2,tmparea,6);
+      action.var2[6]=':';
+      break;
+    case SPT_2AREA:
     case SPT_AREA2: //area (only for var1)
       ret=convert_string(args[j],tmparea,6,-14);
       if(ret<0)

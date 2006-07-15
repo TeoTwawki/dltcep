@@ -252,7 +252,7 @@ void CEffEdit::RefreshDialog()
     m_param1.Format("%ld",the_effect.header.par1.parl);
     break;
   case 2: //ids
-    tmp=IDSToken(tmp, the_effect.header.par1.parl);
+    tmp=IDSToken(tmp, the_effect.header.par1.parl, false);
     if(tmp.IsEmpty()) tmp="unknown";
     m_param1.Format("%ld-%s",the_effect.header.par1.parl, tmp);
     break;

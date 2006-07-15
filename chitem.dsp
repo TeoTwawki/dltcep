@@ -193,6 +193,10 @@ SOURCE=.\decoder.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Decompiler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dialog.cpp
 # End Source File
 # Begin Source File
@@ -567,6 +571,10 @@ SOURCE=.\CreatureProperties.h
 # Begin Source File
 
 SOURCE=.\decoder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Decompiler.h
 # End Source File
 # Begin Source File
 

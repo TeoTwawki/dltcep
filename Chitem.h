@@ -132,18 +132,23 @@ extern UINT WM_FINDREPLACE;
 #define SPT_AREA1    'SA'   //area (inserted)
 #define SPT_VAR1     'SV'   //simple variable
 #define SPT_VAR3     'VS'   //simple variable, reversed
+#define SPT_VAR4     'V2'   //simple variable, 2. place reversed
 #define SPT_TOKEN1   'ST'   //token
 #define SPT_COLUMN1  'SX'   //xplist column
 #define SPT_RESREF1  'SR'   //resource (8 chars long)
-#define SPT_NUMLIST1 'SN'   //number list (3 digits numbers)
+#define SPT_NUMLIST1 'SN'   //number list (4 digits numbers)
 #define SPT_DEAD1    'DE'   //death variable
 #define SPT_AREA2    '2A'   //area variable inserted into 2. place
+#define SPT_AREA3    '3A'   //area (inserted into first place, reversed)
+#define SPT_AREA4    '4A'   //area (inserted into 2. place, reversed)
 #define SPT_VAR2     '2V'   //simple variable goes to 2. place
 #define SPT_TOKEN2   '2T'   //token
 #define SPT_COLUMN2  '2X'   //xplist column
 #define SPT_RESREF2  '2R'   //resource (8 chars long)
 #define SPT_NUMLIST2 '2N'   //number list (3 digits numbers)
 #define SPT_DEAD2    '2D'   //death variable
+#define SPT_1AREA    'AA'   //area, 1. variable not inserted
+#define SPT_2AREA    'AB'   //area, 2. variable not inserted
 
 #define NUM_WEAPROF    54
 extern int act_num_weaprof;
@@ -874,7 +879,7 @@ CString ChuiControlName(int controltype);
 CString IDSType(int ids, bool addtwo);
 CString IDSName(int ids, bool addtwo);
 int IDSKey(CString filename, CString key);
-CString IDSToken(CString filename, int value);
+CString IDSToken(CString filename, int value, bool unused);
 int get_idsfile(CString idsname, bool forced);
 int FillCombo(CString idsname, CComboBox *cb, int len);
 CString get_resist_type(int rtype);
@@ -948,6 +953,8 @@ int ChiSquare(BYTE *a,BYTE *b);
 #define CE_INCOMPLETE_OR            -42
 #define CE_ACTIONS_AFTER_CONTINUE   -43
 #define CE_EMPTY_TOP_LEVEL          -44
+#define CE_INVALID_SPELL_LIST       -45
+#define CE_INVALID_SPELL_NUMBER     -46
 #define CE_BAD_IF                   -100
 #define CE_BAD_RESPONSE             -110
 #define CE_BAD_THEN                 -120
@@ -1013,6 +1020,7 @@ int write_store(CString key, CString filepath);
 int GetLightMap(bool night);
 int GetWed(bool night);
 int ReadWed(int res);
+int get_script_handle(CString key);
 int read_area(CString key);
 int read_projectile(CString key);
 int read_chui(CString key);

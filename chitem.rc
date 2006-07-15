@@ -33,11 +33,11 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDD_WEIDU DIALOGEX 0, 0, 317, 226
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "WeiDU options"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+CAPTION "Compiler options"
+FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_FILENAME,9,17,275,16,ES_AUTOHSCROLL | ES_READONLY,
-                    WS_EX_ACCEPTFILES,HIDC_FILENAME
+                    WS_EX_ACCEPTFILES,0x80bf03eb
     DEFPUSHBUTTON   "&P",IDC_OPENFILE,288,17,16,16,BS_BITMAP
     EDITTEXT        IDC_DECOMPILED,9,48,199,14,ES_AUTOHSCROLL
     CONTROL         "Do not emit .D header comments (NOHEADER)",IDC_FLAG1,
@@ -56,7 +56,8 @@ BEGIN
     EDITTEXT        IDC_COMMAND,9,162,299,38,ES_MULTILINE | ES_READONLY
     DEFPUSHBUTTON   "OK",IDOK,7,205,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,260,205,50,14
-    LTEXT           "Location of the WeiDU executable",IDC_STATIC,9,7,110,8
+    LTEXT           "Location of the external compiler (WeiDU)",IDC_STATIC,9,
+                    7,132,8
     LTEXT           "Sample command",IDC_STATIC,9,150,57,8
     LTEXT           "Subfolder in your game directory for decompiled files",
                     IDC_STATIC,9,36,164,8
@@ -3833,7 +3834,7 @@ BEGIN
     PUSHBUTTON      "E&xit",IDCANCEL,260,184,34,14
 END
 
-IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 252
+IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 270
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Editor options"
 FONT 8, "MS Sans Serif"
@@ -3874,10 +3875,10 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,119,100,10
     CONTROL         "Allow WeiDU strings in script source",IDC_WEIDUSTR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,135,129,10
-    DEFPUSHBUTTON   "Back",IDOK,7,231,50,14
-    PUSHBUTTON      "Select All",IDC_ALLSET,81,231,50,14
-    PUSHBUTTON      "Deselect All",IDC_ALLUNSET,155,231,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,229,231,50,14
+    DEFPUSHBUTTON   "Back",IDOK,7,249,50,14
+    PUSHBUTTON      "Select All",IDC_ALLSET,81,249,50,14
+    PUSHBUTTON      "Deselect All",IDC_ALLUNSET,155,249,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,229,249,50,14
     CONTROL         "Use  Octree reduction (vs. DL1)",IDC_OCTREE,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,151,116,10
     CONTROL         "Dithering (in DL1)",IDC_DITHER,"Button",BS_AUTOCHECKBOX | 
@@ -3898,6 +3899,10 @@ BEGIN
                     WS_TABSTOP,7,215,63,10
     CONTROL         "Use game config for CDs",IDC_CD,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,215,95,10
+    CONTROL         "Use internal decompiler",IDC_INTDECOMP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,231,89,10
+    CONTROL         "Use internal compiler",IDC_INTCOMP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,138,231,81,10
 END
 
 IDD_IAPDIALOG DIALOG DISCARDABLE  0, 0, 310, 181
@@ -5627,7 +5632,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 281
         TOPMARGIN, 7
-        BOTTOMMARGIN, 245
+        BOTTOMMARGIN, 263
     END
 
     IDD_IAPDIALOG, DIALOG
@@ -5910,8 +5915,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 6,8,0,3
- PRODUCTVERSION 6,8,0,3
+ FILEVERSION 7,0,0,0
+ PRODUCTVERSION 7,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5929,14 +5934,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "6, 8, 0, 3\0"
+            VALUE "FileVersion", "7, 0, 0, 0\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2006 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 6.8c\0"
-            VALUE "ProductVersion", "6, 8, 0, 3\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.0\0"
+            VALUE "ProductVersion", "7, 0, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6469,6 +6474,11 @@ BEGIN
     BEGIN
         MENUITEM "&Auto check",                 ID_OPTIONS_AUTOCHECK
         MENUITEM "&Large indent",               ID_OPTIONS_LARGEINDENT
+        MENUITEM "Use internal &decompiler",    ID_OPTIONS_USEINTERNALDECOMPILER
+
+        MENUITEM "Use internal &compiler",      ID_OPTIONS_USEINTERNALCOMPILER
+
+        MENUITEM "&Show compiler log",          ID_OPTIONS_LOGGING
     END
     POPUP "&Tools"
     BEGIN

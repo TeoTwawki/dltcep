@@ -75,6 +75,9 @@
 #define IGNOREOVERRIDE   0x2000000//ignores override when exploding chitin.key
 #define CHECKSIZE        0x4000000//ignore filesizes
 #define IGNORECD         0x8000000//ignore cd locations in game cfg
+#define INTERNALDECOMP   0x10000000
+#define INTERNALCOMPILER 0x20000000
+
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -209,6 +212,8 @@ protected:
 	afx_msg void OnOverride();
 	afx_msg void OnSizecheck();
 	afx_msg void OnCd();
+	afx_msg void OnIntdecomp();
+	afx_msg void OnIntcomp();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

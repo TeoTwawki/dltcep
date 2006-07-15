@@ -673,7 +673,7 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_U2C,tmpstr);
     the_area.actorheaders[m_actornum].unknown2c=strtonum(tmpstr);
 
-    tmpstr.Format("0x%04x %s",the_area.actorheaders[m_actornum].animation,IDSToken("ANIMATE",the_area.actorheaders[m_actornum].animation) );
+    tmpstr.Format("0x%04x %s",the_area.actorheaders[m_actornum].animation,IDSToken("ANIMATE",the_area.actorheaders[m_actornum].animation, false) );
     DDX_Text(pDX, IDC_ANIMATION, tmpstr);
     the_area.actorheaders[m_actornum].animation=IDSKey("ANIMATE", tmpstr);
     if(the_area.actorheaders[m_actornum].animation==-1)
