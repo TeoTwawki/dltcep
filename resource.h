@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by chitem.rc
 //
 #define IDC_CHECKSTORE                  3
@@ -258,6 +258,7 @@
 #define IDS_CENTERFRAME                 228
 #define IDD_AREATRIGGERSTRINGS          228
 #define IDS_BAM                         229
+#define IDD_CREATUREOVR                 229
 #define IDS_FRAME15                     230
 #define IDS_VVCFLAG                     231
 #define IDS_SEQFLAG                     232
@@ -431,6 +432,7 @@
 #define IDC_GENERAL                     1126
 #define IDC_PAR_DAMAGE                  1127
 #define IDC_EXTPASTE                    1128
+#define IDC_PAR_SPECIAL                 1128
 #define IDC_GENERAL2                    1129
 #define IDC_VARNAME                     1130
 #define IDC_DESTY                       1131
@@ -1810,6 +1812,7 @@
 #define ID_OPTIONS_USEINTERNALDECOMPILER 33040
 #define ID_OPTIONS_USEINTERNALCOMPILER  33041
 #define ID_OPTIONS_LOGGING              33042
+#define ID_FILE_TP2                     33043
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1817,8 +1820,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
-#define _APS_NEXT_COMMAND_VALUE         33043
-#define _APS_NEXT_CONTROL_VALUE         2301
+#define _APS_NEXT_COMMAND_VALUE         33044
+#define _APS_NEXT_CONTROL_VALUE         2302
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

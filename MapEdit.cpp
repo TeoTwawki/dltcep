@@ -347,6 +347,7 @@ BEGIN_MESSAGE_MAP(CMapEdit, CDialog)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
@@ -529,7 +530,12 @@ gotname:
 
 void CMapEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_WMP);
+ ExportTBG(this, REF_WMP,0);
+}
+
+void CMapEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_WMP,1);
 }
 
 void CMapEdit::OnCheck() 

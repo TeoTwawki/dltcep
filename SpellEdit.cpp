@@ -65,6 +65,7 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_COMMAND(ID_ADDCFB, OnAddcfb)
 	ON_COMMAND(ID_REMOVECFB, OnRemovecfb)
 	ON_COMMAND(ID_SAVECFB, OnSavecfb)
@@ -251,7 +252,12 @@ gotname:
 
 void CSpellEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_SPL);
+ ExportTBG(this, REF_SPL,0);
+}
+
+void CSpellEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_SPL, 1);
 }
 
 void CSpellEdit::OnCheck() 

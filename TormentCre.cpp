@@ -136,6 +136,14 @@ BOOL CTormentCre::OnInitDialog()
     cb=(CComboBox *) GetDlgItem(i);
     FillPaletteOffsets(cb);
   }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
+  }
 
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -190,4 +198,10 @@ void CTormentCre::OnBrowse6()
 void CTormentCre::OnBrowse7() 
 {
 	ColorDlg(6);
+}
+
+BOOL CTormentCre::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

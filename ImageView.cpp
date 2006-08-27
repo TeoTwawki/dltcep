@@ -381,6 +381,7 @@ short *CImageView::GetPolygonBox(int idx)
 
 int CImageView::GetPolygonSize(int idx)
 {
+  if (idx<0) return 0;
   switch(m_maptype)
   {
   case MT_WALLPOLYLIST:

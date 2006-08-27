@@ -397,6 +397,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE6, OnBrowse6)
 	ON_EN_KILLFOCUS(IDC_TEXT, OnKillfocusText)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
@@ -1591,7 +1592,12 @@ void CChuiEdit::OnPreview()
 
 void CChuiEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_CHU);
+ ExportTBG(this, REF_CHU, 0);
+}
+
+void CChuiEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_CHU, 1);
 }
 
 BOOL CChuiEdit::PreTranslateMessage(MSG* pMsg) 

@@ -99,6 +99,7 @@ protected:
 	afx_msg void OnCheck();
 	afx_msg void OnSave();
 	afx_msg void OnFileTbg();
+	afx_msg void OnFileTp2();
 	afx_msg void OnKillfocusText();
 	afx_msg void OnPlay();
 	afx_msg void OnBrowse3();
@@ -107,6 +108,7 @@ protected:
 	afx_msg void OnKillfocusText2();
 	afx_msg void OnToolsIdsbrowser();
 	afx_msg void OnDefaultKillfocus();
+	afx_msg void OnParSpecial();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -37,13 +37,14 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCFBDialog)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
-  virtual BOOL PreTranslateMessage(MSG* pMsg);
   void changeitemname(CString arg)
   {
     itemname=arg;

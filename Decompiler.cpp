@@ -317,7 +317,12 @@ Object* Decompiler::DecodeObject(int &pos)
 		}
 		if(line[pos]!=' ') goto die;
 		pos++; //Skip a ' ', the ] was skipped by the ParseInt function
-	}
+  } else {
+    for (i = 0; i < 4; i++)
+    {
+      oB->objectRect[i]=-1;
+    }
+  }
 	if (line[pos]!='"') goto die;
 	pos++; //Skip "
 	ParseString( pos, oB->objectName );
@@ -371,13 +376,16 @@ CString Decompiler::PrintRegion(int *region)
 	return tmp;
 }
 
-int Decompiler::FindColon(const char *variable)
+int Decompiler::FindColon(const char *variable, int add)
 {
 	for(int i=0;i<65;i++)
 	{
-		if (variable[i]=='\0') return i-1;
-		if (variable[i]==':') return i;
+		if (variable[i]=='\0') return i;
+		if (variable[i]==':') return i+add;
 	}
+  if (add) {
+    return 65;
+  }
 	return 0;
 }
 
@@ -478,19 +486,19 @@ CString Decompiler::PrintTrigger(Trigger *tR)
 			ob.MakeUpper();
 			break;
 		case SPT_VAR4:
-			areaused = FindColon(tR->string1Parameter)+1;
+			areaused = FindColon(tR->string1Parameter, 1);
 			ob.Format("\"%s\"",CString(tR->string1Parameter+areaused) );
 			break;
 		case SPT_VAR3:
-			areaused = FindColon(tR->string0Parameter)+1;
+			areaused = FindColon(tR->string0Parameter, 1);
 			ob.Format("\"%s\"",CString(tR->string0Parameter+areaused) );
 			break;
 		case SPT_AREA4:
-			areaused = FindColon(tR->string1Parameter);
+			areaused = FindColon(tR->string1Parameter, 0);
 			ob.Format("\"%s\"",CString(tR->string1Parameter,areaused) );
 			break;
 		case SPT_AREA3:
-			areaused = FindColon(tR->string0Parameter);
+			areaused = FindColon(tR->string0Parameter, 0);
 			ob.Format("\"%s\"",CString(tR->string0Parameter,areaused) );
 			break;
 		case SPT_VAR2:
@@ -736,19 +744,23 @@ CString Decompiler::PrintAction(Action *aC)
 			ob.Format("\"%s\"",CString(aC->string1Parameter+areaused) );
 			break;
 		case SPT_VAR4:
-			areaused = FindColon(aC->string1Parameter)+1;
+    case SPT_RES4:
+			areaused = FindColon(aC->string1Parameter, 1);
 			ob.Format("\"%s\"",CString(aC->string1Parameter+areaused) );
 			break;
 		case SPT_VAR3:
-			areaused = FindColon(aC->string0Parameter)+1;
+    case SPT_RES2:
+			areaused = FindColon(aC->string0Parameter, 1);
 			ob.Format("\"%s\"",CString(aC->string0Parameter+areaused) );
 			break;
 		case SPT_AREA4:
-			areaused = FindColon(aC->string1Parameter);
+    case SPT_RES3:
+			areaused = FindColon(aC->string1Parameter, 0);
 			ob.Format("\"%s\"",CString(aC->string1Parameter,areaused) );
 			break;
 		case SPT_AREA3:
-			areaused = FindColon(aC->string0Parameter);
+    case SPT_RES1:
+			areaused = FindColon(aC->string0Parameter, 0);
 			ob.Format("\"%s\"",CString(aC->string0Parameter,areaused) );
 			break;
 		case SPT_COLUMN2:

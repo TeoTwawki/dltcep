@@ -137,7 +137,7 @@ private:
   CString PrintPoint(Point &pO);
   CString PrintRegion(int *region);
   CString PrintTrigger(Trigger *tR);
-  int FindColon(const char *variable);
+  int FindColon(const char *variable, int add);
   int IsAreaUsed(compiler_data &value, int nextpar);
   int ReadTrigger();
   int ReadResponseSet();

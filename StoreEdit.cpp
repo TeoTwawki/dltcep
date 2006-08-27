@@ -75,6 +75,7 @@ BEGIN_MESSAGE_MAP(CStoreEdit, CDialog)
 	ON_BN_CLICKED(IDC_NEW, OnNew)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
@@ -279,7 +280,12 @@ gotname:
 
 void CStoreEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_STO);
+ ExportTBG(this, REF_STO,0);
+}
+
+void CStoreEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_STO,1);
 }
 
 void CStoreEdit::OnCheck() 

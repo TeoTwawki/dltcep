@@ -34,7 +34,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 IDD_WEIDU DIALOGEX 0, 0, 317, 226
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Compiler options"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_FILENAME,9,17,275,16,ES_AUTOHSCROLL | ES_READONLY,
                     WS_EX_ACCEPTFILES,0x80bf03eb
@@ -516,8 +516,8 @@ BEGIN
     EDITTEXT        IDC_ROLL,50,68,18,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_DIE,82,68,18,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_ADD,112,68,17,12,ES_AUTOHSCROLL
-    COMBOBOX        IDC_DAMAGETYPE,131,68,74,107,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_DAMAGETYPE,131,68,74,107,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_TOOLTIPTEXT,7,95,93,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_TOOLTIPREF,106,95,39,12,ES_AUTOHSCROLL
     CONTROL         "Bow",IDC_BOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
@@ -5937,12 +5937,9 @@ BEGIN
             VALUE "FileVersion", "7, 0, 0, 0\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2006 Avenger\0"
-            VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
-            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro 7.0\0"
             VALUE "ProductVersion", "7, 0, 0, 0\0"
-            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -6253,6 +6250,7 @@ BEGIN
         MENUITEM "&Save item",                  ID_FILE_SAVE
         MENUITEM "Save item &As ...",           ID_FILE_SAVEAS
         MENUITEM "Export &TBG item file",       ID_FILE_TBG
+        MENUITEM "Export TP&2 item file",       ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6274,6 +6272,7 @@ BEGIN
         MENUITEM "&Save spell",                 ID_FILE_SAVE
         MENUITEM "Save spell &As ...",          ID_FILE_SAVEAS
         MENUITEM "Export &TBG spell file",      ID_FILE_TBG
+        MENUITEM "Export TP&2 item file",       ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6299,6 +6298,7 @@ BEGIN
         MENUITEM "&Save store",                 ID_FILE_SAVE
         MENUITEM "Save store &As ...",          ID_FILE_SAVEAS
         MENUITEM "Export &TBG store file",      ID_FILE_TBG
+        MENUITEM "Export TP&2 store file",      ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6316,6 +6316,7 @@ BEGIN
         MENUITEM "&Save effect",                ID_FILE_SAVE
         MENUITEM "Save effect &As ...",         ID_FILE_SAVEAS
         MENUITEM "Export &TBG effect file",     ID_FILE_TBG
+        MENUITEM "Export TP&2 effect file",     ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6338,6 +6339,7 @@ BEGIN
         MENUITEM "&Save area",                  ID_FILE_SAVE
         MENUITEM "Save area &As ...",           ID_FILE_SAVEAS
         MENUITEM "Export &TBG area file",       ID_FILE_TBG
+        MENUITEM "Export TP&2 area file",       ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6363,6 +6365,7 @@ BEGIN
         MENUITEM "&Save creature",              ID_FILE_SAVE
         MENUITEM "Save creature &As ...",       ID_FILE_SAVEAS
         MENUITEM "Export &TBG creature file",   ID_FILE_TBG
+        MENUITEM "Export TP&2 creature file",   ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "Ex&port Soundset",            ID_EXPORTSOUNDSET
         MENUITEM "&Import Soundset",            ID_IMPORTSOUNDSET
@@ -6388,6 +6391,7 @@ BEGIN
         MENUITEM "&Save worldmap",              ID_FILE_SAVE
         MENUITEM "Save worldmap &As ...",       ID_FILE_SAVEAS
         MENUITEM "Export &TBG worldmap file",   ID_FILE_TBG
+        MENUITEM "Export TP&2 worldmap file",   ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6634,6 +6638,7 @@ BEGIN
         MENUITEM "&Save interface",             ID_FILE_SAVE
         MENUITEM "Save interface &As ...",      ID_FILE_SAVEAS
         MENUITEM "Export &TBG interface file",  ID_FILE_TBG
+        MENUITEM "Export TP&2 interface file",  ID_FILE_TBG
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END

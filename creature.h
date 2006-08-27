@@ -45,14 +45,14 @@ public:
   creature_effect *effects;
   feat_block *oldeffects;
   creature_item *items;
-  char *pst_unknown_data;
+  char *pst_overlay_data;
   creature_iwd2_spell *iwd2_spells[IWD2_SPELLCOUNT]; //7*9 spell, 9 domain, innates, shapes, songs
   long iwd2_counts[IWD2_SPELLCOUNT];
   iwd2_trail iwd2_free[IWD2_SPELLCOUNT];
   int bookcount;
   int selectcount;
   int memocount;
-  int pst_data_size;
+  int pst_overlay_size;
   int effectcount;
   int itemcount;
   int m_changed;
@@ -115,12 +115,12 @@ public:
       itemcount=0;
     }
   }
-  inline void KillPstData()
+  inline void KillPstOverlay()
   {
-    if(pst_unknown_data)
+    if(pst_overlay_data)
     {
-      delete[] pst_unknown_data;
-      pst_data_size = 0;
+      delete[] pst_overlay_data;
+      pst_overlay_size = 0;
     }
   }
 

@@ -1071,8 +1071,40 @@ int Ctbg::collect_dlgrefs()
   return 0;
 }
 
+//alternative output, strrefs+offsets go to a tp2 file
+int Ctbg::OutputTP2(CString outfilename)
+{
+	CString tmptext;
+	CString tmpsound;
+	int count;
+	FILE *fpoi;
+	int ret;
+
+	fpoi = fopen(outfilename,"w");
+	if (!fpoi)
+	{
+		return -2;
+	}
+	ret = 0;
+	for(count=0;count<header.tlkentrycount;count++)
+	{
+		tmptext=resolve_tlk_text( tlkentries[count].offset );
+    tmpsound=resolve_tlk_soundref(tlkentries[count].offset );
+		if (tmpsound.IsEmpty())
+		{
+			fprintf(fpoi,"SAY %d ~%s~\n", strrefs[count], tmptext );
+		}
+		else
+		{
+			fprintf(fpoi,"SAY %d ~%s~ [%s]\n", strrefs[count], tmptext, tmpsound );
+		}
+	}
+	fclose(fpoi);
+	return ret;
+}
+
 //writes out a tbg file
-int Ctbg::ExportFile(int filetype, CString outfilepath)
+int Ctbg::ExportFile(int filetype, CString outfilepath, int type)
 {
   CString outfilename;
   CString tmpstr;
@@ -1088,13 +1120,21 @@ int Ctbg::ExportFile(int filetype, CString outfilepath)
   if(!tbgext[idx]) return -99;
   if(filetype&TBG_ALT)
   {
-    outfilename.Format("%s%s#%c.tbg",outfilepath,itemname,tbgext[idx]);
+    outfilename.Format("%s%s#%c",outfilepath,itemname,tbgext[idx]);
   }
   else
   {
-    if(tbgext[idx]=='-') outfilename.Format("%s%s.tbg",bgfolder,itemname);
-    else outfilename.Format("%s%s-%c.tbg",outfilepath,itemname,tbgext[idx]);
+    if(tbgext[idx]=='-') outfilename.Format("%s%s",bgfolder,itemname);
+    else outfilename.Format("%s%s-%c",outfilepath,itemname,tbgext[idx]);
   }
+	if(type)
+	{
+		outfilename+=".tp2";
+	}
+	else
+	{
+		outfilename+=".tbg";
+	}
   new_iap(); //clears headers & counters  
   switch(filetype)
   {
@@ -1146,6 +1186,10 @@ int Ctbg::ExportFile(int filetype, CString outfilepath)
     ret=-99;
   }
   if(ret<0) return ret;
+	if (type)
+	{
+		return OutputTP2(outfilename);
+	}
   memcpy(header.signature,"TBG4",4);
   if(filetype&TBG_ALT) header.signature[3]=(char) toupper(tbgext[idx]);
 
@@ -1176,6 +1220,7 @@ int Ctbg::ExportFile(int filetype, CString outfilepath)
       }
     }
   }
+
   tmpstr.Format("%s%s",itemname,objexts[idx]);
   strncpy(header.filename,tmpstr,sizeof(header.filename) );
   header.genre=get_genre();
@@ -1388,29 +1433,34 @@ int Ctbg::Readtbg(CString filepath, CStringList &filelist)
   return ret;
 }
 
-void ExportTBG(CWnd *pwnd, int filetype)
+void ExportTBG(CWnd *pwnd, int filetype, int type)
 {
   CString filepath;
   CString newname;
   CString tmpstr;
   int res;
   Ctbg the_tbg;
-	
+	CString ext, cext;
+
+	if (type) ext=".tp2";
+	else ext=".tbg";
+	cext=ext;
+	cext.MakeUpper();
   res=OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "tbg", bgfolder+itemname, res, szFilterTbg, pwnd);
+	CFileDialog m_getfiledlg(FALSE, type?"tp2":"tbg", bgfolder+itemname, res, type?szFilterTp2:szFilterTbg, pwnd);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
     filepath.MakeLower();
-    if(filepath.Right(4)!=".tbg")
+    if(filepath.Right(4)!=ext)
     {
-      filepath+=".tbg";
+      filepath+=ext;
     }
     newname=m_getfiledlg.GetFileName();
     newname.MakeUpper();
-    if(newname.Right(4)==".TBG") newname=newname.Left(newname.GetLength()-4);
+    if(newname.Right(4)==cext) newname=newname.Left(newname.GetLength()-4);
     if(newname.GetLength()>8 || newname.GetLength()<1 || newname.Find(" ",0)!=-1)
     {
       tmpstr.Format("The filename '%s' is bad.",newname);
@@ -1424,7 +1474,7 @@ restart:
     }
     itemname=newname;
     filepath=filepath.Left(filepath.ReverseFind('\\')+1);
-    res=the_tbg.ExportFile(filetype, filepath);
+    res=the_tbg.ExportFile(filetype, filepath,type);
     switch(res)
     {
     case -99:

@@ -1436,6 +1436,16 @@ bool CChitemDlg::match_item()
   int loc, cnt;
   POSITION pos;
   
+#if 1
+  for(int i=0;i<the_item.extheadcount;i++)
+  {
+    if (the_item.extheaders[i].damtype>4)
+    {
+      log("Unusual damage type: %d",the_item.extheaders[i].damtype); 
+    }
+  }
+#endif
+
   memset(&tmpdata,0,sizeof(tmpdata) );
   exthead=featblock=featblock2=loc=0;
   if(searchflags&MS)
@@ -1504,6 +1514,15 @@ bool CChitemDlg::match_item()
   }
   if(searchflags&MR)
   {
+    if (!strnicmp(the_item.header.descicon, searchdata.resource,8)) {
+      log("Found description icon %.s",searchdata.resource);
+    }
+    if (!strnicmp(the_item.header.grnicon, searchdata.resource,8)) {
+      log("Found ground icon %.s",searchdata.resource);
+    }
+    if (!strnicmp(the_item.header.invicon, searchdata.resource,8)) {
+      log("Found inventory icon %.s",searchdata.resource);
+    }
     found=false;
     for(featblock2=0;featblock2<the_item.featblkcount && !found;featblock2++)
     {
@@ -2562,6 +2581,14 @@ bool CChitemDlg::match_area()
       if(!strnicmp(the_area.triggerheaders[idx].key, searchdata.itemname, 8) )
       {
         log("Using key: %.8s in trigger #%d",the_area.triggerheaders[idx].key, idx);
+        break;
+      }
+    }
+    for(idx=0;idx<the_area.doorcount;idx++)
+    {
+      if(!strnicmp(the_area.doorheaders[idx].key,searchdata.itemname, 8) )
+      {
+        log("Using key: %.8s in door #%d",the_area.doorheaders[idx].key, idx);
         break;
       }
     }

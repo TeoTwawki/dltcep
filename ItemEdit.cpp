@@ -78,6 +78,7 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
@@ -261,7 +262,12 @@ gotname:
 
 void CItemEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_ITM);
+ ExportTBG(this, REF_ITM, 0);
+}
+
+void CItemEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_ITM, 1);
 }
 
 void CItemEdit::OnCheck() 

@@ -16,6 +16,7 @@
 #define PST_SLOT_COUNT 46
 #define IWD2_SLOT_COUNT  50
 #define SND_SLOT_COUNT 100
+#define SND_SLOT_IWD2 64
 
 #define BG2_SPSLOTNUM 3
 #define IWD2_SPSLOTNUM 7
@@ -608,10 +609,10 @@ typedef struct
   long unused3;
   char source[8];
   long unused4;
-  long projectile;//the effect uses this projectile
+  long projectile;//the effect uses this projectile (from spell)
   long unused6;  
   char variable[32];
-  long unused7;
+  long casterlevel;//(in items this is set to 10)
   long unused8;
   long sectype;
   unsigned char unused9[60];
@@ -739,6 +740,19 @@ typedef struct
   long effectcnt;
   char dialogresref[8];
 } creature_header;
+
+typedef struct
+{
+  char resref[8];
+  short timing;
+  short type;
+  long duration;
+  long u1;
+  long u2;
+  long u3;
+  long u4;
+  long u5;
+} creature_pst_overlay;
 
 typedef struct
 {

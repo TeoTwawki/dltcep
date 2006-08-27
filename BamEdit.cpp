@@ -1842,7 +1842,7 @@ static inline int GetSplitSize(int scale)
 
 void CBamEdit::SplitBAM()
 {
-	CPoint p;
+	CPoint p,q;
 	int i,j;
 	int fc = the_bam.GetFrameCount();
 	int width = 0;
@@ -1852,13 +1852,16 @@ void CBamEdit::SplitBAM()
 	for(i=0;i<fc;i++)
 	{
 		p=the_bam.GetFrameSize(i);
-		if (width<p.x)
+    q=the_bam.GetFramePos(i);
+    j = p.x+q.x;
+		if (width<j)
 		{
-			width=p.x;
+			width=j;
 		}
-		if (height<p.y)
+    j = p.y+q.y;
+		if (height<j)
 		{
-			height=p.y;
+			height=j;
 		}
 	}
 	if (width<MAX_DIMENSION && height<MAX_DIMENSION)

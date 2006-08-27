@@ -3023,7 +3023,7 @@ void CDialogEdit::OnNewvalue()
 
 void CDialogEdit::OnExportTbg() 
 {
-	ExportTBG(this, REF_DLG);
+	ExportTBG(this, REF_DLG, 0);
 }
 
 void CDialogEdit::OnCancel() 

@@ -188,7 +188,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
     the_creature.header.idsgender=(BYTE) value;
   }
 
-  tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(pst_compatible_var()?"ALIGN":IDSName(ALIGN,false),the_creature.header.idsalign, true) );
+  tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(IDSName2(ALIGN,false),the_creature.header.idsalign, true) );
   DDX_Text(pDX, IDC_IDSALIGNMENT, tmpstr);
   value=IDSKey(IDSName(ALIGN,false), tmpstr);
   if(value==-1)
@@ -300,6 +300,12 @@ BOOL CCreatureGeneral::OnInitDialog()
 	cb=(CComboBox *) GetDlgItem(IDC_HATED);
   FillCombo("RACE",cb,2);
 
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -616,6 +622,12 @@ void CCreatureGeneral::OnV12()
 	the_creature.revision=12;
 }
 
+BOOL CCreatureGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CCreatureIcons dialog
 
@@ -777,6 +789,12 @@ void CCreatureIcons::RefreshIcons()
 BOOL CCreatureIcons::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();	
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 	return TRUE;
 }
 
@@ -1062,6 +1080,12 @@ void CCreatureIcons::OnPlay()
   SetTimer(0,100,NULL);
 }
 
+BOOL CCreatureIcons::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CCreatureSkills dialog
 
@@ -1129,6 +1153,20 @@ void CCreatureSkills::DoDataExchange(CDataExchange* pDX)
 void CCreatureSkills::RefreshSkills()
 {
   
+}
+
+BOOL CCreatureSkills::OnInitDialog() 
+{
+	CPropertyPage::OnInitDialog();
+	
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+	
+	return TRUE;
 }
 
 BEGIN_MESSAGE_MAP(CCreatureSkills, CPropertyPage)
@@ -1318,6 +1356,13 @@ void CCreatureSkills::OnKillfocusPiercing()
   UpdateData(UD_DISPLAY);
 }
 
+
+BOOL CCreatureSkills::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CCreatureResist dialog
 
@@ -1424,6 +1469,12 @@ BOOL CCreatureResist::OnInitDialog()
         cw->SetWindowText(willboxtxt[i]);
       }
     }
+  }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
   }
 	return TRUE;
 }
@@ -1587,6 +1638,13 @@ void CCreatureResist::OnDef4()
   SetDefaultSaves("SAVEWIZ");
 }
 
+
+BOOL CCreatureResist::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);	
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CCreatureStrings dialog
 
@@ -1634,8 +1692,8 @@ void CCreatureStrings::RefreshStrings()
   if(!(editflg&RESOLVE) && IsWindow(m_slotpicker_control.m_hWnd) )
   {
     m_slotpicker_control.ResetContent();
-    m_slotpicker_control.InitStorage(100,20);
-    for(i=0;i<SND_SLOT_COUNT;i++)
+    m_slotpicker_control.InitStorage(m_stringcount,20);
+    for(i=0;i<m_stringcount;i++)
     {
      
       tmp=resolve_tlk_text(the_creature.header.strrefs[i]);
@@ -1652,12 +1710,14 @@ BOOL CCreatureStrings::OnInitDialog()
   CString tmpstr;
   int i;
 
+  m_stringcount = SND_SLOT_COUNT;
+  if (iwd2_structures()) m_stringcount = SND_SLOT_IWD2;
 	CPropertyPage::OnInitDialog();
   RefreshStrings();	
 
   m_slotpicker_control.ResetContent();
-  m_slotpicker_control.InitStorage(100,20);
-  for(i=0;i<SND_SLOT_COUNT;i++)
+  m_slotpicker_control.InitStorage(m_stringcount,20);
+  for(i=0;i<m_stringcount;i++)
   {
     tmpstr.Format("%3d. %s",i,snd_slots[i]);
     m_slotpicker_control.AddString(tmpstr);
@@ -1665,8 +1725,14 @@ BOOL CCreatureStrings::OnInitDialog()
   m_slotpicker_control.SetCurSel(m_stringnum);
   m_spincontrol.SetBuddy(&m_buddycontrol);
 
-  m_spincontrol.SetRange(1,SND_SLOT_COUNT);
-  m_spincontrol.SetPos(SND_SLOT_COUNT);
+  m_spincontrol.SetRange(1,m_stringcount);
+  m_spincontrol.SetPos(m_stringcount);
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 	return TRUE; 
 }
 
@@ -1696,18 +1762,18 @@ void CCreatureStrings::OnKillfocusSlotpicker()
 
   UpdateData(UD_RETRIEVE);
   m_slotpicker_control.GetWindowText(tmpstr);
-  for(m_stringnum=0;m_stringnum<100;m_stringnum++)
+  for(m_stringnum=0;m_stringnum<m_stringcount;m_stringnum++)
   {
     if(!tmpstr.CompareNoCase(snd_slots[m_stringnum])) break;
   }
-  if(m_stringnum==100)
+  if(m_stringnum==m_stringcount)
   {
     m_stringnum=strtonum(tmpstr);
   }
   m_stringnum=m_slotpicker_control.SetCurSel(m_stringnum);
   if(m_stringnum>=0)
   {
-    tmpstr.Format("%d",SND_SLOT_COUNT-m_stringnum);
+    tmpstr.Format("%d",m_stringcount-m_stringnum);
     m_buddycontrol.SetWindowText(tmpstr);
   }
   RefreshStrings();
@@ -1719,7 +1785,7 @@ void CCreatureStrings::OnSelchangeSlotpicker()
   CString tmpstr;
 
   m_stringnum=m_slotpicker_control.GetCurSel();
-  tmpstr.Format("%d",SND_SLOT_COUNT-m_stringnum);
+  tmpstr.Format("%d",m_stringcount-m_stringnum);
   m_buddycontrol.SetWindowText(tmpstr);
 	RefreshStrings();
   UpdateData(UD_DISPLAY);
@@ -1807,7 +1873,7 @@ void CCreatureStrings::OnChangeBuddy()
   if(m_buddycontrol)
   {
     m_buddycontrol.GetWindowText(tmpstr);
-    m_stringnum=SND_SLOT_COUNT-atoi(tmpstr);
+    m_stringnum=m_stringcount-atoi(tmpstr);
     RefreshStrings();
     UpdateData(UD_DISPLAY);
   }
@@ -1815,19 +1881,19 @@ void CCreatureStrings::OnChangeBuddy()
 
 void CCreatureStrings::OnCopy() 
 {
-	memcpy(creature_strrefs,the_creature.header.strrefs,SND_SLOT_COUNT*sizeof(long) );	
+	memcpy(creature_strrefs,the_creature.header.strrefs,m_stringcount*sizeof(long) );	
 }
 
 void CCreatureStrings::OnPaste() 
 {
-	memcpy(the_creature.header.strrefs,creature_strrefs,SND_SLOT_COUNT*sizeof(long) );	
+	memcpy(the_creature.header.strrefs,creature_strrefs,m_stringcount*sizeof(long) );	
   RefreshStrings();
   UpdateData(UD_DISPLAY);
 }
 
 void CCreatureStrings::OnExport() 
 {
-  ExportTBG(this, REF_CRE|TBG_ALT);
+  ExportTBG(this, REF_CRE|TBG_ALT, 0);
 }
 
 void CCreatureStrings::OnImport() 
@@ -1839,6 +1905,13 @@ void CCreatureStrings::OnImport()
   itemname=tmp;
   RefreshStrings();
   UpdateData(UD_DISPLAY);
+}
+
+
+BOOL CCreatureStrings::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1929,7 +2002,12 @@ BOOL CCreatureUnknown::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
   RefreshUnknown();
-  
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 	return TRUE;
 }
 
@@ -2256,6 +2334,13 @@ void CCreatureUnknown::OnClearall()
   the_creature.header.localID=-1;
   the_creature.header.reputation=0;
   UpdateData(UD_DISPLAY);
+}
+
+
+BOOL CCreatureUnknown::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);	
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2679,7 +2764,12 @@ BOOL CCreatureItem::OnInitDialog()
     cb->AddString(tmpstr);
   }
 	RefreshItem();
-
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 	UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -3405,6 +3495,12 @@ void CCreatureItem::OnBook2()
   UpdateData(UD_DISPLAY);
 }
 
+BOOL CCreatureItem::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CCreatureEffect dialog
 
@@ -3482,6 +3578,12 @@ BOOL CCreatureEffect::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();	
 	RefreshEffect();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 	return TRUE;
 }
 
@@ -3715,6 +3817,12 @@ void CCreatureEffect::OnV20()
   }
 }
 
+BOOL CCreatureEffect::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 //////////////////////////////////////////////////////////
 // CCreaturePropertySheet
 //////////////////////////////////////////////////////////
@@ -3758,4 +3866,3 @@ BEGIN_MESSAGE_MAP(CCreaturePropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CCreaturePropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-

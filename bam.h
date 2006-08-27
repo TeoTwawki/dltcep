@@ -43,8 +43,8 @@
 
 #include "mos.h"
 
-#define MAX_ICON_WIDTH		400
-#define MAX_ICON_HEIGHT		400
+#define MAX_ICON_WIDTH		640
+#define MAX_ICON_HEIGHT		480
 
 //MakeBitmap options (1 - resize bitmap,   2 - don't delete previous content)
 #define BM_JUSTIFY_MASK  3

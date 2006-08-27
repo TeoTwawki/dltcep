@@ -77,6 +77,7 @@ protected:
 	afx_msg void OnBrowse6();
 	afx_msg void OnKillfocusText();
 	afx_msg void OnFileTbg();
+	afx_msg void OnFileTp2();
 	afx_msg void OnFlag1();
 	afx_msg void OnFlag2();
 	afx_msg void OnFlag3();

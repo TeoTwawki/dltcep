@@ -2487,6 +2487,8 @@ bool Cbam::CopyStructure(Cbam &original, int skipwidth, int skipheight, int widt
   for(i=0;i<m_nFrames;i++)
   {
     CPoint p = original.GetFrameSize(i);
+    CPoint q = original.GetFramePos(i);
+
     int splitwidth=width;
     int splitheight=height;
     if (splitwidth+skipwidth>p.x)
@@ -2502,16 +2504,16 @@ bool Cbam::CopyStructure(Cbam &original, int skipwidth, int skipheight, int widt
 
     if (splitwidth==0 || splitheight==0)
     {
-      splitwidth=1;
-      splitheight=1;
       original.GetEmpty(m_pFrameData+i);
+      SetFrameSize(i, 1, 1);
+      SetFrameRLE(i,false);
     }
     else
     {
       original.GetSplitQuarter(m_pFrameData+i, i, skipwidth, skipheight, splitwidth, splitheight);
-    }
-    SetFrameSize(i, splitwidth, splitheight);
-    SetFramePos(i,m_pFrames[i].wCenterX+skipwidth,m_pFrames[i].wCenterY+skipheight);
+      SetFrameSize(i, splitwidth, splitheight);
+    }    
+    SetFramePos(i,q.x-skipwidth,q.y-skipheight);
   }
 	return true;
 }

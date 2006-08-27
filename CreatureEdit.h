@@ -52,6 +52,7 @@ protected:
 	afx_msg void OnCheck();
 	afx_msg void OnSave();
 	afx_msg void OnFileTbg();
+	afx_msg void OnFileTp2();
 	afx_msg void OnExportsoundset();
 	afx_msg void OnImportsoundset();
 	afx_msg void OnToolsIdsbrowser();

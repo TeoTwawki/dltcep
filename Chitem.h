@@ -149,6 +149,10 @@ extern UINT WM_FINDREPLACE;
 #define SPT_DEAD2    '2D'   //death variable
 #define SPT_1AREA    'AA'   //area, 1. variable not inserted
 #define SPT_2AREA    'AB'   //area, 2. variable not inserted
+#define SPT_RES1     'R1'   //resource (8 chars long) in 1. string before :
+#define SPT_RES2     'R2'   //resource (8 chars long) in 1. string after :
+#define SPT_RES3     'R3'   //resource (8 chars long) in 2. string before :
+#define SPT_RES4     'R4'   //resource (8 chars long) in 2. string after :
 
 #define NUM_WEAPROF    54
 extern int act_num_weaprof;
@@ -303,7 +307,7 @@ extern CString proj_facing_desc[NUM_FVALUE];
 #define NUM_AMTYPE 6
 extern CString ammo_types[NUM_AMTYPE];
 
-#define NUM_DTYPE 6
+#define NUM_DTYPE 10
 //damage types
 #define DT_NONE      0
 #define DT_PIERCING  1  //magic too
@@ -311,6 +315,7 @@ extern CString ammo_types[NUM_AMTYPE];
 #define DT_SLASH     3
 #define DT_RANGED    4
 #define DT_FIST      5
+#define DT_BLUNTRANGED 9
 
 #define NUM_CHTYPE 4
 //charge types
@@ -474,7 +479,7 @@ extern CString DELETED_REFERENCE;
 #define CHECK_DOOR    0x600000 //inanimate + door
 #define CHECK_TRIGGER 0xa00000 //inanimate + trigger
 
-#define MERGE_VARS 0xff
+//#define MERGE_VARS 0xff
 
 //store type flags
 #define ST_SELL  1
@@ -708,6 +713,7 @@ extern int idstrings[NUM_OBJTYPE+1];
 extern char tbgext[NUM_OBJTYPE+1];
 extern char BASED_CODE szFilterKey[];
 extern char BASED_CODE szFilterTbg[];
+extern char BASED_CODE szFilterTp2[];
 extern char BASED_CODE szFilterWeidu[];
 extern char BASED_CODE szFilterDlg[];
 extern char BASED_CODE szFilterWeiduAll[];
@@ -873,11 +879,13 @@ CString get_opcode_desc(int opcode, int param2);
 CString get_par1_label(int opcode);
 CString get_par2_label(int opcode);
 CString DamageType(int hex);
+CString DamageStyle(int hex);
 int ChuiControlSize(int controltype);
 CString find_justification(int code);
 CString ChuiControlName(int controltype);
 CString IDSType(int ids, bool addtwo);
 CString IDSName(int ids, bool addtwo);
+CString IDSName2(int ids, bool addtwo);
 int IDSKey(CString filename, CString key);
 CString IDSToken(CString filename, int value, bool unused);
 int get_idsfile(CString idsname, bool forced);

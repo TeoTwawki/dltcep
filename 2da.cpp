@@ -1197,8 +1197,8 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
   if(trigger_or_action) flg=chkflag=handle_trigger(cnt);
   else flg=chkflag=handle_action(cnt);
   //special cases
-  if((flg&0xffff)==0xff00) flg=0x105; 
-  if((flg&0xffff)==0xff01) flg=0x104; 
+  //if((flg&0xffff)==0xff00) flg=0x105; 
+  //if((flg&0xffff)==0xff01) flg=0x104; 
 
   compiler_data.parnumx=0;
   parlist=prototype.Mid(p1+1, prototype.GetLength()-p1-2);
@@ -1243,12 +1243,12 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
     }
 
     //comment out if not needed
-/*    
-    if (name.Compare("saveobjectlocation")==0)
+    
+    if (name.Compare("spellcasteffect")==0)
     {
       nop();
     }
-  */  
+
     objectcnt=0;
     pointcnt=0;
     intcnt=0;
@@ -1378,6 +1378,16 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
               parpoi->type=SPT_VAR4; flg<<=8;
             }            
             break;
+          case CHECK_DSOUND:
+            switch(stringcnt)
+            {
+            case 1:
+              parpoi->type=SPT_RES3;  flg<<=8;
+              break;
+            default:
+              parpoi->type=SPT_RES4;
+            }            
+            break;
 					case CHECK_SCOPE: parpoi->type=SPT_2AREA; break;
           case CHECK_DEAD: parpoi->type=SPT_DEAD2; break;
           case CHECK_NUM: parpoi->type=SPT_NUMLIST2; break;
@@ -1396,6 +1406,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           case ADD_GLOBAL: case ADD_LOCAL:case ADD_VAR3:
 						parpoi->type=SPT_VAR1;
 						break;
+          case CHECK_DSOUND: parpoi->type=SPT_RES1; flg<<=8; break;
           case ADD_VAR: parpoi->type=SPT_VAR1; flg<<=8; break;
           case ADD_VAR2: parpoi->type=SPT_VAR3; flg<<=8; break;
           case CHECK_SCOPE: parpoi->type=SPT_1AREA; break;
@@ -1674,7 +1685,7 @@ int compile_trigger(CString line, trigger &trigger)
   int j;
   int p1,p2;
   compiler_data compiler_data;
-  char tmparea[8];
+  char tmparea[10];
   int ret;
 
   trigger.Reset();
@@ -1776,7 +1787,7 @@ int compile_trigger(CString line, trigger &trigger)
     case SPT_DEAD1:
     case SPT_VAR1:
     case SPT_VAR3:
-      ret=convert_string(args[j],trigger.var1,32,-15);
+      ret=convert_string(args[j],trigger.var1,32,CE_INVALID_VARIABLE);
       if(ret<0)
       {
         delete [] args;
@@ -1785,7 +1796,7 @@ int compile_trigger(CString line, trigger &trigger)
 //check variable
       break;
     case SPT_COLUMN1:
-      ret=convert_string(args[j],trigger.var1,32,-15);
+      ret=convert_string(args[j],trigger.var1,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -1794,7 +1805,7 @@ int compile_trigger(CString line, trigger &trigger)
 //check column ???
       break;
     case SPT_TOKEN1:
-      ret=convert_string(args[j],trigger.var1,32,-15);
+      ret=convert_string(args[j],trigger.var1,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -1803,7 +1814,7 @@ int compile_trigger(CString line, trigger &trigger)
 //check tokens ???
       break;
     case SPT_RESREF1: //resource
-      ret=convert_string(args[j],trigger.var1,8,-15);
+      ret=convert_string(args[j],trigger.var1,8,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -1811,7 +1822,7 @@ int compile_trigger(CString line, trigger &trigger)
       }
       break;
     case SPT_1AREA:
-      ret=convert_string(args[j],trigger.var1,6,-14);
+      ret=convert_string(args[j],trigger.var1,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -1819,7 +1830,7 @@ int compile_trigger(CString line, trigger &trigger)
       }
       break;
     case SPT_2AREA:
-      ret=convert_string(args[j],trigger.var2,6,-14);
+      ret=convert_string(args[j],trigger.var2,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -1827,7 +1838,7 @@ int compile_trigger(CString line, trigger &trigger)
       }
       break;
     case SPT_AREA1: //area (only for var1)
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -1842,7 +1853,7 @@ int compile_trigger(CString line, trigger &trigger)
       memcpy(trigger.var1,tmparea,6);
       break;
     case SPT_AREA3:
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -1859,7 +1870,7 @@ int compile_trigger(CString line, trigger &trigger)
       break;
     case SPT_VAR2:
     case SPT_VAR4:
-      ret=convert_string(args[j],trigger.var2,32,-15);
+      ret=convert_string(args[j],trigger.var2,32,CE_INVALID_VARIABLE);
       if(ret<0)
       {
         delete [] args;
@@ -1868,7 +1879,7 @@ int compile_trigger(CString line, trigger &trigger)
 //check variable
       break;
     case SPT_COLUMN2:
-      ret=convert_string(args[j],trigger.var2,32,-15);
+      ret=convert_string(args[j],trigger.var2,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -1877,7 +1888,7 @@ int compile_trigger(CString line, trigger &trigger)
 //check column ???
       break;
     case SPT_TOKEN2:
-      ret=convert_string(args[j],trigger.var2,32,-15);
+      ret=convert_string(args[j],trigger.var2,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -1886,7 +1897,7 @@ int compile_trigger(CString line, trigger &trigger)
 //check tokens ???
       break;
     case SPT_RESREF2: //resource
-      ret=convert_string(args[j],trigger.var2,8,-15);
+      ret=convert_string(args[j],trigger.var2,8,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -1894,7 +1905,7 @@ int compile_trigger(CString line, trigger &trigger)
       }
       break;
     case SPT_AREA2: //area (only for var2)
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -1966,7 +1977,7 @@ int compile_action(CString line, action &action, bool inoverride)
   tmpstr=line.Mid(p1+1, p2-p1-1);
   args=explode2(tmpstr, argnum);
   if(argnum<0) return argnum; //direct error from the argument explosion level
-  if(argnum>6)
+  if(argnum>7)
   {
     delete [] args;
     return CE_TOO_MANY_ARGUMENTS; //too many arguments
@@ -2075,7 +2086,7 @@ int compile_action(CString line, action &action, bool inoverride)
       break;
     case SPT_VAR1:
     case SPT_VAR3:
-      ret=convert_string(args[j],action.var1,32,-15);
+      ret=convert_string(args[j],action.var1,32,CE_INVALID_VARIABLE);
       if(ret<0)
       {
         delete [] args;
@@ -2084,7 +2095,7 @@ int compile_action(CString line, action &action, bool inoverride)
 //check variable
       break;
     case SPT_NUMLIST1:
-      ret=convert_string(args[j],action.var1,32,-15);
+      ret=convert_string(args[j],action.var1,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -2098,7 +2109,7 @@ int compile_action(CString line, action &action, bool inoverride)
       }
       break;
     case SPT_COLUMN1:
-      ret=convert_string(args[j],action.var1,32,-15);
+      ret=convert_string(args[j],action.var1,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -2107,7 +2118,7 @@ int compile_action(CString line, action &action, bool inoverride)
 //check column ???
       break;
     case SPT_TOKEN1:
-      ret=convert_string(args[j],action.var1,32,-15);
+      ret=convert_string(args[j],action.var1,32,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
@@ -2115,16 +2126,28 @@ int compile_action(CString line, action &action, bool inoverride)
       }
 //check tokens ???
       break;
+    case SPT_RES1:
     case SPT_RESREF1: //resource
-      ret=convert_string(args[j],action.var1,8,-15);
+      ret=convert_string(args[j],action.var1,8,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
         return ret;
       }
       break;
+    case SPT_RES2:
+      ret=convert_string(args[j],tmparea,8,CE_INVALID_RESOURCE);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      memmove(action.var1+strlen(tmparea)+1,action.var1,32);
+      memcpy(action.var1,tmparea,8);
+      action.var1[8]=':';
+      break;
     case SPT_AREA3: //area (only for var1)
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -2141,7 +2164,7 @@ int compile_action(CString line, action &action, bool inoverride)
       break;
     case SPT_1AREA:
     case SPT_AREA1: //area (only for var1)
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -2157,7 +2180,7 @@ int compile_action(CString line, action &action, bool inoverride)
       break;
     case SPT_VAR2:
     case SPT_VAR4:
-      ret=convert_string(args[j],action.var2,32,-15);
+      ret=convert_string(args[j],action.var2,32,CE_INVALID_VARIABLE);
       if(ret<0)
       {
         delete [] args;
@@ -2166,7 +2189,7 @@ int compile_action(CString line, action &action, bool inoverride)
 //check variable
       break;
     case SPT_COLUMN2:
-      ret=convert_string(args[j],action.var2,32,-15);
+      ret=convert_string(args[j],action.var2,32,CE_INVALID_STRING);
       if(ret<0)
       {
         delete [] args;
@@ -2175,7 +2198,7 @@ int compile_action(CString line, action &action, bool inoverride)
 //check column ???
       break;
     case SPT_TOKEN2:
-      ret=convert_string(args[j],action.var2,32,-15);
+      ret=convert_string(args[j],action.var2,32,CE_INVALID_STRING);
       if(ret<0)
       {
         delete [] args;
@@ -2183,16 +2206,33 @@ int compile_action(CString line, action &action, bool inoverride)
       }
 //check tokens ???
       break;
+    case SPT_RES3:
     case SPT_RESREF2: //resource
-      ret=convert_string(args[j],action.var2,8,-15);
+      ret=convert_string(args[j],action.var2,8,CE_INVALID_RESOURCE);
       if(ret<0)
       {
         delete [] args;
         return ret;
       }
       break;
+    case SPT_RES4:
+      ret=convert_string(args[j],tmparea,8,CE_INVALID_RESOURCE);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      if(strlen(tmparea)!=8)
+      {
+        delete [] args;
+        return CE_INVALID_SCOPE;
+      }
+      memmove(action.var2+9,action.var2,32);
+      memcpy(action.var2,tmparea,8);
+      action.var2[8]=':';
+      break;
     case SPT_AREA4:
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -2209,7 +2249,7 @@ int compile_action(CString line, action &action, bool inoverride)
       break;
     case SPT_2AREA:
     case SPT_AREA2: //area (only for var1)
-      ret=convert_string(args[j],tmparea,6,-14);
+      ret=convert_string(args[j],tmparea,6,CE_INVALID_SCOPE);
       if(ret<0)
       {
         delete [] args;
@@ -2841,6 +2881,10 @@ int C2da::Read2DAFromFile(int fhandle, int length)
   read_string(fpoi, "\n", external,sizeof(external)); //default
   defvalue=external;
   read_string(fpoi, "\n", external,sizeof(external)); //columns
+  if (external[0]!=' ') {
+    memmove(external+1,external,MAXBUFFSIZE-1);
+    external[0]=' ';
+  }
   external[MAXBUFFSIZE-1]=0;
   collabels=explode(external,' ',cols);
   if(cols<1)
@@ -2875,7 +2919,8 @@ int C2da::Read2DAFromFile(int fhandle, int length)
     }
     while(i<cols)
     {
-      add[i]="*"; //default
+//      add[i]="*"; //default
+      add[i]=defvalue;
       i++;
     }
     if(row) delete [] row;

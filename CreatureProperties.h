@@ -31,12 +31,16 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureGeneral)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   CString FindKit(unsigned int kit);
 
 	// Generated message map functions
@@ -110,12 +114,16 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureIcons)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void ColorDlg(int idx);
   void OnBrowseBCS(int idx);
 
@@ -182,12 +190,15 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureSkills)
+  public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureSkills)
@@ -216,6 +227,7 @@ protected:
 	afx_msg void OnKillfocusMissile();
 	afx_msg void OnKillfocusSlashing();
 	afx_msg void OnKillfocusPiercing();
+	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -243,12 +255,16 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureResist)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void SetDefaultSaves(CString table);
 
 	// Generated message map functions
@@ -302,16 +318,20 @@ public:
 	int		m_ref;
 	//}}AFX_DATA
   int m_stringnum;
+  int m_stringcount;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureStrings)
+  public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureStrings)
@@ -353,12 +373,15 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureUnknown)
+  public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureUnknown)
@@ -440,12 +463,16 @@ public:
   // Overrides
   // ClassWizard generated virtual function overrides
   //{{AFX_VIRTUAL(CCreatureItem)
-protected:
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	protected:
   virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-  //}}AFX_VIRTUAL
+	//}}AFX_VIRTUAL
   
   // Implementation
 protected:  
+  CToolTipCtrl m_tooltip;
+
   void RefreshSpellPicker(int pos);
   int ResolveTypeAndLevel(CString key);
   CString ResolveSpellName(CString key);
@@ -524,12 +551,15 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCreatureEffect)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureEffect)

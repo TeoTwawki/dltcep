@@ -60,6 +60,7 @@ CString format_parameters(compiler_data &compiler_data)
     case SPT_STRREF:case SPT_STRREF2: case SPT_STRREF3: add="strref"; break;
     case SPT_ACTION: add="action"; break;
     case SPT_POINT: add="point"; break;
+    case SPT_RES1:case SPT_RES2:case SPT_RES3:case SPT_RES4:
     case SPT_RESREF1: case SPT_RESREF2: add="resource"; break;
     case SPT_DEAD1: case SPT_DEAD2: add="deathvar"; break;
     case SPT_COLUMN1: case SPT_COLUMN2: add="xplist"; break;

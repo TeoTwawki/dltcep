@@ -42,7 +42,8 @@ public:
 	virtual ~Ctbg();
   int WriteIap(int fhandle);
   int WriteZip(int fhandle);
-  int ExportFile(int filetype, CString filepath);
+	int OutputTP2(CString outfilename);
+  int ExportFile(int filetype, CString filepath, int type);
   int Readtbg(CString filepath, CStringList &filelist);
   void new_iap();
   //new feature: modify iap
@@ -170,6 +171,6 @@ private:
   }
 };
 
-void ExportTBG(CWnd *pwnd, int filetype);
+void ExportTBG(CWnd *pwnd, int filetype, int type);
 
 #endif // !defined(AFX_TBG_H__5F1252F4_705E_44C1_83B3_8F64BF30969A__INCLUDED_)

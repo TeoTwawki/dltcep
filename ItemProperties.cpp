@@ -739,12 +739,14 @@ void CItemIcons::OnMagical()
   CString tmpstr;
 
 	Togglebit(ATTR_MAGICAL);	
+  /* this is not really fun
   if((the_item.header.itmattr&ATTR_MAGICAL))
   { //nondesctructable
     tmpstr.Empty();
     StoreResref(tmpstr,the_item.header.destname);
     UpdateData(UD_DISPLAY);
   }
+  */
 }
 
 void CItemIcons::OnMovable() 
@@ -792,10 +794,12 @@ void CItemIcons::OnKillfocusConvref()
 void CItemIcons::OnKillfocusUsedup() 
 {
   UpdateData(UD_RETRIEVE);
+  /* this is not really fun
 	if(the_item.header.destname[0])
   {
     the_item.header.itmattr&=~ATTR_MAGICAL;
   }
+  */
   UpdateData(UD_DISPLAY);
 }
 

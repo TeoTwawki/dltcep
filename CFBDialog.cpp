@@ -253,12 +253,6 @@ BOOL CCFBDialog::OnHelpInfo(HELPINFO* pHelpInfo)
   return true;
 }
 
-BOOL CCFBDialog::PreTranslateMessage(MSG* pMsg)
-{
-  m_tooltip.RelayEvent(pMsg);
-  return CDialog::PreTranslateMessage(pMsg);
-}
-
 void CCFBDialog::OnKillfocusOutfolder() 
 {
 	UpdateData(UD_RETRIEVE);
@@ -276,4 +270,10 @@ void CCFBDialog::OnOutput()
     m_output=fb.initial;
     UpdateData(UD_DISPLAY);
   }
+}
+
+BOOL CCFBDialog::PreTranslateMessage(MSG* pMsg)
+{
+  m_tooltip.RelayEvent(pMsg);
+  return CDialog::PreTranslateMessage(pMsg);
 }

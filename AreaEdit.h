@@ -49,6 +49,7 @@ protected:
 	afx_msg void OnCheck();
 	afx_msg void OnSave();
 	afx_msg void OnFileTbg();
+	afx_msg void OnFileTp2();
 	afx_msg void OnToolsMirrorareavertically();
 	afx_msg void OnRepairwed();
 	afx_msg void OnRepairwed2();

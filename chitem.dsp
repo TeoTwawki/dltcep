@@ -185,6 +185,10 @@ SOURCE=.\CreatureEdit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CreatureOverlay.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CreatureProperties.cpp
 # End Source File
 # Begin Source File
@@ -563,6 +567,10 @@ SOURCE=.\creature.h
 # Begin Source File
 
 SOURCE=.\CreatureEdit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CreatureOverlay.h
 # End Source File
 # Begin Source File
 

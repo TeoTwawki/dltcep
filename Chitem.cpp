@@ -70,6 +70,7 @@ ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,
 
 char BASED_CODE szFilterKey[] = "chitin.key|chitin.key|All files (*.*)|*.*||";
 char BASED_CODE szFilterTbg[] = "Tbg files (*.tbg)|*.tbg|All files (*.*)|*.*||";
+char BASED_CODE szFilterTp2[] = "Tp2 files (*.tp2)|*.tp2|All files (*.*)|*.*||";
 char BASED_CODE szFilterWeidu[] = "Dialog source files (*.d)|*.d|All files (*.*)|*.*||";
 char BASED_CODE szFilterDlg[] = "Dialog files (*.dlg)|*.dlg|All files (*.*)|*.*||";
 char BASED_CODE szFilterWeiduAll[] = "Source files (*.d;*.baf)|*.d;*.baf|Dialog source files (*.d)|*.d|Script source files (*.baf)|*.baf|All files (*.*)|*.*||";
@@ -1567,6 +1568,7 @@ CString resolve_tlk_text(long reference, int which)
   if(reference<0) return "<Not Available>";
   if(reference>=tlk_headerinfo[which].entrynum) return "<Invalid Reference>";
   tmp=tlk_entries[which][reference].text;
+  tmp.Replace("\r","");
   tmp.Replace("\n","\r\n");
   return tmp;
 }
@@ -2441,6 +2443,7 @@ CString get_ammo_type(int amtype)
 
 CString damage_types[NUM_DTYPE]={
   "0-None","1-Piercing/Magic","2-Blunt","3-Slash","4-Ranged","5-Fists",
+  "6-Piercing or Blunt (more)","7-Piercing or Slash (more)","8-Blunt or Slash (less)","9-Blunt missile"
 };
 
 CString get_damage_type(int dtype)
@@ -2671,6 +2674,9 @@ char *idstype[NUM_IDS]={
 };
 
 char *idsname[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
+char *base_idsname_iwd[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
+char *base_idsname_iwd2[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMNT"};
+
 #define NUM_IDS_IWD  7
 char *idsname_iwd[NUM_IDS_IWD]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
 #define NUM_IDS_IWD2  10
@@ -2684,6 +2690,22 @@ CString IDSType(int ids, bool addtwo)
   if(addtwo) ids-=2;
   if(ids<0 || ids>=NUM_IDS) return "unknown";
   return idstype[ids];
+}
+
+CString IDSName2(int ids, bool addtwo)
+{
+  if(addtwo) ids-=2;
+  if(ids<0) return "unknown";
+  if(ids>=NUM_IDS) return "unknown";
+  if(iwd2_structures())
+  {
+    return base_idsname_iwd2[ids];
+  }
+  if(has_xpvar())
+  {
+    return base_idsname_iwd[ids];
+  }
+  return idsname[ids];
 }
 
 //for scripting
@@ -2784,25 +2806,37 @@ int FillCombo(CString idsname, CComboBox *cb, int len)
 
 CString DamageType(int hex)
 {
-  switch(hex)
+  switch(hex&0xffff0000)
   {
-  case 0: return "crushing"; break;
-  case 0x00010000: return "acid"; break;
-  case 0x00020000: return "cold"; break;
-  case 0x00040000: return "electricity"; break;
-  case 0x00080000: return "fire"; break;
-  case 0x00100000: return "piercing"; break;
-  case 0x00200000: return "poison";break;
-  case 0x00400000: return "magic"; break;
-  case 0x00800000: return "projectile"; break;
-  case 0x01000000: return "slashing"; break;
-  case 0x02000000: return "magic fire"; break;
-  case 0x04000000: return "magic cold"; break;
-  case 0x08000000: return "stunning"; break;
-  case 2: return "lower to percentile"; break;
-  case 1: return "lower to fixed"; break;
+  case 0: return "crushing";
+  case 0x00010000: return "acid";
+  case 0x00020000: return "cold";
+  case 0x00040000: return "electricity";
+  case 0x00080000: return "fire";
+  case 0x00100000: return "piercing";
+  case 0x00200000: return "poison";
+  case 0x00400000: return "magic";
+  case 0x00800000: return "projectile";
+  case 0x01000000: return "slashing";
+  case 0x02000000: return "magic fire";
+  case 0x04000000: return "magic cold";
+  case 0x08000000: return "stunning";
+  case 0x10000000: return "soul eater";
+  case 0x20000000: return "disease";
   }
   return "unknown";
+}
+
+CString DamageStyle(int hex)
+{
+  switch(hex&0xffff)
+  {
+  case 3: return " save for half"; 
+  case 2: return " set to percent";
+  case 1: return " set to value";
+  case 0: return "";
+  }
+  return " unknown";
 }
 
 CString save_types[NUM_STYPE]={
@@ -3437,8 +3471,8 @@ CString *explode(const CString &array, char separator, int &count)
 #define LL sf(ADD_LOCAL,ADD_LOCAL)
 #define NC sf(NO_CHECK, IS_VAR)
 #define MO sf(CHECK_MOVIE, IS_VAR)
-#define MV sf(0,MERGE_VARS)
-#define mv sf(1,MERGE_VARS) //merge vars with :
+//#define mv sf(1,MERGE_VARS) //merge vars with :
+#define mv sf(ADD_VAR3,CHECK_AREA)
 #define OO sf(IS_VAR,IS_VAR)
 #define oo sf(IS_VAR,IS_VAR)|INANIMATE
 #define D0 sf(IS_VAR,IS_VAR)|CHECK_DOOR //door
@@ -3508,7 +3542,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 
-    OO,   mv,   mv,   mv,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   VA,   VA,   VA,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 
     DV,   OO,   OO,   OO,   IO,   OO,   OO,   OO,   GO,   GO,  
 //0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 
@@ -3555,17 +3589,17 @@ int tob_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   mv,   OO,   D0,  D0,   D0,   OO,   OO,   OO,   OO,   //143-145->OO->D0
+    IO,   VA,   OO,   D0,  D0,   D0,   OO,   OO,   OO,   OO, 
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
-    pO,   wO,   OO,   OO,   OO,   mv,   OO,   MO,   OO,   IO,  //165 VO->mv
+    pO,   wO,   OO,   OO,   OO,   VA,   OO,   MO,   OO,   IO,
 //170,  171,  172,  173,  174,  175,  176,  177,  178,  179,  
     AO,   OO,   OO,   jr,   OO,   OO,   OO,   OO,   OO,   OO,  
 //180,  181,  182,  183,  184,  185,  186,  187,  188,  189,  
     OO,   pO,   OO,   OO,   OO,   AO,   OO,   OO,   IO,   Am,  
 //190,  191,  192,  193,  194,  195,  196,  197,  198,  199,  
-    OO,   pO,   pO,   IO,   CO,   OO,   OO,   AO,   OO,   WO,  //190 st->OO
+    OO,   pO,   pO,   IO,   CO,   OO,   OO,   AO,   OO,   WO,
 //200,  201,  202,  203,  204,  205,  206,  207,  208,  209,  
     OO,   OO,   OO,   OO,   IO,   OO,   OO,   OO,   OO,   OO,  
 //210,  211,  212,  213,  214,  215,  216,  217,  218,  219,  
@@ -3585,7 +3619,7 @@ int tob_action_flags[MAX_ACTION]={
 //280,  281,  282,  283,  284,  285,  286,  287,  288,  289,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   st,   OO,  
 //290,  291,  292,  293,  294,  295,  296,  297,  298,  299,  
-    OO,   OO,   io,   DO,   DO,   CO,   OO,   mv,   OO,   OO,  
+    OO,   OO,   io,   DO,   DO,   CO,   OO,   VA,   OO,   OO,  
 //300,  301,  302,  303,  304,  305,  306,  307,  308,  309,  
     OO,   OO,   OO,   GO,   mv,   LO,   OO,   GO,   st,   OO,  
 //310,  311,  312,  313,  314,  315,  316,  317,  318,  319,  
@@ -3685,7 +3719,7 @@ int iwd2_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   mv,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
+    IO,   VA,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3744,7 +3778,7 @@ int pst_trigger_flags[MAX_TRIGGER]={
 //0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 
     OO,   OO,   VO,   VO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
-    OO,   OO,   OO,   mv,   mv,   mv,   IO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   VA,   VA,   VA,   IO,   OO,   OO,   OO,  
 //0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 
@@ -3815,7 +3849,7 @@ int pst_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   mv,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
+    IO,   VA,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  

@@ -238,8 +238,12 @@ void CEffEdit::RefreshDialog()
     cb=(CButton *) GetDlgItem(IDC_PAR_IDS);
     break;
   case 3:
-    m_param2.Format("%d-%s",the_effect.header.par2.parl,DamageType(the_effect.header.par2.parl));
+    m_param2.Format("%d-%s",the_effect.header.par2.parl,DamageType(the_effect.header.par2.parl)+DamageStyle(the_effect.header.par2.parl));
     cb=(CButton *) GetDlgItem(IDC_PAR_DAMAGE);
+    break;
+  case 4:
+    m_param2.Format("%d",the_effect.header.par2.parl);
+    cb=(CButton *) GetDlgItem(IDC_PAR_SPECIAL);
     break;
   }
   cb->SetCheck(true);
@@ -255,6 +259,9 @@ void CEffEdit::RefreshDialog()
     tmp=IDSToken(tmp, the_effect.header.par1.parl, false);
     if(tmp.IsEmpty()) tmp="unknown";
     m_param1.Format("%ld-%s",the_effect.header.par1.parl, tmp);
+    break;
+  case 4:
+    m_param1.Format("0x%04x %s",the_effect.header.par1.parl,IDSToken("ANIMATE",the_effect.header.par1.parl, false) );
     break;
   }
   m_param1b1=the_effect.header.par1.parb[0];
@@ -478,6 +485,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_EN_KILLFOCUS(IDC_TEXT, OnKillfocusText)
 	ON_BN_CLICKED(IDC_PLAY, OnPlay)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
@@ -485,6 +493,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_DURATION, OnToolsDuration)
 	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
 	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
+	ON_EN_KILLFOCUS(IDC_PAR4, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EFFTARGET, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
@@ -517,7 +526,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_CBN_KILLFOCUS(IDC_EFFOPCODE2, OnKillfocusEffopcode)
 	ON_CBN_SELCHANGE(IDC_EFFOPCODE2, OnSelchangeEffopcode)
-	ON_EN_KILLFOCUS(IDC_PAR4, OnDefaultKillfocus)
+	ON_BN_CLICKED(IDC_PAR_SPECIAL, OnParSpecial)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -674,7 +683,12 @@ gotname:
 
 void CEffEdit::OnFileTbg() 
 {
-  ExportTBG(this, REF_EFF);
+  ExportTBG(this, REF_EFF,0);
+}
+
+void CEffEdit::OnFileTp2() 
+{
+  ExportTBG(this, REF_EFF,1);
 }
 
 void CEffEdit::OnCheck() 
@@ -739,7 +753,17 @@ void CEffEdit::DefaultKillfocus()
 void CEffEdit::OnKillfocusPar1() 
 {
   UpdateData(UD_RETRIEVE);
-  the_effect.header.par1.parl=strtonum(m_param1);
+  switch(m_par_type) {
+  case 4:
+    the_effect.header.par1.parl=IDSKey("ANIMATE", m_param1);
+    if(the_effect.header.par1.parl!=0xffffffff)
+    {
+      break;
+    }
+    //fall through
+  default:
+    the_effect.header.par1.parl=strtonum(m_param1);
+  }
   RefreshDialog();
 }
 
@@ -791,7 +815,7 @@ void CEffEdit::OnKillfocusText2()
 void CEffEdit::OnKillfocusPar2() 
 {
   CString tmp;
-  int x,y;
+  int x,y,z;
 
   UpdateData(UD_RETRIEVE);
   tmp=m_param2;
@@ -811,13 +835,16 @@ void CEffEdit::OnKillfocusPar2()
     }
     break;
   case 3:
-    y=1;
+    y=0x10000;
     for(x=0;x<32;x++)
     {
-      if(DamageType(y)==tmp)
+      for(z=0;z<4;z++)
       {
-        the_effect.header.par2.parl=y;
-        goto endofquest;
+        if(DamageType(y)+DamageStyle(z)==tmp)
+        {
+          the_effect.header.par2.parl=y|z;
+          goto endofquest;
+        }
       }
       y<<=1;
     }
@@ -913,6 +940,14 @@ void CEffEdit::OnParDamage()
   RefreshDialog();
 }
 
+
+void CEffEdit::OnParSpecial() 
+{
+  Explode(par1boxids,IDC_PAR1,IDC_EXPLODE1);
+  m_par_type=4;
+  RefreshDialog();
+}
+
 void CEffEdit::OnKillfocusPar1b1() 
 {
   UpdateData(UD_RETRIEVE);
@@ -967,6 +1002,12 @@ void CEffEdit::OnKillfocusPar2b4()
   UpdateData(UD_RETRIEVE);
   the_effect.header.par2.parb[3]=m_param2b4;
   RefreshDialog();
+}
+
+void CEffEdit::OnDefaultKillfocus() 
+{
+	// TODO: Add your control notification handler code here
+	
 }
 
 void CEffEdit::OnBrowse() 
@@ -1044,10 +1085,4 @@ BOOL CEffEdit::PreTranslateMessage(MSG* pMsg)
 {
   m_tooltip.RelayEvent(pMsg);
   return CDialog::PreTranslateMessage(pMsg);
-}
-
-void CEffEdit::OnDefaultKillfocus() 
-{
-	// TODO: Add your control notification handler code here
-	
 }

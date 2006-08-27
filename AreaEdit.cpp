@@ -70,6 +70,7 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_COMMAND(ID_TOOLS_MIRRORAREAVERTICALLY, OnToolsMirrorareavertically)
 	ON_COMMAND(ID_REPAIRWED, OnRepairwed)
 	ON_COMMAND(ID_REPAIRWED2, OnRepairwed2)
@@ -308,7 +309,12 @@ endofquest:
 
 void CAreaEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_ARE);
+ ExportTBG(this, REF_ARE, 0);
+}
+
+void CAreaEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_ARE, 1);
 }
 
 void CAreaEdit::OnCheck() 

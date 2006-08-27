@@ -57,6 +57,7 @@ Offset Size (data type) Description
 0x008c 8 (resref) Source of Effect
 0x0094 4*3 (dword) unknown
 0x00a0 32 (bytes) variable
-0x00c0 4*2 (dword) unknown
+0x00c0 4 (dword) caster level
+0x00c4 4 (dword) unknown
 0x00c8 4 (dword) Secondary Type
 0x00cc 4*15 (dword) unknown

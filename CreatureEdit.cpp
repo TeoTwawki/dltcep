@@ -93,6 +93,7 @@ BEGIN_MESSAGE_MAP(CCreatureEdit, CDialog)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_COMMAND(ID_EXPORTSOUNDSET, OnExportsoundset)
 	ON_COMMAND(ID_IMPORTSOUNDSET, OnImportsoundset)
 	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
@@ -197,7 +198,12 @@ restart:
 
 void CCreatureEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_CRE);
+ ExportTBG(this, REF_CRE, 0);
+}
+
+void CCreatureEdit::OnFileTp2() 
+{
+ ExportTBG(this, REF_CRE, 1);
 }
 
 void CCreatureEdit::OnCheck() 
@@ -309,7 +315,7 @@ gotname:
 
 void CCreatureEdit::OnExportsoundset() 
 {
-  ExportTBG(this, REF_CRE|TBG_ALT);
+  ExportTBG(this, REF_CRE|TBG_ALT, 0);
 }
 
 void CCreatureEdit::OnImportsoundset() 
@@ -318,7 +324,7 @@ void CCreatureEdit::OnImportsoundset()
   
   tmp=itemname;
   ((CChitemDlg *) AfxGetMainWnd())->Importtbg(TBG_ALT);
-  itemname=tmp;  
+  itemname=tmp;
 }
 
 BOOL CCreatureEdit::OnInitDialog() 

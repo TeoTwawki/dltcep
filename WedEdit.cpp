@@ -131,6 +131,8 @@ void CWedEdit::DoDataExchange(CDataExchange* pDX)
   }
   cb=GetDlgItem(IDC_EDITDOORPOLY);
   cb->EnableWindow(flg && m_doorpolynum>=0);
+  cb=GetDlgItem(IDC_SELECTION);
+  cb->EnableWindow(flg && m_doorpolynum>=0);
   cb=GetDlgItem(IDC_REMOVE3);
   cb->EnableWindow(flg && m_doorpolynum>=0);
   cb=GetDlgItem(IDC_COPY);
