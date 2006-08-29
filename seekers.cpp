@@ -1436,10 +1436,10 @@ bool CChitemDlg::match_item()
   int loc, cnt;
   POSITION pos;
   
-#if 1
+#if 0
   for(int i=0;i<the_item.extheadcount;i++)
   {
-    if (the_item.extheaders[i].damtype>4)
+    if (the_item.extheaders[i].damtype>9)
     {
       log("Unusual damage type: %d",the_item.extheaders[i].damtype); 
     }

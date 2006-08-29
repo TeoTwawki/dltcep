@@ -3834,7 +3834,7 @@ BEGIN
     PUSHBUTTON      "E&xit",IDCANCEL,260,184,34,14
 END
 
-IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 270
+IDD_EDIT DIALOG DISCARDABLE  0, 0, 288, 289
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Editor options"
 FONT 8, "MS Sans Serif"
@@ -3854,7 +3854,7 @@ BEGIN
     CONTROL         "Don't sort effects",IDC_SORTEFFECT,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,103,69,10
     CONTROL         "Ignore spaces in dialog code",IDC_EATSPACE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,119,107,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,247,107,10
     CONTROL         "Allow IDU strings in script source",IDC_IDUSTR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,135,119,10
     CONTROL         "Update 2da/IDS",IDC_2DACHANGE,"Button",BS_AUTOCHECKBOX | 
@@ -3875,10 +3875,10 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,119,100,10
     CONTROL         "Allow WeiDU strings in script source",IDC_WEIDUSTR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,135,129,10
-    DEFPUSHBUTTON   "Back",IDOK,7,249,50,14
-    PUSHBUTTON      "Select All",IDC_ALLSET,81,249,50,14
-    PUSHBUTTON      "Deselect All",IDC_ALLUNSET,155,249,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,229,249,50,14
+    DEFPUSHBUTTON   "Back",IDOK,7,268,50,14
+    PUSHBUTTON      "Select All",IDC_ALLSET,81,268,50,14
+    PUSHBUTTON      "Deselect All",IDC_ALLUNSET,155,268,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,229,268,50,14
     CONTROL         "Use  Octree reduction (vs. DL1)",IDC_OCTREE,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,151,116,10
     CONTROL         "Dithering (in DL1)",IDC_DITHER,"Button",BS_AUTOCHECKBOX | 
@@ -3903,6 +3903,8 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,7,231,89,10
     CONTROL         "Use internal compiler",IDC_INTCOMP,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,138,231,81,10
+    CONTROL         "Force new strref",IDC_FORCENEW,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,119,67,10
 END
 
 IDD_IAPDIALOG DIALOG DISCARDABLE  0, 0, 310, 181
@@ -5632,7 +5634,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 281
         TOPMARGIN, 7
-        BOTTOMMARGIN, 263
+        BOTTOMMARGIN, 282
     END
 
     IDD_IAPDIALOG, DIALOG

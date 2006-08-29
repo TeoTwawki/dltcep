@@ -1341,8 +1341,12 @@ int Ctbg::ImportFile()
       tmpsound=resolve_tlk_soundref(reference );
     }
     if(tmptext!=text || tmpsound!=sound)
-    {        
-      reference=store_tlk_data(-1, text, sound, 0);
+    {
+      if (!(editflg&FORCENEW))
+      {
+        reference=-1;
+      }
+      reference=store_tlk_data(reference, text, sound, 0);
       if (optflg&BOTHDIALOG)
       {
         store_tlk_data(reference, text, sound, 1);
