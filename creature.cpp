@@ -61,30 +61,39 @@ void Ccreature::SetupCharacter(int fullsize)
 {
   CString tmpstr;
 
-  ischr=1;
-  memset(&chrheader,0,sizeof(chrheader));
-  memset(&chriwd2header,0,sizeof(chriwd2header));
   switch(revision)
   {
   case 10: //bg1, bg2/tob or soa
     if(bg1_compatible_area()) memcpy(chrheader.filetype,"CHR V1.0",8); //bg1
     if(tob_specific()) memcpy(chrheader.filetype,"CHR V2.1",8); //tob
     else memcpy(chrheader.filetype,"CHR V2.0",8);    //soa
+    chrheader.creoffset=sizeof(chrheader);
     break;
   case 11: case 12: case 90: //pst, iwd
     memcpy(chrheader.filetype,"CHR V1.0",8);
+    chrheader.creoffset=sizeof(chrheader);
     break;
   case 22:
     memcpy(chrheader.filetype,"CHR V2.2",8);
+    chrheader.creoffset=sizeof(chriwd2header);
     break;
   }
+  chrheader.cresize=fullsize;
+  memcpy(&chriwd2header,&chrheader,48); //iwd2 header is bigger
+  if (ischr) return;
+  ischr=1;
+  memset(&chrheader.filler,0,sizeof(chrheader.filler));
+  memset(&chriwd2header.filler,0,sizeof(chriwd2header.filler));
   tmpstr=resolve_tlk_text(header.shortname);
   StoreName(tmpstr,chrheader.name);
-  chrheader.creoffset=sizeof(chrheader);
-  chrheader.cresize=fullsize;
-  memcpy(&chriwd2header,&chrheader,sizeof(chrheader)); //iwd2 header is bigger
 }
+/*
+int Ccreature::WriteCharacterToFile(int fhandle, int calculate)
+{
+  int chrsize = WriteCreatureToFile(NULL,1);
 
+}
+*/
 int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
 {
   int chrsize, esize;
@@ -182,7 +191,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   if(fhandle<1) return -1;
   if(calculate&2)
   {
-    if(!ischr) SetupCharacter(fullsize);
+    SetupCharacter(fullsize);
     switch(revision)
     {
     case 22:
@@ -633,6 +642,7 @@ redo:
         memcpy(&chriwd2header,header.filetype,8);
         read(fhandle, ((BYTE *) &chriwd2header)+8,sizeof(chriwd2header)-8);
         maxlen-=sizeof(chriwd2header);
+        memcpy(&chrheader,&chriwd2header,48);
       }
       startpoint=tell(fhandle);
       ischr=1;

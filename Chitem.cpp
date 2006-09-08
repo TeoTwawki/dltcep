@@ -4670,6 +4670,43 @@ int write_creature(CString key, CString filepath)
   return ret;
 }
 
+int write_character(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"characters\\"+key+".CHR";
+  }
+  tmpath=bgfolder+"characters\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_creature.WriteCreatureToFile(fhandle,2);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    /*
+    tmpath="characters\\"+key+".CHR";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_CHR,tmpath,size);
+    }
+    */
+  }
+  return ret;
+}
+
 int read_dialog(CString key)
 {
   loc_entry fileloc;

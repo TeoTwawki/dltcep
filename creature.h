@@ -65,6 +65,7 @@ public:
   int RetrieveCreData(int fh, creature_data &credata);
   void SetupCharacter(int fullsize);
   int WriteCreatureToFile(int fhandle, int calculate);
+  //int WriteCharacterToFile(int fhandle, int calculate);
   inline void KillBooks()
   {
     if(books)

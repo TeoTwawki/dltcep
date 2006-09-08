@@ -1701,6 +1701,11 @@ bool CChitemDlg::match_spell()
   int loc, cnt;
   POSITION pos;
   
+#if 0
+  if (the_spell.header.splattr) {
+    log("Spell with special attribute: %x", the_spell.header.splattr);
+  }
+#endif
   exthead=featblock=featblock2=loc=0;
   memset(&tmpdata,0,sizeof(tmpdata) );
   if(searchflags&MS)

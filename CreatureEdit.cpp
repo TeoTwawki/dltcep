@@ -291,7 +291,11 @@ gotname:
       if(res==IDNO) goto restart;
     }
     
-    res = write_creature(newname, filepath);
+    if (chrorcre==2) {
+      res = write_character(newname, filepath);
+    } else {
+      res = write_creature(newname, filepath);
+    }
     lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {

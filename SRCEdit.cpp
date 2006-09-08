@@ -284,7 +284,6 @@ void CSRCEdit::SaveSrc(int save)
   CString newname;
   CString tmpstr;
   int fhandle;
-  int chrorcre;
   int res;
 
   if(readonly)
@@ -302,7 +301,6 @@ void CSRCEdit::SaveSrc(int save)
     goto gotname;
   }    
 restart:
-  chrorcre=0;
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();

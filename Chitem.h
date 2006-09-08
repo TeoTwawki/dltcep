@@ -1038,6 +1038,7 @@ int write_map(CString key, CString filepath);
 int read_src(CString key);
 int read_creature(CString key);
 int write_creature(CString key, CString filepath);
+int write_character(CString key, CString filepath);
 //pick 5 values from the gradient list
 void MakeGradientArray(unsigned long *, unsigned int GradientIndex);
 void MakeGradientBitmap(HBITMAP &hb, unsigned int GradientIndex);
