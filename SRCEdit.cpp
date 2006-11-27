@@ -32,8 +32,16 @@ CSRCEdit::CSRCEdit(CWnd* pParent /*=NULL*/)
   the_src.m_cnt=0;
 }
 
+static int srcboxids[]={IDC_REF, IDC_TAGGED, IDC_TEXT, 
+IDC_SOUNDREF, IDC_PLAY, IDC_REMOVE, IDC_SLOTPICKER,
+0};
+
 void CSRCEdit::DoDataExchange(CDataExchange* pDX)
 {
+  CWnd *cb;
+  int flg;
+  int i;
+
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CSRCEdit)
 	DDX_Control(pDX, IDC_SLOTSPIN, m_spincontrol);
@@ -46,6 +54,13 @@ void CSRCEdit::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REF, m_ref);
 	DDX_Check(pDX, IDC_TAGGED, m_tagged);
 	//}}AFX_DATA_MAP
+  flg=the_src.m_cnt>0;
+  i=0;
+  while(srcboxids[i])
+  {
+    cb=GetDlgItem(srcboxids[i++]);
+    cb->EnableWindow(flg);
+  }
 }
 
 BEGIN_MESSAGE_MAP(CSRCEdit, CDialog)
@@ -421,6 +436,7 @@ void CSRCEdit::OnSelchangeSlotpicker()
 
 void CSRCEdit::OnKillfocusRef() 
 {
+  if (m_stringnum<0) return;
   UpdateData(UD_RETRIEVE);
   the_src.m_slots[m_stringnum]=m_ref;
 	RefreshControl();

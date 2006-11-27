@@ -2527,7 +2527,7 @@ bool CChitemDlg::match_area()
   bool found;
   search_data tmpdata;
 
-#if 1
+#if 0
 
   int i;
 
@@ -2657,6 +2657,11 @@ bool CChitemDlg::match_area()
   if(searchflags&MR)
   {
     found=false;
+    if(!strnicmp(the_area.header.scriptref,searchdata.resource,8) )
+    {
+      log("Using script: %.8s",the_area.header.scriptref);
+    }
+
     for(actp=0;actp<the_area.actorcount;actp++)
     {
       memcpy(tmpdata.resource,the_area.actorheaders[actp].creresref,8);

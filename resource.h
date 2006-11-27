@@ -1602,6 +1602,7 @@
 #define IDC_CD                          2298
 #define IDC_UNKNOWN56                   2299
 #define IDC_FORCENEW                    2302
+#define IDC_ZOOM                        2304
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1822,7 +1823,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2303
+#define _APS_NEXT_CONTROL_VALUE         2305
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

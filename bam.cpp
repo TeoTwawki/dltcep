@@ -2065,7 +2065,9 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, Cmos &host, int nMode,
 //nWidth/nHeight has 2 uses, thus some modes couldn't be mixed
 // nMode ==BM_RESIZE  - new dimensions
 // nMode ==BM_OVERLAY - overlay position
-
+// nMode ==BM_MATCH   - transparency special
+// nMode ==BM_INVERT  - transparency special
+// nMode ==BM_ZOOM    - zoom
 int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int nMode, int nWidth, int nHeight)
 {
   int nColumn, nRow;
@@ -2141,9 +2143,11 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, HBITMAP &hBitmap, int 
   if (!MakeBitmapExternal(m_pclrDIBits, nColumn, nRow, hBitmap))
     return -1;
   
-  if (nMode&BM_RESIZE)
-		if (!FitAndCenterBitmap(hBitmap,clrTrans,nWidth,nHeight))
+  if (nMode&(BM_RESIZE|BM_ZOOM) )
+  {
+		if (!FitAndCenterBitmap(hBitmap,clrTrans,nWidth,nHeight, nMode&BM_ZOOM))
 			return -1;
+  }
 
 	return nReplaced;
 }
@@ -2355,7 +2359,7 @@ void Cbam::ConvertToGrey(COLORREF Shade, bool keepgray)
 	}
 }
 
-bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nWidth, int nHeight)
+bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nWidth, int nHeight, int zoom)
 {
 	CBitmap *pBmp = CBitmap::FromHandle(hOriginal);
 	if (!pBmp)
@@ -2364,14 +2368,22 @@ bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nW
 	BITMAP bm;
 	pBmp->GetBitmap(&bm);
 	
-	if (bm.bmWidth >= nWidth && bm.bmHeight >= nHeight)
-		return true;
+  if (nWidth!=1 || nHeight!=1)
+  {
+	  if (bm.bmWidth >= nWidth && bm.bmHeight >= nHeight)
+		  return true;
+  }
 
   if(bm.bmWidth>=nWidth)
       nWidth=bm.bmWidth;
   if(bm.bmHeight>=nHeight)
       nHeight=bm.bmHeight;
 
+  if (zoom)
+  {
+    nWidth*=2;
+    nHeight*=2;
+  }
 	CDC *pDC = AfxGetMainWnd()->GetDC();
 	if (!pDC)
 		return false;
@@ -2398,7 +2410,16 @@ bool Cbam::FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground, int nW
 	int nTop = nHeight/2 - bm.bmHeight/2;
 
 	// Copy the smaller original bitmap onto the 32x32 in the centered position.
-	dcMem.BitBlt(nLeft,nTop,bm.bmWidth,bm.bmHeight,&dcBmp,0,0,SRCCOPY);
+  if (zoom)
+  {
+    nLeft -= bm.bmWidth/2;
+    nTop -= bm.bmHeight/2;
+    dcMem.StretchBlt(nLeft,nTop,bm.bmWidth*2,bm.bmHeight*2,&dcBmp,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
+  }
+  else
+  {
+	  dcMem.BitBlt(nLeft,nTop,bm.bmWidth,bm.bmHeight,&dcBmp,0,0,SRCCOPY);
+  }
 
 	// Select out the bitmaps.
 	dcMem.SelectObject(pOldMemBmp);

@@ -32,6 +32,7 @@ public:
 	int		m_edit;
 	int		m_framenum2;
 	//}}AFX_DATA
+  int m_zoom;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -135,6 +136,7 @@ protected:
 	afx_msg void OnCycleDropframe10();
 	afx_msg void OnFrameMinimizeframe();
 	afx_msg void OnToolsMinimalframe();
+	afx_msg void OnZoom();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

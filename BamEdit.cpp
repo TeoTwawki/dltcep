@@ -131,7 +131,7 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
     newtopleft=topleft-the_bam.GetFramePos(framenum)+origin;
     framesize=the_bam.GetFrameSize(framenum);
     m_bamframe1_control.MoveWindow(CRect(newtopleft,framesize));
-    the_bam.MakeBitmap(framenum,bgcolor,hbf[0],BM_RESIZE,1,1);
+    the_bam.MakeBitmap(framenum,bgcolor,hbf[0],m_zoom,1,1);
     m_bamframe1_control.SetBitmap(hbf[0]);
     DDX_Text(pDX, IDC_XPOS, framepos.x);
     DDX_Text(pDX, IDC_YPOS, framepos.y);
@@ -156,9 +156,13 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
         else
         {
           newtopleft=topleft-the_bam.GetFramePos(invframe)+origin;
+          if (m_zoom&BM_ZOOM)
+          {
+            newtopleft-=the_bam.GetFramePos(invframe)-origin;
+          }
           framesize=the_bam.GetFrameSize(invframe);
           bf_control->MoveWindow(CRect(newtopleft,framesize));
-          the_bam.MakeBitmap(invframe,bgcolor,hbf[invframe],BM_RESIZE,1,1);
+          the_bam.MakeBitmap(invframe,bgcolor,hbf[invframe],m_zoom,1,1);
           bf_control->SetBitmap(hbf[invframe]);
         }
       }
@@ -166,9 +170,13 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
     case 2:
       bf_control=(CStatic *) GetDlgItem(controlids[1]);
       newtopleft=topleft+CPoint(origin.x,the_bam.GetFrameSize(framenum).y)-the_bam.GetFramePos(framenum^1);
+      if (m_zoom&BM_ZOOM)
+      {
+        newtopleft+=CPoint(origin.x,the_bam.GetFrameSize(framenum).y)-the_bam.GetFramePos(framenum^1);
+      }
       framesize=the_bam.GetFrameSize(framenum^1);
       bf_control->MoveWindow(CRect(newtopleft,framesize));
-      the_bam.MakeBitmap(framenum^1,bgcolor,hbf[1],BM_RESIZE,1,1);
+      the_bam.MakeBitmap(framenum^1,bgcolor,hbf[1],m_zoom,1,1);
       bf_control->SetBitmap(hbf[1]);
       for(invframe=2;invframe<4;invframe++)
       {
@@ -176,7 +184,6 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
         bf_control->SetBitmap(0);
       }
     }
-
   }
   else //retrieve
   {
@@ -374,6 +381,7 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
 	ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
 	ON_COMMAND(ID_FRAME_MINIMIZEFRAME, OnFrameMinimizeframe)
+	ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
 	ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
@@ -398,8 +406,8 @@ BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
 	ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
-	ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
 	ON_COMMAND(ID_TOOLS_SPLITFRAMES, SplitBAM)
+	ON_BN_CLICKED(IDC_ZOOM, OnZoom)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -411,6 +419,7 @@ BOOL CBamEdit::OnInitDialog()
   CString tmpstr1, tmpstr2, tmpstr;
   CWnd *bc;
 
+  m_zoom=BM_RESIZE;
 	CDialog::OnInitDialog();
 	RefreshDialog();
   if(no_compress())
@@ -789,6 +798,12 @@ void CBamEdit::OnCompressed()
 	UpdateData(UD_DISPLAY);
 }
 
+void CBamEdit::OnZoom() 
+{
+  m_zoom^=BM_ZOOM; 
+	UpdateData(UD_DISPLAY);
+}
+
 void CBamEdit::DefaultKillfocus() 
 {
 	UpdateData(UD_RETRIEVE);	
@@ -939,7 +954,7 @@ void CBamEdit::OnTimer(UINT nIDEvent)
   nFrameIndex=the_bam.GetFrameIndex(playcycle, playindex);
   origin=the_bam.GetFramePos(0);
   newtopleft=topleft-the_bam.GetFramePos(nFrameIndex)+origin;
-  the_bam.MakeBitmap(nFrameIndex,bgcolor,hbanim,BM_RESIZE,1,1);
+  the_bam.MakeBitmap(nFrameIndex,bgcolor,hbanim,m_zoom,1,1);
   m_bamframe1_control.MoveWindow(CRect(newtopleft,the_bam.GetFrameSize(nFrameIndex)));
   m_bamframe1_control.SetBitmap(hbanim);
   playindex++;

@@ -58,6 +58,7 @@
 #define BM_OVERLAY  0x20
 #define BM_MATCH    0x40
 #define BM_INVERT   0x80
+#define BM_ZOOM     0x100
 
 struct INF_BAMC_HEADER
 {
@@ -325,7 +326,7 @@ private:
        BYTE chTransparentIndex, COLORREF clrTransparent, const COLORREF *pPal,
        COLORREF *pDIBits, bool bIsCompressed, int nMaxLength, int nColumn);
   bool FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground,
-	     int nWidth, int nHeight);
+	     int nWidth, int nHeight, int zoom);
   int ReducePalette(int fhandle, bmp_header sHeader, int scanline);
 };
 

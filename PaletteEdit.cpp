@@ -314,6 +314,7 @@ void CPaletteEdit::OnSmooth()
     val=(BYTE) (0.5+fb+(tb-fb)*pos/div);
     *((BYTE *) (palette+from)+2)=val;
   }
+	InitPaletteBitmap();
 }
 
 void CPaletteEdit::OnKillfocusFunction() 

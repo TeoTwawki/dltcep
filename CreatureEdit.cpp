@@ -255,6 +255,7 @@ void CCreatureEdit::SaveCreature(int save)
   {
     newname=itemname;
     filepath=makeitemname(".cre",0);
+    chrorcre=0;
     goto gotname;
   }    
 restart:
