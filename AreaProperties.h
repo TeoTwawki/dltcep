@@ -463,6 +463,7 @@ public:
 protected:
   CToolTipCtrl m_tooltip;
 
+  bool removeitems(int cnum);
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
 	//{{AFX_MSG(CAreaContainer)

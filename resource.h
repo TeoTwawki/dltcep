@@ -303,6 +303,7 @@
 #define IDS_VISIBLE                     271
 #define IDS_FIELDS                      272
 #define IDS_LABEL                       273
+#define IDS_EXPIRATION                  274
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002

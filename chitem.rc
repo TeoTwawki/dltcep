@@ -3715,7 +3715,7 @@ BEGIN
     LTEXT           "Level slot",IDC_STATIC,9,79,31,8
     LTEXT           "Charges",IDC_STATIC,99,35,27,8
     LTEXT           "Item flags",IDC_STATIC,160,35,31,8
-    LTEXT           "Unknown",IDC_STATIC,356,9,32,8
+    LTEXT           "Expiration",IDC_STATIC,356,9,32,8
     LTEXT           "Itemname",IDC_STATIC,7,34,32,8
     LTEXT           "Spell level && type",IDC_STATIC,121,107,54,8
     LTEXT           "Icon",IDC_STATIC,284,8,15,8
@@ -5919,8 +5919,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,0,0,4
- PRODUCTVERSION 7,0,0,4
+ FILEVERSION 7,0,0,5
+ PRODUCTVERSION 7,0,0,5
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5938,14 +5938,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 0, 0, 4\0"
+            VALUE "FileVersion", "7, 0, 0, 5\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2006 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.0d\0"
-            VALUE "ProductVersion", "7, 0, 0, 4\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.0e\0"
+            VALUE "ProductVersion", "7, 0, 0, 5\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -7280,6 +7280,7 @@ STRINGTABLE DISCARDABLE
 BEGIN
     IDS_FIELDS              "1-creature isn't embedded\n8-creature's scripting name overridden"
     IDS_LABEL               "To edit this field, remove the number from the beginning."
+    IDS_EXPIRATION          "This field exists in bg2, the item will expire after x hours."
 END
 
 #endif    // English (U.S.) resources

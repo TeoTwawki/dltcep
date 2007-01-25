@@ -2747,10 +2747,13 @@ BOOL CCreatureItem::OnInitDialog()
 
 	CPropertyPage::OnInitDialog();
   cw=GetDlgItem(IDC_UNDROPPABLE);
-  if (the_creature.revision==90) {
+  //no drop (bg2) or magical flag (iwd/iwd2)
+  if (the_creature.revision==90 || the_creature.revision==22)
+  {
     cw->SetWindowText("Magical");
   }
-  else {
+  else
+  {
     cw->SetWindowText("No drop");
   }
   cb=(CComboBox *) GetDlgItem(IDC_SELECTED);
@@ -2769,6 +2772,8 @@ BOOL CCreatureItem::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN), IDS_EXPIRATION);
   }
 	UpdateData(UD_DISPLAY);
 	return TRUE;

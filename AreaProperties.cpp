@@ -14,6 +14,9 @@
 #include "CreatureEdit.h"
 #include "Polygon.h"
 #include "PaletteEdit.h"
+//
+#include "chitemDlg.h"
+//
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1338,6 +1341,7 @@ CAreaTrigger::CAreaTrigger() : CPropertyPage(CAreaTrigger::IDD)
   m_triggernum=-1;
   memset(&triggercopy,0,sizeof(triggercopy));
   vertexcopy=NULL;
+  vertexsize=0;
   hbc = NULL;
 }
 
@@ -3445,8 +3449,11 @@ CAreaContainer::CAreaContainer() : CPropertyPage(CAreaContainer::IDD)
 	//{{AFX_DATA_INIT(CAreaContainer)
 	//}}AFX_DATA_INIT
   m_containernum=-1;
+  memset(&containercopy,0,sizeof(containercopy));
   vertexcopy=NULL;
+  vertexsize=0;
   itemcopy=NULL;
+  itemsize=0;
 }
 
 CAreaContainer::~CAreaContainer()
@@ -3641,7 +3648,7 @@ void CAreaContainer::RefreshContainer()
     m_itemnumpicker.SetCurSel(m_itemnum);
 
     m_text=resolve_tlk_text(the_area.containerheaders[m_containernum].strref);
-  }
+  }  
 }
 
 BOOL CAreaContainer::OnInitDialog() 
@@ -4071,11 +4078,43 @@ void CAreaContainer::OnAdd()
   UpdateData(UD_DISPLAY);	
 }
 
+bool CAreaContainer::removeitems(int cnum)
+{
+  area_item *newitems;
+  int first, count, i;
+
+  count=the_area.containerheaders[cnum].itemcount;  
+  if(count)
+  {
+    first=the_area.containerheaders[cnum].firstitem;
+    the_area.header.itemcnt=(short) (the_area.header.itemcnt-count);
+    newitems=new area_item[the_area.header.itemcnt];
+    if(!newitems) //rollback fully
+    {
+      the_area.header.itemcnt=(short) (the_area.header.itemcnt+count);
+      return true;
+    }
+    the_area.containerheaders[cnum].itemcount=0;
+    memcpy(newitems, the_area.itemheaders, first * sizeof(area_item) );
+    memcpy(newitems+first, the_area.itemheaders+first+count, (the_area.itemcount-first-count)*sizeof(area_item) );
+    if(the_area.itemheaders) delete [] the_area.itemheaders;
+    the_area.itemheaders=newitems;
+    the_area.itemcount=the_area.header.itemcnt;
+
+    for(i=0;i<the_area.containercount;i++)
+    {
+      if(the_area.containerheaders[i].firstitem>=first)
+      {
+        the_area.containerheaders[i].firstitem-=count;
+      }
+    }
+  }
+  return false;
+}
+
 void CAreaContainer::OnRemove() 
 {
   area_container *newcontainers;
-  area_item *newitems;
-  int first, count;
 
   if(m_containernum<0 || !the_area.header.containercnt) return;  
   newcontainers=new area_container[--the_area.header.containercnt];
@@ -4084,33 +4123,13 @@ void CAreaContainer::OnRemove()
     the_area.header.containercnt++;
     return;
   }
-  count=the_area.containerheaders[m_containernum].itemcount;  
-  if(count)
+  bool failed = removeitems(m_containernum);
+  if (failed)
   {
-    first=the_area.containerheaders[m_containernum].firstitem;
-    the_area.header.itemcnt=(short) (the_area.header.itemcnt-count);
-    newitems=new area_item[the_area.header.itemcnt];
-    if(!newitems) //rollback fully
-    {
-      the_area.header.containercnt++;
-      the_area.header.itemcnt=(short) (the_area.header.itemcnt+count);
-      return;
-    }
-    memcpy(newitems, the_area.itemheaders, first * sizeof(area_item) );
-    memcpy(newitems+first, the_area.itemheaders+first+count, (the_area.itemcount-first-count)*sizeof(area_item) );
-    if(the_area.itemheaders) delete [] the_area.itemheaders;
-    the_area.itemheaders=newitems;
-    the_area.itemcount=the_area.header.itemcnt;
-
-    for(first=0;first<the_area.containercount;first++)
-    {
-      if(the_area.containerheaders[first].firstitem>=first)
-      {
-        the_area.containerheaders[first].firstitem-=count;
-      }
-    }
+    the_area.header.containercnt++;
+    return;
   }
-
+//
   memcpy(newcontainers,the_area.containerheaders,m_containernum*sizeof(area_container) );
   memcpy(newcontainers+m_containernum,the_area.containerheaders+m_containernum+1,
          (the_area.header.containercnt-m_containernum)*sizeof(area_container) );
@@ -4174,6 +4193,12 @@ void CAreaContainer::OnPaste()
       delete poi;
       return;
     }
+    bool failed = removeitems(m_containernum);
+    if (failed)
+    {
+      delete poi;
+      return;
+    }
     if(poi)
     {
       memcpy(poi,vertexcopy,vertexsize*sizeof(area_vertex));
@@ -4181,7 +4206,6 @@ void CAreaContainer::OnPaste()
     memcpy(poi2,the_area.itemheaders, the_area.itemcount*sizeof(area_item));
     memcpy(poi2+the_area.itemcount, itemcopy, itemsize*sizeof(area_item));
     the_area.itemcount+=itemsize;
-    the_area.header.itemcnt=(short) the_area.itemcount;
     if(the_area.itemheaders)
     {
       delete [] the_area.itemheaders;
@@ -4189,6 +4213,8 @@ void CAreaContainer::OnPaste()
     the_area.itemheaders=poi2;
     the_area.vertexheaderlist.SetAt(pos,poi); //this will also free the old element
     memcpy(the_area.containerheaders+m_containernum,&containercopy, sizeof(containercopy) );
+    the_area.containerheaders[m_containernum].firstitem=the_area.header.itemcnt;
+    the_area.header.itemcnt=(short) the_area.itemcount;
   }
   RefreshContainer();
   UpdateData(UD_DISPLAY);	
@@ -4840,11 +4866,20 @@ CAreaDoor::CAreaDoor()	: CPropertyPage(CAreaDoor::IDD)
 	//}}AFX_DATA_INIT
   m_doornum=-1;
   memset(&doorcopy,0,sizeof(doorcopy));
+  for(int i=0;i<4;i++)
+  {
+    vertexcopy[i]=NULL;
+    vertexsizes[i]=0;
+  }
   hbd=NULL;
 }
 
 CAreaDoor::~CAreaDoor()
 {
+  for(int i=0;i<4;i++)
+  {
+    if (vertexcopy[i]) delete vertexcopy[i];
+  }
   if(hbd) DeleteObject(hbd);
 }
 
@@ -6364,7 +6399,7 @@ void CAreaMap::RefreshMap()
   cw=GetDlgItem(IDC_NIGHTMAP);
   if(IsWindow(cw->m_hWnd))
   {
-    cw->EnableWindow(bg2_weaprofs() && the_area.WedAvailable()&&(the_area.header.areatype&EXTENDED_NIGHT) );
+    cw->EnableWindow(!iwd2_structures() && the_area.WedAvailable()&&(the_area.header.areatype&EXTENDED_NIGHT) );
   }
 }
 

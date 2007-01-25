@@ -666,8 +666,11 @@ int Cmos::MakeTransparent(DWORD nFrameWanted, DWORD redgreenblue, int limit)
   {
     if(ChiSquare((BYTE *) &redgreenblue,(BYTE *) (p->Palette+i))<=limit )
     {
-      p->Palette[i]=TRANSPARENT_GREEN;
-      nHits++;
+      if (p->Palette[i]!=TRANSPARENT_GREEN)
+      {
+        p->Palette[i]=TRANSPARENT_GREEN;
+        nHits++;
+      }
     }
   }  
   return nHits;

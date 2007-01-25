@@ -4391,38 +4391,57 @@ int CChitemDlg::check_area_item()
 {
   int i,j;
   int ret;
-  int cnt;
+  int cnt, last;
+  int ref;
 
   ret=0;
   for(i=0;i<the_area.header.itemcnt;i++)
   {
+    ref=0;
     for(cnt=0;cnt<the_area.header.containercnt;cnt++)
     {
       j=the_area.containerheaders[cnt].firstitem;
       if(i>=j)
       {
         j+=the_area.containerheaders[cnt].itemcount;
-        if(i<j) break;
+        if(i<j)
+        {
+          last=cnt;
+          ref++;
+        }
       }
     }
-    if(cnt==the_area.header.containercnt)
+    switch(ref)
     {
+    case 0:
       ret|=BAD_INDEX;
       log("Item #%d isn't in any containers ???",i+1);
+      break;
+    case 1:
+      break;
+    default:
+      ret|=BAD_INDEX;
+      log("Item #%d is in multiple containers ???",i+1);
+      break;
+    }
+
+    if(!ref)
+    {
+      continue;
     }
     switch(check_itemref(the_area.itemheaders[i].itemname,1)) //allow random items here
     {
     case -1:
       ret|=BAD_ITEMREF;
       log("Non existent item (%-.8s) in container #%d (%-.32s [%d.%d])",
-          the_area.itemheaders[i].itemname,cnt+1,the_area.containerheaders[cnt].containername,
-          the_area.containerheaders[cnt].posx,the_area.containerheaders[cnt].posy);
+          the_area.itemheaders[i].itemname,last+1,the_area.containerheaders[last].containername,
+          the_area.containerheaders[last].posx,the_area.containerheaders[last].posy);
       break;
     case -2:
       ret|=BAD_ITEMREF;
       log("Deleted item in container #%d (%-.32s [%d.%d])",
-          cnt+1,the_area.containerheaders[cnt].containername,
-          the_area.containerheaders[cnt].posx,the_area.containerheaders[cnt].posy);
+          cnt+1,the_area.containerheaders[last].containername,
+          the_area.containerheaders[last].posx,the_area.containerheaders[last].posy);
     }
   }
   return ret;
@@ -4717,8 +4736,26 @@ int CChitemDlg::check_area_variable()
 
 int CChitemDlg::check_area_vertex()
 {
-  //maybe this isn't needed
-  return 0;
+  int i;
+  int ret;
+
+  if(!iwd2_structures()) {
+    return 0;
+  }
+  ret=0;
+  for(i=0;i<the_area.wallpolygoncount;i++)
+  {
+    //wall
+    if(the_area.wallpolygonheaders[i].flags&1)
+    {
+      if(the_area.wallpolygonheaders[i].countvertex>255)
+      {
+        ret|=BAD_VERTEX;
+        log("Wall polygon #%d has more than 255 vertices.",i);
+      }
+    }
+  }
+  return ret;
 }
 
 int CChitemDlg::check_area_interrupt()
