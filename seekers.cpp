@@ -2528,6 +2528,7 @@ bool CChitemDlg::match_area()
   search_data tmpdata;
 
 #if 0
+#if _DEBUG
 
   int i;
 
@@ -2539,6 +2540,7 @@ bool CChitemDlg::match_area()
     }
   }
 
+#endif
 #endif
   memset(&tmpdata,0,sizeof(tmpdata) );
   found=true;

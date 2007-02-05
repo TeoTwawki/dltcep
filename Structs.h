@@ -1352,9 +1352,9 @@ typedef struct {
   long talknum;
   char dialog[8];
   char scroverride[8];
+  char scrgeneral[8];
   char scrclass[8];
   char scrrace[8];
-  char scrgeneral[8];
   char scrdefault[8];
   char scrspecific[8];
   char creresref[8];
