@@ -9,6 +9,7 @@
 #include "CreatureProperties.h"
 #include "TormentCre.h"
 #include "IcewindCre.h"
+#include "IWD2Creature.h"
 #include "2da.h"
 #include "tbg.h"
 #include "options.h"
@@ -1980,10 +1981,12 @@ void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
   cb=(CButton *) GetDlgItem(IDC_TORMENT);
   bool pst = the_creature.revision==12;
   bool iwd = the_creature.revision==90;
+  bool iwd2 = the_creature.revision==22;
   if(cb)
   {
-    cb->ShowWindow(pst||iwd);
+    cb->ShowWindow(pst||iwd||iwd2);
     if(pst) cb->SetWindowText("Torment specific");
+    else if (iwd2) cb->SetWindowText("IWD II specific");
     else cb->SetWindowText("Icewind specific");
   }
 
@@ -2303,6 +2306,13 @@ void CCreatureUnknown::OnTorment()
   case 12:
     {
 	    CTormentCre dlg;
+	
+      dlg.DoModal();
+    }
+    break;
+  case 22:
+    {
+	    IWD2Creature dlg;
 	
       dlg.DoModal();
     }

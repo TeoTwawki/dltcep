@@ -1035,17 +1035,18 @@ typedef struct
   unsigned char script2[8]; //special script1
   long unknown1bc;
   long feat1, feat2, feat3; //96 bits
-  char skills[143];
-  char enemy[8];
-  char subrace;
-  char unknown264;
-  char sex;
-  char strstat;
-  char intstat;
-  char wisstat;
-  char dexstat;
-  char constat;
-  char chastat;
+  unsigned char skills[142];
+  unsigned char cr;
+  unsigned char enemy[8];
+  unsigned char subrace;
+  unsigned char unknown264;
+  unsigned char sex;
+  unsigned char strstat;
+  unsigned char intstat;
+  unsigned char wisstat;
+  unsigned char dexstat;
+  unsigned char constat;
+  unsigned char chastat;
   unsigned char morale;
   unsigned char moralebreak;
   unsigned char moralerecover;
@@ -1054,7 +1055,9 @@ typedef struct
   char scripts[5][8];
   long unknown29c;
   short internals[5];
-  char unknown2aa[66];
+  char scriptname[32];
+  char scriptname2[32];
+  short unknown;
   short savedx, savedy, savedir; //saved location
   char unknown2f2[146];
   unsigned char idsea;

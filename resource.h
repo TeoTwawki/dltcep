@@ -259,6 +259,7 @@
 #define IDD_AREATRIGGERSTRINGS          228
 #define IDS_BAM                         229
 #define IDD_CREATUREOVR                 229
+#define IDD_CREATUREIWD2                229
 #define IDS_FRAME15                     230
 #define IDS_VVCFLAG                     231
 #define IDS_SEQFLAG                     232
@@ -1824,7 +1825,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2305
+#define _APS_NEXT_CONTROL_VALUE         2306
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

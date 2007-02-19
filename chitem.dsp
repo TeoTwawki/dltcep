@@ -277,6 +277,10 @@ SOURCE=.\ItemProperties.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\IWD2Creature.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\jpegcompress.cpp
 # End Source File
 # Begin Source File
@@ -663,6 +667,10 @@ SOURCE=.\ItemPicker.h
 # Begin Source File
 
 SOURCE=.\ItemProperties.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IWD2Creature.h
 # End Source File
 # Begin Source File
 
