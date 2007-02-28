@@ -1424,8 +1424,25 @@ void CItemUsability::DoDataExchange(CDataExchange* pDX)
 
 BOOL CItemUsability::OnInitDialog() 
 {
+  CString tmpstr;
+  int id, byte, bit;
+
 	RefreshUsability();
 	CPropertyPage::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    for(id=0;id<32;id++)
+    {
+      tmpstr.Format("0x%08x", 1<<id);
+      m_tooltip.AddTool(GetDlgItem(useboxids[id]), tmpstr);
+      byte=id>>3;
+      bit=id&7;
+      m_tooltip.AddTool(GetDlgItem(useboxids[56-byte*8+bit]), tmpstr);
+    }
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -1846,6 +1863,12 @@ void CItemUsability::OnAllunset()
   memset(bytes,-1,sizeof(bytes) );
   Togglebit(0,0);
   UpdateData(UD_DISPLAY);
+}
+
+BOOL CItemUsability::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////

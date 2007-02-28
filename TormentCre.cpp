@@ -37,6 +37,8 @@ void CTormentCre::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_beast, 32);
   StoreVariable(m_beast, the_creature.pstheader.bestiary);
 
+  DDX_Text(pDX, IDC_XPOS, the_creature.pstheader.magexp);
+  DDX_Text(pDX, IDC_XPOS2, the_creature.pstheader.thiefxp);
   DDX_Text(pDX, IDC_COLOR, the_creature.pstheader.colornum);
   DDV_MinMaxInt(pDX, the_creature.pstheader.colornum, 0,6);
 
@@ -93,6 +95,8 @@ BEGIN_MESSAGE_MAP(CTormentCre, CDialog)
 	ON_CBN_KILLFOCUS(IDC_ATTR5, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_ATTR6, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_ATTR7, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_XPOS, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_XPOS2, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

@@ -831,7 +831,8 @@ typedef struct
   char unknown270[36];
   long overlayoffs;
   long overlaysize;
-  char unknown29c[8];
+  long magexp;
+  long thiefxp;
   char internals[20]; //2a4
   long unknown; //2b8
   char bestiary[32]; //2bc
