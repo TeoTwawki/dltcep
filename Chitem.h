@@ -515,7 +515,7 @@ extern CString DELETED_REFERENCE;
 
 #define TRANSPARENT_GREEN  0x00ff00
 
-#define COLORNUM 120
+#define COLORNUM 256
 
 class colortype
 {
@@ -523,6 +523,11 @@ public:
   COLORREF rgb[12];
   CString colorname;
 
+  colortype()
+  {
+    for(int i=0;i<12;i++) rgb[i]=0xdadada;
+    colorname="unknown";
+  }
   colortype(const int a, const char *b)
   {
     for(int i=0;i<12;i++) rgb[i]=a;

@@ -5587,7 +5587,9 @@ CString AssembleWeiduCommandLine(CString filename, CString outpath)
   return syscommand;
 } 
 
-colortype colors[COLORNUM]={
+colortype colors[COLORNUM];
+
+colortype defcolors[COLORNUM]={
   colortype(0x50443C,"Red Tinted Black"),
   colortype(0x957140,"Dark Bronze"),
   colortype(0x794C18,"Dark Gold"),
@@ -5766,6 +5768,7 @@ int ReadPaletteFromFile(int fhandle, int ml)
   int x,y;
   unsigned int nSourceOff;     //the source offset in the original scanline (which we cut up)
   int ret;
+  bool half = false;
 
   pcBuffer=NULL;
   if(ml<0) ml=filelength(fhandle);
@@ -5782,8 +5785,13 @@ int ReadPaletteFromFile(int fhandle, int ml)
   if(sHeader.planes!=1) return -1;                  //unsupported
   if(sHeader.compression!=BI_RGB) return -1;        //unsupported
   if(sHeader.height<0 || sHeader.width<0) return -1; //unsupported
-  if(sHeader.height>256 || sHeader.width>256) return -1; //unsupported  
+  if(sHeader.width>256) return -1;
+  if(sHeader.height>256) {
+    half = true;
+  }
   palettesize=sHeader.height;
+  if (half) palettesize/=2;
+
   if(palettesize>256) return -1;
   //check if the file fits in the claimed length
   if(sHeader.offset!=sHeader.headersize+((unsigned char *) &sHeader.headersize-(unsigned char *) &sHeader) ) return -2;
@@ -5802,8 +5810,17 @@ int ReadPaletteFromFile(int fhandle, int ml)
   }
   ret=0; //unsupported mode
 
-  for(y=0;y<COLORNUM;y++) memset(colors[y].rgb,0,sizeof(colors[y].rgb) );
+  for(y=0;y<COLORNUM;y++)
+  {
+    colors[y]=defcolors[y];
+    //memset(colors[y].rgb,0,sizeof(colors[y].rgb) );
+  }
   y=sHeader.height;
+  if (half) {
+    lseek(fhandle, scanline*(y/2), SEEK_CUR);
+    y-=y/2;
+  }
+
   while(y--)
   {
     if(read(fhandle, pcBuffer, scanline)!=scanline)
@@ -5845,6 +5862,8 @@ int read_bmp_palette(CString key)
 
 void init_colors()
 {
+  if(!read_bmp_palette("PAL32")) return;
+
   if(read_bmp_palette("MPALETTE"))
   {
     read_bmp_palette("MPAL256");
