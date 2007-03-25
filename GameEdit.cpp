@@ -41,12 +41,12 @@ IDC_REMOVEVAR, IDC_VARIABLES, 0};
 static int dvarboxids[]={IDC_VARIABLEPICKER2, IDC_VARNAME2, IDC_VALUE2,
 IDC_REMOVEVAR2, IDC_DVAR, 0, IDC_ADDVAR2}; //this is a hack for the last element
 
-static journalids[]={IDC_JOURNALPICKER, IDC_STRREF, IDC_CHAPTER, 
+static int journalids[]={IDC_JOURNALPICKER, IDC_STRREF, IDC_CHAPTER, 
 IDC_SECTION,IDC_TIME, IDC_JOURNAL, IDC_DELJOURNAL,0};
 
-static familiarids[]={IDC_FAMILIARPICKER, IDC_FAMILIAR,0 };
+static int familiarids[]={IDC_FAMILIARPICKER, IDC_FAMILIAR,0 };
 
-static pcboxids[]={IDC_PARTY, IDC_CREATURENUM, IDC_EDIT, IDC_EDITLINK, IDC_EDITBLOCK, 0};
+static int pcboxids[]={IDC_PARTY, IDC_CREATURENUM, IDC_EDIT, IDC_EDITLINK, IDC_EDITBLOCK, 0};
 
 void CGameEdit::DoDataExchange(CDataExchange* pDX)
 {

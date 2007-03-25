@@ -87,13 +87,13 @@ public:
   void OrderByColumn(int column, int integers);
   CString GetValue(int row, int col);
   CString FindValue(CString key, int col);
-  void inline killcopyrow()
+  inline void killcopyrow()
   {
     if(copyrow) delete [] copyrow;
     copyrow=0;
     crows=0;
   }
-  void inline killcopycol()
+  inline void killcopycol()
   {
     if(copycol) delete [] copycol;
     copycol=0;

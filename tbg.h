@@ -91,7 +91,7 @@ private:
   int get_strref(long offset, long length, CString &text);
   int read_tbg(int fhandle, int maxlen);
   int patch_baldur_gam(int fhandle);
-  inline KillFileData()
+  inline void KillFileData()
   {
     if(filedata)
     {
@@ -100,7 +100,7 @@ private:
     }
   }
 
-  inline KillTlkEntries()
+  inline void KillTlkEntries()
   {
     if(tlkentries)
     {
@@ -110,7 +110,7 @@ private:
     tlkentrycount=0;
   }
 
-  inline KillStrrefs()
+  inline void KillStrrefs()
   {
     if(strrefs)
     {
@@ -120,7 +120,7 @@ private:
     strrefcount=0;
   }
 
-  inline KillAscii()
+  inline void KillAscii()
   {
     if(ascii)
     {
@@ -130,7 +130,7 @@ private:
     ascii=0;
   }
 
-  inline KillTextData()
+  inline void KillTextData()
   {
     if(textdata)
     {
@@ -140,7 +140,7 @@ private:
     textdatasize=0;
   }
 
-  inline KillIapFileHeaders()
+  inline void KillIapFileHeaders()
   {
     if(iapfileheaders)
     {
@@ -150,7 +150,7 @@ private:
     actfilecount=iapfilecount=0;
   }
 
-  inline KillTbgFilenames()
+  inline void KillTbgFilenames()
   {
     if(m_tbgnames)
     {
@@ -160,7 +160,7 @@ private:
     tbgnamecount=0;
   }
 
-  inline KillOtherFilenames()
+  inline void KillOtherFilenames()
   {
     if(m_othernames)
     {

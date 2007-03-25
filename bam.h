@@ -245,7 +245,7 @@ public:
     return m_nDataSize;
   }
 
-  inline KillDIBits()
+  inline void KillDIBits()
   {
     if(m_pclrDIBits)
     {

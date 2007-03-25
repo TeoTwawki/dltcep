@@ -96,7 +96,7 @@ FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "",IDC_VERSION,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2002-2005 Avenger",IDC_STATIC,40,23,119,8
+    LTEXT           "Copyright (C) 2002-2007 Avenger",IDC_STATIC,40,23,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
     LTEXT           "Source: http://gemrb.sourceforge.net",IDC_STATIC,40,36,
                     119,8
@@ -137,9 +137,9 @@ BEGIN
     PUSHBUTTON      "Exit",IDOK,260,253,47,14
     EDITTEXT        IDC_EVENT,13,105,295,144,ES_MULTILINE | ES_AUTOVSCROLL | 
                     ES_NOHIDESEL | ES_READONLY | ES_WANTRETURN | WS_VSCROLL,
-                    0,HIDC_EVENT
+                    0,0x80660401
     LTEXT           "Event log",IDC_EVENT_TYPE,15,95,58,8
-    GROUPBOX        "Check",IDC_STATIC,194,7,110,93,BS_FLAT
+    GROUPBOX        "Edit",IDC_STATIC,194,7,110,93,BS_FLAT
     GROUPBOX        "Search",IDC_STATIC,85,7,110,93,BS_FLAT
 END
 
@@ -4803,22 +4803,22 @@ BEGIN
     PUSHBUTTON      "Back",IDCANCEL,211,304,42,14
 END
 
-IDD_CREATUREPST DIALOG DISCARDABLE  0, 0, 227, 231
+IDD_CREATUREPST DIALOG DISCARDABLE  0, 0, 327, 233
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Torment specific"
 FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_DIALOG,7,19,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_FEETCIRCLE,62,19,40,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_IDSSPECIES,119,19,93,161,CBS_DROPDOWN | CBS_SORT | 
+    EDITTEXT        IDC_DIALOG,7,21,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FEETCIRCLE,62,21,40,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_IDSSPECIES,119,21,93,161,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_DEATH,119,53,96,134,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_DEATH,217,21,96,134,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Back",IDCANCEL,88,210,50,14
-    LTEXT           "Dialog radius",IDC_STATIC,7,5,42,8
-    LTEXT           "Feet circle size",IDC_STATIC,62,5,48,8
-    LTEXT           "Beast name",IDC_STATIC,119,39,38,8
-    LTEXT           "Species",IDC_STATIC,119,5,26,8
+    PUSHBUTTON      "Back",IDCANCEL,138,212,50,14
+    LTEXT           "Dialog radius",IDC_STATIC,7,7,42,8
+    LTEXT           "Feet circle size",IDC_STATIC,62,7,48,8
+    LTEXT           "Beast name",IDC_STATIC,217,7,38,8
+    LTEXT           "Species",IDC_STATIC,119,7,26,8
     COMBOBOX        IDC_ATTR1,7,85,75,139,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_ATTR2,7,103,75,121,CBS_DROPDOWN | CBS_SORT | 
@@ -4849,8 +4849,12 @@ BEGIN
     EDITTEXT        IDC_CHAIR,91,193,87,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE7,185,193,28,14
     EDITTEXT        IDC_COLOR,7,53,40,14,ES_AUTOHSCROLL
-    LTEXT           "# of colors",IDC_STATIC,7,39,34,8
+    LTEXT           "# of colors",IDC_STATIC,7,41,34,8
     LTEXT           "Color gradient",IDC_STATIC,91,71,44,8
+    EDITTEXT        IDC_XPOS,67,53,78,14,ES_AUTOHSCROLL
+    LTEXT           "XP Mage",IDC_STATIC,67,41,30,8
+    EDITTEXT        IDC_XPOS2,165,53,78,14,ES_AUTOHSCROLL
+    LTEXT           "XP Thief",IDC_STATIC,165,41,28,8
 END
 
 IDD_GAMESTATS DIALOG DISCARDABLE  0, 0, 227, 199
@@ -5076,6 +5080,37 @@ BEGIN
     EDITTEXT        IDC_INFOSTR2,53,66,310,14,ES_AUTOHSCROLL
     LTEXT           "Dialog string reference && text",IDC_STATIC,7,55,91,8
     PUSHBUTTON      "Back",IDCANCEL,169,89,50,14
+END
+
+IDD_CREATUREIWD2 DIALOG DISCARDABLE  0, 0, 227, 231
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Icewind Dale II specific"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Back",IDCANCEL,88,210,50,14
+    EDITTEXT        IDC_SCRIPTNAME,11,21,123,14,ES_AUTOHSCROLL
+    LTEXT           "Secondary scripting name",IDC_STATIC,11,10,82,8
+    EDITTEXT        IDC_U1,11,77,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U2,11,94,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U3,11,111,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U4,11,128,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U5,11,145,40,14,ES_AUTOHSCROLL
+    LTEXT           "Internals",IDC_STATIC,11,66,28,8
+    EDITTEXT        IDC_SCRIPTNAME2,11,49,123,14,ES_AUTOHSCROLL
+    LTEXT           "Tertiary scripting name",IDC_STATIC,11,38,72,8
+    EDITTEXT        IDC_XPLIST,145,21,40,14,ES_AUTOHSCROLL
+    LTEXT           "Challenge rating",IDC_STATIC,145,10,52,8
+    LTEXT           "Favoured enemies",IDC_STATIC,67,66,59,8
+    EDITTEXT        IDC_U10,67,76,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U11,67,94,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U12,67,111,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U13,67,128,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U14,145,76,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U15,145,94,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U16,145,111,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U17,145,128,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SUBRACE,145,49,62,14,ES_AUTOHSCROLL
+    LTEXT           "Subrace",IDC_STATIC,145,38,28,8
 END
 
 
@@ -5826,9 +5861,9 @@ BEGIN
     IDD_CREATUREPST, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 220
+        RIGHTMARGIN, 320
         TOPMARGIN, 7
-        BOTTOMMARGIN, 224
+        BOTTOMMARGIN, 226
     END
 
     IDD_GAMESTATS, DIALOG
@@ -5869,6 +5904,14 @@ BEGIN
         RIGHTMARGIN, 363
         TOPMARGIN, 7
         BOTTOMMARGIN, 103
+    END
+
+    IDD_CREATUREIWD2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 224
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -5919,8 +5962,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,0,0,5
- PRODUCTVERSION 7,0,0,5
+ FILEVERSION 7,0,0,7
+ PRODUCTVERSION 7,0,0,7
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -5938,14 +5981,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 0, 0, 5\0"
+            VALUE "FileVersion", "7, 0, 0, 7\0"
             VALUE "InternalName", "dltcep\0"
-            VALUE "LegalCopyright", "Copyright (C) 2002-2006 Avenger\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002-2007 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.0e\0"
-            VALUE "ProductVersion", "7, 0, 0, 5\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.0g\0"
+            VALUE "ProductVersion", "7, 0, 0, 7\0"
             VALUE "SpecialBuild", "\0"
         END
     END

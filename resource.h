@@ -1582,10 +1582,10 @@
 #define IDC_STATIC4                     2279
 #define IDC_STATIC5                     2280
 #define IDC_STATIC6                     2281
-#define IDC_SIZECHECK                   2284
-#define IDC_WALL                        2285
-#define IDC_INTDECOMP                   2285
-#define IDC_VOICESET                    2286
+#define IDC_SIZECHECK                   2282
+#define IDC_WALL                        2283
+#define IDC_INTDECOMP                   2284
+#define IDC_VOICESET                    2285
 #define IDC_INTCOMP                     2286
 #define IDC_ITEM                        2287
 #define IDC_SPELL                       2288
@@ -1593,18 +1593,19 @@
 #define IDC_SPELL1                      2290
 #define IDC_SPELL2                      2291
 #define IDC_SPELL3                      2292
-#define IDC_EDIT2                       2293
 #define IDC_SPELL4                      2293
 #define IDC_SPELL5                      2294
-#define IDC_SLIDER                      2295
 #define IDC_SPELL6                      2295
 #define IDC_SPELL7                      2296
 #define IDC_SPELL8                      2297
 #define IDC_SPELL9                      2298
-#define IDC_CD                          2298
 #define IDC_UNKNOWN56                   2299
+#define IDC_SLIDER                      2300
+#define IDC_EDIT2                       2301
 #define IDC_FORCENEW                    2302
+#define IDC_CD                          2303
 #define IDC_ZOOM                        2304
+#define IDC_SUBRACE                     2305
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1825,7 +1826,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2308
+#define _APS_NEXT_CONTROL_VALUE         2311
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif
