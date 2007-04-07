@@ -2948,6 +2948,7 @@ void CItemExtended::OnExtadd()
       new_extheaders[insertpos].range=1;
       break;
     default:
+      new_extheaders[insertpos].location=LF_MAGIC;
       new_extheaders[insertpos].attack_type=A_MAGIC;
       new_extheaders[insertpos].range=1;
     }

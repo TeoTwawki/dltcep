@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.0g"
+#define PRG_VERSION "7.0h"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -21,6 +21,8 @@
 #include "acmsound.h"
 #include "tlkhandler.h"
 #include "Bif.h"
+#include "tispack.h"
+#include "TextView.h"
 
 //editors
 #include "ItemEdit.h"
@@ -41,8 +43,6 @@
 #include "2DAEdit.h"
 #include "SRCEdit.h"
 #include "KeyEdit.h"
-#include "tispack.h"
-#include "TextView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

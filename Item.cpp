@@ -222,7 +222,16 @@ int Citem::ReadItemFromFile(int fh, long ml)
   }
   if(header.extheadoffs!=fullsize )
   {
-    return -2;
+    //this is a small hack to fix some tutu screwups
+    if (header.featureoffs!=fullsize)
+    {
+      return -2;
+    }
+    if (header.extheadcount!=0)
+    {
+      return -2;
+    }
+    header.extheadoffs=fullsize;
   }
   if(header.extheadcount!=extheadcount)
   {

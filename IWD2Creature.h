@@ -19,9 +19,13 @@ public:
 // Dialog Data
 	//{{AFX_DATA(IWD2Creature)
 	enum { IDD = IDD_CREATUREIWD2 };
-		// NOTE: the ClassWizard will add data members here
+	CComboBox	m_feature;
+	CComboBox	m_skillpicker;
+	int		m_skill;
+	CString	m_count;
 	//}}AFX_DATA
-
+  int m_curskill;
+  int m_curfeat;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -32,11 +36,18 @@ public:
 
 // Implementation
 protected:
-
+  void ResetSkills();
+  void ResetFeats();
 	// Generated message map functions
 	//{{AFX_MSG(IWD2Creature)
 	afx_msg void DefaultKillfocus();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnKillfocusSkillpicker();
+	afx_msg void OnSelchangeSkillpicker();
+	afx_msg void OnKillfocusSkill();
+	afx_msg void OnKillfocusFeature();
+	afx_msg void OnSelchangeFeature();
+	afx_msg void OnValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

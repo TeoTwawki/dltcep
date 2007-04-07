@@ -680,7 +680,7 @@ int CBamEdit::WriteAllFrames(CString newname, Cbam &my_bam)
   int res;
 
   res=0;
-  for(i=0;i<my_bam.GetCycleCount();i++)
+  for(i=0;i<my_bam.GetFrameCount();i++)
   {
     filename.Format("%s%03d",newname,i);
     res=write_bmp(filename, "", &my_bam, i);

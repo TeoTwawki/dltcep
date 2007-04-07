@@ -106,7 +106,7 @@ int itvsatype_bg[NUM_ITEMTYPE]={
 int itvsatype_iwd[NUM_ITEMTYPE]={
   3,3,3,3,3,0x32,3,3,0,3,   //9
   3,3,3,3,0x32,0x432,0x321,0x31,0x432,0x31,0x31, //14
-  0x321,0x31,0x31,0x32,0x321,0x31,0x432,1,0x321,0x31,   //1e
+  0x321,0x31,0x31,0x32,0x321,0x31,0x43,1,0x321,0x31,   //1e
   0x32,3,0,3,3,0,3,0,0,0,                //28
   3,3,0,0x31,0,0,3,0,3,                  //31
   0,0,0,3,0,3,0x32,0x31,                 //39
@@ -1175,7 +1175,7 @@ int CChitemDlg::check_extheader(int itemtype)
       {
         if(tmp)
         {
-          log("%s is set simultaneously with %s",get_missile_type(tmp),get_missile_type(j) );
+          log("%s is set simultaneously with %s",get_missile_type(tmp-1),get_missile_type(j) );
           ret|=BAD_EXTHEAD;
         }
         if(val!=1)
@@ -1183,7 +1183,27 @@ int CChitemDlg::check_extheader(int itemtype)
           log("%s is set to %d",get_missile_type(j),val);
           ret|=BAD_EXTHEAD;
         }
-        tmp=j;
+        tmp=j+1;
+      }
+    }
+    switch (atype)
+    {
+    case A_PROJ:
+      //some projectiles like throwing axes seem to be mixed up with qualifier
+      //or not qualifier, more investigation needed
+      break;
+    case A_BOW:
+      if (!tmp)
+      {
+        log("No projectile qualifier for %s", get_attack_type(atype) );
+        ret|=BAD_EXTHEAD;
+      }
+      break;
+    default:
+      if (tmp)
+      {
+        log("Projectile qualifier %s for %s", get_missile_type(tmp-1), get_attack_type(atype) );
+        ret|=BAD_EXTHEAD;
       }
     }
   }  
@@ -1253,8 +1273,19 @@ int CChitemDlg::check_ammo(int atype, int dtype, int ammo)
   case A_PROJ:
     if(dtype!=DT_RANGED)
     {
-      log("Damage type is not set as %s.",get_damage_type(DT_RANGED));
-      return BAD_EXTHEAD;
+      if (iwd2_structures())
+      {
+        if (dtype!=DT_BLUNTRANGED)
+        {
+          log("Damage type is not set as %s or %s.",get_damage_type(DT_RANGED), get_damage_type(DT_BLUNTRANGED));
+          return BAD_EXTHEAD;
+        }
+      }
+      else
+      {
+        log("Damage type is not set as %s.",get_damage_type(DT_RANGED));
+        return BAD_EXTHEAD;
+      }      
     }
     break;
   }
@@ -1269,7 +1300,8 @@ int CChitemDlg::check_range(int atype, int range)
   switch(atype)
   {
   case A_MELEE:
-    if(range>3)
+    //iwd2 allows this
+    if((range>3) && !iwd2_structures())
     {
       return BAD_EXTHEAD;
     }
@@ -1285,7 +1317,7 @@ int CChitemDlg::check_charges(int atype, int i)
   ret=0;
   ///
   ///
-  recharge=the_item.extheaders[i].flags;
+  recharge=the_item.extheaders[i].flags&~1;
   drain=the_item.extheaders[i].drained;
   charges=the_item.extheaders[i].charges;
   if(bg1_compatible_area())
@@ -1821,10 +1853,18 @@ bool CChitemDlg::match_spell()
     if(exthead==the_spell.extheadcount)
     {
       log("Found opcode %s (%d %d) in feature #%d of casting feature block",get_opcode_text(tmpdata.feature),tmpdata.param1,tmpdata.param2,featblock+1);
+      if (searchflags&MR)
+      {
+        log("Effect: %s", the_spell.featblocks[featblock].vvc);
+      }
     }
     else
     {
       log("Found opcode %s (%d %d) in feature #%d of extended header #%d",get_opcode_text(tmpdata.feature),tmpdata.param1,tmpdata.param2,featblock-loc+1, exthead+1);
+    }
+    if (searchflags&MR)
+    {
+      log("Effect: %s", the_spell.featblocks[featblock].vvc);
     }
   }
   if(searchflags&MR)

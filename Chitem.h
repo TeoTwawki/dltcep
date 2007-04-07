@@ -904,6 +904,8 @@ CString get_resist_type(int rtype);
 CString get_projectile_id(int pronum, int offset);
 CString format_priesttype(int ptype);
 CString get_region_type(int rttype);
+CString format_feat(int i, bool flag);
+CString format_skill(int idx, int value);
 CString format_direction(int dir);
 CString get_songname(int songidx);
 CString get_songfile(int songidx);

@@ -2522,7 +2522,10 @@ int feature_resource(int feature)
     return REF_EFF;
   case 127: case 214: case 298:
     return REF_2DA;
-  case 187:  //in PST this used to be some BAM resource
+  case 187:  //in PST these used to be some BAM resources
+  case 188:
+  case 189:
+  case 190:
   case 191:  //PST
   case 201:  //PST
   case 215:
@@ -3008,6 +3011,49 @@ CString get_region_type(int rttype)
   {
     tmp.Format("%d %s",rttype,region_types[rttype]);
   }
+  return tmp;
+}
+
+CString format_feat(int i, bool flag)
+{
+  CString tmp, tmpstr;
+
+  tmpstr = IDSToken("FEATS", i, false);
+  if (tmpstr.IsEmpty())
+  {
+    tmpstr.Format("Unused #%d",i);
+  }
+  tmp.Format("%s-%s",tmpstr, flag?"yes":"no");
+  return tmp;
+}
+
+//this is iwd2, and hacked a bit. iwd2 is screwed up anyway
+CString weaponskills[64]={
+"Bow", "Crossbow","Sling","Axe","Mace","Flail","Polearm","Hammer",
+"Staff","Great sword","Large sword","Small sword","Toughness",
+"Armour casting","Cleave","Armour","Enchantment","Evocation",
+"Necromancy","Transmutation","Spell penetration","Extra rage",
+"Extra shape","Extra smiting","Extra turning","Bastardsword"
+};
+
+CString format_skill(int i, int value)
+{
+  CString tmp, tmpstr;
+
+  if (i>=64)
+  {
+    tmpstr = IDSToken("SKILLS", i-64, false);
+  }
+  else
+  {
+    tmpstr = weaponskills[i];
+  }
+  if (tmpstr.IsEmpty()) {
+    tmpstr.Format("Unknown skill #%d",i);
+  } else {
+    tmpstr.SetAt(0,(char) toupper(tmpstr[0]));
+  }
+  tmp.Format("%s (%d)", tmpstr, value);
   return tmp;
 }
 

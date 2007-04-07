@@ -17,6 +17,7 @@
 #define IWD2_SLOT_COUNT  50
 #define SND_SLOT_COUNT 100
 #define SND_SLOT_IWD2 64
+#define IWD2_SKILL_COUNT 130
 
 #define BG2_SPSLOTNUM 3
 #define IWD2_SPSLOTNUM 7
@@ -1035,8 +1036,8 @@ typedef struct
   unsigned char script1[8]; //team script
   unsigned char script2[8]; //special script1
   long unknown1bc;
-  long feat1, feat2, feat3; //96 bits
-  unsigned char skills[142];
+  long feat[6];
+  unsigned char skills[IWD2_SKILL_COUNT];
   unsigned char cr;
   unsigned char enemy[8];
   unsigned char subrace;
