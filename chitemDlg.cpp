@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.0h"
+#define PRG_VERSION "7.0j"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -23,6 +23,7 @@
 #include "Bif.h"
 #include "tispack.h"
 #include "TextView.h"
+#include "MyFileDialog.h"
 
 //editors
 #include "ItemEdit.h"
@@ -3090,8 +3091,7 @@ void CChitemDlg::OnFileImportd()
     return;
   }
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING;  
-  CFileDialog m_getfiledlg(TRUE, "d", bgfolder+weidudecompiled+"\\*.d;*.baf", res, szFilterWeiduAll);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "d", bgfolder+weidudecompiled+"\\*.d;*.baf", res, szFilterWeiduAll);
   m_getfiledlg.m_ofn.lpstrTitle="Which source files to compile?";
 
   res=99;
@@ -3168,8 +3168,7 @@ void CChitemDlg::Importtbg(int alt)
     return;
   }  
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg;*.iap", res, szFilter3);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg;*.iap", res, szFilter3);
 
   m_getfiledlg.m_ofn.lpstrTitle="Which package files to import?";
   res=99;
@@ -3303,8 +3302,7 @@ void CChitemDlg::OnToolsDecompile()
   }
 
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilterDlg );
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilterDlg );
   m_getfiledlg.m_ofn.lpstrTitle="Which dialogs to decompile?";
 
   if( m_getfiledlg.DoModal() != IDOK ) return;
@@ -3370,8 +3368,7 @@ void CChitemDlg::OnTispack()
     return;
   }
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "tis", makeitemname(".tis",0), res, ImageFilter(0x2) );
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "tis", makeitemname(".tis",0), res, ImageFilter(0x2) );
   m_getfiledlg.m_ofn.lpstrTitle="Which tilesets to compress?";
 
   if( m_getfiledlg.DoModal() != IDOK ) return;
@@ -3424,8 +3421,7 @@ void CChitemDlg::Compressbif(bool cbf_or_bifc)
   }
 
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
   tmpstr.Format("Select bifs for compression into %s format",cbf_or_bifc?"CBF":"BIFC");
   m_getfiledlg.m_ofn.lpstrTitle=tmpstr;
 
@@ -3477,8 +3473,7 @@ void CChitemDlg::OnReorderbif()
     return;
   }
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
   
   if( m_getfiledlg.DoModal() != IDOK ) return;
   pos=m_getfiledlg.GetStartPosition();
@@ -3587,7 +3582,7 @@ void CChitemDlg::OnUncompressbif()
   }
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBifc);
+  CMyFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBifc);
 
   m_getfiledlg.m_ofn.lpstrTitle="Which BIFs to uncompress?";
 restart:  
@@ -4024,8 +4019,7 @@ void CChitemDlg::DecompressAcm2(bool wavc_or_acm)
   }  
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, wavc_or_acm?"wav":"acm", wavc_or_acm?makeitemname(".wav",0):makeitemname(".acm",0), res, wavc_or_acm?szFilter1:szFilter2); 
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, wavc_or_acm?"wav":"acm", wavc_or_acm?makeitemname(".wav",0):makeitemname(".acm",0), res, wavc_or_acm?szFilter1:szFilter2); 
 
   folder.Format("Which %s files to decompress?",wavc_or_acm?"WAVC":"ACM");  
   m_getfiledlg.m_ofn.lpstrTitle=folder;
@@ -4083,8 +4077,7 @@ void CChitemDlg::CompressWav(bool wavc_or_acm)
   }
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "wav", makeitemname(".wav",0), res, szFilter1);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "wav", makeitemname(".wav",0), res, szFilter1);
 
   folder.Format("Which files to convert to %s?",wavc_or_acm?"WAVC":"ACM");  
   m_getfiledlg.m_ofn.lpstrTitle=folder;

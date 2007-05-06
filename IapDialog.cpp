@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "IapDialog.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -175,7 +176,7 @@ void CIapDialog::OnLoad()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING;
   if(readonly) res|=OFN_READONLY;
-  CFileDialog m_getfiledlg(TRUE, "iap", makeitemname(".iap",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "iap", makeitemname(".iap",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -226,7 +227,7 @@ void CIapDialog::OnSaveas()
     return;
   }
   res=OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING;
-  CFileDialog m_getfiledlg(FALSE, "iap", makeitemname(".iap",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "iap", makeitemname(".iap",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -364,8 +365,7 @@ void CIapDialog::OnOpenother()
   
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING;
 
-  CFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"override\\*.*", flg, szFilter1);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"override\\*.*", flg, szFilter1);
   m_getfiledlg.m_ofn.lpstrTitle="Select game files!";
 
   if( m_getfiledlg.DoModal() == IDOK )
@@ -386,8 +386,7 @@ void CIapDialog::OnOpentbg()
   int flg;
   
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ALLOWMULTISELECT|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg", flg, szFilterTbg);
-  HackForLargeList(m_getfiledlg);
+  CMyFileDialog m_getfiledlg(TRUE, "tbg", bgfolder+"*.tbg", flg, szFilterTbg);
   m_getfiledlg.m_ofn.lpstrTitle="Select TBG files!";
 
   if( m_getfiledlg.DoModal() == IDOK )

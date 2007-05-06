@@ -11,6 +11,7 @@
 #include "compat.h" //bothdialog
 #include "tbg.h"
 #include "TextView.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1451,7 +1452,7 @@ void ExportTBG(CWnd *pwnd, int filetype, int type)
 	cext=ext;
 	cext.MakeUpper();
   res=OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ENABLESIZING|OFN_EXPLORER;
-	CFileDialog m_getfiledlg(FALSE, type?"tp2":"tbg", bgfolder+itemname, res, type?szFilterTp2:szFilterTbg, pwnd);
+	CMyFileDialog m_getfiledlg(FALSE, type?"tp2":"tbg", bgfolder+itemname, res, type?szFilterTp2:szFilterTbg, pwnd);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

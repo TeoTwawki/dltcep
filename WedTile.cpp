@@ -7,6 +7,7 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "WedTile.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -607,7 +608,7 @@ void CWedTile::OnLoad3()
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
   bmportis=3;
-  CFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, ImageFilter(0x032) );
+  CMyFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, ImageFilter(0x032) );
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

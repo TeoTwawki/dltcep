@@ -16,7 +16,7 @@
 #include "tbg.h"
 #include "2da.h"
 #include "2daEdit.h"
-#include ".\dialogedit.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -838,7 +838,7 @@ void CDialogEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;
-  CFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -949,7 +949,7 @@ void CDialogEdit::OnSaveas()
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "dlg", makeitemname(".dlg",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "dlg", makeitemname(".dlg",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -2948,7 +2948,7 @@ void CDialogEdit::OnImportWeidu()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;
-  CFileDialog m_getfiledlg(TRUE, "d", makeitemname(".d",0), res, szFilterWeidu);
+  CMyFileDialog m_getfiledlg(TRUE, "d", makeitemname(".d",0), res, szFilterWeidu);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

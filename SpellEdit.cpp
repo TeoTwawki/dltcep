@@ -10,6 +10,7 @@
 #include "SpellEdit.h"
 #include "StrRefDlg.h"
 #include "tbg.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -120,7 +121,7 @@ void CSpellEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "spl", makeitemname(".spl",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "spl", makeitemname(".spl",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -194,7 +195,7 @@ void CSpellEdit::SaveSpell(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "spl",makeitemname(".spl",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "spl",makeitemname(".spl",0), res, szFilter);
 
   if(save)
   {
@@ -280,7 +281,7 @@ void CSpellEdit::OnAddcfb()
   int fhandle;
   
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, "bin", bgfolder+"cfb.bin", flg, cfbFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "bin", bgfolder+"cfb.bin", flg, cfbFilter);
   
 restart:
   if( m_getfiledlg.DoModal() == IDOK )
@@ -325,7 +326,7 @@ void CSpellEdit::OnSavecfb()
   int fhandle;
   
   flg=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "bin", bgfolder+"cfb.bin", flg, cfbFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "bin", bgfolder+"cfb.bin", flg, cfbFilter);
   
   if( m_getfiledlg.DoModal() == IDOK )
   {

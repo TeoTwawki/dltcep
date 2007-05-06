@@ -12,6 +12,7 @@
 #include "ImageView.h"
 #include "TisDialog.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -255,7 +256,7 @@ void CMosEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname(tis_or_mos?".tis":".mos",0), res, ImageFilter(tis_or_mos?0x0312:0x0321) );
+  CMyFileDialog m_getfiledlg(TRUE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname(tis_or_mos?".tis":".mos",0), res, ImageFilter(tis_or_mos?0x0312:0x0321) );
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -330,7 +331,7 @@ int CMosEdit::Savemos(Cmos &my_mos, int save)
     return -1;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname("",0), res, ImageFilter(tis_or_mos?0x03142:0x03421));
+  CMyFileDialog m_getfiledlg(FALSE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname("",0), res, ImageFilter(tis_or_mos?0x03142:0x03421));
 
   if(save)
   {

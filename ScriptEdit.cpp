@@ -15,6 +15,7 @@
 #include "WeiduLog.h"
 #include "StrRefDlg.h"
 #include "Decompiler.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -435,7 +436,7 @@ void CScriptEdit::OnLoadex()
   {
     szFilter=szFilterb;
   }
-  CFileDialog m_getfiledlg(TRUE, m_bcs?"bcs":"baf", m_bcs ? makeitemname(".bcs",0): makeitemname(".baf",1), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, m_bcs?"bcs":"baf", m_bcs ? makeitemname(".bcs",0): makeitemname(".baf",1), res, szFilter);
 
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -542,7 +543,7 @@ void CScriptEdit::OnSaveasGeneral(int type)
     szFilter=szFilterb;    
     tmpstr=makeitemname(".baf",1);
   }
-  CFileDialog m_getfiledlg(FALSE, m_bcs?"bcs":"baf", tmpstr, res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, m_bcs?"bcs":"baf", tmpstr, res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

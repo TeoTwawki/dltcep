@@ -546,6 +546,13 @@ typedef struct
   CString initial;
 } folderbrowse_t;
 
+struct OPENFILENAMEEX : public OPENFILENAME 
+{ 
+  void * pvReserved;
+  DWORD dwReserved;
+  DWORD FlagsEx;
+};
+
 extern colortype colors[COLORNUM];
 
 extern void init_colors();
@@ -558,7 +565,6 @@ void ConvertToV10Eff(const creature_effect *v20effect, feat_block *v10effect);
 void ConvertToV20Eff(creature_effect *v20effect, const feat_block *v10effect);
 int CheckDestination(CString area, CString entrance);
 int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd);
-void HackForLargeList(CFileDialog &m_getfiledlg);
 int ReadTempCreature(char *&creature, long &esize);
 int WriteTempCreature(char *creature, long esize);
 

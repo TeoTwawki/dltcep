@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "options.h"
 #include "SRCEdit.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -240,7 +241,7 @@ void CSRCEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "src", makeitemname(".src",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "src", makeitemname(".src",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -307,7 +308,7 @@ void CSRCEdit::SaveSrc(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "src", makeitemname(".src",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "src", makeitemname(".src",0), res, szFilter);
 
   if(save)
   {

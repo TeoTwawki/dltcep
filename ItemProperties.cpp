@@ -60,10 +60,10 @@ static CString ClassUsabilityBits[58]=
   "Mage/Thief","Solamnic Knight","Ranger","Thief",
   "Elf","Dwarf","Half-Elf","Kender",
   "Human","Gnome","Monk","Druid","Minotaur",
-  "0x01000000","0x02000000","0x04000000","0x08000000","0x10000000","0x20000000","0x40000000","0x80000000",
-  "0x00010000","0x00020000","0x00040000","0x00080000","Handler","0x00200000","0x00400000","0x00800000",
-  "Diviner","Enchanter","Evoker","Illusionist","Necromancer","Transmuter","Baseclass","0x00008000",
-  "0x00000001","0x00000002","0x00000004","0x00000008","0x00000010","0x00000020","Abjurer","Conjurer"
+  "Kiri-Jolith","Branchala","Habbakuk","Gilean","Reorx","Zivilyn","Wildmage","Barbarian",
+  "Hiddukel","Zeboim","0x00040000","0x00080000","Handler","Paladine","Mishakal","Majere",
+  "Diviner","Enchanter","Evoker","Illusionist","Necromancer","Transmuter","Baseclass","Chemosh",
+  "Sirrion","Shinare","Chislev","Takhisis","Sargonnas","Morgion","Abjurer","Conjurer"
 };
 
 //gets the starting feature block counter for this extended header

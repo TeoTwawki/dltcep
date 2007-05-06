@@ -49,9 +49,10 @@ CCreatureGeneral::~CCreatureGeneral()
 CString CCreatureGeneral::FindKit(unsigned int kit)
 {
   CString tmpstr, kitname;
+
   if(the_creature.revision!=22)
   {
-    kitname = IDSToken("KIT", kit>>16, false); //not iwd2
+    kitname = IDSToken("KIT", (kit>>16)|(kit<<16), false); //not iwd2
   }
   else
   {
@@ -343,13 +344,13 @@ BEGIN_MESSAGE_MAP(CCreatureGeneral, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_THAC0, OnKillfocusThac0)
 	ON_CBN_KILLFOCUS(IDC_NUMATTACKS, OnKillfocusNumattacks)
 	ON_CBN_KILLFOCUS(IDC_DUALFLAGS, OnKillfocusDualflags)
-	ON_EN_KILLFOCUS(IDC_KIT, OnKillfocusKit)
 	ON_BN_CLICKED(IDC_V10, OnV10)
 	ON_BN_CLICKED(IDC_V22, OnV22)
 	ON_BN_CLICKED(IDC_V90, OnV90)
 	ON_BN_CLICKED(IDC_V12, OnV12)
 	ON_BN_CLICKED(IDC_NEW1, OnNew1)
 	ON_BN_CLICKED(IDC_NEW2, OnNew2)
+	ON_CBN_KILLFOCUS(IDC_KIT, OnKillfocusKit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
@@ -3321,6 +3322,7 @@ void CCreatureItem::OnForget()
     the_creature.selects[pos].index+the_creature.selects[pos].count>m_spellslot)
     {
 	    RemoveSpell(pos);
+      break;
     }
   }
   RefreshItem();

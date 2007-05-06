@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "compat.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -271,7 +272,7 @@ void Ccompat::OnOpenfile()
   
   flg=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) flg|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"chitin.key", flg, szFilterKey);
+  CMyFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"chitin.key", flg, szFilterKey);
   
 restart:
   if( m_getfiledlg.DoModal() == IDOK )
@@ -313,7 +314,7 @@ void Ccompat::OnDescopen()
   int flg;
 
   flg=OFN_FILEMUSTEXIST|OFN_READONLY|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, NULL, descpath, flg, szFilter1);
+  CMyFileDialog m_getfiledlg(TRUE, NULL, descpath, flg, szFilter1);
 restart:
   if( m_getfiledlg.DoModal() == IDOK )
 	{

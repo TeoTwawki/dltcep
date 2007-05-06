@@ -8,6 +8,7 @@
 #include "ImageView.h"
 #include "TisDialog.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -203,7 +204,7 @@ void CTisDialog::SaveTis(int how)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, how?"tis":"bmp", makeitemname(how?".tis":".bmp",0), res, ImageFilter(how?2:3) );
+  CMyFileDialog m_getfiledlg(FALSE, how?"tis":"bmp", makeitemname(how?".tis":".bmp",0), res, ImageFilter(how?2:3) );
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

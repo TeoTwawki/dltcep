@@ -38,6 +38,7 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 
   DDX_Text(pDX, IDC_GAMETIME, the_game.header.gametime);
+
   DDX_Text(pDX, IDC_GOLD, the_game.header.gold);
 	if (the_game.revision==12)
 	{
@@ -59,9 +60,12 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 			cw = GetDlgItem(IDC_U1+i);
 			cw->ShowWindow(false);
 		}
+    cw=GetDlgItem(IDC_REALTIME);
+    cw->EnableWindow(false);
 	}
 	else
 	{
+    DDX_Text(pDX, IDC_REALTIME, the_game.header.realtime);
 		DDX_Text(pDX, IDC_REPUTATION, the_game.header.reputation);
 		RetrieveResref(tmpstr,the_game.header.mainarea);
 		DDX_Text(pDX, IDC_STARTAREA, tmpstr);

@@ -9,7 +9,7 @@
 #include "chitemDlg.h"
 #include "BamEdit.h"
 #include "PaletteEdit.h"
-#include ".\bamedit.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -636,7 +636,7 @@ void CBamEdit::LoadBamEx(Cbam *resource)
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "bam", makeitemname(".bam",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "bam", makeitemname(".bam",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -707,7 +707,7 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
     the_bam.m_bCompressed=0;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "", makeitemname(".bam",0), res, ImageFilter(0x35));
+  CMyFileDialog m_getfiledlg(FALSE, "", makeitemname(".bam",0), res, ImageFilter(0x35));
 
   if(save)
   {
@@ -1006,7 +1006,7 @@ void CBamEdit::Loadpalette(bool force_or_import)
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, NULL, makeitemname(".bam",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, NULL, makeitemname(".bam",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -1375,7 +1375,7 @@ int CBamEdit::PickBmpFile(Cbam &tmpbam)
 
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, szFilter2);
+  CMyFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, szFilter2);
   
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

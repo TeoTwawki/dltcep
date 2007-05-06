@@ -5,11 +5,11 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <direct.h>
-
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "options.h"
 #include "KeyEdit.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -989,7 +989,7 @@ void CKeyEdit::OnReadd()
   MessageBox("To readd a BIF you must have an old chitin.key and the BIF file","Key editor",MB_OK|MB_ICONINFORMATION);
   flg=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER|OFN_READONLY;
   {
-    CFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"chitin.key", flg, szFilterKey);
+    CMyFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"chitin.key", flg, szFilterKey);
     if( m_getfiledlg.DoModal() != IDOK )
     {
       return;
@@ -998,7 +998,7 @@ void CKeyEdit::OnReadd()
   }
 
   {
-    CFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"*.bif", flg, szFilterBif);
+    CMyFileDialog m_getfiledlg(TRUE, NULL, bgfolder+"*.bif", flg, szFilterBif);
     if( m_getfiledlg.DoModal() != IDOK )
     {
       return;

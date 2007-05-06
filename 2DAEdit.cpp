@@ -12,6 +12,7 @@
 #include "StrRefDlg.h"
 #include "progressbar.h"
 #include "ColorPicker.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -165,7 +166,7 @@ void C2DAEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "2da", makeitemname(".2da",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "2da", makeitemname(".2da",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -224,7 +225,7 @@ void C2DAEdit::SaveTable(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "2da", makeitemname(".2da",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "2da", makeitemname(".2da",0), res, szFilter);
 
   if(save)
   {
@@ -1016,7 +1017,7 @@ void CIDSEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "ids", makeitemname(".ids",0), res, szFilter2);
+  CMyFileDialog m_getfiledlg(TRUE, "ids", makeitemname(".ids",0), res, szFilter2);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -1083,7 +1084,7 @@ void CIDSEdit::SaveIDS(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "ids", makeitemname(".ids",0), res, szFilter2);
+  CMyFileDialog m_getfiledlg(FALSE, "ids", makeitemname(".ids",0), res, szFilter2);
 
   if(save)
   {
@@ -1549,7 +1550,7 @@ void CMUSEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "mus", makeitemname(".mus",4), res, szFilter3);
+  CMyFileDialog m_getfiledlg(TRUE, "mus", makeitemname(".mus",4), res, szFilter3);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -1599,8 +1600,8 @@ void CMUSEdit::OnSaveas()
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  //CFileDialog m_getfiledlg(FALSE, "mus", bgfolder+"music\\"+itemname+".mus", res, szFilter3);
-  CFileDialog m_getfiledlg(FALSE, "mus", makeitemname(".mus",4), res, szFilter3);
+  //CMyFileDialog m_getfiledlg(FALSE, "mus", bgfolder+"music\\"+itemname+".mus", res, szFilter3);
+  CMyFileDialog m_getfiledlg(FALSE, "mus", makeitemname(".mus",4), res, szFilter3);
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {

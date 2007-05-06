@@ -2007,7 +2007,7 @@ CString format_spellslot(unsigned int spellslot)
   return tmp;
 }
 
-CString spelltypes[NUM_SPELLTYPE+1]={"0-Special","1-Wizard","2-Cleric","3-Unknown","4-Innate","5-Song"};
+CString spelltypes[NUM_SPELLTYPE+1]={"0-Special","1-Wizard","2-Cleric","3-Psionic","4-Innate","5-Song"};
 
 CString format_spelltype(unsigned int spelltype)
 {
@@ -6162,18 +6162,6 @@ int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd)
     return IDOK;
   }
   return IDCANCEL;
-}
-
-//this is a special hack, to get this file selection box
-//working on multi selection correctly
-void HackForLargeList(CFileDialog &m_getfiledlg)
-{
-  if (m_getfiledlg.m_ofn.nMaxFile<MAXBUFFSIZE)
-  {
-    strncpy(external,m_getfiledlg.m_ofn.lpstrFile,MAXBUFFSIZE);
-    m_getfiledlg.m_ofn.lpstrFile=external;
-    m_getfiledlg.m_ofn.nMaxFile=MAXBUFFSIZE;
-  }
 }
 
 int ReadTempCreature(char *&creature, long &esize)

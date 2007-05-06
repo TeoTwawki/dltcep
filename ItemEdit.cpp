@@ -10,6 +10,7 @@
 #include "ItemEdit.h"
 #include "StrRefDlg.h"
 #include "tbg.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -130,7 +131,7 @@ void CItemEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "itm", makeitemname(".itm",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "itm", makeitemname(".itm",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -204,7 +205,7 @@ void CItemEdit::SaveItem(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "itm", makeitemname(".itm",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "itm", makeitemname(".itm",0), res, szFilter);
 
   if(save)
   {

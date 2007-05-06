@@ -12,6 +12,7 @@
 #include "2daEdit.h"
 #include "tbg.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -571,7 +572,7 @@ void CEffEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "eff", makeitemname(".eff",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "eff", makeitemname(".eff",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -628,7 +629,7 @@ void CEffEdit::SaveEff(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "eff", makeitemname(".eff",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "eff", makeitemname(".eff",0), res, szFilter);
 
   if(save)
   {

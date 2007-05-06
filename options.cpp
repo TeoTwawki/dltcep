@@ -7,6 +7,7 @@
 
 #include "chitem.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -640,7 +641,7 @@ void CWeiDUOpt::OnOpenfile()
   CString tmp;
   
   flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(TRUE, NULL, weidupath, flg, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, NULL, weidupath, flg, szFilter);
   
 restart:
   if( m_getfiledlg.DoModal() == IDOK )

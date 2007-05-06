@@ -11,6 +11,7 @@
 #include "2da.h"
 #include "2daEdit.h"
 #include "tbg.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -153,7 +154,7 @@ void CCreatureEdit::OnLoadex()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "cre", makeitemname(".cre",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "cre", makeitemname(".cre",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -249,7 +250,7 @@ void CCreatureEdit::SaveCreature(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "cre", makeitemname(".cre",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "cre", makeitemname(".cre",0), res, szFilter);
 
   if(save)
   {

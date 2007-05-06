@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "WedPolygon.h"
 #include "options.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -513,7 +514,7 @@ void CWedPolygon::OnSave()
   int fhandle;
 
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CFileDialog m_getfiledlg(FALSE, "ply", makeitemname(".ply",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "ply", makeitemname(".ply",0), res, szFilter);
 
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -539,7 +540,7 @@ void CWedPolygon::OnLoad()
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CFileDialog m_getfiledlg(TRUE, "ply", makeitemname(".ply",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "ply", makeitemname(".ply",0), res, szFilter);
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )

@@ -7,9 +7,9 @@
 #include <direct.h>
 #include <sys/stat.h>
 #include <shlobj.h>
-
 #include "chitem.h"
 #include "CFBDialog.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -141,7 +141,7 @@ void CCFBDialog::OnOpenfile()
   if(mode&1)
   {
     flg=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-    CFileDialog m_getfiledlg(TRUE, "bin", bgfolder+"cfb.bin", flg, cfbFilter);
+    CMyFileDialog m_getfiledlg(TRUE, "bin", bgfolder+"cfb.bin", flg, cfbFilter);
   
   restart:
     if( m_getfiledlg.DoModal() == IDOK )

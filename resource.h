@@ -258,9 +258,9 @@
 #define IDS_CENTERFRAME                 228
 #define IDD_AREATRIGGERSTRINGS          228
 #define IDS_BAM                         229
-#define IDD_CREATUREOVR                 229
 #define IDD_CREATUREIWD2                229
 #define IDS_FRAME15                     230
+#define IDD_CREATUREOVR                 230
 #define IDS_VVCFLAG                     231
 #define IDS_SEQFLAG                     232
 #define IDS_MINIMAP                     233
@@ -1139,6 +1139,7 @@
 #define IDC_STARTAREA                   1836
 #define IDC_GAMETIME                    1837
 #define IDC_JOURNALPICKER               1838
+#define IDC_REALTIME                    1838
 #define IDC_ADDJOURNAL                  1839
 #define IDC_DELJOURNAL                  1840
 #define IDC_MODIFIED                    1841
@@ -1828,7 +1829,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2316
+#define _APS_NEXT_CONTROL_VALUE         2317
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

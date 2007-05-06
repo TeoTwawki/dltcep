@@ -76,13 +76,13 @@ protected:
 	afx_msg void OnKillfocusThac0();
 	afx_msg void OnKillfocusNumattacks();
 	afx_msg void OnKillfocusDualflags();
-	afx_msg void OnKillfocusKit();
 	afx_msg void OnV10();
 	afx_msg void OnV22();
 	afx_msg void OnV90();
 	afx_msg void OnV12();
 	afx_msg void OnNew1();
 	afx_msg void OnNew2();
+	afx_msg void OnKillfocusKit();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

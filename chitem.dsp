@@ -309,6 +309,10 @@ SOURCE=.\MosEdit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MyFileDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\oct_quan.cpp
 # End Source File
 # Begin Source File
@@ -715,6 +719,10 @@ SOURCE=.\MosEdit.h
 # Begin Source File
 
 SOURCE=.\MyAfxtempl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MyFileDialog.h
 # End Source File
 # Begin Source File
 
