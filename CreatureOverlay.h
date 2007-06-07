@@ -19,7 +19,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCreatureOverlay)
 	enum { IDD = IDD_CREATUREOVR };
-		// NOTE: the ClassWizard will add data members here
+	CString	m_bamres;
 	//}}AFX_DATA
 
 
@@ -34,10 +34,21 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+  int m_itemcount;
+  int m_curritem;
+
+  void ResetCombo();
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureOverlay)
 	virtual BOOL OnInitDialog();
+	afx_msg void OnBrowse();
+	afx_msg void OnClear();
+	afx_msg void OnKillfocusOverlaypicker();
+	afx_msg void OnSelchangeOverlaypicker();
+	afx_msg void OnDefaultKillfocus();
+	afx_msg void OnKillfocusBam();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

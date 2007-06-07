@@ -15,6 +15,7 @@
 #include "WeiduLog.h"
 #include "StrRefDlg.h"
 #include "Decompiler.h"
+#include "Compiler.h"
 #include "MyFileDialog.h"
 
 #ifdef _DEBUG
@@ -254,18 +255,22 @@ int CScriptEdit::compile(CString filepath)
   CString tmpstr;
   CString outpath;
   CString syscommand;
+  CString tmpname;
   int res;
 
   res=0;
-  if(weidupath.IsEmpty())
+  if(editflg&INTERNALCOMPILER)
   {
-    MessageBox("Please set up WeiDU before use.","Script editor",MB_OK|MB_ICONSTOP);
-    return -1;
-  }
-  if(!file_exists(weidupath) )
-  {
-    MessageBox("WeiDU executable not found.","Script editor",MB_OK|MB_ICONSTOP);
-    return -1;
+    if(weidupath.IsEmpty())
+    {
+      MessageBox("Please set up WeiDU before use.","Script editor",MB_OK|MB_ICONSTOP);
+      return -1;
+    }
+    if(!file_exists(weidupath) )
+    {
+      MessageBox("WeiDU executable not found.","Script editor",MB_OK|MB_ICONSTOP);
+      return -1;
+    }
   }
   chdir(bgfolder);
   outpath.Format("override");
@@ -276,10 +281,48 @@ int CScriptEdit::compile(CString filepath)
     MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
     return -1;
   }
-  syscommand=AssembleWeiduCommandLine(filepath,outpath); //import (compile)
-  res=RunWeidu(syscommand);
-  ((CChitemDlg *) AfxGetMainWnd())->rescan_dialog(true);
-  ((CChitemDlg *) AfxGetMainWnd())->scan_override();
+
+  if(editflg&INTERNALCOMPILER)
+  {
+    syscommand=AssembleWeiduCommandLine(filepath,outpath); //import (compile)
+    res=RunWeidu(syscommand);
+    ((CChitemDlg *) AfxGetMainWnd())->rescan_dialog(true);
+    ((CChitemDlg *) AfxGetMainWnd())->scan_override();
+  }
+  else
+  {
+    Compiler *scmp = new Compiler(weiduflg&WEI_LOGGING);
+    int x = filepath.ReverseFind('\\');
+    int y = filepath.ReverseFind('/');
+    if (x>y) y=x;
+    if (y>=0)
+    {
+      tmpname = filepath.Mid(y+1);
+    }
+    else
+    {
+      tmpname = filepath;
+    }
+    y = tmpname.ReverseFind('.');
+    if (y>0)
+    {
+      filepath=tmpname.Left(y);
+    }
+    else
+    {
+      filepath=tmpname;
+    }
+    //setting up compiler with options
+    res = scmp->Compile(filepath, bgfolder+"\\"+outpath+"\\"+filepath+".bcs");
+    //actually this is not needed, delete will close all anyway
+    scmp->CloseAll();
+    delete scmp;
+    if (res)
+    {
+      MessageBox("Decompiler error.","Script editor",MB_OK|MB_ICONSTOP);
+      res = 0;
+    }
+  }
   return res;
 }
 
@@ -338,7 +381,8 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
     //actually this is not needed, delete will close all anyway
     sdec->CloseAll();
     delete sdec;
-    if (res) {
+    if (res)
+    {
       MessageBox("Decompiler error.","Script editor",MB_OK|MB_ICONSTOP);
       res = 0;
     }
@@ -653,7 +697,7 @@ void CScriptEdit::OnNew()
 void format_line(CString &line, int indent)
 {
   if(line.IsEmpty()) return;
-  line.SetAt(0,(char) toupper(line.GetAt(0)));
+  //line.SetAt(0,(char) toupper(line.GetAt(0)));
   line=CString(TCHAR(' '),indent)+line;
 }
 
@@ -780,10 +824,12 @@ void CScriptEdit::CheckScript(int messages)
   int commentpos;
 
   
-  if(m_bcs) {
+  if(m_bcs)
+  {
     tmpstr.Format("Edit script: %s%s",itemname, the_script.m_changed?"*":"");
   }
-  else {
+  else
+  {
     tmpstr.Format("Edit script source: %s%s",itemname, the_script.m_changed?"*":"");
   }
   SetWindowText(tmpstr);
@@ -1319,15 +1365,20 @@ BOOL CScriptEdit::OnHelpInfo(HELPINFO* /*pHelpInfo*/)
   tmpstr.TrimRight();
 	if(action_data.Lookup(tmpstr,compiler_data) )
   {
-    helpstr.Format("%s(%s)",tmpstr,format_parameters(compiler_data));
-    MessageBox(helpstr,"Script Action",MB_ICONINFORMATION|MB_OK);
+    helpstr.Format("%s(%s)",compiler_data.keyword,format_parameters(compiler_data));
+    MessageBox(helpstr,"Script Action", MB_ICONINFORMATION|MB_OK);
     return false;
   }
   if(trigger_data.Lookup(tmpstr,compiler_data) )
   {
-    helpstr.Format("%s(%s)",tmpstr,format_parameters(compiler_data));
-    MessageBox(helpstr,"Script Trigger",MB_ICONINFORMATION|MB_OK);
+    helpstr.Format("%s(%s)",compiler_data.keyword,format_parameters(compiler_data));
+    MessageBox(helpstr,"Script Trigger", MB_ICONINFORMATION|MB_OK);
     return false;
+  }
+  int tmp = IDSKey("OBJECT",tmpstr);
+  if (tmp!=-1)
+  {
+    MessageBox(tmpstr,"Script Object", MB_ICONINFORMATION|MB_OK);
   }
 	return false;	
 }

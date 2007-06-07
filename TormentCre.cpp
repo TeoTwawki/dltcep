@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "chitem.h"
 #include "TormentCre.h"
+#include "CreatureOverlay.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -97,6 +98,7 @@ BEGIN_MESSAGE_MAP(CTormentCre, CDialog)
 	ON_CBN_KILLFOCUS(IDC_ATTR7, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS2, OnDefaultKillfocus)
+	ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -202,6 +204,13 @@ void CTormentCre::OnBrowse6()
 void CTormentCre::OnBrowse7() 
 {
 	ColorDlg(6);
+}
+
+void CTormentCre::OnOverlay() 
+{
+	CCreatureOverlay dlg;
+	
+  dlg.DoModal();
 }
 
 BOOL CTormentCre::PreTranslateMessage(MSG* pMsg) 

@@ -32,6 +32,24 @@ public:
     }
   }
 
+  bool LookupIgnoreCase(CString key, compiler_data &value)
+  {
+    POSITION pos;
+
+    pos=GetStartPosition();
+    while(pos)
+    {
+      CString key2;
+
+      GetNextAssoc(pos, key2, value);
+      if(key2.CompareNoCase(key))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool ReverseLookup(int data, int paramcount, CString &key, compiler_data &value)
   {
     POSITION pos;

@@ -4856,6 +4856,7 @@ BEGIN
     LTEXT           "XP Mage",IDC_STATIC,67,41,30,8
     EDITTEXT        IDC_XPOS2,165,53,78,14,ES_AUTOHSCROLL
     LTEXT           "XP Thief",IDC_STATIC,165,41,28,8
+    PUSHBUTTON      "Edit overlays",IDC_OVERLAY,263,53,50,14
 END
 
 IDD_GAMESTATS DIALOG DISCARDABLE  0, 0, 227, 199
@@ -4905,7 +4906,7 @@ IDD_GAMEGENERAL DIALOGEX 0, 0, 248, 182
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit general game data"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_STARTAREA,7,19,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_GAMETIME,115,19,48,14,ES_AUTOHSCROLL
@@ -5135,15 +5136,17 @@ BEGIN
     COMBOBOX        IDC_OVERLAYPICKER,7,22,186,114,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     EDITTEXT        IDC_BAM,7,56,63,14,ES_UPPERCASE | ES_AUTOHSCROLL
-    PUSHBUTTON      "Browse",IDC_BROWSE,79,55,43,14
-    EDITTEXT        IDC_TIMING,7,92,38,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TYPE,58,92,38,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Clear",IDC_CLEAR,139,55,43,14
-    LTEXT           "Type",IDC_STATIC,7,81,17,8
-    LTEXT           "Timing",IDC_STATIC,58,80,22,8
+    PUSHBUTTON      "Browse",IDC_BROWSE,79,56,43,14
+    EDITTEXT        IDC_TIMING,52,92,38,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TYPE,7,92,38,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Clear",IDC_CLEAR,139,56,43,14
+    LTEXT           "Type",IDC_STATIC,7,80,17,8
+    LTEXT           "Timing",IDC_STATIC,52,80,22,8
     LTEXT           "Select overlay",IDC_STATIC,7,7,46,8
     LTEXT           "Animation",IDC_STATIC,7,44,32,8
-    PUSHBUTTON      "Back",IDOK,75,116,50,14
+    PUSHBUTTON      "Back",IDCANCEL,75,116,50,14
+    EDITTEXT        IDC_DURATION,96,92,38,14,ES_AUTOHSCROLL
+    LTEXT           "Duration",IDC_STATIC,96,80,28,8
 END
 
 
@@ -6003,8 +6006,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,0,0,9
- PRODUCTVERSION 7,0,0,9
+ FILEVERSION 7,0,0,10
+ PRODUCTVERSION 7,0,0,10
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6022,14 +6025,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 0, 0, 9\0"
+            VALUE "FileVersion", "7, 0, 0, 10\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2007 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.0i\0"
-            VALUE "ProductVersion", "7, 0, 0, 9\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.0j\0"
+            VALUE "ProductVersion", "7, 0, 0, 10\0"
             VALUE "SpecialBuild", "\0"
         END
     END

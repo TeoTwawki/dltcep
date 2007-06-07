@@ -168,6 +168,12 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   header.itemslots=fullsize;
   esize=sizeof(short)*slotcount+sizeof(long);
   fullsize+=esize;
+  if (revision==12)
+  {
+    pstheader.overlaysize=pst_overlay_size;
+    pstheader.overlayoffs=fullsize;
+    fullsize+=pstheader.overlaysize;
+  }
 
   if(calculate&2)
   {
@@ -297,6 +303,13 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   if(write(fhandle, itemslots, esize )!=esize )
   {
     return -2;
+  }
+  if (revision==12)
+  {
+    if(write(fhandle, pst_overlay_data, pst_overlay_size)!=pst_overlay_size)
+    {
+      return -2;
+    }
   }
   m_changed=false;
   return 0;

@@ -425,7 +425,7 @@ CString Decompiler::PrintTrigger(Trigger *tR)
   {
     if (!trigger_data.ReverseLookup(tR->triggerID, key, value))
     {
-      key.Format("unknown_%d",tR->triggerID);
+      value.keyword.Format("unknown_%d",tR->triggerID);
     }
   }
 	for (i=0;i<value.parnum;i++)
@@ -535,12 +535,16 @@ CString Decompiler::PrintTrigger(Trigger *tR)
 		}
 		params=params+ob;
 	}
-	key.SetAt(0,(char) toupper(key[0]) );
+	//value.keyword.SetAt(0,(char) toupper(key[0]) );
 	if (tR->flags&NEGATE_TRIGGER)
 	{
-		key = CString("!")+key;
+    tmp.Format("  !%s(%s)",value.keyword, params);
 	}
-	tmp.Format("  %s(%s)",key, params);
+  else
+  {
+    tmp.Format("  %s(%s)",value.keyword, params);
+  }
+	
 	if (num_or)
 	{
 		tmp=CString("  ")+tmp;
@@ -674,7 +678,7 @@ CString Decompiler::PrintAction(Action *aC)
 	{
 		if (!action_data.ReverseLookup(aC->actionID, key, value))
 		{
-			key.Format("unknown_%d",aC->actionID);
+			value.keyword.Format("unknown_%d",aC->actionID);
 		}
 	}
 	for (i=0;i<value.parnum;i++)
@@ -810,8 +814,8 @@ CString Decompiler::PrintAction(Action *aC)
 		}
 		params=params+ob;
 	}
-	key.SetAt(0,(char) toupper(key[0]) );
-	tmp.Format("%s(%s)",key, params);
+	//value.keyword.SetAt(0,(char) toupper(key[0]) );
+	tmp.Format("%s(%s)",value.keyword, params);
 	if (aC->objects[0])
 	{
 			ob.Format("ActionOverride(%s,%s)",PrintObject(aC->objects[0]), tmp );

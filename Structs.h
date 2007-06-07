@@ -745,10 +745,11 @@ typedef struct
 typedef struct
 {
   char resref[8];
+  long flags;
   short timing;
-  short type;
+  unsigned char type;
+  unsigned char u1;
   long duration;
-  long u1;
   long u2;
   long u3;
   long u4;
@@ -2217,6 +2218,7 @@ typedef struct
 class compiler_data//hashed compiler data
 {
 public:
+  CString keyword;
   int opcode;
   int parnum;
   int parnumx; //prototype code (parameter count, but strings add 16)

@@ -177,6 +177,10 @@ SOURCE=.\compat.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Compiler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\creature.cpp
 # End Source File
 # Begin Source File
@@ -567,6 +571,10 @@ SOURCE=.\ColorPicker.h
 # Begin Source File
 
 SOURCE=.\compat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Compiler.h
 # End Source File
 # Begin Source File
 

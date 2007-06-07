@@ -623,7 +623,7 @@ void C2DAEdit::OnRow2()
   POSITION pos;
   int i;
 
-  if(m_item<0) m_item=the_2da.rows;
+  if(m_item<0 || m_item>the_2da.rows) m_item=the_2da.rows;
   tmpstr.Format("Row%d",m_item);
   the_2da.AddRow(m_item, tmpstr, the_2da.defvalue);
   pos=the_2da.data->FindIndex(m_item);

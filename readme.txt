@@ -1,9 +1,82 @@
 Dragonlance TC Editor Pro
 Unofficial game file editor/checker/browser for IE (Infinity Engine) games.
 
-Current version: V6.7j
+Current version: V7.0j
 
 Changes:
+
+V7.0j
+- fixed problem with pst creature writer (saving corrupted creatures with overlays)
+
+V7.0i
+- applied Igi's patch for filedialog (with modification) 
+
+V7.0h
+- added more iwd2 specific fields (feats/skills)
+- swapped the bg1 area exits
+- fixed spell forgetting not to forget multiple spells in some cases
+
+V7.0g
+- added some iwd2 specific creature fields
+- fixed a small screwup of tutu converted items causing trouble in the item loader
+
+V7.0f
+- hot buttons changed from checker to editor because editors are more frequently used
+- removed extra debug code from area searcher
+- fixed possible memory corruption in area mirror tool
+
+V7.0e
+- fixed area editor crasher (removing containers)
+- fixed area container/door copy/paste
+- added polygon count checker for iwd2 walls
+
+V7.0d
+- fixed src crasher
+
+V7.0c
+- zoom function enlarges bam by 2 in bam editor
+
+V7.0b
+- updated pst missile ids (you have to copy it as missile.ids into your game override)
+- fixed chr save
+- fixed some effect descriptions
+
+V7.0a
+- fixed a crash with iwd2 creature soundsets
+- you can disable force new strref on import tbg (this is the default)
+
+V7.0
+- TP2 generation for files
+- internal script decompiler 
+
+V6.8c
+- fixed change detection after .pro file saving
+- converts :'s to \\ in the chitin.key (so a chitin.key from mac could be used?)
+
+V6.8b
+- fixed PST creature loader when there is no overlay structure
+
+V6.8
+- fixed area container inserting when there was no door
+- added bam splitter
+- fixed a few effect descriptions
+- fixed old bug in effect loader causing intermittent problems in effect list
+- improved PST effect list
+- fixed PST game saver (bestiary offset wasn't recalculated)
+- fixed PST creature loader (overlay structure handled)
+
+V6.7m
+- effect editor accepts hexadecimal opcode numbers
+- fixed number of attacks list in creature editor
+- improved BG2 effects list
+- added missile.ids for iwd2 (but it is useful for bg1 too)
+
+V6.7l
+- modified the saving order of store files to match the original world editor order
+- added vertical swapping of bam frames
+
+V6.7k
+- fixed iwd2 saving throw types
 
 V6.7j
 - fixed a possible crash in the door tile editor
@@ -251,7 +324,7 @@ Additional information:
 
 Read the accompanying textfiles for instructions on editing various filetypes.
 
-For modding tips, information, tools and other resources visit us at www.forgottenwars.net!
+For modding tips, information, tools and other resources visit us at www.gibberlings3.net!
 The DLTCEP support forum is on the following website: www.dragonlancetc.com/forums/index.php?board=9
 
 The (somewhat outdated) sources for this program are available on gemrb.sourceforge.net in the CVS under module Utilities.

@@ -383,7 +383,7 @@ int ReadIdsFromFile3(int fhandle, CString *refs, int maxindex, int length, CStri
     ref=tmpref;
     ref.TrimLeft();
     ref.TrimRight();
-    ref.MakeUpper();
+    //ref.MakeUpper();
     ret=add_compiler_data(ref, cnt, atdata, trigger_or_action);
     if(ret)
     {
@@ -1183,12 +1183,15 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
     return -1;
   }
   name=prototype.Left(p1);
+  prototype.MakeUpper();
+  CString keyword = name;
   name.MakeLower();
 
   if(at_data.Lookup(name,compiler_data))
   {
     delete [] compiler_data.parameters;
   }
+  compiler_data.keyword=keyword;
   compiler_data.parameters=NULL;
   compiler_data.parnum=0;
   compiler_data.opcode=cnt;

@@ -49,6 +49,7 @@ protected:
 	afx_msg void OnBrowse5();
 	afx_msg void OnBrowse6();
 	afx_msg void OnBrowse7();
+	afx_msg void OnOverlay();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

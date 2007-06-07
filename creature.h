@@ -121,6 +121,7 @@ public:
     if(pst_overlay_data)
     {
       delete[] pst_overlay_data;
+      pst_overlay_data = NULL;
       pst_overlay_size = 0;
     }
   }
