@@ -262,6 +262,7 @@
 #define IDS_FRAME15                     230
 #define IDD_CREATUREOVR                 230
 #define IDS_VVCFLAG                     231
+#define IDD_ANIMDIALOG                  231
 #define IDS_SEQFLAG                     232
 #define IDS_MINIMAP                     233
 #define IDS_TISEXTRACT                  234
@@ -1609,6 +1610,8 @@
 #define IDC_SUBRACE                     2305
 #define IDC_SKILL                       2312
 #define IDC_SKILLPICKER                 2313
+#define IDC_ANIMLIST                    2319
+#define IDC_FILTER                      2320
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1827,9 +1830,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        217
+#define _APS_NEXT_RESOURCE_VALUE        232
 #define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2318
+#define _APS_NEXT_CONTROL_VALUE         2321
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

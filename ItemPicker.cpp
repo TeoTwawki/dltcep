@@ -5,6 +5,7 @@
 #include "chitem.h"
 #include "options.h"
 #include "2da.h"
+#include "AnimDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -29,9 +30,14 @@ void CItemPicker::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CItemPicker)
+	DDX_Control(pDX, IDC_PLAY, m_play_control);
+	DDX_Control(pDX, IDC_PREVIEW, m_preview_control);
+	DDX_Control(pDX, IDC_RESOLVE, m_resolve_control);
+	DDX_Control(pDX, IDC_ANIMLIST, m_animlist_control);
 	DDX_Control(pDX, IDC_PICK, m_pick_control);
 	DDX_Text(pDX, IDC_TEXT, m_text);
 	//}}AFX_DATA_MAP
+  DDX_Text(pDX, IDC_PICK, m_picked);
 }
 
 BEGIN_MESSAGE_MAP(CItemPicker, CDialog)
@@ -42,6 +48,7 @@ BEGIN_MESSAGE_MAP(CItemPicker, CDialog)
 	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
 	ON_LBN_SELCHANGE(IDC_PICK, OnSelchangePick)
 	ON_BN_CLICKED(IDC_PLAY, OnPlay)
+	ON_BN_CLICKED(IDC_ANIMLIST, OnAnimlist)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -62,6 +69,7 @@ void CItemPicker::OnOK()
     m_pick_control.GetText(sel,m_picked);
     x=m_picked.Find(" ");
     if(x>0) m_picked=m_picked.Left(x);
+    UpdateData(UD_DISPLAY);
     CDialog::OnOK();
   }
   else OnCancel();
@@ -102,7 +110,7 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
       break;
     }
     if(restype==REF_BMP) fc=read_bmp(tmpstr, &my_bam);
-    else fc=read_bam(tmpstr,&my_bam);
+    else fc=read_bam_preview(tmpstr,&my_bam);
     if(!fc)
     {
       fc=my_bam.GetFrameIndex(0,0);
@@ -236,9 +244,9 @@ void CItemPicker::RefreshDialog()
   SetWindowText(tmp);
   FillList(m_restype,m_pick_control);
   flg=!(editflg&RESOLVE);
-  ((CButton *) GetDlgItem(IDC_RESOLVE))->SetCheck(flg);
+  m_resolve_control.SetCheck(flg);
   flg=!(editflg&PREVIEW);
-  ((CButton *) GetDlgItem(IDC_PREVIEW))->SetCheck(flg);
+  m_preview_control.SetCheck(flg);
 }
 
 BOOL CItemPicker::OnInitDialog() 
@@ -259,19 +267,31 @@ BOOL CItemPicker::OnInitDialog()
   case REF_SPL:
   case REF_MOS:
   case REF_CHU:
-    GetDlgItem(IDC_PREVIEW)->ShowWindow(true);
+    m_preview_control.ShowWindow(true);
     m_preview.Create(IDD_IMAGEVIEW,this);
     GetWindowRect(rect);
     m_preview.SetWindowPos(0,rect.right,rect.top,0,0,SWP_NOACTIVATE|SWP_NOZORDER|SWP_HIDEWINDOW|SWP_NOSIZE);
     break;
   case REF_WAV:
   case REF_ACM:
-    GetDlgItem(IDC_PLAY)->ShowWindow(true);
+    m_play_control.ShowWindow(true);
     break;
+  }
+  if (m_restype==REF_BAM)
+  {
+    m_animlist_control.ShowWindow(true);
+    m_resolve_control.ShowWindow(false);
   }
   RefreshDialog();
   m_pick_control.SelectString(0,m_picked);
   OnSelchangePick();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+  UpdateData(UD_DISPLAY);
   return TRUE;
 }
 
@@ -362,4 +382,26 @@ void CItemPicker::PostNcDestroy()
 	my_bam.new_bam();
 	my_mos.new_mos();
 	CDialog::PostNcDestroy();
+}
+
+void CItemPicker::OnAnimlist() 
+{
+	CAnimDialog dlg;
+	
+  UpdateData(UD_RETRIEVE);
+  dlg.m_restype=m_restype;
+  dlg.m_picked=m_picked;
+  if (dlg.DoModal()==IDOK)
+  {
+    m_picked=dlg.m_picked;
+  }
+  m_pick_control.SelectString(0,m_picked);
+  OnSelchangePick();
+  UpdateData(UD_DISPLAY);
+}
+
+BOOL CItemPicker::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

@@ -18,6 +18,8 @@ public:
   void RefreshGeneral();
 
 protected:
+  CToolTipCtrl m_tooltip;
+
 // Dialog Data
 	//{{AFX_DATA(CItemGeneral)
 	enum { IDD = IDD_ITEMGENERAL };
@@ -33,6 +35,9 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CItemGeneral)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+  protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
@@ -84,12 +89,16 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CItemIcons)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   inline void Togglebit(int value)
   {
     the_item.header.itmattr^=value;  
@@ -175,12 +184,15 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CItemDescription)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CItemDescription)
@@ -354,12 +366,16 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CItemEquip)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
 	// Generated message map functions
 	//{{AFX_MSG(CItemEquip)
 	virtual BOOL OnInitDialog();
@@ -417,7 +433,7 @@ public:
 	int		m_extheadnum;
 	int		m_exteffnum;
 	tooltip_data m_tooltipref;
-	CString	m_tooltip[3];
+	CString	m_tooltipstring[3];
 	CString	m_opcode;
   int extheadnum;
   int exteffnum;
@@ -427,12 +443,16 @@ public:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CItemExtended)
-	protected:
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+  protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
 	// Generated message map functions
 	//{{AFX_MSG(CItemExtended)
 	virtual BOOL OnInitDialog();
@@ -500,11 +520,16 @@ protected:
 // Overrides
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CItemExtra)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+  protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
 	// Generated message map functions
 	//{{AFX_MSG(CItemExtra)
 	virtual BOOL OnInitDialog();

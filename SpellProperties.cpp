@@ -312,7 +312,13 @@ BOOL CSpellGeneral::OnInitDialog()
     cb->AddString(tmpstr);
     num<<=1;
   }
- 
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -673,6 +679,12 @@ BOOL CSpellDescription::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
   RefreshDescription();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -877,6 +889,12 @@ BOOL CSpellEquip::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
   RefreshEquip();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -1251,6 +1269,12 @@ BOOL CSpellExtended::OnInitDialog()
     i++;
   }
   RefreshExtended();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -1717,6 +1741,13 @@ BOOL CSpellExtra::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();	
 	RefreshExtra();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+  UpdateData(UD_DISPLAY);
 	return TRUE;
 }
 
@@ -1784,6 +1815,13 @@ BOOL CSpellTool::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 	RefreshTool();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+  UpdateData(UD_DISPLAY);
 	return TRUE;
 }
 
@@ -2030,42 +2068,36 @@ END_MESSAGE_MAP()
 
 BOOL CSpellDescription::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+	m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 BOOL CSpellExtended::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+	m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 BOOL CSpellEquip::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+	m_tooltip.RelayEvent(pMsg);	
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 BOOL CSpellExtra::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+	m_tooltip.RelayEvent(pMsg);	
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 BOOL CSpellGeneral::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+	m_tooltip.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 BOOL CSpellTool::PreTranslateMessage(MSG* pMsg) 
 {
-	// TODO: Add your specialized code here and/or call the base class
-	
+	m_tooltip.RelayEvent(pMsg);	
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }

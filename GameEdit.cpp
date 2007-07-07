@@ -203,7 +203,7 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
     }
   }
 
-  if(the_game.revision==20 || the_game.revision==10)
+  if(the_game.revision==20 || the_game.revision==10 || the_game.revision==22)
   {
     for(i=0;familiarids[i];i++)
     {
@@ -325,7 +325,7 @@ void CGameEdit::RefreshDialog()
   }
   m_journalpicker.SetCurSel(pos);
 
-  if(the_game.revision==20)
+  if(the_game.revision==20 || the_game.revision==10 || the_game.revision==22)
   {
     pos=m_familiarpicker.GetCurSel();
     if(pos<0) pos=0;

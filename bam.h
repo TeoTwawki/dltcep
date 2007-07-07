@@ -43,6 +43,10 @@
 
 #include "mos.h"
 
+#define EBD_ALL   0
+#define EBD_HEAD  1
+#define EBD_FIRST 2
+
 #define MAX_ICON_WIDTH		640
 #define MAX_ICON_HEIGHT		480
 
@@ -149,7 +153,7 @@ public:
 	Cbam();
 	virtual ~Cbam();
   void new_bam();
-  int ExplodeBamData(bool onlyheader);
+  int ExplodeBamData(int flags);
   int ImplodeBamData();
   bool CanCompress();
   int WriteBmpToFile(int fhandle, int frame);
@@ -158,6 +162,7 @@ public:
   int ReadBmpFromFile(int fhandle, int ml);
   int ReadPltFromFile(int fhandle, int ml);
   int ReadBamFromFile(int fhandle, int maxlen, bool onlyheader);
+  int ReadBamPreviewFromFile(int fhandle, int maxlen);
   int GetTextExtent(CString text); //returns the string width in pixels using this font bam
   void DrawText(CString text, COLORREF clrTrans, Cmos &host,
     int nMode, int nXpos, int nYPos, int nWidth);

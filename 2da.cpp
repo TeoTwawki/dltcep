@@ -2801,20 +2801,25 @@ int C2da::Write2DAToFile(int fhandle)
   CString format;
   int i,j;
   int width;
-  int namelen;
-
-  namelen=10;
+  //int namelen;
+  int *collen;
+  
+  collen = (int *) malloc(cols * sizeof(int) ); 
+  for (i=0;i<cols;i++)
+  {
+    collen[i]=10;
+  }
   pos=data->GetHeadPosition();
   while(pos)
   {
     tmppoi=(CString *) data->GetNext(pos);
-    if(namelen<tmppoi[0].GetLength() )
+    for (i = 0;i<cols; i++)
     {
-      namelen=tmppoi[0].GetLength();
-      if(namelen>30)
+      int len = tmppoi[i].GetLength();
+      if (len>30) len=30;
+      if(collen[i]<tmppoi[i].GetLength() )
       {
-        namelen=30;
-        break;
+        collen[i]=tmppoi[i].GetLength();
       }
     }
   }
@@ -2822,15 +2827,15 @@ int C2da::Write2DAToFile(int fhandle)
   if(!fpoi)
   {
     close(fhandle);
+    free(collen);
     return -1;
   }
   tmpstr.Format("%s\r\n%s\r\n",header,defvalue);
   WriteString(fpoi,tmpstr);
-  tmpstr.Format("%-*s ",namelen,collabels[0]);
-  WriteString(fpoi,tmpstr);
-  for(i=1;i<cols;i++)
+  
+  for(i=0;i<cols;i++)
   {
-    tmpstr.Format("%-10s ",collabels[i]);
+    tmpstr.Format("%-*s ",collen[i],collabels[i]);
     WriteString(fpoi,tmpstr);
   }
   WriteString(fpoi,"\r\n");
@@ -2841,13 +2846,7 @@ int C2da::Write2DAToFile(int fhandle)
     tmppoi=(CString *) data->GetNext(pos);
     for(j=0;j<cols;j++)
     {
-      width=collabels[j].GetLength();
-      
-      if(j)
-      {
-        if(width<10) width=10;
-      }
-      else width=namelen;
+      width=collen[j];      
       format.Format("%%-%ds ",width);
       tmpstr.Format(format,tmppoi[j]);
       WriteString(fpoi,tmpstr);
@@ -2855,6 +2854,7 @@ int C2da::Write2DAToFile(int fhandle)
     WriteString(fpoi,"\r\n");
   }
   fclose(fpoi);
+  free(collen);
   return 0;
 }
 

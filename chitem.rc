@@ -18,6 +18,55 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
+// Hungarian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HUN)
+#ifdef _WIN32
+LANGUAGE LANG_HUNGARIAN, SUBLANG_DEFAULT
+#pragma code_page(1250)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ANIMDIALOG DIALOG DISCARDABLE  0, 0, 420, 249
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Pick animation"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_ICONRES,"SysListView32",LVS_SINGLESEL | 
+                    LVS_SORTASCENDING | LVS_OWNERDATA | WS_BORDER | 
+                    WS_TABSTOP,7,7,406,215
+    EDITTEXT        IDC_FILTER,62,226,60,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    LTEXT           "Resource filter:",IDC_STATIC,7,228,48,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ANIMDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 413
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 242
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Hungarian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
 // English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
@@ -605,6 +654,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,196,60,14
     PUSHBUTTON      "Cancel",IDCANCEL,88,196,65,14
     PUSHBUTTON      "Play sound",IDC_PLAY,103,181,50,14,NOT WS_VISIBLE
+    PUSHBUTTON      "Large list",IDC_ANIMLIST,7,182,60,14,NOT WS_VISIBLE
 END
 
 IDD_EXTRACT DIALOG DISCARDABLE  0, 0, 184, 98

@@ -1060,6 +1060,7 @@ int read_bmp(CString key,HBITMAP &hb);
 int read_bmp(CString key, Cbam *cb, int lazy=0); //cb can't be NULL due to polymorphism
 int read_bmp(CString key, Cmos *cb, int lazy=0);
 int read_bam(CString key, Cbam *cb=NULL, int lazy=0);
+int read_bam_preview(CString key, Cbam *cb=NULL, int lazy=0);
 int write_bam(CString key, CString filepath, Cbam *cb);
 int write_bmp(CString key, CString filepath, Cbam *cb, int frame);
 int read_mos(CString key, Cmos *cb=NULL, int lazy=0);

@@ -20,6 +20,8 @@ public:
   HBITMAP m_hbmb;
 
 protected:
+  CToolTipCtrl m_tooltip;
+
 // Dialog Data
 	//{{AFX_DATA(CSpellGeneral)
 	enum { IDD = IDD_SPELLGENERAL };
@@ -33,8 +35,9 @@ protected:
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CSpellGeneral)
 	public:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+  protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -125,6 +128,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CSpellDescription)
@@ -178,6 +182,8 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
 	// Generated message map functions
 	//{{AFX_MSG(CSpellEquip)
 	afx_msg void OnKillfocusEquipnum();
@@ -236,6 +242,8 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void DoDataExchangeEffects(CDataExchange* pDX);
   void DoDataExchangeExtended(CDataExchange* pDX);
   void EnableWindow_ExtEffect(bool value);
@@ -294,6 +302,8 @@ protected:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
 	// Generated message map functions
 	//{{AFX_MSG(CSpellExtra)
 	virtual BOOL OnInitDialog();
@@ -338,6 +348,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CSpellTool)

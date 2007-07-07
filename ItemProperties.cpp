@@ -239,6 +239,12 @@ BOOL CItemGeneral::OnInitDialog()
     tmpstr.Format("%2.2s-%s",&animidx[x],itemanimations[x]);
     m_animationpicker_control.AddString(tmpstr);
   }
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
 
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -353,6 +359,12 @@ void CItemGeneral::OnV20()
 {
   the_item.revision=REV_IWD2;
   RefreshGeneral();
+}
+
+BOOL CItemGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -538,6 +550,12 @@ BOOL CItemIcons::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 	RefreshIcons();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -1049,6 +1067,12 @@ void CItemIcons::OnBrowse()
 	UpdateData(UD_DISPLAY);	
 }
 
+BOOL CItemIcons::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CItemDescription property page
 
@@ -1099,6 +1123,12 @@ BOOL CItemDescription::OnInitDialog()
 {
   RefreshDescription();
 	CPropertyPage::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -1337,6 +1367,12 @@ void CItemDescription::OnNew4()
 	the_item.header.iddesc=-1;
  	RefreshDescription();
   UpdateData(UD_DISPLAY);
+}
+
+BOOL CItemDescription::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1947,6 +1983,12 @@ BOOL CItemEquip::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
   RefreshEquip();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -2079,6 +2121,12 @@ void CItemEquip::OnEquippaste()
   UpdateData(UD_DISPLAY);
 }
 
+BOOL CItemEquip::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CItemExtended property page
 
@@ -2181,7 +2229,7 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     {
   	  DDX_Text(pDX, IDC_TOOLTIPREF, m_tooltipref.data[extheadnum]);
 	    DDV_MinMaxLong(pDX, m_tooltipref.data[extheadnum], -1, 1000000);
-    	DDX_Text(pDX, IDC_TOOLTIPTEXT, m_tooltip[extheadnum]);
+    	DDX_Text(pDX, IDC_TOOLTIPTEXT, m_tooltipstring[extheadnum]);
     }
     tmp=the_item.extheaders[extheadnum].missile[0];
   	DDX_Check(pDX, IDC_BOW, tmp);    
@@ -2259,7 +2307,7 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     if(extheadnum<3)
     {
   	  DDX_Text(pDX, IDC_TOOLTIPREF, m_tooltipref.data[extheadnum]);
-    	DDX_Text(pDX, IDC_TOOLTIPTEXT, m_tooltip[extheadnum]);
+    	DDX_Text(pDX, IDC_TOOLTIPTEXT, m_tooltipstring[extheadnum]);
     }
   	DDX_Check(pDX, IDC_BOW, tmp);
     the_item.extheaders[extheadnum].missile[0]=(unsigned short) tmp;
@@ -2379,7 +2427,7 @@ void CItemExtended::RefreshExtended()
   if(extheadnum<0) return;
   if(extheadnum<=2)
   {
-    m_tooltip[extheadnum]=resolve_tlk_text(m_tooltipref.data[extheadnum]);
+    m_tooltipstring[extheadnum]=resolve_tlk_text(m_tooltipref.data[extheadnum]);
   }
   if(IsWindow(m_exteffnum_control) )
   {
@@ -2459,6 +2507,12 @@ BOOL CItemExtended::OnInitDialog()
     i++;
   }
   RefreshExtended();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -2710,7 +2764,7 @@ void CItemExtended::OnKillfocusTooltiptext()
   if(itemname!="new item")
   {
     tmpstr=resolve_tlk_text(m_tooltipref.data[extheadnum]);
-    if(tmpstr!=m_tooltip[extheadnum])
+    if(tmpstr!=m_tooltipstring[extheadnum])
     {
       if(editflg&TLKCHANGE) 
       {
@@ -2719,7 +2773,7 @@ void CItemExtended::OnKillfocusTooltiptext()
           return;
         }
       }
-      m_tooltipref.data[extheadnum]=store_tlk_text(m_tooltipref.data[extheadnum],m_tooltip[extheadnum]);
+      m_tooltipref.data[extheadnum]=store_tlk_text(m_tooltipref.data[extheadnum],m_tooltipstring[extheadnum]);
       tooltipnumbers.SetAt(itemname,m_tooltipref);
       Write2daArrayToFile("TOOLTIP", tooltipnumbers, tooltipcolumnnames, 3);
     }
@@ -3137,6 +3191,12 @@ void CItemExtended::OnEdit()
   UpdateData(UD_DISPLAY);
 }
 
+BOOL CItemExtended::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CItemExtra property page
 CItemExtra::CItemExtra() : CPropertyPage(CItemExtra::IDD)
@@ -3176,8 +3236,20 @@ END_MESSAGE_MAP()
 BOOL CItemExtra::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
   UpdateData(UD_DISPLAY);	
 	return TRUE;
+}
+
+BOOL CItemExtra::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////

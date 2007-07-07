@@ -709,7 +709,7 @@ int Cbam::ImplodeBamData()
   return 0;
 }
 
-int Cbam::ExplodeBamData(bool onlyheader)
+int Cbam::ExplodeBamData(int flags)
 {
   BYTE *tmppoi;
   int nFrame, nCycle;
@@ -732,7 +732,7 @@ int Cbam::ExplodeBamData(bool onlyheader)
     return -4;
   }
   memcpy(&m_header,m_pData,sizeof(INF_BAM_HEADER) ); //get header
-  if(onlyheader) return 0;
+  if(flags==EBD_HEAD) return 0;
   if(m_header.dwPaletteOffset)                       //get palette
   {
     memcpy(m_palette,m_pData+(m_header.dwPaletteOffset),256*sizeof(COLORREF) );
@@ -785,7 +785,7 @@ int Cbam::ExplodeBamData(bool onlyheader)
 		  bIsCompressed = true;
     ret=m_pFrameData[nFrame].TakeBamData(m_pData+nOffset, m_pFrames[nFrame].wWidth, m_pFrames[nFrame].wHeight, m_header.chTransparentIndex, bIsCompressed, (int) (m_nDataSize-nOffset) );
 #ifdef _DEBUG
-    if(ret==-1)
+    if(ret==-1 && (flags!=EBD_HEAD) )
     {
       CString tmpstr;
       tmpstr.Format("Invalid frame: %d\n",nFrame);
@@ -793,6 +793,7 @@ int Cbam::ExplodeBamData(bool onlyheader)
     }
 #endif
     if(ret<gret) gret=ret;
+    if (flags==EBD_FIRST) return ret;
   }
   order[3]=(m_nMinFrameOffset<<2)|3;
   qsort(order,4,sizeof(int),longsort);
@@ -1372,7 +1373,94 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
   }
 
 endofquest:
-  ret=ExplodeBamData(onlyheader);
+  ret=ExplodeBamData(onlyheader?EBD_HEAD:EBD_ALL);
+  KillData();
+  return ret;
+}
+
+int Cbam::ReadBamPreviewFromFile(int fhandle, int ml)
+{
+  BYTE *pCData;
+  DWORD dwSize;
+  int ret;
+
+  if(ml<0) ml=filelength(fhandle);
+
+  if(ml<sizeof(INF_BAM_HEADER)) return -2; //file is bad
+  if(!(editflg&CHECKSIZE) && ml>10000000) return -2;
+
+  //we assume it is a compressed header (compressed headers are shorter)
+  if(read(fhandle,&c_header,sizeof(INF_BAMC_HEADER) )!=sizeof(INF_BAMC_HEADER) )
+  {
+    return -2;
+  }
+  m_bCompressed=true;
+  m_palettesize=256;
+  //not a compressed header, we read the raw data and compress the bam if needed (on save, if compressed=true)
+  if(c_header.chSignature[3]!='C')
+  {
+  	// If this is an uncompressed bam we can just attach the buffer to the
+	  // bam file object and be done with it.
+    m_bCompressed=false;
+    m_nDataSize=ml;
+  	m_pData = new BYTE[m_nDataSize];
+	  if (!m_pData)
+		  return -3;
+
+    dwSize=m_nDataSize-sizeof(c_header);
+    memcpy(m_pData,&c_header, sizeof(c_header) ); //move the pre-read part to the header
+	  if(read(fhandle,m_pData+sizeof(c_header),dwSize)!=(int) dwSize)
+    {
+      KillData();
+      return -2;
+    }
+
+    memcpy(&c_header,"BAMCV1  ",8);
+    c_header.nExpandSize=m_nDataSize;
+    goto endofquest;
+  }
+
+  ml-=sizeof(INF_BAMC_HEADER);
+	pCData = new BYTE[ml];  
+
+	if (!pCData)
+	{
+		return -3;
+	}
+  if(read(fhandle, pCData, ml) !=ml)
+  {
+    delete [] pCData;
+    return -2;//cannot read compressed data
+  }
+
+  if(!(editflg&CHECKSIZE) && c_header.nExpandSize>10000000) //don't handle bams larger than 10M
+  {
+    delete [] pCData;
+    return -4; //illegal data
+  }
+
+  m_nDataSize=c_header.nExpandSize;
+ 	m_pData = new BYTE[m_nDataSize];
+  if (!m_pData)
+    return -3;
+
+  dwSize=c_header.nExpandSize;
+	ret=uncompress(m_pData,&c_header.nExpandSize,pCData,ml);
+  delete [] pCData;
+  if(ret != Z_OK)
+	{
+    KillData();
+		return -4; //uncompress failed
+	}
+
+  if(dwSize!=c_header.nExpandSize)
+  {
+    KillData();
+    return -4; //pre-saved uncompressed length isn't the same, why ?
+  }
+
+endofquest:
+  ret=ExplodeBamData(EBD_FIRST);
   KillData();
   return ret;
 }

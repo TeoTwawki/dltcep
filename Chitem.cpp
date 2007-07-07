@@ -5116,6 +5116,34 @@ endofquest:
   return ret;
 }
 
+int read_bam_preview(CString key, Cbam *cb, int lazy)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(!cb) cb=&the_bam;
+  if(lazy && key+".bam"==cb->m_name) return 0;
+  if(icons.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    icons.SetAt(key,fileloc);
+    ret=cb->ReadBamPreviewFromFile(fhandle, fileloc.size);
+    close(fhandle);
+  }
+  else ret=-2;
+endofquest:
+  //since this is a preview, it is incomplete
+  cb->m_name.Empty();
+  return ret;
+}
+
 int read_bmp(CString key,HBITMAP &hb)
 {
   loc_entry fileloc;

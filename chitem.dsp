@@ -105,6 +105,10 @@ SOURCE=.\acm2snd.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\AnimDialog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\area.cpp
 # End Source File
 # Begin Source File
@@ -503,6 +507,10 @@ SOURCE=.\2DAEdit.h
 # Begin Source File
 
 SOURCE=.\acmsound.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AnimDialog.h
 # End Source File
 # Begin Source File
 

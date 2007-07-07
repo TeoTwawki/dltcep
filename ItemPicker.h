@@ -25,6 +25,10 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CItemPicker)
 	enum { IDD = IDD_ITEMPICKER };
+	CButton	m_play_control;
+	CButton	m_preview_control;
+	CButton	m_resolve_control;
+	CButton	m_animlist_control;
 	CListBox	m_pick_control;
 	CString	m_text;
 	//}}AFX_DATA
@@ -35,6 +39,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CItemPicker)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual void PostNcDestroy();
@@ -42,6 +48,7 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
   CImageView m_preview;
   Ccreature my_creature;
   Citem my_item;
@@ -66,6 +73,7 @@ protected:
 	afx_msg void OnPreview();
 	afx_msg void OnSelchangePick();
 	afx_msg void OnPlay();
+	afx_msg void OnAnimlist();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
