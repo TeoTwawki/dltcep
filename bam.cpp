@@ -2326,6 +2326,18 @@ void Cbam::OrderPalette()
       break;
     }
   }
+  if (editflg&KEEPSHADOW)
+  {
+    for(i=0;i<m_palettesize/4;i++)
+    {
+      pClr=(BYTE *) (m_palette+i);
+      if(*(pClr+3)==1)
+      {
+        SwapPalette(m_palette,i,1);
+        break;
+      }
+    }
+  }
   ReorderPixels();
   m_header.chTransparentIndex=0;
 }

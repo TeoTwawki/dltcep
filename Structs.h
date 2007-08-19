@@ -1036,7 +1036,7 @@ typedef struct
   long strrefs[64];
   unsigned char script1[8]; //team script
   unsigned char script2[8]; //special script1
-  long unknown1bc;
+  long dr;                  //damage resistance
   long feat[6];
   unsigned char skills[IWD2_SKILL_COUNT];
   unsigned char cr;

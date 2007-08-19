@@ -73,7 +73,20 @@ void IcewindCre::DefaultKillfocus()
 BOOL IcewindCre::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
+  }	
   UpdateData(UD_DISPLAY);
 	return TRUE; 
+}
+
+BOOL IcewindCre::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

@@ -30,12 +30,16 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(IWD2Creature)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+
   void ResetSkills();
   void ResetFeats();
 	// Generated message map functions
@@ -48,6 +52,8 @@ protected:
 	afx_msg void OnKillfocusFeature();
 	afx_msg void OnSelchangeFeature();
 	afx_msg void OnValue();
+	afx_msg void OnKillfocusDamage();
+	afx_msg void OnSelchangeDamage();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

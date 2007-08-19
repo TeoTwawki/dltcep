@@ -33,6 +33,7 @@ static int EditDialogRefs[]=
   IDC_WEIDUSTR, IDC_IDUSTR, IDC_PREVIEW, IDC_OCTREE, IDC_DITHER, //32768-0x80000
   IDC_W98,IDC_WEIDU, IDC_ZIP, IDC_WINDOWPICKER, IDC_CENTER, IDC_OVERRIDE,//0x100000-0x2000000
   IDC_SIZECHECK, IDC_CD,IDC_INTDECOMP,IDC_INTCOMP, IDC_FORCENEW,      //0x4000000-0x40000000
+  IDC_SHADOW, //0x8000000  
 0};
 
 /////////////////////////////////////////////////////////////////////////////
@@ -382,6 +383,7 @@ BEGIN_MESSAGE_MAP(CEditOpt, CDialog)
 	ON_BN_CLICKED(IDC_INTDECOMP, OnIntdecomp)
 	ON_BN_CLICKED(IDC_INTCOMP, OnIntcomp)
 	ON_BN_CLICKED(IDC_FORCENEW, OnForcenew)
+	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -553,6 +555,11 @@ void CEditOpt::OnIntcomp()
 void CEditOpt::OnForcenew() 
 {
   editflg^=FORCENEW;
+}
+
+void CEditOpt::OnShadow() 
+{
+  editflg^=KEEPSHADOW;
 }
 
 BOOL CEditOpt::PreTranslateMessage(MSG* pMsg) 

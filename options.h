@@ -78,7 +78,7 @@
 #define INTERNALDECOMP   0x10000000//use internal decompiler
 #define INTERNALCOMPILER 0x20000000//use internal compiler
 #define FORCENEW         0x40000000//force new strrefs
-
+#define KEEPSHADOW       0x80000000//keep shadow palette entry in place
 /////////////////////////////////////////////////////////////////////////////
 // Coptions dialog
 
@@ -216,6 +216,7 @@ protected:
 	afx_msg void OnIntdecomp();
 	afx_msg void OnIntcomp();
 	afx_msg void OnForcenew();
+	afx_msg void OnShadow();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

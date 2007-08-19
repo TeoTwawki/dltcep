@@ -998,7 +998,11 @@ void CProjExt::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CProjExt)
 		// NOTE: the ClassWizard will add DDX and DDV calls here
 	//}}AFX_DATA_MAP
-  DDX_Text(pDX, IDC_ATTR, the_projectile.extension.aoe);
+
+  tmpstr.Format("0x%02x",the_projectile.extension.aoe);
+  DDX_Text(pDX, IDC_ATTR, tmpstr);
+  the_projectile.extension.aoe=(short) strtonum(tmpstr);
+
   DDX_Text(pDX, IDC_UNKNOWN2, the_projectile.extension.flags);
 
   tmpstr=convert_radius(the_projectile.extension.tradius);

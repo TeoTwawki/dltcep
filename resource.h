@@ -1612,6 +1612,7 @@
 #define IDC_SKILLPICKER                 2313
 #define IDC_ANIMLIST                    2319
 #define IDC_FILTER                      2320
+#define IDC_SHADOW                      2322
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1830,9 +1831,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        232
+#define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2321
+#define _APS_NEXT_CONTROL_VALUE         2326
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

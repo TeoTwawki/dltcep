@@ -14,6 +14,45 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // IWD2Creature dialog
 
+//these are the features with a number
+#define NUM_FEAT_CNT 26
+static int numbered_features[NUM_FEAT_CNT]={
+39,//bow
+53,//crossbow
+55,//sling
+38,//axe
+54,//mace
+40,//flail
+44,//polearm
+42,//hammer
+56,//staff
+41,//great sword
+43,//large sword
+57,//small sword
+69,//toughness
+4,//armour casting
+8,//cleave
+3,//armour
+60,//enchantment
+61,//evocation
+62,//necromancy
+63,//transmutation
+64,//spell penetration
+20,//extra rage
+21,//extra shape
+22,//extra smiting
+23,//extra turning
+18//bastardsword
+};
+
+int is_numbered_feature(int feature)
+{
+  for(int i=0;i<NUM_FEAT_CNT;i++)
+  {
+    if (feature==numbered_features[i]) return i;
+  }
+  return -1;
+}
 
 IWD2Creature::IWD2Creature(CWnd* pParent /*=NULL*/)
 	: CDialog(IWD2Creature::IDD, pParent)
@@ -29,6 +68,9 @@ IWD2Creature::IWD2Creature(CWnd* pParent /*=NULL*/)
 
 void IWD2Creature::DoDataExchange(CDataExchange* pDX)
 {
+  CString value2;
+  CComboBox *cob;
+  CEdit *edit;
   CString tmpstr;
   int value;
   int i;
@@ -42,6 +84,27 @@ void IWD2Creature::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_COUNT, m_count);
 	//}}AFX_DATA_MAP
 
+  int feat = m_feature.GetCurSel();
+  int nf = is_numbered_feature(feat);
+
+  edit = (CEdit *) GetDlgItem(IDC_VALUE2);
+  if (nf<0) value2="-";
+  else value2.Format("%d", the_creature.iwd2header.skills[nf]);
+  
+
+  cob = (CComboBox *) GetDlgItem(IDC_DAMAGE);
+  if(cob)
+  {
+    if (the_creature.iwd2header.dr>=0 && the_creature.iwd2header.dr<=5)
+    {
+      cob->SetCurSel(the_creature.iwd2header.dr);
+    }
+    else
+    {
+      tmpstr.Format("%d/%d", the_creature.iwd2header.dr*5,the_creature.iwd2header.dr);
+      cob->SetWindowText(tmpstr);
+    }
+  }
   RetrieveVariable(tmpstr, the_creature.iwd2header.scriptname, false);
 	DDX_Text(pDX, IDC_SCRIPTNAME, tmpstr);
 	DDV_MaxChars(pDX, tmpstr, 32);
@@ -103,6 +166,8 @@ BEGIN_MESSAGE_MAP(IWD2Creature, CDialog)
 	ON_EN_KILLFOCUS(IDC_SKILL, OnKillfocusSkill)
 	ON_CBN_KILLFOCUS(IDC_FEATURE, OnKillfocusFeature)
 	ON_CBN_SELCHANGE(IDC_FEATURE, OnSelchangeFeature)
+	ON_BN_CLICKED(IDC_VALUE, OnValue)
+	ON_CBN_KILLFOCUS(IDC_DAMAGE, OnKillfocusDamage)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U4, DefaultKillfocus)
@@ -117,7 +182,7 @@ BEGIN_MESSAGE_MAP(IWD2Creature, CDialog)
 	ON_EN_KILLFOCUS(IDC_U13, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U12, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SUBRACE, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_VALUE, OnValue)
+	ON_CBN_SELCHANGE(IDC_DAMAGE, OnSelchangeDamage)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -167,6 +232,15 @@ BOOL IWD2Creature::OnInitDialog()
   ResetSkills();
   ResetFeats();
 	OnSelchangeFeature();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
+  }
+  UpdateData(UD_DISPLAY);
 	return TRUE;
 }
 
@@ -252,4 +326,27 @@ void IWD2Creature::OnValue()
   }
   ResetFeats();
   UpdateData(UD_DISPLAY);
+}
+
+void IWD2Creature::OnKillfocusDamage() 
+{
+  CString tmpstr;
+  CComboBox *cob= (CComboBox *) GetDlgItem(IDC_DAMAGE);
+  
+  cob->GetWindowText(tmpstr);
+	the_creature.iwd2header.dr=atoi(tmpstr)/5;
+  UpdateData(UD_DISPLAY);
+}
+
+void IWD2Creature::OnSelchangeDamage() 
+{
+  CComboBox *cob= (CComboBox *) GetDlgItem(IDC_DAMAGE);
+	the_creature.iwd2header.dr=cob->GetCurSel();
+  UpdateData(UD_DISPLAY);
+}
+
+BOOL IWD2Creature::PreTranslateMessage(MSG* pMsg) 
+{
+	m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }
