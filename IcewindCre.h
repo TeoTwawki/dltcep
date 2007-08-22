@@ -39,6 +39,10 @@ protected:
 	//{{AFX_MSG(IcewindCre)
 	afx_msg void DefaultKillfocus();
 	virtual BOOL OnInitDialog();
+	afx_msg void OnFlag1();
+	afx_msg void OnFlag2();
+	afx_msg void OnFlag3();
+	afx_msg void OnFlag4();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

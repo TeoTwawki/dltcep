@@ -3028,6 +3028,7 @@ CString format_feat(int i, bool flag)
 }
 
 //this is iwd2, and hacked a bit. iwd2 is screwed up anyway
+/*
 CString weaponskills[64]={
 "Bow", "Crossbow","Sling","Axe","Mace","Flail","Polearm","Hammer",
 "Staff","Great sword","Large sword","Small sword","Toughness",
@@ -3035,19 +3036,19 @@ CString weaponskills[64]={
 "Necromancy","Transmutation","Spell penetration","Extra rage",
 "Extra shape","Extra smiting","Extra turning","Bastardsword"
 };
-
+*/
 CString format_skill(int i, int value)
 {
   CString tmp, tmpstr;
 
-  if (i>=64)
-  {
-    tmpstr = IDSToken("SKILLS", i-64, false);
-  }
-  else
-  {
-    tmpstr = weaponskills[i];
-  }
+//  if (i>=64)
+//  {
+    tmpstr = IDSToken("SKILLS", i, false);
+//  }
+//  else
+//  {
+//    tmpstr = weaponskills[i];
+//  }
   if (tmpstr.IsEmpty()) {
     tmpstr.Format("Unknown skill #%d",i);
   } else {

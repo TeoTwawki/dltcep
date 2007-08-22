@@ -23,6 +23,7 @@ public:
 	CComboBox	m_skillpicker;
 	int		m_skill;
 	CString	m_count;
+	CString	m_count2;
 	//}}AFX_DATA
   int m_curskill;
   int m_curfeat;
@@ -54,6 +55,11 @@ protected:
 	afx_msg void OnValue();
 	afx_msg void OnKillfocusDamage();
 	afx_msg void OnSelchangeDamage();
+	afx_msg void OnKillfocusValue2();
+	afx_msg void OnFlag1();
+	afx_msg void OnFlag2();
+	afx_msg void OnFlag3();
+	afx_msg void OnFlag4();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

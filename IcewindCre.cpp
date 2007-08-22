@@ -26,6 +26,7 @@ IcewindCre::IcewindCre(CWnd* pParent /*=NULL*/)
 void IcewindCre::DoDataExchange(CDataExchange* pDX)
 {
   CString tmpstr;
+  int value;
   int i;
 
 	CDialog::DoDataExchange(pDX);
@@ -42,6 +43,13 @@ void IcewindCre::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, tmpstr, 32);
   StoreVariable(tmpstr, the_creature.iwdheader.scriptname2, false);
 
+  for(i=0;i<4;i++)
+  {
+    value = the_creature.iwdheader.scriptflags[i];
+	  DDX_Check(pDX, IDC_FLAG1+i, value);
+    the_creature.iwdheader.scriptflags[i] = (char) value;
+  }
+
   for(i=0;i<5;i++)
   {
     DDX_Text(pDX, IDC_U1+i,the_creature.iwdheader.internals[i]);
@@ -52,12 +60,16 @@ void IcewindCre::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(IcewindCre, CDialog)
 	//{{AFX_MSG_MAP(IcewindCre)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U3, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U4, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U5, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -83,6 +95,26 @@ BOOL IcewindCre::OnInitDialog()
   }	
   UpdateData(UD_DISPLAY);
 	return TRUE; 
+}
+
+void IcewindCre::OnFlag1() 
+{
+  the_creature.iwdheader.scriptflags[0]=!the_creature.iwdheader.scriptflags[0];
+}
+
+void IcewindCre::OnFlag2() 
+{
+  the_creature.iwdheader.scriptflags[1]=!the_creature.iwdheader.scriptflags[1];
+}
+
+void IcewindCre::OnFlag3() 
+{
+  the_creature.iwdheader.scriptflags[2]=!the_creature.iwdheader.scriptflags[2];
+}
+
+void IcewindCre::OnFlag4() 
+{
+  the_creature.iwdheader.scriptflags[3]=!the_creature.iwdheader.scriptflags[3];
 }
 
 BOOL IcewindCre::PreTranslateMessage(MSG* pMsg) 

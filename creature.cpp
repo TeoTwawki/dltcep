@@ -132,7 +132,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   case 90:
     fullsize=sizeof(creature_iwd_header);
   	memcpy(header.filetype,"CRE V9.0",8);
-    memcpy(&iwdheader,&header,(char *) &iwdheader.unknown270-(char *) &iwdheader);
+    memcpy(&iwdheader,&header,(char *) &iwdheader.scriptflags-(char *) &iwdheader);
     memcpy(&iwdheader.idsea,&header.idsea,header.dialogresref-(char *) &header.idsea+8);
     break;
   }
@@ -698,7 +698,7 @@ redo:
       return -2;
     }
     revision=90;
-    memcpy(&header,&iwdheader,(char *) &iwdheader.unknown270-(char *) &iwdheader);
+    memcpy(&header,&iwdheader,(char *) &iwdheader.scriptflags-(char *) &iwdheader);
     memcpy(&header.idsea,&iwdheader.idsea,header.dialogresref-(char *) &header.idsea+8);
   }
   else if(!memcmp(header.revision,"V2.2",4) )

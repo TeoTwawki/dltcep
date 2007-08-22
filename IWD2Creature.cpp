@@ -60,6 +60,7 @@ IWD2Creature::IWD2Creature(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(IWD2Creature)
 	m_skill = 0;
 	m_count = _T("");
+	m_count2 = _T("");
 	//}}AFX_DATA_INIT
   m_curskill=-1;
   m_curfeat=-1;
@@ -82,16 +83,38 @@ void IWD2Creature::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_SKILL, m_skill);
 	DDV_MinMaxInt(pDX, m_skill, 0, 40);
 	DDX_Text(pDX, IDC_COUNT, m_count);
+	DDX_Text(pDX, IDC_COUNT2, m_count2);
 	//}}AFX_DATA_MAP
+
+  DDX_Text(pDX, IDC_UNKNOWN, the_creature.iwd2header.unknown264);
+
+  for(i=0;i<4;i++)
+  {
+    value = the_creature.iwd2header.scriptflags[i];
+	  DDX_Check(pDX, IDC_FLAG1+i, value);
+    the_creature.iwd2header.scriptflags[i] = (char) value;
+  }
 
   int feat = m_feature.GetCurSel();
   int nf = is_numbered_feature(feat);
 
   edit = (CEdit *) GetDlgItem(IDC_VALUE2);
-  if (nf<0) value2="-";
-  else value2.Format("%d", the_creature.iwd2header.skills[nf]);
+  if (nf<0)
+  {
+    value2="-";
+    edit->EnableWindow(false);
+  }
+  else
+  {
+    value2.Format("%d", the_creature.iwd2header.feats[nf]);
+    edit->EnableWindow(true);
+  }
+  DDX_Text(pDX, IDC_VALUE2, value2);
+  if (nf>=0)
+  {
+    the_creature.iwd2header.feats[nf]=(unsigned char) atoi(value2);
+  }
   
-
   cob = (CComboBox *) GetDlgItem(IDC_DAMAGE);
   if(cob)
   {
@@ -168,6 +191,12 @@ BEGIN_MESSAGE_MAP(IWD2Creature, CDialog)
 	ON_CBN_SELCHANGE(IDC_FEATURE, OnSelchangeFeature)
 	ON_BN_CLICKED(IDC_VALUE, OnValue)
 	ON_CBN_KILLFOCUS(IDC_DAMAGE, OnKillfocusDamage)
+	ON_CBN_SELCHANGE(IDC_DAMAGE, OnSelchangeDamage)
+	ON_EN_KILLFOCUS(IDC_VALUE2, OnKillfocusValue2)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U4, DefaultKillfocus)
@@ -182,7 +211,7 @@ BEGIN_MESSAGE_MAP(IWD2Creature, CDialog)
 	ON_EN_KILLFOCUS(IDC_U13, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U12, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SUBRACE, DefaultKillfocus)
-	ON_CBN_SELCHANGE(IDC_DAMAGE, OnSelchangeDamage)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -198,10 +227,13 @@ void IWD2Creature::DefaultKillfocus()
 void IWD2Creature::ResetSkills()
 {
   m_skillpicker.ResetContent();
+  int cnt = 0;
   for(int i=0;i<IWD2_SKILL_COUNT;i++)
   {
     m_skillpicker.AddString(format_skill(i, the_creature.iwd2header.skills[i]));
+    cnt+=the_creature.iwd2header.skills[i];
   }
+  m_count2.Format("%d points", cnt);
   m_skillpicker.SetCurSel(m_curskill);
 }
 
@@ -219,8 +251,24 @@ void IWD2Creature::ResetFeats()
       cnt++;
     }
     m_feature.AddString(format_feat(i, feat) );
+    int value2 = is_numbered_feature(i);
+    if (value2>=0)
+    {
+      if (!the_creature.iwd2header.feats[value2])
+      {
+        the_creature.iwd2header.feats[value2]=1;
+      }
+      if (feat)
+      {
+        cnt+=the_creature.iwd2header.feats[value2]-1;
+      }
+      else
+      {
+        the_creature.iwd2header.feats[value2]=0;
+      }
+    }
   }
-  m_count.Format("%d set", cnt);
+  m_count.Format("%d points", cnt);
   m_feature.SetCurSel(m_curfeat);
 }
 
@@ -265,7 +313,7 @@ void IWD2Creature::OnKillfocusSkill()
   UpdateData(UD_RETRIEVE);
   m_curskill=m_skillpicker.GetCurSel();
   ResetSkills();
-  ResetFeats();
+
   UpdateData(UD_DISPLAY);
 }
 
@@ -343,6 +391,46 @@ void IWD2Creature::OnSelchangeDamage()
   CComboBox *cob= (CComboBox *) GetDlgItem(IDC_DAMAGE);
 	the_creature.iwd2header.dr=cob->GetCurSel();
   UpdateData(UD_DISPLAY);
+}
+
+void IWD2Creature::OnKillfocusValue2() 
+{
+  CString tmpstr;
+
+  CEdit *edit = (CEdit *) GetDlgItem(IDC_VALUE2);
+  CButton *cb = (CButton *) GetDlgItem(IDC_VALUE);
+  UpdateData(UD_RETRIEVE);
+  edit->GetWindowText(tmpstr);
+  int value2 = atoi(tmpstr);
+  if (value2)
+  {
+    cb->SetCheck(true);
+  }
+  else
+  {
+    cb->SetCheck(false);
+  }
+	OnValue();
+}
+
+void IWD2Creature::OnFlag1() 
+{
+	the_creature.iwd2header.scriptflags[0]=!the_creature.iwd2header.scriptflags[0];
+}
+
+void IWD2Creature::OnFlag2() 
+{
+	the_creature.iwd2header.scriptflags[1]=!the_creature.iwd2header.scriptflags[1];
+}
+
+void IWD2Creature::OnFlag3() 
+{
+	the_creature.iwd2header.scriptflags[2]=!the_creature.iwd2header.scriptflags[2];
+}
+
+void IWD2Creature::OnFlag4() 
+{
+	the_creature.iwd2header.scriptflags[3]=!the_creature.iwd2header.scriptflags[3];
 }
 
 BOOL IWD2Creature::PreTranslateMessage(MSG* pMsg) 

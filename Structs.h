@@ -17,7 +17,8 @@
 #define IWD2_SLOT_COUNT  50
 #define SND_SLOT_COUNT 100
 #define SND_SLOT_IWD2 64
-#define IWD2_SKILL_COUNT 130
+#define IWD2_NUM_FEAT 64
+#define IWD2_SKILL_COUNT 66
 
 #define BG2_SPSLOTNUM 3
 #define IWD2_SPSLOTNUM 7
@@ -696,7 +697,7 @@ typedef struct
   unsigned char fatigue;
   unsigned char intox;
   char luck;
-  unsigned char unused[21];
+  unsigned char unused[21];       //old weapon proficiencies
   unsigned char tracking;
   unsigned long unused2[8];
   long strrefs[SND_SLOT_COUNT];
@@ -950,7 +951,8 @@ typedef struct
   unsigned char unknown243;
   long kit;
   char scripts[5][8];
-  long unknown270;
+  char scriptflags[4];  //3. flag is kill var count
+  //long unknown270;
   short internals[5];
   char scriptname[32];
   char scriptname2[32];
@@ -1038,6 +1040,7 @@ typedef struct
   unsigned char script2[8]; //special script1
   long dr;                  //damage resistance
   long feat[6];
+  unsigned char feats[64];
   unsigned char skills[IWD2_SKILL_COUNT];
   unsigned char cr;
   unsigned char enemy[8];
@@ -1056,7 +1059,7 @@ typedef struct
   unsigned char unknown26f;
   long kit;
   char scripts[5][8];
-  long unknown29c;
+  char scriptflags[4];  //3. flag is kill var count
   short internals[5];
   char scriptname[32];
   char scriptname2[32];
