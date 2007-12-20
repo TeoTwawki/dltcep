@@ -26,7 +26,7 @@ static char THIS_FILE[] = __FILE__;
 UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
 //globally used constants
-unsigned char xorblock[64]={
+const unsigned char xorblock[64]={
   0x88,0xA8,0x8F,0xBA,0x8A,0xD3,0xB9,0xF5,0xED,0xB1,0xCF,0xEA,0xAA,
     0xE4,0xB5,0xFB,0xEB,0x82,0xF9,0x90,0xCA,0xC9,0xB5,0xE7,0xDC,0x8E,
     0xB7,0xAC,0xEE,0xF7,0xE0,0xCA,0x8E,0xEA,0xCA,0x80,0xCE,0xC5,0xAD,
@@ -34,17 +34,20 @@ unsigned char xorblock[64]={
     0xA5,0x95,0xBA,0x99,0x87,0xD2,0x9D,0xE3,0x91,0xBA,0x90,0xCA,
 };
 
-unsigned short objrefs[NUM_OBJTYPE+1]={
+const unsigned short objrefs[NUM_OBJTYPE+1]={
   0,REF_2DA,REF_ACM,REF_ARE,REF_BAM,REF_BCS,REF_BMP,REF_CHU,REF_CRE,REF_DLG,//10
     REF_EFF,REF_GAM,REF_IDS,REF_INI,REF_ITM,REF_MOS,REF_MUS,REF_MVE,REF_PLT,//19
     REF_PRO,REF_SPL,REF_SRC,REF_STO,REF_TIS,REF_VEF,REF_VVC,REF_WAV,REF_WED,//28
     REF_WFX,REF_WMP,//30
 };
 
-CString objexts[NUM_OBJTYPE+1]={
+const CString objexts[NUM_OBJTYPE+1]={
   ".*",".2da",".acm",".are",".bam",".bcs",".bmp",".chu",".cre",".dlg",//10
     ".eff",".gam",".ids",".ini",".itm",".mos",".mus",".mve",".plt",".pro",//20
     ".spl",".src",".sto",".tis",".vef",".vvc",".wav",".wed",".wfx",".wmp",//30
+};
+
+const CString savedexts[]={".are",".sto",".tot",".toh","",
 };
 
 char tbgext[NUM_OBJTYPE+1]={
@@ -138,6 +141,7 @@ unsigned long chkflg;
 unsigned long editflg;
 unsigned long optflg;
 unsigned long weiduflg;
+COLORREF color1, color2, color3;
 
 /// game objects
 CString itemname;
@@ -302,6 +306,25 @@ CStringMapGameProps allgameprops;
 /////////////////////////////////////////////////////////////////////////////
 // CChitemApp initialization
 
+COLORREF CChitemApp::ParseColor(CString tmp)
+{
+  COLORREF ret;
+  int cc; //color count
+  CString *colors;
+  
+  colors=explode(tmp,',',cc);
+  if (cc!=3)
+  {
+    ret = 0;
+  }
+  else
+  {
+    ret = RGB(atoi(colors[0]), atoi(colors[1]), atoi(colors[2]) );
+  }
+  delete [] colors;
+  return ret;
+}
+
 void CChitemApp::read_game_preferences()
 {
   gameprops gp;
@@ -376,6 +399,13 @@ void CChitemApp::save_settings()
     "WeiDU Extra=%s\n"  //8
     "WeiDU Outpath=%s\n", //9
     chkflg,editflg, optflg,bgfolder,descpath,weiduflg,weidupath,weiduextra, weidudecompiled); //1-9
+  fprintf(fpoi,
+    "Color1=%d,%d,%d\n"
+    "Color2=%d,%d,%d\n"
+    "Color3=%d,%d,%d\n",
+    (BYTE)color1,(BYTE)(color1>>8),(BYTE)(color1>>16),
+    (BYTE)color2,(BYTE)(color2>>8),(BYTE)(color2>>16),
+    (BYTE)color3,(BYTE)(color3>>8),(BYTE)(color3>>16) );
   pos=allgameprops.GetStartPosition();
   fprintf(fpoi,"Games=");
   while(pos)
@@ -473,6 +503,14 @@ BOOL CChitemApp::InitInstance()
   inifile[MAX_PATH-1]=0;
   weidudecompiled=inifile;
   if(weidudecompiled.IsEmpty()) weidudecompiled=DECOMPILED;
+
+  GetPrivateProfileString("settings","color1","0,255,0",inifile,MAX_PATH,m_pszProfileName);
+  color1=ParseColor(inifile);
+  GetPrivateProfileString("settings","color2","255,0,0",inifile,MAX_PATH,m_pszProfileName);
+  color2=ParseColor(inifile);
+  GetPrivateProfileString("settings","color3","0,0,255",inifile,MAX_PATH,m_pszProfileName);
+  color3=ParseColor(inifile);
+
   LoadStdProfileSettings( );  //recent files  
 
 //  SetDialogBkColor(RGB(180,192,192),RGB(32,32,32) ); //sets the background/text color of the forms
@@ -1452,7 +1490,7 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
       entryinfo.res_loc=tileinfo.res_loc;
       entryinfo.restype=tileinfo.restype;
       if(tileinfo.restype!=REF_TIS) return -1;       //only tilesets
-      if(!(editflg&RESLOC) ) //don't be so pickish in case of weidu
+      if(!(editflg&RESLOC) ) //don't be so picky in case of weidu
       {
         if((entryinfo.res_loc&TIS_IDX_MASK)!=index<<14)
         {
@@ -1478,7 +1516,7 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
         return -1;
       }
       if(entryinfo.restype==REF_TIS) return -1;       //no tilesets!
-      if(!(editflg&RESLOC) ) //don't be so pickish in case of weidu
+      if(!(editflg&RESLOC) ) //don't be so picky in case of weidu
       {
         if((entryinfo.res_loc&FILE_IDX_MASK)!=fileloc.index)
         {
@@ -2222,6 +2260,33 @@ CString format_animtype(int animtype)
   return tmpstr;
 }
 
+CString spellnames[]={"SPPR","SPWI","SPIN","SPCL"};
+
+CString format_spell_id(int id)
+{
+  CString tmpstr;
+
+  if(id<1000 || id>5000) return "????";
+  tmpstr.Format("%s%03d", spellnames[(id-1000)/1000],id%1000);
+  return tmpstr;
+}
+
+int get_spell_id(CString spellname)
+{
+  CString tmpstr;
+
+  if (spellname.GetLength()!=7) return 0;
+  tmpstr=spellname.Left(4);
+  for(int i=0;i<4;i++) {
+    if (tmpstr.CompareNoCase(spellnames[i])) continue;
+    tmpstr=spellname.Mid(3);
+    int j = atoi(tmpstr);
+    if (j<=0 || j>=1000) return 0;
+    return ((i+1)*1000)+j;
+  }
+  return 0;
+}
+
 CString convert_degree(int value)
 {
   CString tmpstr;
@@ -2497,12 +2562,16 @@ static int opcode_opcodes_tob[]={101,198,-1};
 static int opcode_opcodes_iwd[]={101,198,261,276,-1};
 static int state_opcodes_tob[]={-1};
 static int state_opcodes_iwd[]={288,-1};
+static int projectile_opcodes[]={83,197,430,-1};
 
 int feature_resource(int feature)
 {
   switch(feature)
   {
-  case 67: case 135: case 151: case 410: case 411:
+  
+  case 67: case 135: case 151:
+  case 259: //HoW
+  case 410: case 411: //IWD2
     return REF_CRE;
   case 82:
     return REF_BCS;
@@ -2553,12 +2622,21 @@ int *get_strref_opcodes()
   return strref_opcodes_tob;
 }
 
-CString get_state_text(int state)
+CString get_extstate_text(int state)
 {
   CString tmp, tmpstr;
+  int par;
 
-  get_idsfile("SPLSTATE",false);
-  tmp=IDSToken("SPLSTATE",state, false);
+  if (iwd2_structures()) {
+    par=state;
+    get_idsfile("SPLSTATE",false);
+    tmp=IDSToken("SPLSTATE",par, false);
+  } else {
+    par=1<<(state+18);
+    get_idsfile("EXTSTATE",false);
+    tmp=IDSToken("EXTSTATE",par, false);
+  }
+
   if(tmp.GetLength()) tmpstr.Format("%d %s",state,tmp);
   else tmpstr.Format("%d Unknown",state);
   return tmpstr;
@@ -2608,16 +2686,22 @@ CString get_opcode_desc(int opcode, int par2)
   if(member_array(opcode,opcodelist)!=-1)
   {
     tmp=get_opcode_text(par2);
+    goto got_text;
   }
-  else
+  opcodelist=get_state_opcodes();
+  if(member_array(opcode,opcodelist)!=-1)
   {
-    opcodelist=get_state_opcodes();
-    if(member_array(opcode,opcodelist)!=-1)
-    {
-      tmp=get_state_text(par2);
-    }
+    tmp=get_extstate_text(par2);
+    goto got_text;
   }
-  return opcodes[opcode].opcodedesc+tmp;
+  if(member_array(opcode,projectile_opcodes)!=-1)
+  {
+    tmp=get_projectile_id(par2+1,1);
+    goto got_text;
+  }
+
+got_text:
+    return opcodes[opcode].opcodedesc+"\r\n"+tmp;
 }
 
 CString get_par1_label(int opcode)
@@ -2933,7 +3017,7 @@ CString get_efftarget_type(int ettype)
 }
 CString resist_types[NUM_RTYPE]={
   "0-Nonmagical", "1-Dispel/Not bypass resistance",
-  "2-Not dispel/Not bypass resistance","3-Dispel/Bypass resistance",
+  "2-Not dispel/Bypass resistance","3-Dispel/Bypass resistance",
 };
 
 CString get_resist_type(int rtype)
@@ -5502,6 +5586,18 @@ int ChiSquare(BYTE *a,BYTE *b)
   return (int) ret; //hopefully no overflow
 }
 
+bool savedtype(CString extension)
+{
+  int i=0;
+  while(savedexts[i].GetLength())
+  {
+    if (!extension.CompareNoCase(savedexts[i])) return true;
+    i++;
+  }
+
+  return false;
+}
+
 int determinemenu(CString commandline)
 {
   CString tmp;
@@ -6477,7 +6573,7 @@ endofquest:
   return ret;
 }
 
-int CompressCBF(CString infilename)
+int CompressCBForSAV(CString infilename, CString base, int outputhandle)
 {
   DWORD cheader[2]; 
   BYTE *compressed, *decompressed;
@@ -6492,21 +6588,41 @@ int CompressCBF(CString infilename)
     return -1;
   }
   len=filelength(infile);
-  if(len<1)
+  if(len<0)
   {
     close(infile);
     return -1;
   }
-  outfilename=infilename;
-  cbf_header.namelen=infilename.GetLength();
-  outfilename.MakeLower();
-  outfilename.Replace(".bif",".cbf");
-  fhandle=open(outfilename+".TMP",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
-  if(fhandle<1)
+
+  if (outputhandle)
   {
-    close(infile);
-    return -2;
+    fhandle = outputhandle;
+    cheader[0]=base.GetLength()+1;
+    if (write(fhandle,cheader,sizeof(DWORD))!=sizeof(DWORD))
+    {
+      close(infile);
+      return -2;
+    }
+    if (write(fhandle,base,cheader[0])!=(int) cheader[0])
+    {
+      close(infile);
+      return -2;
+    }
   }
+  else
+  {
+    outfilename=infilename;
+    cbf_header.namelen=infilename.GetLength();
+    outfilename.MakeLower();
+    outfilename.Replace(".bif",".cbf");
+    fhandle=open(outfilename+".TMP",O_BINARY|O_RDWR,S_IREAD|S_IWRITE);
+    if(fhandle<1)
+    {
+      close(infile);
+      return -2;
+    }
+  }
+  
   cheader[COMPRESSED]=len+100;
   compressed=new BYTE [len+100];
   cheader[UNCOMPRESSED]=len;
@@ -6516,10 +6632,16 @@ int CompressCBF(CString infilename)
     ret=-3;
     goto endofquest;
   }
-  if(write(fhandle,&cbf_header,sizeof(cbf_header) ) !=sizeof(cbf_header) )
+
+  read(infile,decompressed,len);
+
+  if (!outputhandle)
   {
-    ret=-2;
-    goto endofquest;
+    if(write(fhandle,&cbf_header,sizeof(cbf_header) ) !=sizeof(cbf_header) )
+    {
+      ret=-2;
+      goto endofquest;
+    }
   }
   ret = compress(compressed, cheader+COMPRESSED, decompressed, len);
   if(ret!=Z_OK)
@@ -6543,6 +6665,7 @@ endofquest:
   if(compressed) delete [] compressed;
   if(decompressed) delete [] decompressed;
   close(infile);
+  if (outputhandle) return ret;
   close(fhandle);
   if(ret)
   {

@@ -185,8 +185,13 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_PAR3, the_effect.header.par3);
   DDX_Text(pDX, IDC_PAR4, the_effect.header.par4);
   DDX_Text(pDX, IDC_U3, the_effect.header.projectile);
-  DDX_Text(pDX, IDC_U4, the_effect.header.u4);
-  DDX_Text(pDX, IDC_U5, the_effect.header.u5);
+  DDX_Text(pDX, IDC_U4, the_effect.header.casterlevel);
+  DDX_Text(pDX, IDC_U5, the_effect.header.slot);
+
+  DDX_Text(pDX, IDC_POS1X, the_effect.header.sx);
+  DDX_Text(pDX, IDC_POS1Y, the_effect.header.sy);
+  DDX_Text(pDX, IDC_POS2X, the_effect.header.dx);
+  DDX_Text(pDX, IDC_POS2Y, the_effect.header.dy);
 }
 
 void CEffEdit::SetDefaultDuration(int arg)
@@ -299,9 +304,10 @@ void CEffEdit::RefreshDialog()
   UpdateData(UD_DISPLAY);
 }
 
-static int limiteffboxids[]={IDC_VVC, IDC_BROWSE2, IDC_VARNAME,IDC_SCHOOL,
+static const int limiteffboxids[]={IDC_VVC, IDC_BROWSE2, IDC_VARNAME,IDC_SCHOOL,
  IDC_PAR3, IDC_PAR4, IDC_U3, IDC_U4, IDC_U5, IDC_UNKNOWN, IDC_SECTYPE, 
- IDC_SOURCE, IDC_RESOURCE3, IDC_BROWSE3, IDC_BROWSE4,
+ IDC_SOURCE, IDC_RESOURCE3, IDC_BROWSE3, IDC_BROWSE4, IDC_POS1X, IDC_POS1Y,
+ IDC_POS2X, IDC_POS2Y,
 0};
 
 BOOL CEffEdit::OnInitDialog() 
@@ -495,6 +501,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
 	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	ON_EN_KILLFOCUS(IDC_PAR4, OnDefaultKillfocus)
+	ON_BN_CLICKED(IDC_PAR_SPECIAL, OnParSpecial)
 	ON_CBN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EFFTARGET, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
@@ -527,7 +534,8 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_CBN_KILLFOCUS(IDC_EFFOPCODE2, OnKillfocusEffopcode)
 	ON_CBN_SELCHANGE(IDC_EFFOPCODE2, OnSelchangeEffopcode)
-	ON_BN_CLICKED(IDC_PAR_SPECIAL, OnParSpecial)
+	ON_EN_KILLFOCUS(IDC_POS1X, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

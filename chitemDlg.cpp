@@ -3,10 +3,11 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.0j"
+#define PRG_VERSION "7.1"
 
 #include <fcntl.h>
 #include <direct.h>
+#include <sys/stat.h>
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "options.h"
@@ -126,67 +127,65 @@ ON_WM_QUERYDRAGICON()
 ON_BN_CLICKED(IDC_RESCAN, OnRescan)
 ON_BN_CLICKED(IDC_RESCAN2, OnRescan2)
 ON_BN_CLICKED(IDC_COMPAT, OnCompat)
-ON_BN_CLICKED(IDC_RESCAN3, OnRescan3)
-ON_BN_CLICKED(IDC_RESCAN4, OnRescan4)
-ON_BN_CLICKED(IDC_RESCAN5, OnRescan5)
-ON_BN_CLICKED(IDC_CHECKITEM, OnEditItem)
-ON_BN_CLICKED(IDC_CHECKSPELL, OnEditSpell)
-ON_BN_CLICKED(IDC_CHECKSTORE, OnEditStore)
-ON_BN_CLICKED(IDC_CHECKCRE, OnEditCreature)
-ON_BN_CLICKED(IDC_CHECKSCRIPT, OnEditScript)
-ON_BN_CLICKED(IDC_CHECKDIALOG, OnEditDialog)
-ON_BN_CLICKED(IDC_CHECKEFF, OnEditEffect)
-ON_BN_CLICKED(IDC_CHECKPROJ, OnEditArea)
-ON_BN_CLICKED(IDC_FINDDIALOG, OnFindDialog)
-ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
-ON_BN_CLICKED(IDC_FINDITEM, OnFinditem)
-ON_BN_CLICKED(IDC_FINDSPELL, OnFindspell)
-ON_BN_CLICKED(IDC_FINDEFF, OnFindeff)
-ON_BN_CLICKED(IDC_FINDCRE, OnFindcre)
-ON_BN_CLICKED(IDC_FINDSTORE, OnFindstore)
-ON_BN_CLICKED(IDC_FINDSCRIPT, OnFindScript)
 ON_COMMAND(ID_TOOLTIPS, OnTooltips)
 ON_COMMAND(ID_PROGRESS, OnProgress)
 ON_COMMAND(ID_SAVESETTINGS, OnSavesettings)
 ON_COMMAND(ID_LOGGING_NONE, OnLoggingNone)
 ON_COMMAND(ID_LOGGING_SCREEN, OnLoggingScreen)
 ON_COMMAND(ID_LOGGING_FILE, OnLoggingFile)
+ON_BN_CLICKED(IDC_FINDITEM, OnFinditem)
+ON_BN_CLICKED(IDC_FINDSPELL, OnFindspell)
+ON_BN_CLICKED(IDC_FINDEFF, OnFindeff)
+ON_BN_CLICKED(IDC_FINDCRE, OnFindcre)
+ON_BN_CLICKED(IDC_FINDSTORE, OnFindstore)
 ON_COMMAND(ID_SEARCH_PROJECTILE, OnFindProjectile)
 ON_COMMAND(ID_SEARCH_VVC, OnFindVvc)
-ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
+ON_BN_CLICKED(IDC_FINDSCRIPT, OnFindScript)
+ON_BN_CLICKED(IDC_FINDPROJ, OnFindArea)
+ON_COMMAND(ID_CHECK_ITEM, OnCheckItem)
+ON_COMMAND(ID_CHECK_SPELL, OnCheckSpell)
+ON_COMMAND(ID_CHECK_STORE, OnCheckStore)
+ON_COMMAND(ID_CHECK_CREATURE, OnCheckCreature)
 ON_COMMAND(ID_CHECK_VVC, OnCheckVvc)
+ON_COMMAND(ID_CHECK_SCRIPT, OnCheckScript)
 ON_COMMAND(ID_CHECK_AREA, OnCheckArea)
 ON_COMMAND(ID_FILE_EXTRACT, OnFileExtract)
 ON_COMMAND(ID_READONLY, OnReadonly)
-ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
+ON_BN_CLICKED(IDC_CHECKITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_VVC, OnEditVvc)
-ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
-ON_COMMAND(ID_EDIT_EFFECT, OnEditEffect)
+ON_BN_CLICKED(IDC_CHECKCRE, OnEditCreature)
+ON_BN_CLICKED(IDC_CHECKEFF, OnEditEffect)
 ON_COMMAND(ID_EDIT_PROJECTILE, OnEditProjectile)
-ON_COMMAND(ID_EDIT_SPELL, OnEditSpell)
-ON_COMMAND(ID_EDIT_STORE, OnEditStore)
-ON_COMMAND(ID_EDIT_AREA, OnEditArea)
+ON_BN_CLICKED(IDC_CHECKSPELL, OnEditSpell)
+ON_BN_CLICKED(IDC_CHECKSTORE, OnEditStore)
+ON_BN_CLICKED(IDC_CHECKPROJ, OnEditArea)
 ON_COMMAND(ID_ADDCFBTOSPELLS, OnAddcfbtospells)
 ON_COMMAND(ID_CLEARCFBFROMSPELLS, OnClearcfbfromspells)
 ON_COMMAND(ID_SCANVARIABLES, OnScanvariables)
-ON_COMMAND(ID_EDIT_DIALOG, OnEditDialog)
+ON_BN_CLICKED(IDC_RESCAN3, OnRescan3)
+ON_COMMAND(ID_CHECK_DIALOG, OnCheckDialog)
+ON_BN_CLICKED(IDC_FINDDIALOG, OnFindDialog)
+ON_BN_CLICKED(IDC_CHECKDIALOG, OnEditDialog)
 ON_COMMAND(ID_EDIT_VARIABLES, OnEditVariables)
+ON_COMMAND(ID_CHECK_EFFECT, OnCheckEffect)
 ON_COMMAND(IDM_ABOUTBOX, OnAboutbox)
 ON_COMMAND(ID_EDIT_ANIMATION, OnEditAnimation)
 ON_COMMAND(ID_CHECK_ANIMATION, OnCheckAnimation)
 ON_COMMAND(ID_UNCOMPRESSBIF, OnUncompressbif)
 ON_COMMAND(ID_FILE_SEARCH, OnFileSearch)
 ON_COMMAND(ID_WAVCTOWAV, OnWavctowav)
+ON_BN_CLICKED(IDC_RESCAN4, OnRescan4)
 ON_COMMAND(ID_EDIT_GAMES, OnEditGames)
 ON_COMMAND(ID_CHECK_GAME, OnCheckGame)
 ON_COMMAND(ID_EDIT_WORLDMAP, OnEditWorldmap)
 ON_COMMAND(ID_EDIT_GRAPHICS, OnEditGraphics)
 ON_COMMAND(ID_CHECK_WORLDMAP, OnCheckWorldmap)
 ON_COMMAND(ID_EDIT_2DA, OnEdit2da)
+ON_BN_CLICKED(IDC_RESCAN5, OnRescan5)
 ON_COMMAND(ID_EDIT_IDS, OnEditIds)
 ON_COMMAND(ID_FILE_IMPORTTBG, OnImporttbg)
 ON_COMMAND(ID_FILE_EXPORTTBG, OnCreateIAP)
-ON_COMMAND(ID_EDIT_SCRIPT, OnEditScript)
+ON_BN_CLICKED(IDC_CHECKSCRIPT, OnEditScript)
 ON_COMMAND(ID_CHECK_2DA, OnCheck2da)
 ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnLookupstrref)
 ON_COMMAND(ID_UNCOMPRESSSAV, OnUncompresssav)
@@ -215,7 +214,18 @@ ON_COMMAND(ID_COMPRESSCBF, OnCompresscbf)
 ON_COMMAND(ID_TISPACK, OnTispack)
 ON_COMMAND(ID_HELP_README, OnHelpReadme)
 ON_COMMAND(ID_SKIMSAV, OnSkimsav)
+ON_COMMAND(ID_EXTRACTION_RECOMPRESSSAV, OnRecompresssav)
 ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
+ON_COMMAND(ID_TOOLS_DECOMPILE, OnToolsDecompile)
+ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
+ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
+ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
+ON_COMMAND(ID_EDIT_EFFECT, OnEditEffect)
+ON_COMMAND(ID_EDIT_SPELL, OnEditSpell)
+ON_COMMAND(ID_EDIT_STORE, OnEditStore)
+ON_COMMAND(ID_EDIT_AREA, OnEditArea)
+ON_COMMAND(ID_EDIT_DIALOG, OnEditDialog)
+ON_COMMAND(ID_EDIT_SCRIPT, OnEditScript)
 ON_COMMAND(ID_COMPAT, OnCompat)
 ON_COMMAND(ID_SEARCH_ITEM, OnFinditem)
 ON_COMMAND(ID_SEARCH_SPELL, OnFindspell)
@@ -225,20 +235,12 @@ ON_COMMAND(ID_SEARCH_EFFECT, OnFindeff)
 ON_COMMAND(ID_SEARCH_SCRIPT, OnFindScript)
 ON_COMMAND(ID_SEARCH_DIALOG, OnFindDialog)
 ON_COMMAND(ID_SEARCH_SCRIPT, OnFindScript)
-ON_COMMAND(ID_CHECK_ITEM, OnCheckItem)
-ON_COMMAND(ID_CHECK_SPELL, OnCheckSpell)
-ON_COMMAND(ID_CHECK_CREATURE, OnCheckCreature)
-ON_COMMAND(ID_CHECK_STORE, OnCheckStore)
-ON_COMMAND(ID_CHECK_SCRIPT, OnCheckScript)
 ON_COMMAND(ID_CHECK_DIALOG, OnCheckDialog)
-ON_COMMAND(ID_CHECK_DIALOG, OnCheckDialog)
-ON_COMMAND(ID_CHECK_EFFECT, OnCheckEffect)
 ON_COMMAND(ID_RESCAN, OnRescan)
 ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
-ON_COMMAND(ID_TOOLS_DECOMPILE, OnToolsDecompile)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3454,7 +3456,7 @@ void CChitemDlg::Compressbif(bool cbf_or_bifc)
         continue;
       }
     }
-    if(cbf_or_bifc) CompressCBF(filepath);
+    if(cbf_or_bifc) CompressCBForSAV(filepath, "", 0);
     else CompressBIFC(filepath);
   }
 }
@@ -3615,6 +3617,62 @@ restart:
     if(res) MessageBox("Decompression failed","Error",MB_ICONSTOP|MB_OK);
     else MessageBox("Decompression succeeed","Item checker",MB_ICONINFORMATION|MB_OK);
   }	
+}
+
+void CChitemDlg::AddAllFiles(int fhandle, CString folder)
+{
+  _finddata_t fdata;
+  folder+="/";
+  CString filename=folder+"*.*";
+
+  //scanning override dir for loose items
+  int shandle=_findfirst(filename,&fdata);
+  if(shandle>0)
+  {
+    do
+    {
+      int len = strlen(fdata.name);
+      if(len>12 || len<4)
+      {
+        continue;
+      }
+      if (!savedtype(fdata.name+len-4))
+      {
+        continue;
+      }
+      int ret = CompressCBForSAV(folder+fdata.name, fdata.name, fhandle);
+      if (ret<0)
+      {
+        MessageBox("Something is wrong...","Compress SAV",MB_OK);
+      }
+    }
+    while(!_findnext(shandle, &fdata));
+    _findclose(shandle);
+  }
+}
+
+void CChitemDlg::OnRecompresssav() 
+{
+  int fhandle;
+  folderbrowse_t fb;
+
+  fb.initial=bgfolder+"save";
+  fb.title="Select savegame folder to recompress";
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+  
+  fhandle = open(fb.initial+"/baldur.tmp",O_BINARY|O_RDWR|O_TRUNC|O_CREAT|O_SEQUENTIAL,
+    S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return;
+  }
+  if(write(fhandle,"SAV V1.0",8)!=8)
+  {
+    close(fhandle);
+    return;
+  }
+  AddAllFiles(fhandle, fb.initial);
+  close(fhandle);
 }
 
 void CChitemDlg::OnSkimsav() 

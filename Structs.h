@@ -612,7 +612,7 @@ typedef struct
   char source[8];
   long unused4;
   long projectile;//the effect uses this projectile (from spell)
-  long unused6;  
+  long slot;      //the equipping slot
   char variable[32];
   long casterlevel;//(in items this is set to 10)
   long unused8;

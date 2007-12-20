@@ -1613,6 +1613,8 @@
 #define IDC_ANIMLIST                    2319
 #define IDC_FILTER                      2320
 #define IDC_SHADOW                      2322
+#define IDC_BREAKABLE                   2331
+#define IDC_BUTTON1                     2333
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1825,6 +1827,7 @@
 #define ID_OPTIONS_USEINTERNALCOMPILER  33041
 #define ID_OPTIONS_LOGGING              33042
 #define ID_FILE_TP2                     33043
+#define ID_EXTRACTION_RECOMPRESSSAV     33044
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1832,8 +1835,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33044
-#define _APS_NEXT_CONTROL_VALUE         2330
+#define _APS_NEXT_COMMAND_VALUE         33045
+#define _APS_NEXT_CONTROL_VALUE         2334
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

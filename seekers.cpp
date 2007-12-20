@@ -2477,18 +2477,18 @@ bool CChitemDlg::match_script()
   if(searchflags&MF)
   {
     the_script.RollBack();
-    if(!the_script.find_itemtype(searchdata, tmpdata,FLG_MFEAT)) return false;
+    if(!the_script.find_itemtype(searchdata, tmpdata, FLG_MFEAT)) return false;
   }
 
   if(searchflags&MV )
   {
     the_script.RollBack();
-    if(!the_script.find_itemtype(searchdata, tmpdata,FLG_MVAR)) return false;
+    if(!the_script.find_itemtype(searchdata, tmpdata, FLG_MVAR)) return false;
   }
   if(searchflags&MR)
   {
     the_script.RollBack();
-    if(!the_script.find_itemtype(searchdata, tmpdata,FLG_MRES)) return false;
+    if(!the_script.find_itemtype(searchdata, tmpdata, FLG_MRES)) return false;
   }
 
   if(searchflags&MT)

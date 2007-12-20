@@ -1010,7 +1010,11 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   
   //song
   if(header.songoffset)
-  {
+  {/*
+    for(int i=0;i<sizeof(songheader.unused);i+=4) {
+      memcpy(songheader.unused+i, &songheader.songflag,4);
+    }
+    */
     if(write(fh,&songheader,sizeof(area_song) )!=sizeof(area_song) )
     {	
       ret=-2;

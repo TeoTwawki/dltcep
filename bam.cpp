@@ -783,6 +783,10 @@ int Cbam::ExplodeBamData(int flags)
 	  	bIsCompressed = false;
 	  else
 		  bIsCompressed = true;
+    if (flags==EBD_FIRST)
+    {
+      if (m_pFrameLookup[0]!=nFrame) continue;
+    }
     ret=m_pFrameData[nFrame].TakeBamData(m_pData+nOffset, m_pFrames[nFrame].wWidth, m_pFrames[nFrame].wHeight, m_header.chTransparentIndex, bIsCompressed, (int) (m_nDataSize-nOffset) );
 #ifdef _DEBUG
     if(ret==-1 && (flags!=EBD_HEAD) )
@@ -793,7 +797,10 @@ int Cbam::ExplodeBamData(int flags)
     }
 #endif
     if(ret<gret) gret=ret;
-    if (flags==EBD_FIRST) return ret;
+    if (flags==EBD_FIRST)
+    {
+      return ret;
+    }
   }
   order[3]=(m_nMinFrameOffset<<2)|3;
   qsort(order,4,sizeof(int),longsort);
@@ -2623,18 +2630,19 @@ bool Cbam::CopyStructure(Cbam &original, int skipwidth, int skipheight, int widt
       if (splitheight<0) splitheight=0;
     }
 
-    if (splitwidth==0 || splitheight==0)
+    if ((splitwidth==0) || (splitheight==0))
     {
       original.GetEmpty(m_pFrameData+i);
       SetFrameSize(i, 1, 1);
       SetFrameRLE(i,false);
+      SetFramePos(i, 0, 0);
     }
     else
     {
       original.GetSplitQuarter(m_pFrameData+i, i, skipwidth, skipheight, splitwidth, splitheight);
       SetFrameSize(i, splitwidth, splitheight);
+      SetFramePos(i,q.x-skipwidth,q.y-skipheight);
     }    
-    SetFramePos(i,q.x-skipwidth,q.y-skipheight);
   }
 	return true;
 }

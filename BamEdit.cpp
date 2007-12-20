@@ -20,7 +20,7 @@ static char THIS_FILE[] = __FILE__;
 //bam play flags
 #define PLAYBAM     1
 #define CONTINUOUS  2
-#define MAX_DIMENSION 200
+#define MAX_DIMENSION 250
 
 static char BASED_CODE szFilter[] = "Animation files (*.bam)|*.bam|All files (*.*)|*.*||";
 static char BASED_CODE szFilter2[] = "Bitmap files (*.bmp)|*.bmp|Paperdoll files (*.plt)|*.plt|All files (*.*)|*.*||";

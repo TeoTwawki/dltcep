@@ -2152,7 +2152,7 @@ CItemExtended::~CItemExtended()
 
 static int forceidboxids[8]={IDC_ID, IDC_NOID,0,0,0,0,0,0};
 
-static int keenboxids[32]={IDC_STRBONUS,0,0,0,0,0,0,0,
+static int keenboxids[32]={IDC_STRBONUS,IDC_BREAKABLE,0,0,0,0,0,0,
 0,0,0,IDC_RECHARGES,0,0,0,0,
 IDC_FLAG1, IDC_FLAG2,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0};
@@ -2303,7 +2303,6 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     DDX_Text(pDX, IDC_DAMAGETYPE, tmpstr);
     the_item.extheaders[extheadnum].damtype=(unsigned char) strtonum(tmpstr);
 
-//  	DDX_Text(pDX, IDC_STRBONUS, the_item.extheaders[extheadnum].str_bonus);
     if(extheadnum<3)
     {
   	  DDX_Text(pDX, IDC_TOOLTIPREF, m_tooltipref.data[extheadnum]);
@@ -2546,8 +2545,8 @@ static int extids[]={
   IDC_THAC0, IDC_ROLL, IDC_DIE, IDC_ADD, IDC_DAMAGETYPE, 
   IDC_BOW, IDC_XBOW, IDC_MISC, IDC_ANIM1, IDC_ANIM2, IDC_ANIM3,
   IDC_CHARGES, IDC_PERDAY, 
-  IDC_FLAGS, IDC_STRBONUS, IDC_RECHARGES, IDC_FLAG1, IDC_FLAG2,
-  IDC_PROJID,  IDC_ID, IDC_NOID, IDC_MELEE, 
+  IDC_FLAGS, IDC_STRBONUS, IDC_BREAKABLE, IDC_RECHARGES, 
+  IDC_FLAG1, IDC_FLAG2, IDC_PROJID,  IDC_ID, IDC_NOID, IDC_MELEE, 
   //buttons
   //last button really belongs here!
   IDC_EXTREMOVE, IDC_EXTCOPY, IDC_EXTPASTE, IDC_EXTEFFADD,
@@ -2582,12 +2581,6 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_BN_CLICKED(IDC_EXTCOPY, OnExtcopy)
 	ON_BN_CLICKED(IDC_EXTADD, OnExtadd)
 	ON_BN_CLICKED(IDC_EXTREMOVE, OnExtremove)
-	ON_CBN_KILLFOCUS(IDC_EXTTYPE, OnDefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_PROJFRAME, OnDefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_SPEED, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN1, OnKillfocusUnknown1)
 	ON_CBN_SELCHANGE(IDC_EXTHEADNUM, OnSelchangeExtheadnum)
 	ON_EN_KILLFOCUS(IDC_THAC0, OnKillfocusThac0)
@@ -2595,20 +2588,16 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_DAMAGETYPE, OnKillfocusDamagetype)
 	ON_EN_KILLFOCUS(IDC_DIE, OnKillfocusDie)
 	ON_EN_KILLFOCUS(IDC_ADD, OnKillfocusAdd)
-	ON_EN_KILLFOCUS(IDC_TARGETNUM, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_TOOLTIPTEXT, OnKillfocusTooltiptext)
 	ON_EN_KILLFOCUS(IDC_TOOLTIPREF, OnKillfocusTooltipref)
-	ON_EN_KILLFOCUS(IDC_STRBONUS, OnKillfocusStrbonus)
-	ON_CBN_KILLFOCUS(IDC_PERDAY, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_EXTTYPE, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_ANIM1, OnKillfocusAnim1)
 	ON_EN_KILLFOCUS(IDC_ANIM2, OnKillfocusAnim2)
 	ON_EN_KILLFOCUS(IDC_ANIM3, OnKillfocusAnim3)
-	ON_EN_KILLFOCUS(IDC_CHARGES, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_BOW, OnBow)
 	ON_BN_CLICKED(IDC_XBOW, OnXbow)
 	ON_BN_CLICKED(IDC_MISC, OnMisc)
 	ON_EN_KILLFOCUS(IDC_EXTUSEICON, OnKillfocusExtuseicon)
-	ON_CBN_KILLFOCUS(IDC_PROJID, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_USEICON, OnUseicon)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_BN_CLICKED(IDC_ID, OnId)
@@ -2616,8 +2605,18 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_MELEE, OnSelchangeMelee)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
-	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
 	ON_BN_CLICKED(IDC_STRBONUS, OnStrbonus)
+	ON_BN_CLICKED(IDC_BREAKABLE, OnBreakable)
+	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
+	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_PROJFRAME, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SPEED, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TARGETNUM, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_PERDAY, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_CHARGES, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_PROJID, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnDefaultKillfocus)
 	ON_CBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
 	ON_EN_KILLFOCUS(IDC_IDENTIFY, OnDefaultKillfocus)
@@ -2711,6 +2710,13 @@ void CItemExtended::OnStrbonus()
   UpdateData(UD_DISPLAY);
 }
 
+void CItemExtended::OnBreakable() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=2;
+  UpdateData(UD_DISPLAY);
+}
+
 void CItemExtended::OnKillfocusUnknown1() 
 {
   UpdateData(UD_RETRIEVE);
@@ -2742,12 +2748,6 @@ void CItemExtended::OnKillfocusAdd()
 }
 
 void CItemExtended::OnKillfocusDamagetype() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CItemExtended::OnKillfocusStrbonus() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);

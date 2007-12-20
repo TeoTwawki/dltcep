@@ -475,7 +475,6 @@ protected:
 	afx_msg void OnKillfocusAdd();
 	afx_msg void OnKillfocusTooltiptext();
 	afx_msg void OnKillfocusTooltipref();
-	afx_msg void OnKillfocusStrbonus();
 	afx_msg void OnDefaultKillfocus();
 	afx_msg void OnKillfocusAnim1();
 	afx_msg void OnKillfocusAnim2();
@@ -493,6 +492,7 @@ protected:
 	afx_msg void OnFlag2();
 	afx_msg void OnRecharges();
 	afx_msg void OnStrbonus();
+	afx_msg void OnBreakable();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

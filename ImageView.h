@@ -81,6 +81,9 @@ public:
   COLORREF *m_palette;
   HBITMAP m_bm;  //accessed from chui editor
   Cmos *m_mos;
+  COLORREF m_gridcolor1;
+  COLORREF m_gridcolor2;
+  COLORREF m_gridcolor3;
 
 // Overrides
 	// ClassWizard generated virtual function overrides

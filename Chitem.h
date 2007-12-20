@@ -639,7 +639,7 @@ extern CStringListLocEntry *duplicates[NUM_OBJTYPE+1];
 extern CStringMapInt variables;
 extern CIntMapString journals;
 
-extern unsigned char xorblock[64];
+extern const unsigned char xorblock[64];
 extern CString setupname;
 extern CString bgfolder;
 extern CString descpath;
@@ -656,6 +656,7 @@ extern unsigned long chkflg;
 extern unsigned long editflg;
 extern unsigned long optflg;
 extern unsigned long weiduflg;
+extern COLORREF color1, color2, color3;
 
 extern CStringMapArray tooltipnumbers;
 extern CStringMapArray store_spell_desc;
@@ -708,18 +709,14 @@ extern bool global_changed[2];
 extern int global_date[2];
 extern key_header key_headerinfo;
 extern membif_entry *bifs;
-/*
-extern CString *bifs;
-extern int *biflocs;
-*/
 extern CString cds[NUM_CD];
 
 extern opcode_struct opcodes[NUM_FEATS];
 extern CString weaprofs[NUM_WEAPROF+1];
 extern int ammos[NUM_AMTYPE];
-extern CString objexts[NUM_OBJTYPE+1];
+extern const CString objexts[NUM_OBJTYPE+1];
 extern int menuids[NUM_OBJTYPE+1];
-extern unsigned short objrefs[NUM_OBJTYPE+1];
+extern const unsigned short objrefs[NUM_OBJTYPE+1];
 extern int idstrings[NUM_OBJTYPE+1];
 extern char tbgext[NUM_OBJTYPE+1];
 extern char BASED_CODE szFilterKey[];
@@ -806,6 +803,8 @@ public:
   void read_game_preferences();
   
 private:
+  COLORREF ParseColor(CString tmp);
+
   //{{AFX_MSG(CChitemApp)
   //}}AFX_MSG
   DECLARE_MESSAGE_MAP()
@@ -817,6 +816,7 @@ bool MakeBitmapExternal(const COLORREF *pDIBits, int nWidth, int nHeight, HBITMA
 bool MakeBitmapExternal(const LPBYTE pPixels, const COLORREF *pPalette, int nWidth, int nHeight, HBITMAP &hBitmap);
 void SwapPalette(DWORD *palette, int idx1, int idx2);
 int fill_destination(CString key, CComboBox *cb);
+bool savedtype(CString ext);
 int determinemenu(CString commandline);
 int determinetype(int reftype);
 int WriteString(FILE *fpoi, CString mystring);
@@ -1013,7 +1013,7 @@ CString AssembleWeiduCommandLine(CString filename, CString outpath);
 unsigned long getfreememory();
 afx_msg void DefaultKillFocus();
 int CompressBIFC(CString infilename);
-int CompressCBF(CString infilename);
+int CompressCBForSAV(CString infilename, CString base, int outputhandle);
 
 //graphical, vertex & polygon functions
 void CreateMinimap(HWND hwnd);

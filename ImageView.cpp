@@ -46,6 +46,9 @@ CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pPare
   m_value=-1;
   m_actvertex=0;
   m_vertexcount=0;
+  m_gridcolor1=color1;
+  m_gridcolor2=color2;
+  m_gridcolor3=color3;
 }
 
 void CImageView::DoDataExchange(CDataExchange* pDX)
@@ -515,9 +518,9 @@ void CImageView::DrawLines(POINTS *polygon, unsigned int count, CString title, i
   //setting a green color
   dcBmp.SetBkMode(1);
   dcBmp.SetTextColor(RGB(255,255,255) );
-  CPen mypen(0,1,RGB(0,255,0) );
-  CPen pen1(PS_SOLID,1,RGB(0,0,255) );        
-  CPen pen2(PS_SOLID,2,RGB(255,0,0) );
+  CPen mypen(PS_SOLID,1,m_gridcolor1 );//green
+  CPen pen1(PS_SOLID,1,m_gridcolor3 ); //blue  
+  CPen pen2(PS_SOLID,2,m_gridcolor2 ); //red
   CPen *cpentmp=dcBmp.SelectObject(&mypen);
 
   //draw here
@@ -613,8 +616,8 @@ void CImageView::DrawGrid()
   //setting a green color
   dcBmp.SetBkMode(1);
   dcBmp.SetTextColor(RGB(255,255,255) );
-  CPen mypen1(PS_SOLID,1,RGB(0,255,0) );
-  CPen mypen2(PS_SOLID,1,RGB(255,0,0) );
+  CPen mypen1(PS_SOLID,1,m_gridcolor1 );
+  CPen mypen2(PS_SOLID,1,m_gridcolor2 );
   CPen *cpentmp=dcBmp.SelectObject(&mypen1);
 
   CRect cr;
@@ -805,7 +808,11 @@ void CImageView::RedrawContent()
       rect.right=400+rect.left;
     }
   }
-  SetWindowPos(0, 0,0, rect.Width()+adjusty+20, rect.Height()+adjustx+80,SWP_NOACTIVATE|SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOMOVE);
+  //if there are buttons (not preview), then move window to top left
+  UINT flags = SWP_NOACTIVATE|SWP_SHOWWINDOW|SWP_NOZORDER;
+  if (!(m_enablebutton&IW_ENABLEBUTTON)) flags |= SWP_NOMOVE;
+
+  SetWindowPos(0, 0,0, rect.Width()+adjusty+20, rect.Height()+adjustx+80, flags);
   m_horizontal.SetWindowPos(0,m_adjust.x,rect.Height()+m_adjust.y,rect.Width(),15,SWP_NOZORDER);
   m_vertical.SetWindowPos(0,rect.Width()+m_adjust.x,m_adjust.y,15,rect.Height(),SWP_NOZORDER);
   if(m_enablebutton&IW_PLACEIMAGE)

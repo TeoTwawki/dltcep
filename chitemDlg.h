@@ -221,6 +221,7 @@ protected:
   int store_variable(CString varname, int storeflags, int opcode, int trigger, int block);
   void RefreshMenu();
   int write_file(CString str, int which);
+  void AddAllFiles(int fhandle, CString folder);
   void Compressbif(bool cbf_or_bifc);
   void CompressWav(bool acm_or_wavc);
   void DecompressAcm(bool wavc_or_acm);
@@ -324,6 +325,7 @@ protected:
 	afx_msg void OnTispack();
 	afx_msg void OnHelpReadme();
 	afx_msg void OnSkimsav();
+	afx_msg void OnRecompresssav();
 	afx_msg void OnUsedialogf();
 	afx_msg void OnToolsDecompile();
 	//}}AFX_MSG

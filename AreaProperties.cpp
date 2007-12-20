@@ -855,6 +855,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_BN_CLICKED(IDC_SETPOS, OnSetpos)
 	ON_BN_CLICKED(IDC_SETDEST, OnSetdest)
 	ON_BN_CLICKED(IDC_BROWSE9, OnBrowse9)
+	ON_BN_CLICKED(IDC_EMBED, OnEmbed)
 	ON_EN_KILLFOCUS(IDC_CRERES, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
@@ -876,7 +877,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_FACE, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_ANIMATION, DefaultKillfocus)
 	ON_EN_CHANGE(IDC_AREA, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_EMBED, OnEmbed)
+	ON_BN_CLICKED(IDC_BUTTON1, OnButton1)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -938,6 +939,54 @@ void CAreaActor::OnAdd()
   RefreshActor();
 	UpdateData(UD_DISPLAY);
 }
+  
+void CAreaActor::OnButton1() 
+{
+  area_actor *newactors;
+  char **newdatapointers;
+
+  if(m_actornum<0 || !the_area.header.actorcnt) return;
+	
+  the_area.header.actorcnt=(short) m_actornum;
+  newactors=new area_actor[the_area.header.actorcnt];
+  if (!newactors)
+  {
+    the_area.header.actorcnt=(short) the_area.actorcount;
+    MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  newdatapointers=new char *[the_area.header.actorcnt];
+  if(!newdatapointers)
+  {
+    delete [] newactors;
+    the_area.header.actorcnt=(short) the_area.actorcount;
+    MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  if(the_area.credatapointers)
+  {
+    memcpy(newdatapointers,the_area.credatapointers,m_actornum*sizeof(char *) );
+    for(int i=m_actornum;i<the_area.actorcount;i++)
+    {
+      delete the_area.credatapointers[i];
+    }
+    delete [] the_area.credatapointers;
+  }
+  if(the_area.actorheaders)
+  {
+    memcpy(newactors,the_area.actorheaders,m_actornum*sizeof(area_actor) );
+    delete [] the_area.actorheaders;
+  }
+
+  the_area.actorheaders=newactors;
+  the_area.credatapointers=newdatapointers;
+  the_area.actorcount=the_area.header.actorcnt;
+	if(m_actornum>=the_area.actorcount) m_actornum=the_area.actorcount-1;
+
+  the_area.m_changed=true;
+  RefreshActor();
+	UpdateData(UD_DISPLAY);
+}
 
 void CAreaActor::OnRemove() 
 {
@@ -965,6 +1014,7 @@ void CAreaActor::OnRemove()
   {
     memcpy(newdatapointers,the_area.credatapointers,m_actornum*sizeof(char *) );
     memcpy(newdatapointers+m_actornum,the_area.credatapointers+m_actornum+1,(the_area.header.actorcnt-m_actornum)*sizeof(char *) );
+    delete the_area.credatapointers[m_actornum];
     delete [] the_area.credatapointers;
   }
   if(the_area.actorheaders)

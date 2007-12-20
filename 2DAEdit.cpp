@@ -401,7 +401,7 @@ void C2DAEdit::Click(int flg)
   }
   else
   {
-    m_2da_control.GetSubItemRect(m_item,m_subitem,0,ref);
+    m_2da_control.GetSubItemRect(m_item,m_subitem,LVIR_BOUNDS,ref);
     if(m_item==-1)
     {
       if(m_subitem==-1) return;

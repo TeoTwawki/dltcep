@@ -203,7 +203,7 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
     }
   }
 
-  if(the_game.revision==20 || the_game.revision==10 || the_game.revision==22)
+  if(the_game.revision==20 || the_game.revision==10 || the_game.revision==21 || the_game.revision==22)
   {
     for(i=0;familiarids[i];i++)
     {
@@ -325,7 +325,7 @@ void CGameEdit::RefreshDialog()
   }
   m_journalpicker.SetCurSel(pos);
 
-  if(the_game.revision==20 || the_game.revision==10 || the_game.revision==22)
+  if(the_game.revision==20 || the_game.revision==10 || the_game.revision==21 || the_game.revision==22)
   {
     pos=m_familiarpicker.GetCurSel();
     if(pos<0) pos=0;
@@ -433,7 +433,14 @@ void CGameEdit::NewGame()
   //bg2
   the_game.header.familiaroffset=1;
   the_game.familiar.offset=1; //set it so we will save it if needed
-  the_game.revision=20;
+  if (tob_specific())
+  {
+    the_game.revision=21;
+  }
+  else
+  {
+    the_game.revision=20;
+  }
 }
 
 BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
