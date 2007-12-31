@@ -49,6 +49,7 @@ CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pPare
   m_gridcolor1=color1;
   m_gridcolor2=color2;
   m_gridcolor3=color3;
+  m_maptype=MT_DEFAULT;
 }
 
 void CImageView::DoDataExchange(CDataExchange* pDX)
@@ -446,6 +447,41 @@ int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
     }
   }
   return -1;
+}
+
+void CImageView::DrawActors()
+{
+  int i;
+
+  CDC *pDC = m_bitmap.GetDC();
+  if(!pDC) return;
+	CDC dcBmp;
+  dcBmp.CreateCompatibleDC(pDC);
+  //selecting the bitmap for drawing
+  CBitmap *cbtmp=dcBmp.SelectObject(CBitmap::FromHandle(m_bitmap.GetBitmap()));
+  //setting a red color
+  dcBmp.SetBkMode(1);
+  dcBmp.SetTextColor(RGB(255,255,255) );
+  CPen pen2(PS_SOLID,2,m_gridcolor2 ); //red
+  CPen *cpentmp=dcBmp.SelectObject(&pen2);
+
+  for(i=0;i<the_area.actorcount;i++)
+  {
+    area_actor *aa = the_area.actorheaders+i;
+
+    CString title = CString(aa->creresref,sizeof(aa->creresref));
+    int x = aa->posx-m_clipx*m_mos->mosheader.dwBlockSize;
+    int y = aa->posy-m_clipy*m_mos->mosheader.dwBlockSize;
+    dcBmp.TextOut(x,y,title);
+    dcBmp.Ellipse(x-2, y-2, x+2, y+2);
+  }
+
+  //close
+  //restore original settings (this will prevent some leaks)
+  dcBmp.SelectObject(cbtmp);
+  dcBmp.SelectObject(cpentmp);
+  m_bitmap.Invalidate(false);
+  m_bitmap.ReleaseDC(pDC);
 }
 
 void CImageView::DrawIcons()
@@ -1129,9 +1165,12 @@ void CImageView::RefreshDialog()
   }
   else if(m_animbam && (m_enablebutton&IW_PLACEIMAGE))
   {
-    if(m_maptype==MT_BAM && m_map && m_showall)
+    if (m_showall)
     {
-      DrawIcons();//can't make this work yet
+      if (m_maptype==MT_BAM)
+      {
+        if (m_map) DrawIcons();
+      }
     }
 
     if(m_enablebutton&IW_MATCH) nReplaced=BM_OVERLAY|BM_MATCH;
@@ -1154,6 +1193,10 @@ void CImageView::RefreshDialog()
   }
   MakeBitmapExternal(m_mos->GetDIB(),m_mos->m_pixelwidth,m_mos->m_pixelheight,m_bm);
   m_bitmap.SetBitmap(m_bm);
+  if( (m_maptype==MT_DEFAULT) && m_showall)
+  {
+    DrawActors();
+  }
   if(m_enablebutton&IW_SETVERTEX)
   {
     if(m_showall)
@@ -1189,6 +1232,7 @@ void CImageView::RefreshDialog()
     SetWindowText(tmpstr);
     DrawPolyPolygon((CPtrList *) m_map);
   }
+
   if(m_enablebutton&IW_SHOWGRID)
   {
     DrawGrid();

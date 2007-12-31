@@ -1059,7 +1059,7 @@ void CAreaActor::OnSetpos()
   CPoint point;
 
   if(SetupSelectPoint(0)) return;
-  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
+  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE|IW_SHOWALL, &the_mos);
   //the cursors are loaded in 'the_bam' now
   dlg.SetupAnimationPlacement(&the_bam, the_area.actorheaders[m_actornum].posx,
     the_area.actorheaders[m_actornum].posy,0);
@@ -5419,12 +5419,13 @@ void CAreaDoor::OnEditblock()
   }
   else
   {    
-    minx=the_area.doorheaders[m_doornum].cp1x/GR_WIDTH;
-    miny=the_area.doorheaders[m_doornum].cp1y/GR_HEIGHT;
+    //there are 2 opening locations
+    minx=the_area.doorheaders[m_doornum].locp1x/GR_WIDTH;
+    miny=the_area.doorheaders[m_doornum].locp1y/GR_HEIGHT;
     if(minx>maxx)
     {
-      minx=the_area.doorheaders[m_doornum].op1x/GR_WIDTH;
-      miny=the_area.doorheaders[m_doornum].op1y/GR_HEIGHT;
+      minx=the_area.doorheaders[m_doornum].locp2x/GR_WIDTH;
+      miny=the_area.doorheaders[m_doornum].locp2y/GR_HEIGHT;
     }
     if(minx>maxx)
     {
@@ -5823,6 +5824,11 @@ void CAreaDoor::OnSet2()
     point=dlg.GetPoint(GP_POINT);
     the_area.doorheaders[m_doornum].locp1x=(short) point.x;
     the_area.doorheaders[m_doornum].locp1y=(short) point.y;
+    if (!the_area.doorheaders[m_doornum].locp2x && !the_area.doorheaders[m_doornum].locp2y)
+    {
+      the_area.doorheaders[m_doornum].locp2x=(short) point.x;
+      the_area.doorheaders[m_doornum].locp2y=(short) point.y;
+    }
   }
   RefreshDoor();
   UpdateData(UD_DISPLAY);
@@ -5843,6 +5849,11 @@ void CAreaDoor::OnSet3()
     point=dlg.GetPoint(GP_POINT);
     the_area.doorheaders[m_doornum].locp2x=(short) point.x;
     the_area.doorheaders[m_doornum].locp2y=(short) point.y;
+    if (!the_area.doorheaders[m_doornum].locp1x && !the_area.doorheaders[m_doornum].locp1y)
+    {
+      the_area.doorheaders[m_doornum].locp1x=(short) point.x;
+      the_area.doorheaders[m_doornum].locp1y=(short) point.y;
+    }
   }
   RefreshDoor();
   UpdateData(UD_DISPLAY);

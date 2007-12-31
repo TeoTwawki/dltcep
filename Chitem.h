@@ -54,6 +54,7 @@ extern UINT WM_FINDREPLACE;
 #define SR_ALL 2
 
 //editor maptypes (for ImageView)
+#define MT_DEFAULT -1
 #define MT_HEIGHT  0
 #define MT_LIGHT   1
 #define MT_SEARCH  2
