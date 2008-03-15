@@ -128,10 +128,10 @@ BOOL CTormentCre::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	cb=(CComboBox *) GetDlgItem(IDC_DEATH);
-  pos=beasts.GetHeadPosition();
+  pos=beastkillvars.GetHeadPosition();
   while(pos)
   {
-    cb->AddString(beasts.GetNext(pos));
+    cb->AddString(beastkillvars.GetNext(pos));
   }
 
 	cb=(CComboBox *) GetDlgItem(IDC_IDSSPECIES);

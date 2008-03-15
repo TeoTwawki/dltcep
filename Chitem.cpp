@@ -173,7 +173,8 @@ CStringList exclude_item;
 CStringList xplist;
 CStringList pro_references;
 CStringList pro_titles;
-CStringList beasts; 
+CStringList beastnames;
+CStringList beastkillvars;
 CStringList spawngroup;
 CStringMapInt rnditems;             //this is the mapping for ignored items (random treasure)
 CStringMapArray store_spell_desc;

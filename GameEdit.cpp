@@ -219,6 +219,22 @@ void CGameEdit::DoDataExchange(CDataExchange* pDX)
       StoreResref(tmpstr,the_game.familiar.familiars[pos]);
     }
   }
+  else if(the_game.revision==11 || the_game.revision==12)
+  {
+    for(i=0;familiarids[i];i++)
+    {
+      GetDlgItem(familiarids[i])->EnableWindow(!!the_game.header.familiaroffset);
+    }
+    
+    pos=m_familiarpicker.GetCurSel();
+    m_familiarpicker.SetDroppedWidth(200);
+    if(pos>=0 && pos<260)
+    {
+      tmpstr.Format("%d",!!the_game.familiardata[pos]);
+      DDX_Text(pDX, IDC_FAMILIAR, tmpstr);
+      the_game.familiardata[pos]=!!atoi(tmpstr);
+    }
+  }
   else
   {
     for(i=0;familiarids[i];i++)
@@ -243,6 +259,7 @@ CString ResolveName(char *customname, creature_header *creatureheader)
 void CGameEdit::RefreshDialog()
 {
   CString tmpstr, name;
+  POSITION bp;
   int pos;
   int i;
 
@@ -325,18 +342,28 @@ void CGameEdit::RefreshDialog()
   }
   m_journalpicker.SetCurSel(pos);
 
+  pos=m_familiarpicker.GetCurSel();
+  if(pos<0) pos=0;
+  m_familiarpicker.ResetContent();
   if(the_game.revision==20 || the_game.revision==10 || the_game.revision==21 || the_game.revision==22)
   {
-    pos=m_familiarpicker.GetCurSel();
-    if(pos<0) pos=0;
-    m_familiarpicker.ResetContent();
     for(i=0;i<9;i++)
     {
       tmpstr.Format("%d. %-.8s",i+1, the_game.familiar.familiars[i]);
       m_familiarpicker.SetItemData(m_familiarpicker.AddString(tmpstr),i);
     }
-    m_familiarpicker.SetCurSel(pos);
   }
+  else if(the_game.revision==12 || the_game.revision==11)
+  {
+    bp=beastnames.GetHeadPosition();
+    for(i=0;i<260;i++)
+    {
+      tmpstr.Format("%d. %s (%d)",i, bp?beastnames.GetNext(bp):"unknown", the_game.familiardata[i]);
+      m_familiarpicker.SetItemData(m_familiarpicker.AddString(tmpstr),i);
+    }
+  }
+  m_familiarpicker.SetCurSel(pos);
+
   UpdateData(UD_DISPLAY);
 }
 

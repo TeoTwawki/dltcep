@@ -1076,7 +1076,7 @@ int Write2daArrayToFile(CString daname, CStringMapArray &refs, CString *columnam
   return 0;
 }
 
-void ReadBeastIni(CStringList &beasts)
+void ReadBeastIni(CStringList &beastnames, CStringList &beastkillvars)
 {
   CString tmpstr;
   FILE *fpoi;
@@ -1085,7 +1085,8 @@ void ReadBeastIni(CStringList &beasts)
   tmpstr.Format(bgfolder+"beast.ini");
 	fpoi=fopen(tmpstr,"rt");
 	if(!fpoi) return;
-  beasts.RemoveAll();
+  beastnames.RemoveAll();
+  beastkillvars.RemoveAll();
   memset(external,0,sizeof(external));
   while(!feof(fpoi))
   {
@@ -1099,14 +1100,21 @@ void ReadBeastIni(CStringList &beasts)
         break;
       }
     }
+
     if(!memicmp(external,"killvar=kill_",13) )
     {
       tmpstr=CString(external+13);
       tmpstr.MakeLower();
-      if(!beasts.Find(tmpstr) )
+      if(!beastkillvars.Find(tmpstr) )
       {
-        beasts.AddTail(tmpstr);
+        beastkillvars.AddTail(tmpstr);
       }
+    }
+
+    if(!memicmp(external,"name=",5))
+    {      
+      tmpstr=resolve_tlk_text(atoi(external+5),0);
+      beastnames.AddTail(tmpstr);
     }
   }
   fclose(fpoi);

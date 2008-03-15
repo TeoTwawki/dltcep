@@ -437,8 +437,8 @@ BOOL CChitemDlg::OnInitDialog()
     }
     scan_chitin();
     scan_override();
-    scan_2da();
     scan_dialog_both();
+    scan_2da();
     load_variables(m_hWnd, 0, 1, variables); //not verbose
     end_progress();
   }
@@ -772,7 +772,7 @@ int CChitemDlg::scan_2da()
   
   if(pst_compatible_var())
   {
-    ReadBeastIni(beasts);
+    ReadBeastIni(beastnames, beastkillvars);
   }
 
   idrefs.Lookup("ACTION",tmploc);
@@ -2688,8 +2688,8 @@ void CChitemDlg::OnCompat()
     }
     scan_chitin();
     scan_override();
-    scan_2da();
     scan_dialog_both();
+    scan_2da();
 
     load_variables(m_hWnd, 0, 1, variables); //not verbose
     UpdateData(UD_DISPLAY);
