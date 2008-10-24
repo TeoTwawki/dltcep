@@ -5911,8 +5911,8 @@ CAreaAnim::~CAreaAnim()
 }
 
 static int animboxids[]={IDC_ANIMPICKER, IDC_POSX, IDC_POSY, IDC_BAM,
-IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_U36, IDC_U38, IDC_U3A, IDC_U3C,
-IDC_U3E, IDC_SKIPEXT, IDC_BMP, IDC_FLAG1, IDC_FLAG2, IDC_FLAG3,
+IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_U36, IDC_U38, IDC_TRANSPARENT, IDC_U3C,
+IDC_CHANCE, IDC_SKIPEXT, IDC_BMP, IDC_FLAG1, IDC_FLAG2, IDC_FLAG3,
 IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8, IDC_FLAG9,
 IDC_FLAG10, IDC_FLAG11, IDC_FLAG12, IDC_FLAG13, IDC_FLAG14, IDC_FLAG15,
 IDC_FLAG16, IDC_BAMFRAME, IDC_PLAY, IDC_SCHEDULE, IDC_REMOVE, IDC_COPY,
@@ -5976,9 +5976,9 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_FLAGS, the_area.animheaders[m_animnum].flags);
     DDX_Text(pDX, IDC_U36,the_area.animheaders[m_animnum].unknown36);
     DDX_Text(pDX, IDC_U38,the_area.animheaders[m_animnum].height);
-		DDX_Text(pDX, IDC_U3A,the_area.animheaders[m_animnum].transparency);
+		DDX_Text(pDX, IDC_TRANSPARENT,the_area.animheaders[m_animnum].transparency);
 		DDX_Text(pDX, IDC_U3C,the_area.animheaders[m_animnum].current);
-    DDX_Text(pDX, IDC_U3E,the_area.animheaders[m_animnum].progress);
+    DDX_Text(pDX, IDC_CHANCE,the_area.animheaders[m_animnum].progress);
     DDX_Text(pDX, IDC_SKIPEXT,the_area.animheaders[m_animnum].skipcycle);
 
     RetrieveResref(tmpstr, the_area.animheaders[m_animnum].bmp);
@@ -6048,6 +6048,22 @@ BOOL CAreaAnim::OnInitDialog()
     m_tooltip.SetTipBkColor(RGB(240,224,160));
 
     m_tooltip.AddTool(GetDlgItem(IDC_ANIMPICKER), IDS_LABEL);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG1), IDS_AVISIBLE);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG2), IDS_ABLEND);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG3), IDS_ANOLIGHT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG4), IDS_APARTIAL);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG5), IDS_ASYNC);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG7), IDS_ANOWALL);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG8), IDS_AFOG);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG9), IDS_GROUND);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG10), IDS_AALL);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG11), IDS_APALETTE);
+    m_tooltip.AddTool(GetDlgItem(IDC_BMP), IDS_APALETTE);
+    m_tooltip.AddTool(GetDlgItem(IDC_BROWSE2), IDS_APALETTE);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG12), IDS_AMIRROR);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG13), IDS_ACOMBAT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG14), IDS_CHANCE);
+    m_tooltip.AddTool(GetDlgItem(IDC_TRANSPARENT), IDS_ATRANSP);
   }
 	RefreshAnim();
 	return TRUE;  
@@ -6093,9 +6109,9 @@ BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_U38, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U3C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BMP, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U3A, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TRANSPARENT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SKIPEXT, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U3E, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_CHANCE, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

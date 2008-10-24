@@ -73,6 +73,7 @@ protected:
 	afx_msg void OnToolsLookupstrref();
 	afx_msg void OnOrder();
 	afx_msg void OnToolsAddsparkdata();
+	afx_msg void OnToolsPlaysound();
 	//}}AFX_MSG
 	afx_msg void OnKillfocusEditlink();
   afx_msg void OnCustomdrawMyList ( NMHDR* pNMHDR, LRESULT* pResult );

@@ -101,12 +101,13 @@ BEGIN_MESSAGE_MAP(C2DAEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_CAPITALIZEENTRIES, OnToolsCapitalize)
 	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
 	ON_BN_CLICKED(IDC_ORDER, OnOrder)
+	ON_COMMAND(ID_TOOLS_ADDSPARKDATA, OnToolsAddsparkdata)
 	ON_EN_KILLFOCUS(IDC_DEFAULT, DefaultKillfocus)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_TOOLS_ADDSPARKDATA, OnToolsAddsparkdata)
+	ON_COMMAND(ID_TOOLS_PLAYSOUND, OnToolsPlaysound)
 	//}}AFX_MSG_MAP
   ON_EN_KILLFOCUS(IDC_EDITLINK,OnKillfocusEditlink)
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_2DA, OnCustomdrawMyList)
@@ -752,7 +753,7 @@ void C2DAEdit::OnToolsAddsparkdata()
   CString *tmppoi;
   CString tmpstr;
   int i;
-
+  
   if (m_item<0)
   {
     return;
@@ -770,7 +771,7 @@ void C2DAEdit::OnToolsAddsparkdata()
   if(colordlg.DoModal()==IDOK)
   {
     unsigned long colors[5];
-
+    
     MakeGradientArray(colors, (unsigned char) colordlg.m_picked);
     for (i=0;i<5;i++)
     {
@@ -786,13 +787,13 @@ void C2DAEdit::OnToolsCapitalize()
   POSITION pos;
   int i,j;
   CString *tmppoi;
-
+  
   pos=the_2da.data->GetHeadPosition();
   for(j=0;j<the_2da.cols;j++)
   {
     the_2da.collabels[j].MakeUpper();
   }
-	for(i=0;i<the_2da.rows;i++)
+  for(i=0;i<the_2da.rows;i++)
   {
     tmppoi=(CString *) the_2da.data->GetNext(pos);
     for(j=0;j<the_2da.cols;j++)
@@ -805,11 +806,20 @@ void C2DAEdit::OnToolsCapitalize()
 
 void C2DAEdit::OnToolsLookupstrref() 
 {
-	CStrRefDlg dlg;
-	
+  CStrRefDlg dlg;
+  
   if(IsWindow(m_edit)) m_edit.DestroyWindow();
   dlg.DoModal();
   RefreshDialog();
+}
+
+void C2DAEdit::OnToolsPlaysound() 
+{
+  CString tmpstr;
+
+  tmpstr=m_2da_control.GetItemText(m_item,m_subitem);
+  tmpstr.MakeUpper();
+  play_acm(tmpstr,false,false);
 }
 
 BOOL C2DAEdit::PreTranslateMessage(MSG* pMsg) 
@@ -1957,3 +1967,4 @@ BOOL CMUSEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

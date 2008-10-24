@@ -297,7 +297,7 @@ BOOL CCreatureGeneral::OnInitDialog()
 
 	cb=(CComboBox *) GetDlgItem(IDC_IDSALIGNMENT);
   if(pst_compatible_var()) FillCombo("ALIGN",cb,2);
-  else FillCombo(IDSName(ALIGN,false),cb,2);
+  else FillCombo(IDSName2(ALIGN,false),cb,2);
 
 	cb=(CComboBox *) GetDlgItem(IDC_HATED);
   FillCombo("RACE",cb,2);

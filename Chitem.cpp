@@ -821,7 +821,7 @@ bool assure_dir_exists(CString filename)
   pos=1;
   do
   {
-    len=temp.Find('\\',pos);
+    len=filename.Find('\\',pos);
     if(len<0) temp = filename;
     else
     {
@@ -2761,7 +2761,7 @@ char *idstype[NUM_IDS]={
     "specific","gender","alignment"
 };
 
-char *idsname[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
+char *idsname[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
 char *base_idsname_iwd[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
 char *base_idsname_iwd2[NUM_IDS]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMNT"};
 

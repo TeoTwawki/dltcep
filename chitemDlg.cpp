@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.1"
+#define PRG_VERSION "7.1b"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -798,6 +798,8 @@ int CChitemDlg::scan_2da()
     MessageBox("trigger.ids is wrong, triggers won't be resolved.","Warning",MB_ICONEXCLAMATION|MB_OK);
     break;
   }
+
+  get_idsfile("ALIGNMEN",1);
 /*
   idrefs.Lookup("RACE",tmploc);
   val=ReadIds(tmploc, race_names,1);

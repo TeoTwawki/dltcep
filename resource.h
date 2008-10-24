@@ -306,6 +306,20 @@
 #define IDS_FIELDS                      272
 #define IDS_LABEL                       273
 #define IDS_EXPIRATION                  274
+#define IDS_AVISIBLE                    275
+#define IDS_ABLEND                      276
+#define IDS_ANOLIGHT                    277
+#define IDS_APARTIAL                    278
+#define IDS_ASYNC                       279
+#define IDS_ANOWALL                     280
+#define IDS_AFOG                        281
+#define IDS_ATRANSP                     282
+#define IDS_AALL                        283
+#define IDS_APALETTE                    284
+#define IDS_AMIRROR                     285
+#define IDS_ACOMBAT                     286
+#define IDS_CHANCE                      287
+#define IDS_GROUND                      288
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -1828,6 +1842,7 @@
 #define ID_OPTIONS_LOGGING              33042
 #define ID_FILE_TP2                     33043
 #define ID_EXTRACTION_RECOMPRESSSAV     33044
+#define ID_TOOLS_PLAYSOUND              33045
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1835,7 +1850,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33045
+#define _APS_NEXT_COMMAND_VALUE         33046
 #define _APS_NEXT_CONTROL_VALUE         2334
 #define _APS_NEXT_SYMED_VALUE           120
 #endif

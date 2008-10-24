@@ -15,9 +15,9 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 static CString oidPST[9]={"FACTION","TEAM","EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
-static CString oidIWD[8]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
+static CString oidIWD[8]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
 static CString oidIWD2[10]={"EA","GENERAL","RACE","SUBRAC","CLASS","SPECIFIC","GENDER","ALIGN","",""};
-static CString oidBG[7]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGN"};
+static CString oidBG[7]={"EA","GENERAL","RACE","CLASS","SPECIFIC","GENDER","ALIGNMEN"};
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////

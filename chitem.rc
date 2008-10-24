@@ -3496,7 +3496,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit game:"
 MENU IDR_GAME
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_NPCPICKER,11,13,145,230,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
@@ -4038,8 +4038,8 @@ BEGIN
                     WS_TABSTOP,13,126,79,10
     CONTROL         "Invisible in fog",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,137,61,10
-    CONTROL         "Transparent",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,93,60,54,10
+    CONTROL         "Ground",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    93,60,39,10
     CONTROL         "Draw all cycles",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,93,71,63,10
     CONTROL         "Use palette BMP",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
@@ -4088,8 +4088,8 @@ BEGIN
     LTEXT           "Skip cycles",IDC_STATIC,373,33,37,8
     LTEXT           "Palette BMP",IDC_STATIC,171,33,40,8
     LTEXT           "Transparency",IDC_STATIC,373,7,44,8
-    EDITTEXT        IDC_U3A,373,17,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U3E,307,43,20,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TRANSPARENT,373,17,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CHANCE,307,43,20,14,ES_AUTOHSCROLL
     LTEXT           "Chance of progress",IDC_STATIC,307,33,62,8
 END
 
@@ -6092,8 +6092,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,0,0,11
- PRODUCTVERSION 7,0,0,11
+ FILEVERSION 7,1,0,1
+ PRODUCTVERSION 7,1,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6111,14 +6111,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 0, 0, 11\0"
+            VALUE "FileVersion", "7, 1, 0, 1\0"
             VALUE "InternalName", "dltcep\0"
-            VALUE "LegalCopyright", "Copyright (C) 2002-2007 Avenger\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002-2008 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.0k\0"
-            VALUE "ProductVersion", "7, 0, 0, 11\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.1b\0"
+            VALUE "ProductVersion", "7, 1, 0, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6724,6 +6724,7 @@ BEGIN
         MENUITEM "&Add spark data",             ID_TOOLS_ADDSPARKDATA
         MENUITEM "&Capitalize entries",         ID_TOOLS_CAPITALIZEENTRIES
         MENUITEM "&Edit strings",               ID_TOOLS_LOOKUPSTRREF
+        MENUITEM "&Play sound",                 ID_TOOLS_PLAYSOUND
     END
 END
 
@@ -7472,6 +7473,24 @@ BEGIN
     IDS_FIELDS              "1-creature isn't embedded\n8-creature's scripting name overridden"
     IDS_LABEL               "To edit this field, remove the number from the beginning."
     IDS_EXPIRATION          "This field exists in bg2, the item will expire after x hours."
+    IDS_AVISIBLE            "Set it to make the animation visible."
+    IDS_ABLEND              "Per pixel transparency. The darker the pixel, the more transparent it is."
+    IDS_ANOLIGHT            "The animation will be affected by darkness effects (weather, time of day)"
+    IDS_APARTIAL            "The animation will stop after the last frame, it won't restart."
+    IDS_ASYNC               "The animation will start synchronised with other similarly flagged animations. Otherwise its beginning is random."
+    IDS_ANOWALL             "The animation will be always drawn over wall covers."
+    IDS_AFOG                "???"
+    IDS_ATRANSP             "Per surface transparency, 255=invisible. Cannot use with blending."
+    IDS_AALL                "Used for very large animations where a single BAM contains multiple cycles."
+    IDS_APALETTE            "Uses a separate BMP palette, see the palette field."
+    IDS_AMIRROR             "Mirror the animation on the X-axis."
+    IDS_ACOMBAT             "Don't remove the animation in combat, on low settings."
+    IDS_CHANCE              "The chance of drawing the animation. (default:100)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GROUND              "The animation is covered by actors."
 END
 
 #endif    // English (U.S.) resources

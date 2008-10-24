@@ -274,8 +274,7 @@ int CScriptEdit::compile(CString filepath)
   }
   chdir(bgfolder);
   outpath.Format("override");
-  mkdir(outpath);
-  if(!dir_exists(outpath))
+  if(!assure_dir_exists(bgfolder+outpath))
   {
     tmpstr.Format("%s cannot be created as output path.",outpath);
     MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
@@ -352,8 +351,7 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
     }
   }
   chdir(bgfolder);
-  mkdir(weidudecompiled);
-  if(!dir_exists(weidudecompiled))
+  if(!assure_dir_exists(bgfolder+weidudecompiled))
   {
     tmpstr.Format("%s cannot be created as output path.",weidudecompiled);
     MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
@@ -1127,7 +1125,7 @@ int CScriptEdit::perform_search_and_replace(int idx, int mode, int match, CStrin
       if(tmpstart==-1) ch=0;
       else
       {
-        line.Delete(tmpstart,len);
+        line.Delete(tmpstart,search.GetLength());
         line.Insert(tmpstart,replace);
         found=true;        
       }
