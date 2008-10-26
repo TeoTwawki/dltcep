@@ -188,6 +188,11 @@ CString snd_slots[SND_SLOT_COUNT];
 CString action_defs[MAX_ACTION];
 CString trigger_defs[MAX_TRIGGER];
 CStringMapCStringMapInt idsmaps; //this is a cstring map to a cstringmapint
+CIntMapString listspells;        //iwd2 spell list (number to resref mapping)
+CIntMapString listdomains;       //iwd2 domain spell list (number to resref mapping)
+CIntMapString listinnates;       //iwd2 innate list (number to resref mapping)
+CIntMapString listsongs;         //iwd2 song list (number to resref mapping)
+CIntMapString listshapes;        //iwd2 wildshape list (number to resref mapping)
 
 CColorPicker colordlg;
 CItemPicker pickerdlg;

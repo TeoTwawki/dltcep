@@ -264,6 +264,7 @@
 #define IDS_VVCFLAG                     231
 #define IDD_ANIMDIALOG                  231
 #define IDS_SEQFLAG                     232
+#define IDD_CREATURELEVELS              232
 #define IDS_MINIMAP                     233
 #define IDS_TISEXTRACT                  234
 #define IDS_OVERLAY                     235
@@ -1629,6 +1630,9 @@
 #define IDC_SHADOW                      2322
 #define IDC_BREAKABLE                   2331
 #define IDC_BUTTON1                     2333
+#define IDC_TOTAL                       2336
+#define IDC_MEMORISED2                  2337
+#define IDC_STATIC1                     2338
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1851,7 +1855,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33046
-#define _APS_NEXT_CONTROL_VALUE         2334
+#define _APS_NEXT_CONTROL_VALUE         2339
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

@@ -83,6 +83,7 @@ protected:
 	afx_msg void OnNew1();
 	afx_msg void OnNew2();
 	afx_msg void OnKillfocusKit();
+	afx_msg void OnLevelslot();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -474,11 +475,16 @@ protected:
   CToolTipCtrl m_tooltip;
 
   void RefreshSpellPicker(int pos);
+  CIntMapString *GetIWD2SpellList(int pos);
+  CString ResolveIWD2SpellResRef(int spid, int pos);
+  int ResolveIWD2SpellID(CString resref, int pos);
   int ResolveTypeAndLevel(CString key);
   CString ResolveSpellName(CString key);
   int AddBook(int level, int type);
+  void AddIWD2Spell(CString spellres);
   void AddSpell(int slot, CString spellres);
   void RemoveSpell(int slot);
+  int CalculateIWD2Slots();
   int SetMemoryByClass(CString daname, int type, int level);
   // Generated message map functions
   //{{AFX_MSG(CCreatureItem)
@@ -501,7 +507,6 @@ protected:
 	afx_msg void OnKillfocusLevel();
 	afx_msg void OnKillfocusMin();
 	afx_msg void OnKillfocusMax();
-	afx_msg void OnKillfocusSpellres();
 	afx_msg void OnAdd();
 	afx_msg void OnBrowse2();
 	afx_msg void OnKillfocusSpellpicker();
@@ -524,6 +529,8 @@ protected:
 	afx_msg void OnKillfocusSelected();
 	afx_msg void OnUndroppable();
 	afx_msg void OnClearall();
+	afx_msg void OnMemorised();
+	afx_msg void OnDefaultKillfocus();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

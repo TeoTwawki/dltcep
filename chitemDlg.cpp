@@ -736,6 +736,14 @@ int CChitemDlg::scan_2da()
     val=Read2daInt(tmploc, rnditems, 1); //removeall=1
     darefs.Lookup("RT_NORM", tmploc);
     val|=Read2daInt(tmploc, rnditems, 0); //adding more items
+    darefs.Lookup("LISTSPLL", tmploc);
+    val|=Read2daResRef(tmploc, listspells, 1, 7);
+    darefs.Lookup("LISTINNT", tmploc);
+    val|=Read2daResRef(tmploc, listinnates, 1);
+    darefs.Lookup("LISTSONG", tmploc);
+    val|=Read2daResRef(tmploc, listsongs, 1);
+    darefs.Lookup("LISTSHAP", tmploc);
+    val|=Read2daResRef(tmploc, listshapes, 1);
 
 //this is the slot setup
     for(i=0;i<IWD2_SLOT_COUNT;i++) slot_names[i]=iwd2_slot_names[i];

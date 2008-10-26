@@ -743,6 +743,11 @@ extern CString resist_types[NUM_RTYPE];
 extern int has_duration[];
 extern CStringMapGameProps allgameprops;
 extern CStringMapCStringMapInt idsmaps;
+extern CIntMapString listspells;
+extern CIntMapString listdomains;
+extern CIntMapString listinnates;
+extern CIntMapString listsongs;
+extern CIntMapString listshapes;
 
 //area animation flags
 #define AA_MIRROR 2048

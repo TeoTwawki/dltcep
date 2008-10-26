@@ -16,7 +16,7 @@ extern CString iwd2_spell_levels[IWD2_SPELLCOUNT];
 
 typedef struct 
 {
-  long unknown;
+  long maximum;
   long free;
 } iwd2_trail;
 
@@ -146,7 +146,7 @@ private:
   int adjust_actpoint(long offset);
   int handle_iwd2_spells(int position, long offset, long count);
   int handle_iwd2();
-  int write_iwd2_spells();
+  int write_iwd2_spells(int fhandle);
   int calculate_iwd2_spells(int position, long &offset, long &maxcount);
   int calculate_iwd2();
   inline long myseek(long pos)

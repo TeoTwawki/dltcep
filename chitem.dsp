@@ -193,6 +193,10 @@ SOURCE=.\CreatureEdit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CreatureLevels.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CreatureOverlay.cpp
 # End Source File
 # Begin Source File
@@ -591,6 +595,10 @@ SOURCE=.\creature.h
 # Begin Source File
 
 SOURCE=.\CreatureEdit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CreatureLevels.h
 # End Source File
 # Begin Source File
 

@@ -36,6 +36,7 @@ Ccreature::Ccreature()
   pst_overlay_size=0;
   revision=10;
   memset(iwd2_spells,0,sizeof(iwd2_spells));
+  memset(iwd2_free,0,sizeof(iwd2_free));
   m_savechanges=true;
 }
 
@@ -256,7 +257,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
 
   if(revision==22)
   {
-    write_iwd2_spells();
+    write_iwd2_spells(fhandle);
   }
   else
   {
@@ -499,7 +500,7 @@ int Ccreature::handle_iwd2_spells(int position, long offset, long count)
   return flg;
 }
 
-int Ccreature::write_iwd2_spells()
+int Ccreature::write_iwd2_spells(int fhandle)
 {
   int position, esize;
 

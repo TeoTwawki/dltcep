@@ -10,6 +10,7 @@
 #include "TormentCre.h"
 #include "IcewindCre.h"
 #include "IWD2Creature.h"
+#include "CreatureLevels.h"
 #include "2da.h"
 #include "tbg.h"
 #include "options.h"
@@ -69,6 +70,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   CString tmpstr;
   creature_header tmpheader;
   int value;
+  int i, flg;
 
   memcpy(&tmpheader,&the_creature.header,sizeof(creature_header) );
 	CPropertyPage::DoDataExchange(pDX);
@@ -218,6 +220,14 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   tmpstr=FindKit(the_creature.header.kit);
   DDX_Text(pDX,IDC_KIT,tmpstr);
   the_creature.header.kit=strtonum(tmpstr);
+
+  flg =(the_creature.revision==22);
+  for(i=0;i<3;i++)
+  {
+    GetDlgItem(IDC_LEVEL1+i)->ShowWindow(!flg);
+  }
+  GetDlgItem(IDC_LEVELSLOT)->ShowWindow(flg);
+
   if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
   {
     the_creature.m_changed=true;
@@ -351,6 +361,7 @@ BEGIN_MESSAGE_MAP(CCreatureGeneral, CPropertyPage)
 	ON_BN_CLICKED(IDC_NEW1, OnNew1)
 	ON_BN_CLICKED(IDC_NEW2, OnNew2)
 	ON_CBN_KILLFOCUS(IDC_KIT, OnKillfocusKit)
+	ON_BN_CLICKED(IDC_LEVELSLOT, OnLevelslot)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
@@ -607,21 +618,33 @@ void CCreatureGeneral::OnKillfocusKit()
 void CCreatureGeneral::OnV10() 
 {
 	the_creature.revision=10;
+  UpdateData(UD_DISPLAY);
 }
 
 void CCreatureGeneral::OnV22() 
 {
 	the_creature.revision=22;
+  UpdateData(UD_DISPLAY);
 }
 
 void CCreatureGeneral::OnV90() 
 {
 	the_creature.revision=90;
+  UpdateData(UD_DISPLAY);
 }
 
 void CCreatureGeneral::OnV12() 
 {
 	the_creature.revision=12;
+  UpdateData(UD_DISPLAY);
+}
+
+//iwd2 levels
+void CCreatureGeneral::OnLevelslot() 
+{
+  CCreatureLevels dlg;
+  
+  dlg.DoModal();
 }
 
 BOOL CCreatureGeneral::PreTranslateMessage(MSG* pMsg) 
@@ -2382,12 +2405,22 @@ IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN, IDC_UNDROPPABLE, IDC_UNKNOWN,
 static int flagboxids[]={IDC_IDENTIFIED, IDC_NOSTEAL, IDC_STOLEN, IDC_UNDROPPABLE,
 0};
 
-static int spellboxids[]={IDC_SPELLPICKER, IDC_MEMORISED, IDC_FORGET,
+static int spellboxids[]={IDC_SPELLPICKER, IDC_MEMORISED, IDC_FORGET, IDC_MEMORISED2, IDC_TOTAL,
 0};
 
 static int levelboxids[]={
   IDC_LEVELSLOT, IDC_MIN, IDC_MAX, IDC_LEVEL, IDC_SPELLTYPE, IDC_DELSLOT,
   IDC_MEMORISE, IDC_SPELLRES, IDC_BROWSE2,
+0};
+
+static int noiwd2levelboxids[]={
+  IDC_BOOKPICKER, IDC_BROWSE3, IDC_ADD, IDC_REMOVE, IDC_SPELLRES2, IDC_SPELLTYPE2, IDC_LEVEL2,
+  IDC_STATIC4, IDC_STATIC5, IDC_STATIC6, IDC_BOOK, IDC_BOOK2,
+  IDC_LEVEL, IDC_SPELLTYPE, IDC_DELSLOT,IDC_ADDSLOT, IDC_MEMORISED, IDC_STATIC1,
+0};
+
+static int nobg2levelboxids[]={
+  IDC_MEMORISED2, IDC_TOTAL, IDC_STATIC2, IDC_STATIC3,
 0};
 
 static int bookboxids[]={IDC_LEVEL2, IDC_SPELLTYPE2, IDC_REMOVE, IDC_BOOK2, IDC_BOOKPICKER,
@@ -2407,6 +2440,42 @@ int CCreatureItem::ResolveTypeAndLevel(CString key)
     pos=tmpspell.RetrieveTypeAndLevel(fh);
   }
   return pos;
+}
+
+CIntMapString *CCreatureItem::GetIWD2SpellList(int pos)
+{
+  if(pos<9*7) return &listspells;
+  if(pos<9*8) return &listdomains;
+  if(pos==9*8) return &listinnates;
+  if(pos==9*8+1) return &listshapes;
+  if(pos==9*8+2) return &listsongs;
+  abort();
+}
+
+CString CCreatureItem::ResolveIWD2SpellResRef(int spid, int type)
+{
+  CIntMapString *list = GetIWD2SpellList(type);
+  if (!list) return "";
+  return (*list)[spid];
+}
+
+int CCreatureItem::ResolveIWD2SpellID(CString resref, int type)
+{
+  POSITION pos;
+
+  CIntMapString *list = GetIWD2SpellList(type);
+  if (!list) return -1;
+
+  pos=list->GetStartPosition();
+  while(pos)
+  {
+    CString resource;
+    int key;
+
+    list->GetNextAssoc(pos, key, resource);
+    if(!resource.CompareNoCase(resref)) return key;
+  }
+  return -1;
 }
 
 CString CCreatureItem::ResolveSpellName(CString key)
@@ -2511,68 +2580,92 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
 
   //spells section
   pos=m_levelpicker.GetCurSel();
-  flg=(pos>=0) && (pos<the_creature.selectcount);
+  if(the_creature.revision==22)
+  {
+    flg=(pos>=0) && (pos<IWD2_SPELLCOUNT);
+  }
+  else
+  {
+    flg=(pos>=0) && (pos<the_creature.selectcount);
+  }
   if(flg)
   {
-    DDX_Text(pDX,IDC_MIN, the_creature.selects[pos].num1);
-    DDX_Text(pDX,IDC_MAX, the_creature.selects[pos].num2);
-    j=the_creature.selects[pos].spelltype;
-   	DDX_CBIndex(pDX, IDC_SPELLTYPE, j);
-    the_creature.selects[pos].spelltype=(short) j;
-    j=the_creature.selects[pos].level+1;
-    DDX_Text(pDX, IDC_LEVEL,j);
-    //range checks
-    /*
-    if(iwd2_structures())
+    if(the_creature.revision==22)
     {
-      DDV_MinMaxInt(pDX,j,1,9);
+      //DDX_Text(pDX,IDC_MIN, the_creature.iwd2_counts[pos]);
+      DDX_Text(pDX,IDC_MIN, the_creature.iwd2_free[pos].free);
+      DDX_Text(pDX,IDC_MAX, the_creature.iwd2_free[pos].maximum);
+      j=pos;
+      DDX_CBIndex(pDX, IDC_SPELLTYPE, j);
+      if(pos<8*9) j=pos%9+1;
+      else j=1;
+      DDX_Text(pDX, IDC_LEVEL,j);
     }
     else
     {
-      switch(the_creature.selects[pos].spelltype)
+      DDX_Text(pDX,IDC_MIN, the_creature.selects[pos].num1);
+      DDX_Text(pDX,IDC_MAX, the_creature.selects[pos].num2);
+      j=the_creature.selects[pos].spelltype;
+      DDX_CBIndex(pDX, IDC_SPELLTYPE, j);
+      the_creature.selects[pos].spelltype=(short) j;
+      j=the_creature.selects[pos].level+1;
+      DDX_Text(pDX, IDC_LEVEL,j);
+      DDV_MinMaxInt(pDX,j,1,9); //simplified range check      
+      the_creature.selects[pos].level=(short) (j-1);
+    }
+
+    pos2=m_spellpicker.GetCurSel();
+    if(the_creature.revision==22)
+    {
+      flg2=(pos2>=0) && (pos2<the_creature.iwd2_counts[pos]);
+      if(flg2)
       {
-      case 0:
-        DDV_MinMaxInt(pDX,j,1,7);
-        break;
-      case 1:
-        DDV_MinMaxInt(pDX,j,1,9);
-        break;
-      default:
-        DDV_MinMaxInt(pDX,j,1,1);
+        tmpstr=ResolveSpellName(m_spellres);
+        DDX_Text(pDX, IDC_SPELLNAME, tmpstr);
+        DDX_Text(pDX, IDC_TOTAL, the_creature.iwd2_spells[pos][pos2].total);
+        DDX_Text(pDX, IDC_MEMORISED2, the_creature.iwd2_spells[pos][pos2].remaining);
       }
     }
-    */
-    DDV_MinMaxInt(pDX,j,1,9); //simplified range check
-
-    the_creature.selects[pos].level=(short) (j-1);
-    pos2=m_spellpicker.GetCurSel();
-    flg2=(pos2>=0) && (pos2<the_creature.selects[pos].count);
-    if(flg2)
+    else
     {
-/*
-      m_spellslot=pos2+the_creature.selects[pos].index;
-      RetrieveResref(tmpstr,the_creature.memos[m_spellslot].resref);
-      DDX_Text(pDX, IDC_SPELLRES,tmpstr);
-      DDV_MaxChars(pDX, tmpstr, 8);
-      StoreResref(tmpstr,the_creature.memos[m_spellslot].resref);
-*/
-
-      tmpstr=ResolveSpellName(m_spellres);
-      DDX_Text(pDX, IDC_SPELLNAME, tmpstr);
-
       cb=(CButton *) GetDlgItem(IDC_MEMORISED);
-      cb->SetCheck(!!the_creature.memos[m_spellslot].flags);
-    }    
+      flg2=(pos2>=0) && (pos2<the_creature.selects[pos].count);
+      if(flg2)
+      {
+        tmpstr=ResolveSpellName(m_spellres);
+        DDX_Text(pDX, IDC_SPELLNAME, tmpstr);
+        
+        cb->SetCheck(!!the_creature.memos[m_spellslot].flags);
+      }
+    }
   }
   else flg2=0;
   for(i=0;levelboxids[i];i++)
   {
     GetDlgItem(levelboxids[i])->EnableWindow(flg);
   }
+
   for(i=0;spellboxids[i];i++)
   {
     GetDlgItem(spellboxids[i])->EnableWindow(flg2);
   }
+
+  if(the_creature.revision==22)
+  {
+    for(i=0;noiwd2levelboxids[i];i++)
+    {
+      GetDlgItem(noiwd2levelboxids[i])->ShowWindow(0);
+    }
+    GetDlgItem(IDC_MIN)->EnableWindow(0);
+  }
+  else
+  {
+    for(i=0;i<nobg2levelboxids[i];i++)
+    {
+      GetDlgItem(nobg2levelboxids[i])->ShowWindow(0);
+    }
+  }
+
   //books
   pos=m_bookpicker.GetCurSel();
   flg=(pos>=0) && (pos<the_creature.bookcount);
@@ -2694,12 +2787,26 @@ void CCreatureItem::RefreshItem()
     pos=m_levelpicker.GetCurSel();
     if(pos<0) pos=0;
     m_levelpicker.ResetContent();
-    m_maxslot.Format("/ %d", the_creature.selectcount);
-    for(i=0;i<the_creature.selectcount;i++)
+    if(the_creature.revision==22)
     {
-      idx=the_creature.selects[i].level;
-      tmpstr.Format("%d %s level %d (%d)",i+1, format_spellslot(the_creature.selects[i].spelltype),idx+1, the_creature.selects[i].count );
-      m_levelpicker.AddString(tmpstr);
+      m_maxslot.Format("/ %d", IWD2_SPELLCOUNT);
+      for(i=0;i<IWD2_SPELLCOUNT;i++)
+      {
+        if(i<8*9) idx=i%9;
+        else idx=0;
+        tmpstr.Format("%d %s level %d (%d)",i+1, format_spellslot(i),idx+1, the_creature.iwd2_counts[i] );
+        m_levelpicker.AddString(tmpstr);
+      }
+    }
+    else
+    {
+      m_maxslot.Format("/ %d", the_creature.selectcount);
+      for(i=0;i<the_creature.selectcount;i++)
+      {
+        idx=the_creature.selects[i].level;
+        tmpstr.Format("%d %s level %d (%d)",i+1, format_spellslot(the_creature.selects[i].spelltype),idx+1, the_creature.selects[i].count );
+        m_levelpicker.AddString(tmpstr);
+      }
     }
     if(pos>=i) pos=i-1;
     pos=m_levelpicker.SetCurSel(pos);
@@ -2716,27 +2823,54 @@ void CCreatureItem::RefreshSpellPicker(int pos)
   int pos2;
   int idx;
   int i;
+  unsigned int spid;
 
   if(pos<0) return;
   pos2=m_spellpicker.GetCurSel();
   if(pos2<0) pos2=0;
   m_spellpicker.ResetContent();
-  idx=the_creature.selects[pos].index;
-  m_maxspell.Format("/ %d", the_creature.selects[pos].count);
-  for(i=0;i<the_creature.selects[pos].count;i++)
+  if(the_creature.revision==22)
   {
-    RetrieveResref(tmp,the_creature.memos[idx+i].resref);
-    tmptext=ResolveSpellName(tmp);
-    tmpstr.Format("%d %s %s",i+1, tmp, tmptext);
-    m_spellpicker.AddString(tmpstr);
+    for(i=0;i<the_creature.iwd2_counts[pos];i++)
+    {
+      spid = the_creature.iwd2_spells[pos][i].type;
+      tmp = ResolveIWD2SpellResRef(spid, pos);
+      tmptext=ResolveSpellName(tmp);
+      tmpstr.Format("%d %s %s",i+1, tmp, tmptext);
+      m_spellpicker.AddString(tmpstr);
+    }
   }
+  else
+  {
+    idx=the_creature.selects[pos].index;
+    for(i=0;i<the_creature.selects[pos].count;i++)
+    {
+      RetrieveResref(tmp,the_creature.memos[idx+i].resref);
+      tmptext=ResolveSpellName(tmp);
+      tmpstr.Format("%d %s %s",i+1, tmp, tmptext);
+      m_spellpicker.AddString(tmpstr);
+    }
+  }
+  m_maxspell.Format("/ %d", i);
   if(pos2>=i) pos2=i-1;
   pos2=m_spellpicker.SetCurSel(pos2);
   if(pos2<0) m_spellslot=-1;
-  else m_spellslot=pos2+the_creature.selects[pos].index;
+  else
+  {
+    if(the_creature.revision==22) m_spellslot=pos2;
+    else m_spellslot=pos2+the_creature.selects[pos].index;
+  }
   if(m_spellslot>=0)
   {
-    RetrieveResref(m_spellres,the_creature.memos[m_spellslot].resref);
+    if(the_creature.revision==22)
+    {
+      spid = the_creature.iwd2_spells[pos][m_spellslot].type;
+      m_spellres = ResolveIWD2SpellResRef(spid, pos);
+    }
+    else
+    {
+      RetrieveResref(m_spellres,the_creature.memos[m_spellslot].resref);
+    }
   }
   else m_spellres="";
 }
@@ -2810,7 +2944,6 @@ BEGIN_MESSAGE_MAP(CCreatureItem, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_LEVEL, OnKillfocusLevel)
 	ON_EN_KILLFOCUS(IDC_MIN, OnKillfocusMin)
 	ON_EN_KILLFOCUS(IDC_MAX, OnKillfocusMax)
-	ON_EN_KILLFOCUS(IDC_SPELLRES, OnKillfocusSpellres)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_CBN_KILLFOCUS(IDC_SPELLPICKER, OnKillfocusSpellpicker)
@@ -2833,6 +2966,10 @@ BEGIN_MESSAGE_MAP(CCreatureItem, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_SELECTED, OnKillfocusSelected)
 	ON_BN_CLICKED(IDC_UNDROPPABLE, OnUndroppable)
 	ON_BN_CLICKED(IDC_CLEARALL, OnClearall)
+	ON_BN_CLICKED(IDC_MEMORISED, OnMemorised)
+	ON_EN_KILLFOCUS(IDC_SPELLRES, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TOTAL, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_MEMORISED2, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3020,12 +3157,19 @@ void CCreatureItem::OnClear()
 {
   int i;
 
+  the_creature.KillIwd2Spells();
   the_creature.KillBooks();
   the_creature.KillMemos();
   the_creature.KillSelects();
   the_creature.header.bookcnt=0;
   the_creature.header.memcnt=0;
   the_creature.header.selectcnt=0;
+  for(i=0;i<IWD2_SPELLCOUNT;i++)
+  {
+    the_creature.iwd2_free[i].free=0;
+    the_creature.iwd2_free[i].maximum=0;
+  }
+
   the_creature.selects=new creature_select[BG2_SELECTCOUNT];
   if(!the_creature.selects) return;
   the_creature.selectcount=the_creature.header.selectcnt=BG2_SELECTCOUNT;
@@ -3161,39 +3305,65 @@ int CCreatureItem::SetMemoryByClass(CString table, int type, int level)
   return ret;
 }
 
+int CCreatureItem::CalculateIWD2Slots()
+{
+  int i, pos;
+  long sum;
+
+  for(pos = 0; pos<8*9+3; pos++)
+  {
+    sum = 0;
+    for(i=0;i<the_creature.iwd2_counts[pos];i++)
+    {
+      sum+=the_creature.iwd2_spells[pos][i].total;
+    }
+    //this line is not correct, we need the possible maximum number, not the actual
+    the_creature.iwd2_free[pos].maximum=sum;
+    the_creature.iwd2_free[pos].free=the_creature.iwd2_free[pos].maximum-sum;
+  }
+  return 0;
+}
+
 void CCreatureItem::OnClass() 
 {
   int flg;
 
-	switch(the_creature.header.idsclass)
+  if(the_creature.revision==22)
   {
-  case MAGE_THIEF:
-  case CLASS_MAGE: flg=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[0]); break;
-  case CLERIC_THIEF:
-  case CLASS_CLERIC: flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[0]); break;
-  case CLASS_BARD: flg=SetMemoryByClass("MXSPLBRD",1,the_creature.header.levels[0]); break;
-  case CLASS_PALADIN: flg=SetMemoryByClass("MXSPLPAL",0,the_creature.header.levels[0]); break;
-  case CLASS_DRUID: flg=SetMemoryByClass("MXSPLDRU",0,the_creature.header.levels[0]); break;
-  case CLASS_RANGER: flg=SetMemoryByClass("MXSPLRAN",0,the_creature.header.levels[0]); break;
-  case CLASS_SORCEROR: flg=SetMemoryByClass("SPLSRCKN",1,the_creature.header.levels[0]); break;
-  case FIGHTER_MAGE: flg=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[1]); break;
-  case FIGHTER_CLERIC: flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[1]); break;
-  case CLERIC_MAGE:
-    flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[0]);
-    flg|=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[1]);
-    break;
-  case CLERIC_RANGER:
-    flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[0]);
-    flg|=SetMemoryByClass("MXSPLRAN",0,the_creature.header.levels[1]);
-    break;
-  case FIGHTER_DRUID: flg=SetMemoryByClass("MXSPLDRU",0,the_creature.header.levels[1]); break;
-  case FIGHTER_MAGE_CLERIC:
-    flg=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[1]);
-    flg|=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[2]);
-    break;
-  default:
-    MessageBox("Not spellcaster player class.","Creature editor",MB_OK);
-    return;
+    flg = CalculateIWD2Slots();    
+  }
+  else
+  {
+    switch(the_creature.header.idsclass)
+    {
+    case MAGE_THIEF:
+    case CLASS_MAGE: flg=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[0]); break;
+    case CLERIC_THIEF:
+    case CLASS_CLERIC: flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[0]); break;
+    case CLASS_BARD: flg=SetMemoryByClass("MXSPLBRD",1,the_creature.header.levels[0]); break;
+    case CLASS_PALADIN: flg=SetMemoryByClass("MXSPLPAL",0,the_creature.header.levels[0]); break;
+    case CLASS_DRUID: flg=SetMemoryByClass("MXSPLDRU",0,the_creature.header.levels[0]); break;
+    case CLASS_RANGER: flg=SetMemoryByClass("MXSPLRAN",0,the_creature.header.levels[0]); break;
+    case CLASS_SORCEROR: flg=SetMemoryByClass("SPLSRCKN",1,the_creature.header.levels[0]); break;
+    case FIGHTER_MAGE: flg=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[1]); break;
+    case FIGHTER_CLERIC: flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[1]); break;
+    case CLERIC_MAGE:
+      flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[0]);
+      flg|=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[1]);
+      break;
+    case CLERIC_RANGER:
+      flg=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[0]);
+      flg|=SetMemoryByClass("MXSPLRAN",0,the_creature.header.levels[1]);
+      break;
+    case FIGHTER_DRUID: flg=SetMemoryByClass("MXSPLDRU",0,the_creature.header.levels[1]); break;
+    case FIGHTER_MAGE_CLERIC:
+      flg=SetMemoryByClass("MXSPLWIZ",1,the_creature.header.levels[1]);
+      flg|=SetMemoryByClass("MXSPLPRS",0,the_creature.header.levels[2]);
+      break;
+    default:
+      MessageBox("Not spellcaster player class.","Creature editor",MB_OK);
+      return;
+    }
   }
   if(flg)
   {
@@ -3202,7 +3372,7 @@ void CCreatureItem::OnClass()
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureItem::OnKillfocusSpellres() 
+void CCreatureItem::OnDefaultKillfocus() 
 {
 	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);
@@ -3288,6 +3458,15 @@ void CCreatureItem::OnMemorise()
   int level, type;
 
   if(m_spellres.IsEmpty()) return;
+
+  if (the_creature.revision==22)
+  {
+    AddIWD2Spell(m_spellres);
+    RefreshItem();
+    UpdateData(UD_DISPLAY);
+    return;
+  }
+
   xpos=ResolveTypeAndLevel(m_spellres);
   if(xpos<7) { level=xpos; type=0; }
   else if(xpos<16) { level=xpos-7; type=1; }
@@ -3311,22 +3490,92 @@ void CCreatureItem::OnMemorise()
   MessageBox(tmpstr,"Creature editor",MB_OK);
 }
 
+void CCreatureItem::OnMemorised() 
+{
+  CButton *cb;
+
+  if(m_spellslot>=0)
+  {
+    cb=(CButton *) GetDlgItem(IDC_MEMORISED);
+    the_creature.memos[m_spellslot].flags=cb->GetCheck();
+  }
+}
+
 void CCreatureItem::OnForget() 
 {
-  int pos;
+  int i, size, pos, pos2;
 
 	m_spellres.Empty();
-  for(pos=0;pos<the_creature.selectcount;pos++)
+  if(the_creature.revision==22)
   {
-    if( (the_creature.selects[pos].index<=m_spellslot) && 
-    the_creature.selects[pos].index+the_creature.selects[pos].count>m_spellslot)
+    pos = m_levelpicker.GetCurSel();
+    pos2 = m_spellpicker.GetCurSel();
+    if(pos2>=0)
     {
-	    RemoveSpell(pos);
-      break;
+      size = --the_creature.iwd2_counts[pos];
+      creature_iwd2_spell *tmpspell=new creature_iwd2_spell[size];
+      for(i=0;i<pos2;i++)
+      {
+        tmpspell[i]=the_creature.iwd2_spells[pos][i];
+      }
+      for(i=pos2+1;i<=size;i++)
+      {
+        tmpspell[i-1]=the_creature.iwd2_spells[pos][i];
+      }
+      delete [] the_creature.iwd2_spells[pos];
+      the_creature.iwd2_spells[pos]=tmpspell;
+    }
+  }
+  else
+  {
+    for(pos=0;pos<the_creature.selectcount;pos++)
+    {
+      if( (the_creature.selects[pos].index<=m_spellslot) && 
+        the_creature.selects[pos].index+the_creature.selects[pos].count>m_spellslot)
+      {
+        RemoveSpell(pos);
+        break;
+      }
     }
   }
   RefreshItem();
 	UpdateData(UD_DISPLAY);
+}
+
+void CCreatureItem::AddIWD2Spell(CString res)
+{
+  unsigned int spid;
+  int i, size, pos, pos2;
+
+  pos = m_levelpicker.GetCurSel();
+  pos2 = m_spellpicker.GetCurSel();
+
+  spid = ResolveIWD2SpellID(m_spellres, pos);
+  if(spid<0)
+  {
+    MessageBox("Couldn't resolve this spell name, please make sure it is on the appropriate list.","Creature editor",MB_OK|MB_ICONWARNING);
+  }
+  else
+  {
+    if(pos2<0)
+    {
+      size = the_creature.iwd2_counts[pos]++;
+      pos2=size;
+      creature_iwd2_spell *tmpspell=new creature_iwd2_spell[size+1];
+      for(i=0;i<size;i++)
+      {
+        tmpspell[i]=the_creature.iwd2_spells[pos][i];
+      }
+
+      delete [] the_creature.iwd2_spells[pos];
+      tmpspell[i].remaining=1;
+      tmpspell[i].total=1;
+      tmpspell[i].unknown=0;
+      the_creature.iwd2_spells[pos]=tmpspell;      
+    }
+    
+    the_creature.iwd2_spells[pos][pos2].type=spid;
+  }
 }
 
 void CCreatureItem::OnBrowse2() 
@@ -3337,6 +3586,7 @@ void CCreatureItem::OnBrowse2()
   {
     m_spellres=pickerdlg.m_picked; 
   }
+
 	UpdateData(UD_DISPLAY);
 }
 

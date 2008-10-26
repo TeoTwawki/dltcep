@@ -185,6 +185,7 @@ int Read2daString(loc_entry entry, CString2List &refs, int startcolumn);
 int Read2daStrref(loc_entry entry, CIntMapInt &refs, int column);
 int Read2daArray(loc_entry entry, CStringMapArray &refs, int columns); //maximum 3
 int Read2daInt(loc_entry entry, CStringMapInt &refs, int removeall);
+int Read2daResRef(loc_entry entry, CIntMapString &refs, int removeall, int skipcolumn=0);
 int Read2daField(CString daname, int line, int column);
 int Read2daColumn(loc_entry entry, CStringList &refs, int column, bool caps);
 int ReadIds(loc_entry entry, CStringList &refs, int add);

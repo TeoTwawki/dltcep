@@ -563,6 +563,64 @@ int Read2daInt(loc_entry entry, CStringMapInt &refs, int removeall)
   return Read2daIntFromFile(fhandle, refs, entry.size);
 }
 
+int Read2daResRefFromFile(int fhandle, CIntMapString &refs, int length, int column)
+{
+  char tmpref[MAXIDSIZE];
+  CString ref;
+  FILE *fpoi;
+  int ret, val;
+
+  if(length<0) maxlength=filelength(fhandle);
+  else maxlength=length;
+  fpoi=fdopen(fhandle,"rb");
+  if(!fpoi)
+  {
+    close(fhandle);
+    return -1;
+  }
+  read_string(fpoi, "\n"); //skipping crap
+  read_string(fpoi, "\n"); //skipping crap
+  read_string(fpoi, "\n"); //skipping crap
+  do
+  {
+    if(read_string(fpoi, " ",tmpref,sizeof(tmpref)) )
+    {
+      tmpref[MAXIDSIZE-1]=0;
+      val=atoi(tmpref);
+      int c = column;
+      while(c--)
+      {
+        if(!read_string(fpoi, " ",tmpref,sizeof(tmpref)))
+        {
+          fclose(fpoi);
+          return -1;
+        }
+      }
+      ret=read_string(fpoi,"\n", tmpref,sizeof(tmpref));
+      if(!ret) break;
+      tmpref[MAXIDSIZE-1]=0;
+      ref=tmpref;
+      ref.MakeUpper();
+      refs[val]=ref;
+    }
+    else break;
+  }
+  while(1);
+  fclose(fpoi);
+  return 0;
+}
+
+int Read2daResRef(loc_entry entry, CIntMapString &refs, int removeall, int skipcolumn)
+{
+  int fhandle;
+
+  if(removeall) refs.RemoveAll();
+  xorflag=position=0;
+  fhandle=locate_file(entry, 0);
+  if(fhandle<1) return -1;
+  return Read2daResRefFromFile(fhandle, refs, entry.size, skipcolumn);
+}
+
 int Read2daField(CString daname, int line, int column)
 {
   char tmpref[MAXIDSIZE];
