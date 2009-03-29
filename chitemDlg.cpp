@@ -241,6 +241,7 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
+	ON_COMMAND(ID_CHECK_AVATAR2DA, OnCheckAvatar2da)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2238,6 +2239,7 @@ int CChitemDlg::process_maps()
   return gret;
 }
 
+
 void CChitemDlg::OnCheckItem() 
 {
   if(bgfolder.IsEmpty())
@@ -2599,7 +2601,34 @@ void CChitemDlg::OnCheckWorldmap()
     }
     return;
   }
-  MessageBox("No problem found!","Game check",MB_OK|MB_ICONINFORMATION);
+  MessageBox("No problem found!","Worldmap check",MB_OK|MB_ICONINFORMATION);
+}
+
+void CChitemDlg::OnCheckAvatar2da() 
+{
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  m_event.Empty();
+  UpdateData(UD_DISPLAY);
+
+  if(check_avatar())
+  {
+    switch(logtype)
+    {
+    case 0:
+      MessageBox("There were inconsistencies, change the logging type to see them!","Avatar check",MB_OK|MB_ICONINFORMATION);
+      break;
+    case 2:
+      MessageBox("See the chitem.log for details on the inconsistencies!","Avatar check",MB_OK|MB_ICONINFORMATION);
+      break;
+    }
+    return;
+  }
+  MessageBox("No problem found!","Avatar check",MB_OK|MB_ICONINFORMATION);
 }
 
 void CChitemDlg::OnRescan() 

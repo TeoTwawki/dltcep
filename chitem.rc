@@ -6271,6 +6271,8 @@ BEGIN
         MENUITEM "&UI",                         ID_CHECK_UI
         MENUITEM "&VVC",                        ID_CHECK_VVC
         MENUITEM "&Worldmap",                   ID_CHECK_WORLDMAP
+        MENUITEM SEPARATOR
+        MENUITEM "Avatar.&2da",                 ID_CHECK_AVATAR2DA
     END
     POPUP "E&xtraction"
     BEGIN

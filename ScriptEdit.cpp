@@ -31,13 +31,6 @@ static char THIS_FILE[] = __FILE__;
 #define MAX_SCRIPT_LEN 6553599
 #define LINES 30
 
-#define TA_ACTION    0
-#define TA_TRIGGER   1
-#define TA_IF        2
-#define TA_RESPONSE  3
-#define TA_THEN      4
-#define TA_ENDIF     5
-
 //static function
 //displays compiler data in human readable format
 CString format_parameters(compiler_data &compiler_data)
@@ -301,24 +294,19 @@ int CScriptEdit::compile(CString filepath)
     else
     {
       tmpname = filepath;
-    }
+    }    
     y = tmpname.ReverseFind('.');
     if (y>0)
     {
-      filepath=tmpname.Left(y);
-    }
-    else
-    {
-      filepath=tmpname;
+      tmpname=tmpname.Left(y);
     }
     //setting up compiler with options
-    res = scmp->Compile(filepath, bgfolder+"\\"+outpath+"\\"+filepath+".bcs");
+    res = scmp->Compile(filepath, bgfolder+"\\"+outpath+"\\"+tmpname+".bcs");
     //actually this is not needed, delete will close all anyway
-    scmp->CloseAll();
     delete scmp;
     if (res)
     {
-      MessageBox("Decompiler error.","Script editor",MB_OK|MB_ICONSTOP);
+      MessageBox("Compiler error.","Script editor",MB_OK|MB_ICONSTOP);
       res = 0;
     }
   }
@@ -610,7 +598,7 @@ restart:
     else if(newname.Right(4)==".BAF") newname=newname.Left(newname.GetLength()-4);
     if(newname.GetLength()>8 || newname.GetLength()<1 || newname.Find(" ",0)!=-1)
     {
-      tmpstr.Format("The resource name '%s' is bad, it should be 8 characters long and without spaces.",newname);
+      tmpstr.Format("The resource name '%s' is wrong, it should be 8 characters long and without spaces.",newname);
       MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
       goto restart;
     }
@@ -626,7 +614,7 @@ restart:
     {
       chdir(bgfolder);
       tmpstr=bgfolder+weidudecompiled;
-      mkdir(tmpstr);
+      assure_dir_exists(tmpstr);
       if(!dir_exists(tmpstr) )
       {
         res=-3;
@@ -1376,7 +1364,17 @@ BOOL CScriptEdit::OnHelpInfo(HELPINFO* /*pHelpInfo*/)
   int tmp = IDSKey("OBJECT",tmpstr);
   if (tmp!=-1)
   {
-    MessageBox(tmpstr,"Script Object", MB_ICONINFORMATION|MB_OK);
+    helpstr.Format("%s=%d", tmpstr, tmp);
+    MessageBox(helpstr,"Script Object", MB_ICONINFORMATION|MB_OK);
+    return false;
+  }
+
+  tmp = IDSKey("SPELL", tmpstr);
+  if (tmp!=-1)
+  {
+    helpstr.Format("%s=%s", tmpstr, format_spell_id(tmp));
+    MessageBox(helpstr,"Spell", MB_ICONINFORMATION|MB_OK);
+    return false;
   }
 	return false;	
 }

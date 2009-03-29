@@ -2266,7 +2266,7 @@ CString format_animtype(int animtype)
   return tmpstr;
 }
 
-CString spellnames[]={"SPPR","SPWI","SPIN","SPCL"};
+static CString spellnames[]={"SPPR","SPWI","SPIN","SPCL"};
 
 CString format_spell_id(int id)
 {

@@ -874,6 +874,7 @@ int getproficiencyidx(int profnum);
 CString format_animtype(int animtype);
 int getanimationidx(int animtype);
 int find_animtype(unsigned short *percents);
+CString format_spell_id(int id);
 CString convert_degree(int value);
 CString convert_radius(int value, int direction=0);
 CString get_face_value(int fvalue);

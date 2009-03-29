@@ -215,6 +215,27 @@ protected:
   int check_kits();
   int check_statdesc();
   int check_songlist();
+  int check_avatar();
+  int check_ani_code_mirror(CString prefix);
+  int check_ani_code_mirror_2(CString prefix);
+  int check_ani_one_file(CString prefix);
+  int check_ani_two_files(CString prefix);
+  int check_ani_two_files_2(CString prefix);
+  int check_ani_two_files_3(CString prefix);
+  int check_ani_four_files(CString prefix);
+  int check_ani_six_files(CString prefix);
+  int check_ani_six_files_2(CString prefix);
+  int check_ani_twentytwo(CString prefix);
+  int check_ani_bird(CString prefix);
+  int check_ani_four_frames(CString prefix);
+  int check_ani_nine_frames(CString prefix);
+  int check_ani_pst_animation_1(CString prefix);
+  int check_ani_pst_animation_2(CString prefix);
+  int check_ani_pst_animation_3(CString prefix);
+  int check_ani_pst_ghost(CString prefix);
+  int check_ani_pst_stand(CString prefix);
+  int check_all_types(CString prefix, int except);
+
   int check_or_scan_trigger(const trigger *tpoi, int checkflags, int check_or_scan, int bcnt);
   int check_or_scan_action(const action *apoi, int checkflags, int check_or_scan, int bcnt);
   int check_integers(const int *bytes, int storeflags, int opcode, int trigger, int block);
@@ -328,6 +349,7 @@ protected:
 	afx_msg void OnRecompresssav();
 	afx_msg void OnUsedialogf();
 	afx_msg void OnToolsDecompile();
+	afx_msg void OnCheckAvatar2da();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

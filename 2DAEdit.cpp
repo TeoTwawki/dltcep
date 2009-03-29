@@ -1198,7 +1198,7 @@ bool CIDSEdit::perform_search(int idx, int match, CString srch)
     }
     if(match&2) // full word trick
     {
-      tmp2=" "+tlk_entries[choosedialog][idx].text+" "; //in this
+      tmp2=" "+tmp2+" "; //in this
     }
     if(tmp2.Find(srch) !=-1) return true;
 	}
@@ -1256,6 +1256,16 @@ long CIDSEdit::OnFindReplace(WPARAM /*wParam*/, LPARAM /*lParam*/)
   //matchcase is cheaper, therefore it is marked 0
   match=!m_searchdlg->MatchCase()+(!!m_searchdlg->MatchWholeWord())*2; 
   search=m_searchdlg->GetFindString();  
+
+  if(match&1) //we can do this here
+  {
+    search.MakeLower();
+  }
+  if(match&2) //this too
+  {
+    search=" "+search+" ";
+  }
+
   do_search(direction,match,search);
   return 0;
 }

@@ -6070,3 +6070,562 @@ int CChitemDlg::check_statdesc()
   return ret;
 }
 
+#define CODE_MIRROR_COUNT 13
+CString code_mirror_suffixes[CODE_MIRROR_COUNT]={"a1","a2","a3","a4","a5","a6","a7","a8","a9","sa","sx","ss","ca"};
+int cycle_count[CODE_MIRROR_COUNT]={9};
+int mandatory_code_mirror_s[CODE_MIRROR_COUNT]={1,1,1,1,1,1,1,1,1,1,1,1,0};
+
+int CChitemDlg::check_ani_code_mirror(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int cnt;
+
+  cnt=0;
+  for(i=0;i<CODE_MIRROR_COUNT;i++)
+  {
+    resref=prefix+code_mirror_suffixes[i];
+    res=check_resource(resref, false);
+    if(mandatory_code_mirror_s[i] && res)
+    {
+      cnt++;
+    }
+  }
+
+  //9 is the number of mandatory animations, update it when mandatory_iwd_ani_s changed
+  if(cnt==12) return 1; //completely missing animation
+  if(cnt) return -1;    //missing one file
+  return 0;
+}
+
+int CChitemDlg::check_ani_one_file(CString prefix)
+{
+  int res, res2;
+
+  res=check_resource(prefix, false);
+  res2=check_resource(prefix+"e", false);
+  if(res) return 1;    //if prefix doesn't exist this is not a single file animation
+  if(!res2) return 1;  //nor if an east animation exists
+  return 0;
+}
+
+#define CODE_SF_COUNT 3
+CString code_sf_suffixes[CODE_SF_COUNT]={"g1","g2","g3"};
+int need_suffix_two[CODE_SF_COUNT]={1,0,0};
+int need_suffix_four[CODE_SF_COUNT]={1,1,0};
+
+int CChitemDlg::check_ani_four_files(CString prefix)
+{
+  int i;
+  int res, res2;
+
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    res=check_resource(prefix+code_sf_suffixes[i], false);
+    res2=check_resource(prefix+code_sf_suffixes[i]+"e", false);
+    if(res!=res2) return -2;
+
+    if(!res ^ need_suffix_four[i])
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
+int CChitemDlg::check_ani_two_files(CString prefix)
+{
+  int i;
+  int res, res2;
+
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    res=check_resource(prefix+code_sf_suffixes[i], false);
+    res2=check_resource(prefix+code_sf_suffixes[i]+"e", false);
+    if(res!=res2) return -2;
+    if(!res ^ need_suffix_two[i])
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#define CODE_MIRROR2_COUNT 13
+CString code_mirror2_suffixes[CODE_MIRROR_COUNT]={"g1","g2","g11","g12","g13","g14","g15","g21","g22","g23","g24","g25","g26"};
+
+int CChitemDlg::check_ani_code_mirror_2(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int cnt;
+
+  cnt=0;
+  for(i=0;i<CODE_MIRROR2_COUNT;i++)
+  {
+    resref=prefix+code_mirror2_suffixes[i];
+    res=check_resource(resref, false);
+    if(res)
+    {
+      cnt++;
+    }
+  }
+
+  if(cnt) return 1;    //missing at least one file
+  return 0;
+}
+
+int six_files_2_cycles[CODE_SF_COUNT]={24,16,32};
+
+int CChitemDlg::check_ani_six_files_2(CString prefix)
+{
+  int i;
+  int res, res2;
+  CString resref;
+  Cbam tmp;
+
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    resref=prefix+code_sf_suffixes[i];
+    res=check_resource(resref, false);
+    res2=check_resource(resref+"e", false);
+    if(res) return 1;    //if prefix doesn't exist this is not a single file animation
+    if(res2) return 1;   //nor if an east animation is missing
+    resref.MakeUpper();
+    if(read_bam_preview(resref,&tmp)) return -2;
+    if(tmp.GetCycleCount()!=six_files_2_cycles[i]) return 1;
+  }
+  return 0;
+}
+
+#define CODE_TWENTYTWO_COUNT 11
+CString code_twentytwo_suffixes[CODE_MIRROR_COUNT]={"a1","a2","a3","a4","a5","a6","ca","g1","w2","sx","sa"};
+int mandatory_twentytwo_s[CODE_MIRROR_COUNT]={2,3,2,3,2,3,1,1,1,0,0};
+
+int CChitemDlg::check_ani_twentytwo(CString prefix)
+{
+  int i;
+  int res, res2;
+  int cnt;
+  bool east;
+  bool twohanded; //needs twohanded
+
+  cnt=0;
+  east=false;
+  twohanded=false;
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    res=check_resource(prefix+code_twentytwo_suffixes[i], false);
+    res2=check_resource(prefix+code_twentytwo_suffixes[i]+"e", false);
+    if (res!=res2) east=true;
+    if (mandatory_twentytwo_s[i]==2)
+    {
+      if(res) twohanded=true;
+      else twohanded=false;
+    }
+
+    if(res)
+    {
+      switch(mandatory_twentytwo_s[i])
+      {
+      case 0: case 2:
+        break;
+      case 1:
+        cnt++;
+        break;
+      case 3:
+        if(twohanded)
+        {
+          cnt++;
+        }
+        break;
+      }
+    }
+  }
+
+  if(cnt) return -1;   //missing only a few files
+  if(east) return -2;  //missing an east file
+  return 0;
+}
+
+int CChitemDlg::check_ani_bird(CString prefix)
+{
+  int res, res2;
+
+  res=check_resource(prefix, false);
+  res2=check_resource(prefix+"e", false);
+  if(res) return 1;    //if prefix doesn't exist this is not a single file animation
+  if(!res2) return 1;  //nor if an east animation exists
+  return 0;
+}
+
+int six_files_cycles[CODE_SF_COUNT]={16,80,48};
+
+int CChitemDlg::check_ani_six_files(CString prefix)
+{
+  int i;
+  int res, res2;
+  CString resref;
+  Cbam tmp;
+
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    resref=prefix+code_sf_suffixes[i];
+    res=check_resource(resref, false);
+    res2=check_resource(resref+"e", false);
+    if(res) return 1;    //if prefix doesn't exist this is not a single file animation
+    if(res2) return 1;   //nor if an east animation is missing
+    resref.MakeUpper();
+    if(read_bam_preview(resref,&tmp)) return -2;
+    if(tmp.GetCycleCount()!=six_files_cycles[i]) return 1;
+  }
+  return 0;
+}
+
+int CChitemDlg::check_ani_two_files_2(CString prefix)
+{
+  int i;
+  int res, res2;
+
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    res=check_resource(prefix+code_sf_suffixes[i], false);
+    res2=check_resource(prefix+code_sf_suffixes[i]+"e", false);
+    if(res!=res2) return -2;
+    if(!res ^ need_suffix_two[i])
+    {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+#define IWD_ANI_COUNT  13
+
+CString iwd_ani_suffixes[IWD_ANI_COUNT]={"wk","tw","sl","gu","de","gh","sc","sp","ca","sd","a1","a2","a4"};
+int mandatory_iwd_ani_s[IWD_ANI_COUNT]={1,1,1,1,1,1,1,0,0,1,1,0,0};
+
+int CChitemDlg::check_ani_two_files_3(CString prefix)
+{
+  CString resref;
+  int i;
+  int res, res2;
+  int cnt;
+  bool east;
+
+  cnt=0;
+  east=false;
+  for(i=0;i<IWD_ANI_COUNT;i++)
+  {
+    resref=prefix+iwd_ani_suffixes[i];
+    res=check_resource(resref, false);
+    res2=check_resource(resref+"e", false);
+    if(res!=res2)
+    {
+      east=true;
+    }
+    if(mandatory_iwd_ani_s[i] && res)
+    {
+      cnt++;
+    }
+  }
+
+  //9 is the number of mandatory animations, update it when mandatory_iwd_ani_s changed
+  //but some animations may contain a1 animation even when they are not iwd animations
+  if(cnt>=8) return 1; //completely missing animation or not this type
+  if(cnt) return -1;   //missing only a few files
+  if(east) return -2;  //missing an east file
+  return 0;
+}
+
+#define NF_COUNT 27
+CString nf_suffixes[NF_COUNT]={"g11","g12","g13","g14","g15","g16","g17","g18","g19",
+"g21","g22","g23","g24","g25","g26","g27","g28","g29",
+"g31","g32","g33","g34","g35","g36","g37","g38","g39"};
+
+int need_four_frames[NF_COUNT]={1,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0};
+
+int CChitemDlg::check_ani_four_frames(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+
+  for(i=0;i<NF_COUNT;i++)
+  {
+    resref=prefix+nf_suffixes[i];
+    res=check_resource(resref, false);
+    if(!res ^ need_four_frames[i])
+    {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+#define NF_STANCE_COUNT 7
+int NFStancePrefix[]={1,2,3,4,4,4,5};
+int NFCyclePrefix[]= {0,0,0,0,1,2,1}; 
+
+int CChitemDlg::check_ani_nine_frames(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int part, cycle;
+
+  for(i=0;i<NF_STANCE_COUNT;i++)
+  {
+    for(part=1;part<10;part++)
+    {
+      for(cycle=0;cycle<9;cycle++)
+      {
+        resref.Format("%s%d%d%d%d",prefix, NFStancePrefix[i], part, NFCyclePrefix[i], cycle);
+        res=check_resource(resref, false);
+        if(res)
+        {
+          return 1;
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+#define PINF_COUNT 21
+CString pst_infixes[PINF_COUNT]={"at1","at2","c2s","s2c","cf1","cf2","sf1","sf2","dfb","gup","hit",
+"run","sp1","sp2","stc","std","wlk","tk1","tk2","tk3","ms1"};
+int pst_ani_1_mandatory_infixes[PINF_COUNT]={0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,0,0,0,0};
+int pst_ani_2_mandatory_infixes[PINF_COUNT]={0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0};
+int pst_ani_3_mandatory_infixes[PINF_COUNT]={0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0};
+int pst_ani_stand_mandatory_infixes[PINF_COUNT]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0};
+
+int CChitemDlg::check_ani_pst_animation_1(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int cnt;
+
+  cnt=0;
+  for(i=0;i<PINF_COUNT;i++)
+  {
+    resref=prefix.Left(1)+pst_infixes[i]+prefix.Right(4);
+    res=check_resource(resref, false);
+    if(pst_ani_1_mandatory_infixes[i] && res)
+    {
+      cnt++;
+    }
+  }
+
+  if(cnt>2) return 1;
+  if(cnt) return -1;
+  return 0;
+}
+
+int CChitemDlg::check_ani_pst_ghost(CString prefix)
+{
+  int res, res2;
+
+  res=check_resource(prefix, false);
+  res2=check_resource(prefix+"e", false);
+  if(res) return 1;    //if prefix doesn't exist this is not a single file animation
+  if(!res2) return 1;  //nor if an east animation exists
+  return 0;
+}
+
+int CChitemDlg::check_ani_pst_stand(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int cnt;
+
+  cnt=0;
+  for(i=0;i<PINF_COUNT;i++)
+  {
+    resref=prefix.Left(1)+pst_infixes[i]+prefix.Right(4);
+    res=check_resource(resref, false);
+    if(pst_ani_stand_mandatory_infixes[i] && res)
+    {
+      cnt++;
+    }
+  }
+
+  if(cnt>9) return 1;
+  if(cnt) return -1;
+  return 0;
+}
+
+int CChitemDlg::check_ani_pst_animation_2(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int cnt;
+
+  cnt=0;
+  for(i=0;i<PINF_COUNT;i++)
+  {
+    resref=prefix.Left(1)+pst_infixes[i]+prefix.Right(4);
+    res=check_resource(resref, false);
+    if(pst_ani_2_mandatory_infixes[i] && res)
+    {
+      cnt++;
+    }
+  }
+
+  if(cnt>9) return 1;
+  if(cnt) return -1;
+  return 0;
+}
+
+int CChitemDlg::check_ani_pst_animation_3(CString prefix)
+{
+  CString resref;
+  int i;
+  int res;
+  int cnt;
+
+  cnt=0;
+  for(i=0;i<PINF_COUNT;i++)
+  {
+    resref=prefix.Left(1)+pst_infixes[i]+prefix.Right(4);
+    res=check_resource(resref, false);
+    if(pst_ani_3_mandatory_infixes[i] && res)
+    {
+      cnt++;
+    }
+  }
+
+  if(cnt>9) return 1;
+  if(cnt) return -1;
+  return 0;
+}
+
+
+int CChitemDlg::check_all_types(CString prefix, int except)
+{
+  int type, res;
+
+  for(type=0;type<21;type++)
+  {
+    if(type==except) continue;
+    switch(type)
+    {
+    case 0: res=check_ani_code_mirror(prefix); break; //simple bg1 animations
+    case 1: res=check_ani_one_file(prefix); break;
+    case 2: res=check_ani_four_files(prefix); break;
+    case 3: res=check_ani_two_files(prefix); break;
+    case 4: res=check_ani_code_mirror_2(prefix); break;
+    case 5: res=check_ani_six_files_2(prefix); break;
+    case 6: res=check_ani_twentytwo(prefix); break;
+    case 7: res=check_ani_bird(prefix); break;
+    case 8: res=check_ani_six_files(prefix); break;
+    case 9: res=check_ani_two_files_3(prefix); break; //iwd animations
+    case 10: res=check_ani_two_files_2(prefix); break;
+    case 11: res=check_ani_four_frames(prefix); break; //large animations
+    case 12: res=check_ani_nine_frames(prefix); break; //huge animations
+    case 16: res=check_ani_pst_animation_1(prefix); break;
+    case 17: res=check_ani_pst_ghost(prefix); break;
+    case 18: res=check_ani_pst_stand(prefix); break;
+    case 19: res=check_ani_pst_animation_2(prefix); break; //std->stc
+    case 20: res=check_ani_pst_animation_3(prefix); break; //stc->std
+    default: res=-3; break;
+    }
+    if(!res) return type;
+  }
+  return -1;
+}
+
+int CChitemDlg::check_avatar() 
+{
+  int ret;
+  POSITION pos, pos2, pos3;
+  CStringList ids;
+  CStringList prefixes;
+  CStringList types;
+  loc_entry tmploc;
+  CString prefix, id;
+  int type, res;
+
+  changeitemname("AVATARS");
+  if(!darefs.Lookup("AVATARS", tmploc))
+  {
+    MessageBox("There is no avatars.2da (it is a GemRB specific file)!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return 2;
+  }
+
+  Read2daColumn(tmploc, ids, 0, false);
+  Read2daColumn(tmploc, prefixes, 1, false);
+  Read2daColumn(tmploc, types, 5, false);
+  pos=prefixes.GetHeadPosition();
+  pos2=types.GetHeadPosition();
+  pos3=ids.GetHeadPosition();
+  if(!pos || !pos2 || !pos3 || prefixes.GetCount()!=types.GetCount())
+  {
+    log("File is crippled");
+    return 2;
+  }
+  ret=0;
+  while(pos && pos2 && pos3)
+  {
+    prefix=prefixes.GetNext(pos);
+    type=atoi(types.GetNext(pos2));
+    id=ids.GetNext(pos3);
+    switch(type)
+    {
+    case 0: res=check_ani_code_mirror(prefix); break; //simple bg1 animations
+    case 1: res=check_ani_one_file(prefix); break;
+    case 2: res=check_ani_four_files(prefix); break;
+    case 3: res=check_ani_two_files(prefix); break;
+    case 4: res=check_ani_code_mirror_2(prefix); break;
+    case 5: res=check_ani_six_files_2(prefix); break;
+    case 6: res=check_ani_twentytwo(prefix); break;
+    case 7: res=check_ani_bird(prefix); break;
+    case 8: res=check_ani_six_files(prefix); break;
+    case 9: res=check_ani_two_files_3(prefix); break; //iwd animations
+    case 10: res=check_ani_two_files_2(prefix); break;
+    case 11: res=check_ani_four_frames(prefix); break; //large animations
+    case 12: res=check_ani_nine_frames(prefix); break; //huge animations
+    case 16: res=check_ani_pst_animation_1(prefix); break;
+    case 17: res=check_ani_pst_ghost(prefix); break;
+    case 18: res=check_ani_pst_stand(prefix); break;
+    case 19: res=check_ani_pst_animation_2(prefix); break; //std->stc
+    case 20: res=check_ani_pst_animation_3(prefix); break; //stc->std
+    default:
+      res=-3; break;
+    }
+
+    if(res<0) ret=-2;
+    switch(res)
+    {
+    case -3:
+      log("Invalid avatar type for %s (%s)",prefix, id);
+      break;
+    case -2:
+      log("Missing east animation file for %s (%s)", prefix, id);
+      break;
+    case -1:
+      log("Missing file for %s (%s)", prefix, id);
+      break;
+    case 1:
+      //this is not an exact error, completely missing animations are fine
+      //but if we have a better suggestion, it means avatars.2da is wrong
+      log("Invalid animation %s (%s) for type %d.", prefix, id, type);
+      type=check_all_types(prefix, type);
+      if(type>=0)
+      {
+        ret=-1; //this means a fixable problem
+        log("Suggested type is: %d", type);
+      }
+    }
+  }
+  
+  return ret;
+}
