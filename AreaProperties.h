@@ -746,6 +746,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
+/////////////////////////////////////////////////////////////////////////////
+// CAreaMap dialog
+
 class CAreaMap : public CPropertyPage
 {
 	DECLARE_DYNCREATE(CAreaMap)
@@ -812,6 +815,56 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
+
+/////////////////////////////////////////////////////////////////////////////
+// CAreaProj dialog
+
+class CAreaProj : public CPropertyPage
+{
+	DECLARE_DYNCREATE(CAreaProj)
+// Construction
+public:
+	CAreaProj();   // standard constructor
+	~CAreaProj();  
+  void RefreshProj();   
+
+// Dialog Data
+	//{{AFX_DATA(CAreaProj)
+	enum { IDD = IDD_AREAPROJ };
+	CComboBox	m_trappicker;
+	CListBox	m_effect_control;
+	//}}AFX_DATA
+
+  int m_trapnum;
+ 	int	effectnum;
+
+// Overrides
+	// ClassWizard generated virtual function overrides
+	//{{AFX_VIRTUAL(CAreaProj)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	//}}AFX_VIRTUAL
+
+// Implementation
+protected:
+  CToolTipCtrl m_tooltip;
+
+	afx_msg void DefaultKillfocus();
+	// Generated message map functions
+	//{{AFX_MSG(CAreaProj)
+	virtual BOOL OnInitDialog();
+	afx_msg void OnKillfocusProjpicker();
+	afx_msg void OnSelchangeProjpicker();
+	afx_msg void OnAdd();
+	afx_msg void OnRemove();
+	afx_msg void OnBrowse();
+	//}}AFX_MSG
+	DECLARE_MESSAGE_MAP()
+};
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaPropertySheet
 
@@ -836,6 +889,7 @@ public:
 	CAreaVariable m_PageVariable;
 	CAreaAnim m_PageAnim;
 	CAreaMap m_PageMap;
+	CAreaProj m_PageProj;
 
 // Operations
 public:

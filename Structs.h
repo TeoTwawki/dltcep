@@ -1561,7 +1561,8 @@ typedef struct {
 typedef struct {
   char projectile[8];
   long offset;
-  long size;  
+  short size;
+  short proj;
   long unknown10;
   short posx,posy;
   short unknown18;

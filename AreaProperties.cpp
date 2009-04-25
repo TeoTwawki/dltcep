@@ -35,6 +35,7 @@ IMPLEMENT_DYNCREATE(CAreaDoor, CPropertyPage)
 IMPLEMENT_DYNCREATE(CAreaVariable, CPropertyPage)
 IMPLEMENT_DYNCREATE(CAreaAnim, CPropertyPage)
 IMPLEMENT_DYNCREATE(CAreaMap, CPropertyPage)
+IMPLEMENT_DYNCREATE(CAreaProj, CPropertyPage)
 
 static unsigned long defschedule;
 
@@ -238,7 +239,6 @@ BOOL CAreaGeneral::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
-
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -1578,7 +1578,7 @@ BOOL CAreaTrigger::OnInitDialog()
   int i;
 
 	CPropertyPage::OnInitDialog();
-
+	RefreshTrigger();
   for(i=0;i<NUM_RTTYPE;i++)
   {
     m_regiontype_control.AddString(get_region_type(i));
@@ -1591,7 +1591,6 @@ BOOL CAreaTrigger::OnInitDialog()
 
     m_tooltip.AddTool(GetDlgItem(IDC_TRIGGERPICKER), IDS_LABEL);
   }
-	RefreshTrigger();
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -3094,6 +3093,7 @@ void CAreaAmbient::RefreshAmbient()
 BOOL CAreaAmbient::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
+  RefreshAmbient();
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -3102,7 +3102,6 @@ BOOL CAreaAmbient::OnInitDialog()
 
     m_tooltip.AddTool(GetDlgItem(IDC_AMBIENTPICKER), IDS_LABEL);
   }
-  RefreshAmbient();
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -4514,6 +4513,7 @@ BOOL CAreaVariable::OnInitDialog()
   CComboBox *cb;
 
 	CPropertyPage::OnInitDialog();
+  RefreshVariable();
   if(pst_compatible_var())
   {
     cb = (CComboBox *) GetDlgItem(IDC_COLOR);
@@ -4526,10 +4526,7 @@ BOOL CAreaVariable::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
-
-
   }
-  RefreshVariable();
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
@@ -5115,6 +5112,7 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
 BOOL CAreaDoor::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
+  RefreshDoor();
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -5123,7 +5121,6 @@ BOOL CAreaDoor::OnInitDialog()
 
     m_tooltip.AddTool(GetDlgItem(IDC_DOORPICKER), IDS_LABEL);
   }
-  RefreshDoor();
   UpdateData(UD_DISPLAY);
   return TRUE;
 }
@@ -6041,6 +6038,7 @@ void CAreaAnim::RefreshAnim()
 BOOL CAreaAnim::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
+	RefreshAnim();
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -6065,7 +6063,6 @@ BOOL CAreaAnim::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG14), IDS_CHANCE);
     m_tooltip.AddTool(GetDlgItem(IDC_TRANSPARENT), IDS_ATRANSP);
   }
-	RefreshAnim();
 	return TRUE;  
 }
 
@@ -6485,18 +6482,16 @@ BOOL CAreaMap::OnInitDialog()
   CRect tmprect;
 
 	CPropertyPage::OnInitDialog();
+	RefreshMap();
+  GetDlgItem(IDC_MAP)->GetWindowRect(tmprect);
+  m_oladjust=tmprect.TopLeft();
+  ScreenToClient(&m_oladjust);
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
-
-
   }
-	RefreshMap();
-  GetDlgItem(IDC_MAP)->GetWindowRect(tmprect);
-  m_oladjust=tmprect.TopLeft();
-  ScreenToClient(&m_oladjust);
 	return TRUE;
 }
 
@@ -6889,6 +6884,186 @@ BOOL CAreaMap::PreTranslateMessage(MSG* pMsg)
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+// CAreaProj dialog
+
+void CAreaProj::RefreshProj()
+{
+  CString tmpstr;
+  int offset;
+  int i;
+
+  if(m_trapnum<0 || m_trapnum>=the_area.header.trapcnt)
+  {
+    if(the_area.header.trapcnt) m_trapnum=0;
+    else m_trapnum=-1;
+  }
+  if(IsWindow(m_trappicker) )
+  {
+    m_trappicker.ResetContent();
+    for(i=0;i<the_area.trapcount;i++)
+    {
+      tmpstr.Format("%d. %-.8s",i+1,the_area.trapheaders[i].projectile);
+      m_trappicker.AddString(tmpstr);
+    }
+    m_trapnum=m_trappicker.SetCurSel(m_trapnum);
+  }
+
+  offset=0;
+  for(i=0;i<the_area.trapcount;i++)
+  {
+    the_area.trapheaders[i].offset=offset;
+    offset+=the_area.trapheaders[i].size/0x108;
+  }
+
+  if(m_effect_control && (m_trapnum>=0) )
+  {
+    m_effect_control.ResetContent();
+    offset=the_area.trapheaders[m_trapnum].offset;
+    for(i=0;i<the_area.trapheaders[m_trapnum].size/0x108;i++)
+    {
+      //
+      if(i+offset>=the_area.effectcount) 
+      {
+        MessageBox("Something is inconsistent here!\n",MB_OK);
+        break;
+      }
+
+      tmpstr.Format("%d %s (0x%x 0x%x) %.8s",i+1,
+        get_opcode_text(the_area.effects[i+offset].feature),
+        the_area.effects[i+offset].par1.parl,
+        the_area.effects[i+offset].par2.parl,
+        the_area.effects[i+offset].vvc);      
+      m_effect_control.AddString(tmpstr);
+    }
+    if(effectnum<0 || effectnum>=i) effectnum=0;
+    effectnum=m_effect_control.SetCurSel(effectnum);
+  }
+}
+
+BOOL CAreaProj::OnInitDialog() 
+{
+	CPropertyPage::OnInitDialog();
+	RefreshProj();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+  }
+  UpdateData(UD_DISPLAY);
+	return TRUE;
+}
+
+BEGIN_MESSAGE_MAP(CAreaProj, CPropertyPage)
+	//{{AFX_MSG_MAP(CAreaProj)
+	ON_CBN_KILLFOCUS(IDC_PROJPICKER, OnKillfocusProjpicker)
+	ON_CBN_SELCHANGE(IDC_PROJPICKER, OnSelchangeProjpicker)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+CAreaProj::CAreaProj()	: CPropertyPage(CAreaProj::IDD)
+{
+	//{{AFX_DATA_INIT(CAreaProj)
+
+	//}}AFX_DATA_INIT
+}
+
+CAreaProj::~CAreaProj()
+{
+}
+
+static int trapboxids[]={
+  //fields
+  IDC_BAM,IDC_PROJECTILE,IDC_POSX,IDC_POSY,IDC_UNKNOWN10,
+  IDC_UNKNOWN18,IDC_UNKNOWN1A,
+  IDC_EQUIPNUM, 
+  //buttons
+  IDC_REMOVE, IDC_REMOVE2, IDC_ADD2, 0};
+
+void CAreaProj::DoDataExchange(CDataExchange* pDX)
+{
+  CWnd *cb;
+  CString tmpstr;
+  int flg;
+  int i;
+
+	CPropertyPage::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CAreaProj)
+	DDX_Control(pDX, IDC_PROJPICKER, m_trappicker);
+  DDX_Control(pDX, IDC_EQUIPNUM, m_effect_control);
+	//}}AFX_DATA_MAP
+  cb=GetDlgItem(IDC_MAX);
+  flg=m_trapnum>=0;
+  tmpstr.Format("/ %d",the_area.trapcount);
+  cb->SetWindowText(tmpstr);
+  i=0;
+  while(trapboxids[i])
+  {
+    cb=GetDlgItem(trapboxids[i++]);
+    cb->EnableWindow(flg);
+  }
+  if(flg)
+  {
+    DDX_Text(pDX, IDC_PROJECTILE, the_area.trapheaders[m_trapnum].proj);
+    DDX_Text(pDX, IDC_POSX, the_area.trapheaders[m_trapnum].posx);
+    DDX_Text(pDX, IDC_POSY, the_area.trapheaders[m_trapnum].posy);
+    RetrieveResref(tmpstr, the_area.trapheaders[m_trapnum].projectile);
+    DDX_Text(pDX, IDC_BAM, tmpstr);
+    DDV_MaxChars(pDX, tmpstr, 8);
+    StoreResref(tmpstr, the_area.trapheaders[m_trapnum].projectile);
+    DDX_Text(pDX, IDC_UNKNOWN10, the_area.trapheaders[m_trapnum].unknown10);
+    DDX_Text(pDX, IDC_UNKNOWN18, the_area.trapheaders[m_trapnum].unknown18);
+    DDX_Text(pDX, IDC_UNKNOWN1A, the_area.trapheaders[m_trapnum].unknown1a);
+  }
+}
+
+void CAreaProj::OnSelchangeProjpicker() 
+{
+  int x;
+
+  x=m_trappicker.GetCurSel();
+  if(x>=0 && x<=the_area.trapcount) m_trapnum=x;
+  RefreshProj();
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaProj::OnKillfocusProjpicker() 
+{
+  CString tmpstr;
+  int x;
+
+  m_trappicker.GetWindowText(tmpstr);
+  x=strtonum(tmpstr)-1;
+  if(x>=0 && x<=the_area.trapcount)
+  {
+    m_trapnum=m_trappicker.SetCurSel(x);
+  }
+  RefreshProj();
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaProj::OnBrowse() 
+{
+  if(m_trapnum<0) return;
+  pickerdlg.m_restype=REF_PRO;
+  RetrieveResref(pickerdlg.m_picked,the_area.trapheaders[m_trapnum].projectile);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.trapheaders[m_trapnum].projectile);
+  }
+  RefreshProj();
+	UpdateData(UD_DISPLAY);	
+}
+
+BOOL CAreaProj::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CAreaPropertySheet
 
@@ -6909,6 +7084,7 @@ CAreaPropertySheet::CAreaPropertySheet(CWnd* pWndParent)
   AddPage(&m_PageAnim);
   AddPage(&m_PageVariable);
   AddPage(&m_PageMap);
+  AddPage(&m_PageProj);
 }
 
 CAreaPropertySheet::~CAreaPropertySheet()
@@ -6930,6 +7106,7 @@ void CAreaPropertySheet::RefreshDialog()
   m_PageVariable.RefreshVariable();
   m_PageAnim.RefreshAnim();
   m_PageMap.RefreshMap();
+  m_PageProj.RefreshProj();
   page=GetActivePage();
   page->UpdateData(UD_DISPLAY);
 }
