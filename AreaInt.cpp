@@ -66,6 +66,16 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_TEXT, m_text);
 	//}}AFX_DATA_MAP
 
+  RetrieveResref(tmpstr,the_area.header.sleep1);
+  DDX_Text(pDX, IDC_DAYMOVIE, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr,the_area.header.sleep1);
+
+  RetrieveResref(tmpstr,the_area.header.sleep2);
+  DDX_Text(pDX, IDC_NIGHTMOVIE, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr,the_area.header.sleep2);
+
   RetrieveVariable(tmpstr,the_area.intheader.intname);
   DDX_Text(pDX, IDC_SECTION, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 32);
@@ -103,16 +113,20 @@ BEGIN_MESSAGE_MAP(CAreaInt, CDialog)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN9C, OnKillfocusUnknown9c)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNA0, OnKillfocusUnknowna0)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNA2, OnKillfocusUnknowna2)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
-	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
-	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
 	ON_EN_KILLFOCUS(IDC_DAY, OnKillfocusDay)
 	ON_EN_KILLFOCUS(IDC_NIGHT, OnKillfocusNight)
 	ON_CBN_KILLFOCUS(IDC_SPAWNNUMPICKER, OnKillfocusSpawnnumpicker)
 	ON_CBN_SELCHANGE(IDC_SPAWNNUMPICKER, OnSelchangeSpawnnumpicker)
-	ON_BN_CLICKED(IDC_CLEAR, OnClear)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNAC, OnKillfocusUnknownac)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNAE, OnKillfocusUnknownae)
+	ON_EN_KILLFOCUS(IDC_DAYMOVIE, OnKillfocusDaymovie)
+	ON_EN_KILLFOCUS(IDC_NIGHTMOVIE, OnKillfocusNightmovie)
+	ON_BN_CLICKED(IDC_CLEAR, OnClear)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
+	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -220,6 +234,19 @@ void CAreaInt::OnKillfocusUnknownae()
 	UpdateData(UD_DISPLAY);
 }
 
+void CAreaInt::OnKillfocusDaymovie() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaInt::OnKillfocusNightmovie() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+
 void CAreaInt::OnBrowse() 
 {
   if(m_crenum<0) return;
@@ -230,6 +257,28 @@ void CAreaInt::OnBrowse()
     StoreResref(pickerdlg.m_picked,the_area.intheader.creatures[m_crenum]);
   }
   RefreshInt();
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaInt::OnBrowse2() 
+{
+  pickerdlg.m_restype=REF_MVE;
+  RetrieveResref(pickerdlg.m_picked,the_area.header.sleep1);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.header.sleep1);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaInt::OnBrowse3() 
+{
+  pickerdlg.m_restype=REF_MVE;
+  RetrieveResref(pickerdlg.m_picked,the_area.header.sleep2);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.header.sleep2);
+  }
 	UpdateData(UD_DISPLAY);	
 }
 

@@ -1173,11 +1173,6 @@ BOOL CProjExt::OnInitDialog()
 
 BEGIN_MESSAGE_MAP(CProjExt, CDialog)
 	//{{AFX_MSG_MAP(CProjExt)
-	ON_EN_KILLFOCUS(IDC_ATTR, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN2, DefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_TRIGGER, DefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_AREA, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_SOUND, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_ATTR1, OnAttr1)
 	ON_BN_CLICKED(IDC_ATTR2, OnAttr2)
 	ON_BN_CLICKED(IDC_ATTR3, OnAttr3)
@@ -1194,18 +1189,24 @@ BEGIN_MESSAGE_MAP(CProjExt, CDialog)
 	ON_BN_CLICKED(IDC_ATTR14, OnAttr14)
 	ON_BN_CLICKED(IDC_ATTR15, OnAttr15)
 	ON_BN_CLICKED(IDC_ATTR16, OnAttr16)
+	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
+	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_EN_KILLFOCUS(IDC_ATTR, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN2, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_TRIGGER, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_AREA, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_SOUND, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EXPLOSION, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_CONESIZE, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
-	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
 	ON_CBN_KILLFOCUS(IDC_FRAGMENT, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_UNKNOWN14, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_PROJECTILE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_COLOR, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_VVC, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
-	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1354,8 +1355,15 @@ void CProjExt::OnBrowse2()
   }	
 }
 
+void CProjExt::OnUnknown() 
+{
+	// TODO: Add your control notification handler code here
+	
+}
+
 BOOL CProjExt::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

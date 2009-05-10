@@ -62,6 +62,10 @@ protected:
 	afx_msg void OnClear();
 	afx_msg void OnKillfocusUnknownac();
 	afx_msg void OnKillfocusUnknownae();
+	afx_msg void OnKillfocusDaymovie();
+	afx_msg void OnKillfocusNightmovie();
+	afx_msg void OnBrowse2();
+	afx_msg void OnBrowse3();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

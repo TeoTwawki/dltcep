@@ -1279,7 +1279,9 @@ typedef struct
   long mapnotecnt;
   long pstmapnotecnt; //also trapoffset
   long trapcnt;
-  char unused[72];
+  char sleep1[8];
+  char sleep2[8];
+  char unused[56];
 } area_header;
 
 typedef struct {

@@ -169,6 +169,7 @@ protected:
 	afx_msg void OnPlay1();
 	afx_msg void OnBrowse();
 	afx_msg void OnBrowse2();
+	afx_msg void OnUnknown();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
