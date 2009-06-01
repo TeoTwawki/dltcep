@@ -525,7 +525,8 @@ extern CString DELETED_REFERENCE;
 #define PROJ_CONE       2048
 
 //extended flags for gemrb
-#define PROJ_BOUNCE     1
+#define PROJ_BOUNCE     1        //bounce from walls
+#define PROJ_CONTINUE   2        //continue as travel projectile after triggered
 
 #define TRANSPARENT_GREEN  0x00ff00
 

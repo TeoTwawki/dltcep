@@ -36,6 +36,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CProjGemRB)
 	afx_msg void OnFlag1();
+	afx_msg void OnFlag2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -5320,6 +5320,8 @@ BEGIN
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     CONTROL         "Bounce",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     9,44,41,10
+    CONTROL         "Continue",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,58,44,10
 END
 
 

@@ -55,6 +55,7 @@ void CProjGemRB::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	//{{AFX_MSG_MAP(CProjGemRB)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -65,5 +66,11 @@ END_MESSAGE_MAP()
 void CProjGemRB::OnFlag1() 
 {
   the_projectile.header.extflags^=PROJ_BOUNCE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag2() 
+{
+  the_projectile.header.extflags^=PROJ_CONTINUE;
 	UpdateData(UD_DISPLAY);
 }
