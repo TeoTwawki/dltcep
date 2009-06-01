@@ -8,6 +8,7 @@
 #include "chitem.h"
 #include "chitemDlg.h"
 #include "ProjEdit.h"
+#include "ProjgemRB.h"
 #include "ColorPicker.h"
 #include "MyFileDialog.h"
 
@@ -90,7 +91,9 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_SPARKCOLOUR, tmpstr);
   the_projectile.header.spkcolour=strtonum(tmpstr);
 
-  DDX_Text(pDX, IDC_ATTR, the_projectile.header.attr);
+  tmpstr.Format("%d", the_projectile.header.attr);
+  DDX_Text(pDX, IDC_ATTR, tmpstr);
+  the_projectile.header.attr=strtonum(tmpstr);
 
   RetrieveResref(tmpstr,the_projectile.header.bam1);
   DDX_Text(pDX, IDC_BAM1, tmpstr);
@@ -710,13 +713,13 @@ void CProjEdit::OnBrowse9()
 
 void CProjEdit::OnAttr1() 
 {
-	the_projectile.header.attr^=1;
+	the_projectile.header.attr^=PROJ_BAMPALETTE;
   UpdateData(UD_DISPLAY);	
 }
 
 void CProjEdit::OnAttr2() 
 {
-	the_projectile.header.attr^=2;
+	the_projectile.header.attr^=PROJ_SMOKE;
   UpdateData(UD_DISPLAY);	
 }
 
@@ -728,7 +731,7 @@ void CProjEdit::OnAttr3()
 
 void CProjEdit::OnAttr4() 
 {
-	the_projectile.header.attr^=8;
+	the_projectile.header.attr^=PROJ_NOLIGHT;
   UpdateData(UD_DISPLAY);	
 }
 
@@ -740,13 +743,13 @@ void CProjEdit::OnAttr5()
 
 void CProjEdit::OnAttr6() 
 {
-	the_projectile.header.attr^=32;
+	the_projectile.header.attr^=PROJ_SHADOW;
   UpdateData(UD_DISPLAY);	
 }
 
 void CProjEdit::OnAttr7() 
 {
-	the_projectile.header.attr^=64;
+	the_projectile.header.attr^=PROJ_LIGHTSPOT;
   UpdateData(UD_DISPLAY);	
 }
 
@@ -924,8 +927,9 @@ void CProjEdit::OnExtension()
 
 void CProjEdit::OnUnknown2c() 
 {
-	// TODO: Add your control notification handler code here
+	CProjGemRB dlg;
 	
+  dlg.DoModal();
 }
 
 void CProjEdit::OnUnknown154() 

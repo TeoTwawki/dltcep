@@ -2111,7 +2111,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit Projectile:"
 MENU IDR_PROJECT
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     COMBOBOX        IDC_TYPE,7,20,88,57,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
@@ -2189,7 +2189,7 @@ BEGIN
     EDITTEXT        IDC_BAM5,282,176,49,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_FREQ3,366,176,28,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Edit area extension",IDC_EXTENSION,135,213,141,14
-    PUSHBUTTON      "Unknowns at 0x2c",IDC_UNKNOWN2C,335,202,68,14
+    PUSHBUTTON      "GemRB specific",IDC_UNKNOWN2C,335,202,68,14
     PUSHBUTTON      "Unknowns at 0x154",IDC_UNKNOWN154,335,223,68,14
     DEFPUSHBUTTON   "Load Projectile",IDC_LOAD,7,245,52,14
     PUSHBUTTON      "Load external projectile",IDC_LOADEX,69,245,78,14
@@ -4707,15 +4707,15 @@ BEGIN
                     WS_TABSTOP,90,161,46,10
     CONTROL         "2",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,
                     161,20,10
-    CONTROL         "3",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,164,
-                    161,20,10
+    CONTROL         "Center",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    164,161,37,10
     CONTROL         "Left",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     296,178,28,10
     CONTROL         "Right",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     328,178,33,10
     CONTROL         "Top",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     296,192,29,10
-    CONTROL         "7",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,189,
+    CONTROL         "7",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,
                     161,20,10
     CONTROL         "Bottom",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     328,192,38,10
@@ -5308,6 +5308,18 @@ BEGIN
                     LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Remove effect",IDC_REMOVE2,411,119,62,14
     PUSHBUTTON      "Add effect",IDC_ADD2,411,90,62,14
+END
+
+IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 227, 164
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "GemRB specific data"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Back",IDOK,170,143,50,14
+    EDITTEXT        IDC_FLAGS,9,21,48,14,ES_AUTOHSCROLL
+    LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
+    CONTROL         "Bounce",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    9,44,41,10
 END
 
 
@@ -6134,6 +6146,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 191
     END
+
+    IDD_PROJGEMRB, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 157
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -6183,8 +6203,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,0,1
- PRODUCTVERSION 7,1,0,1
+ FILEVERSION 7,1,0,2
+ PRODUCTVERSION 7,1,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6202,14 +6222,14 @@ BEGIN
             VALUE "Comments", "www.dragonlancetc.com\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 1, 0, 1\0"
+            VALUE "FileVersion", "7, 1, 0, 2\0"
             VALUE "InternalName", "dltcep\0"
-            VALUE "LegalCopyright", "Copyright (C) 2002-2008 Avenger\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002-2009 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "DLTC Editor Pro 7.1b\0"
-            VALUE "ProductVersion", "7, 1, 0, 1\0"
+            VALUE "ProductVersion", "7, 1, 0, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END

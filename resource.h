@@ -268,6 +268,7 @@
 #define IDS_MINIMAP                     233
 #define IDD_AREAPROJ                    233
 #define IDS_TISEXTRACT                  234
+#define IDD_PROJGEMRB                   234
 #define IDS_OVERLAY                     235
 #define IDS_VEF                         236
 #define IDS_INI                         237
@@ -1860,7 +1861,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33047
-#define _APS_NEXT_CONTROL_VALUE         2344
+#define _APS_NEXT_CONTROL_VALUE         2346
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

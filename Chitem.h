@@ -502,6 +502,16 @@ extern CString DELETED_REFERENCE;
 
 #define ST_RENT   0x10000 //not in the original flags
 
+//projectile flags
+#define PROJ_BAMPALETTE 1
+#define PROJ_SMOKE      2
+//
+#define PROJ_NOLIGHT    8
+//
+#define PROJ_SHADOW     32
+#define PROJ_LIGHTSPOT  64
+
+//projectile aoe flags
 #define PROJ_VISIBLE    1
 #define PROJ_INANIMATE  2
 #define PROJ_TRIGGER    4
@@ -513,6 +523,9 @@ extern CString DELETED_REFERENCE;
 
 #define PROJ_HAS_VVC    1024
 #define PROJ_CONE       2048
+
+//extended flags for gemrb
+#define PROJ_BOUNCE     1
 
 #define TRANSPARENT_GREEN  0x00ff00
 

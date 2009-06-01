@@ -535,8 +535,9 @@ typedef struct {
   char wavc1[8];
   char wavc2[8];
   char wavc3[8];
-  long spkcolour; //cannot be 0 if there are sparks (must be 1-12)
-  char unknown2c[212]; //unknown till next 256 block
+  long spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
+  long extflags;    //flags used by gemrb
+  char unknown30[208]; //unknown till next 256 block
   unsigned long attr;
   char bam1[8];
   char bam2[8];
