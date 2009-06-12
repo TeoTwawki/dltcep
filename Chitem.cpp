@@ -2296,10 +2296,10 @@ int get_spell_id(CString spellname)
 CString convert_degree(int value)
 {
   CString tmpstr;
-  int degree;
+  //int degree;
 
-  degree=value*360/256;
-  tmpstr.Format("%d (%d degree)",value,degree);
+  //degree=value*360/256;
+  tmpstr.Format("%d degree",value);
   return tmpstr;
 }
 

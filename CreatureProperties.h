@@ -42,6 +42,7 @@ protected:
   CToolTipCtrl m_tooltip;
 
   CString FindKit(unsigned int kit);
+  int FillKitCombo(CString idsname, CComboBox *cb, int len);
 
 	// Generated message map functions
 	//{{AFX_MSG(CCreatureGeneral)

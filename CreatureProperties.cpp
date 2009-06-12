@@ -65,6 +65,34 @@ CString CCreatureGeneral::FindKit(unsigned int kit)
   return tmpstr;
 }
 
+int CCreatureGeneral::FillKitCombo(CString idsname, CComboBox *cb, int len)
+{
+  CStringMapInt *idsfile;
+  int value;
+  POSITION pos;
+  CString tmpstr, format;
+
+  cb->ResetContent();
+  if(!idsmaps.Lookup(idsname, idsfile))
+  {
+    return -1; //internal error
+  }
+  pos=idsfile->GetStartPosition();
+  while(pos)
+  {
+    idsfile->GetNextAssoc(pos, idsname, value);
+    if(the_creature.revision!=22)
+    {
+      value = (value>>16)|(value<<16);
+    }
+    if(len<0) format.Format("%%0%dd %%s",-len);
+    else format.Format("0x%%0%dx %%s",len);
+    tmpstr.Format(format,(unsigned long) value,idsname);
+    cb->AddString(tmpstr);
+  }
+  return 0;
+}
+
 void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
 {
   CString tmpstr;
@@ -311,6 +339,9 @@ BOOL CCreatureGeneral::OnInitDialog()
 
 	cb=(CComboBox *) GetDlgItem(IDC_HATED);
   FillCombo("RACE",cb,2);
+
+	cb=(CComboBox *) GetDlgItem(IDC_KIT);
+  FillKitCombo("KIT",cb,8);
 
   //tooltips
   {

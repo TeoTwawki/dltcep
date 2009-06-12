@@ -112,6 +112,7 @@ protected:
 	afx_msg void OnBrowse8();
 	afx_msg void OnBrowse9();
 	virtual void OnCancel();
+	afx_msg void OnFlag4();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

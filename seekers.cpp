@@ -3081,11 +3081,60 @@ bool CChitemDlg::match_projectile()
         }
       }
     }
-    if(!found) return false;
+    if(!found)
+    {
+      memcpy(tmpdata.resource,the_projectile.header.wavc1,8);    
+      if(searchdata.resource[0])
+      {
+        if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
+        {
+          found=3;
+        }
+      }
+    }
+    if(!found)
+    {
+      memcpy(tmpdata.resource,the_projectile.header.wavc2,8);    
+      if(searchdata.resource[0])
+      {
+        if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
+        {
+          found=4;
+        }
+      }
+    }
   }
+  else found=1;
+
+  if(found)
+  {
+    if(searchflags&MT)
+    {
+      if(searchdata.itemtype&the_projectile.extension.aoe)
+      {
+        tmpdata.itemtype=(short) (searchdata.itemtype&the_projectile.extension.aoe);
+      }
+      else found=0;
+    }
+  }
+
+  if(!found) return false;
+
   if(searchflags&MR)
   {
-    if(tmpdata.resource[0]) log("Found resource '%-.8s' in bam%d",tmpdata.resource, found);
+    if(found>2)
+    {
+      if(tmpdata.resource[0]) log("Found resource '%-.8s' in sound%d",tmpdata.resource, found-2);
+    }
+    else
+    {
+      if(tmpdata.resource[0]) log("Found resource '%-.8s' in bam%d",tmpdata.resource, found);
+    }
+  }
+
+  if(searchflags&MT)
+  {
+    log("Found AOE flag: %0x", tmpdata.itemtype);
   }
   return true;
 }

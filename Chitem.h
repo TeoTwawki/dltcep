@@ -520,13 +520,19 @@ extern CString DELETED_REFERENCE;
 #define PROJ_FRAGMENT   32
 #define PROJ_NO_SELF    64
 #define PROJ_NO_ENEMY   128
+#define PROJ_LEVEL      256
 
 #define PROJ_HAS_VVC    1024
 #define PROJ_CONE       2048
+#define PROJ_DELAYED    0x4000
+#define PROJ_AFFECT_ONE 0x8000
 
 //extended flags for gemrb
 #define PROJ_BOUNCE     1        //bounce from walls
 #define PROJ_CONTINUE   2        //continue as travel projectile after triggered
+#define PROJ_FREEZE     4        //freeze after trigger and slowly fade out
+#define PROJ_NO_TRAVEL  8        //appear immediately on target
+#define PROJ_TRAIL_FACE 16       ///trail bams also use face
 
 #define TRANSPARENT_GREEN  0x00ff00
 

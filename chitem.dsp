@@ -361,6 +361,10 @@ SOURCE=.\ProjEdit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ProjGemRB.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\readers.cpp
 # End Source File
 # Begin Source File
@@ -783,6 +787,10 @@ SOURCE=.\proj.h
 # Begin Source File
 
 SOURCE=.\ProjEdit.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ProjGemRB.h
 # End Source File
 # Begin Source File
 

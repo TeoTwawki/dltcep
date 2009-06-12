@@ -56,6 +56,8 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	//{{AFX_MSG_MAP(CProjGemRB)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -72,5 +74,17 @@ void CProjGemRB::OnFlag1()
 void CProjGemRB::OnFlag2() 
 {
   the_projectile.header.extflags^=PROJ_CONTINUE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag3() 
+{
+  the_projectile.header.extflags^=PROJ_FREEZE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag4() 
+{
+  the_projectile.header.extflags^=PROJ_NO_TRAVEL;
 	UpdateData(UD_DISPLAY);
 }

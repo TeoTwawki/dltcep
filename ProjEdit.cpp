@@ -298,6 +298,7 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -574,13 +575,13 @@ void CProjEdit::OnFlag3()
 	the_projectile.header.sparks^=4;
 	UpdateData(UD_DISPLAY);
 }
-/*
+
 void CProjEdit::OnFlag4() 
 {
 	the_projectile.header.sparks^=8;
 	UpdateData(UD_DISPLAY);
 }
-*/
+
 void CProjEdit::OnFlag5() 
 {
 	the_projectile.header.sparks^=16;
@@ -1109,7 +1110,7 @@ BOOL CProjExt::OnInitDialog()
 	CDialog::OnInitDialog();
   
   cb1=(CComboBox *) GetDlgItem(IDC_CONESIZE);
-  for(i=0;i<256;i+=16)
+  for(i=0;i<360;i+=30)
   {
     tmpstr=convert_degree(i);
     cb1->AddString(tmpstr);
@@ -1273,7 +1274,7 @@ void CProjExt::OnAttr8()
 
 void CProjExt::OnAttr9() 
 {
-  the_projectile.extension.aoe^=256;
+  the_projectile.extension.aoe^=PROJ_LEVEL;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -1309,13 +1310,13 @@ void CProjExt::OnAttr14()
 
 void CProjExt::OnAttr15() 
 {
-  the_projectile.extension.aoe^=0x4000;
+  the_projectile.extension.aoe^=PROJ_DELAYED;
 	UpdateData(UD_DISPLAY);
 }
 
 void CProjExt::OnAttr16() 
 {
-  the_projectile.extension.aoe^=0x8000;
+  the_projectile.extension.aoe^=PROJ_AFFECT_ONE;
 	UpdateData(UD_DISPLAY);
 }
 

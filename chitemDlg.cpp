@@ -2960,11 +2960,11 @@ void CChitemDlg::OnFindProjectile()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0x40;
+  dlg.mask=0x4c;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find projectiles";
-  dlg.mtype_title="";
+  dlg.mtype_title="Find AOE flag";
   ret=dlg.DoModal();
   if(ret==IDOK)
   {
