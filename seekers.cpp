@@ -5578,6 +5578,235 @@ int CChitemDlg::check_game()
   return ret;
 }
 
+int CChitemDlg::check_point_string(CString point)
+{
+  int a, b;
+
+  if(point.GetLength()<2 || point[0]!='[' || point[point.GetLength()-1]!=']')
+  {
+    return -1;
+  }
+  a=-1;
+  b=-1;
+  sscanf(point, "[%d.%d]", &a, &b);
+  if(a==-1 || b==-1) return -1;
+  //return -2 if the area has no such point
+  return 0;
+}
+
+bool CChitemDlg::check_value(CString section, CString key, bool error)
+{
+  if(the_ini.GetValue(section, key).IsEmpty())
+  {
+    if(error)
+    {
+      log("Missing %s key in section %s", key, section);
+    }
+    return true;
+  }
+  return false;
+}
+
+void CChitemDlg::check_keys(CString section, int type)
+{
+  CString key, value;
+  POSITION pos;
+  int tmp;
+  CStringMapString *sect = NULL;
+
+  the_ini.Lookup(section, sect);
+  
+  pos=sect->GetStartPosition();
+  while(pos)
+  {
+    sect->GetNextAssoc(pos, key, value);
+    tmp = -1;
+    ini_entry.Lookup(key, tmp);
+
+    if(tmp!=type)
+    {
+      log("Invalid key: %s in section: %s", key, section);
+    }
+  }
+}
+
+void CChitemDlg::check_creature_section(CString section, CString referenced)
+{
+
+  if(section.IsEmpty()) return;
+
+  if(!the_ini.HasSection(section))
+  {
+    log("There is no %s spawn section, but it is referenced in %s", section, referenced);
+    return;
+  }
+  check_keys(section, INI_CREATURE);
+
+  check_value(section, "cre_file", true);
+  if(check_value(section, "spec", !has_xpvar()))
+  {
+    if(has_xpvar())
+    {
+      check_value(section,"spec_var", true);
+    }
+  }
+  CString ps = the_ini.GetValue(section,"point_select");
+  if(check_value(section, "spawn_point", false))
+  {
+    if(check_value(section, "spawn_point_global", false))
+    {
+      log("Neither spawn_spoint nor spawn_point_global keys exist in section %s", section);
+      return;
+    }
+    if(ps.Compare("e"))
+    {
+      log("Point_select isn't set to 'e' but it needs for spawn_point_global in section %s", section);
+      return;
+    }
+  }
+  else
+  {
+    int a, b, c;
+    CString tmpstr = the_ini.GetValue(section,"spawn_point");
+
+    a=-1;
+    b=-1;
+    c=-1;
+    sscanf(tmpstr,"[%d.%d:%d]", &a, &b, &c);
+    if(b==-1)
+    {
+      sscanf(tmpstr,"[%d.%d]", &a, &b);
+    }
+    if(b==-1 || a==-1)
+    {
+      log("Invalid spawn_point value: %s in section %s", tmpstr, section);
+    }
+  }
+
+  if(!ps.Compare("r") && !ps.Compare("s") && !ps.Compare("e") )
+  {
+    log("Point_select should be either [e,r,s] in section %s", section);
+  }
+
+  int cnt;
+  loc_entry dummy;
+  CString *lines = explode(the_ini.GetValue(section, "cre_file"),',', cnt);
+  if(lines)
+  {
+    while(cnt--)
+    {
+      lines[cnt].TrimLeft();
+      lines[cnt].TrimRight();
+      lines[cnt].MakeUpper();
+      if(!creatures.Lookup(lines[cnt], dummy))
+      {
+        log("Invalid creature reference %s in cre_file of section %s", lines[cnt], section);
+      }
+    }
+    delete [] lines;
+  }
+}
+
+void CChitemDlg::check_spawn_section(CString section, CString referenced)
+{
+  if(section.IsEmpty()) return;
+
+  if(!the_ini.HasSection(section))
+  {
+    log("No %s spawn section referenced in %s", section, referenced);
+    return;
+  }
+  check_value(section, "critters", true);
+
+  int cnt;
+  CString *lines = explode(the_ini.GetValue(section,"critters"), ',', cnt);
+  the_ini.AddValid(lines, cnt);
+
+  if(lines)
+  {
+    while(cnt--)
+    {
+      check_creature_section( lines[cnt], section+":critters");
+    }
+    delete [] lines;
+  }
+}
+
+int CChitemDlg::check_section(CString key)
+{
+  if(!key.Compare("nameless")) return 0;
+  if(!key.Compare("namelessvar")) return 0;
+  if(!key.Compare("locals")) return 0;
+  if(!key.Compare("spawn_main")) return 0;
+
+  if(the_ini.IsValid(key)) return 0;
+
+  return 1;
+}
+
+int CChitemDlg::check_spawnini()
+{
+  CStringMapString *value = NULL;
+  CString key;
+  POSITION pos;
+  int ret;
+  
+  ret=0;
+  if(pst_compatible_var() && !the_ini.HasSection("nameless"))
+  {
+    log("No nameless spawn section");
+  }
+
+  if(the_ini.GetValue("nameless","destare").GetLength())
+  {
+     CString point = the_ini.GetValue("nameless","point");
+     switch(check_point_string(point))
+     {
+     case -1:
+       log("Invalid nameless respawn point:%s", point);
+       break;
+     case -2:
+       break;
+     }
+     //syntax checking of point
+     CString state = the_ini.GetValue("nameless","state");
+     int stnum = atoi(state);
+
+     if(stnum<0 || stnum>40)
+     {
+       log("Invalid nameless respawn state:%s", state);
+     }
+  }
+  key = the_ini.GetValue("spawn_main","enter");
+  check_spawn_section(key, "spawn_main:enter");
+  the_ini.AddValid(key);
+
+  int cnt;
+  CString *lines = explode(the_ini.GetValue("spawn_main","events"), ',', cnt);
+  the_ini.AddValid(lines, cnt);
+
+  if(lines)
+  {
+    while(cnt--)
+    {
+      check_spawn_section( lines[cnt], "spawn_main:events");
+    }
+    delete [] lines;
+  }
+
+  pos=the_ini.GetStartPosition();
+  while(pos)
+  {
+    the_ini.GetNextAssoc(pos, key, value);
+    if(check_section(key) && !(chkflg&WARNINGS))
+    {
+      log("Invalid section %s", key);
+    }
+  }
+
+  return ret;
+}
+
 int fill_links(short *links, int from, int count, int area, int max)
 {
   int i;

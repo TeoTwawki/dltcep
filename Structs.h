@@ -2254,6 +2254,8 @@ typedef CMap<int, int, CString, LPCSTR> CIntMapString;
 typedef CMap<CString, LPCSTR, tooltip_data, tooltip_data&> CStringMapTooltip;
 typedef CMap<CString, LPCSTR, compiler_data, compiler_data&> CStringMapToCompiler;
 typedef CTypedPtrMap<CMapStringToOb, CString, CStringMapInt*> CStringMapToCStringMapInt;
+typedef CMap<CString, LPCSTR, CString, LPCSTR> CStringMapString;
+typedef CTypedPtrMap<CMapStringToOb, CString, CStringMapString*> CStringMapToCStringMapString;
 typedef COLORREF palettetype[256];
 
 typedef struct 

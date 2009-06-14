@@ -83,6 +83,13 @@ int skip_string(FILE *fpoi, char chr)
   return 0;
 }
 
+void SetupReader(int max)
+{
+  xorflag=0;
+  position=0;
+  maxlength=max;
+}
+
 int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int length=0)
 {
   int i,j,k;

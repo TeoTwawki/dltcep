@@ -1853,6 +1853,7 @@
 #define ID_EXTRACTION_RECOMPRESSSAV     33044
 #define ID_TOOLS_PLAYSOUND              33045
 #define ID_CHECK_AVATAR2DA              33046
+#define ID_CHECK_SPAWNINI               33047
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1860,7 +1861,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33047
+#define _APS_NEXT_COMMAND_VALUE         33048
 #define _APS_NEXT_CONTROL_VALUE         2348
 #define _APS_NEXT_SYMED_VALUE           120
 #endif

@@ -145,12 +145,12 @@ FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "",IDC_VERSION,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2002-2008 Avenger",IDC_STATIC,40,23,119,8
+    LTEXT           "Copyright (C) 2002-2009 Avenger",IDC_STATIC,40,23,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
     LTEXT           "Source: http://gemrb.sourceforge.net",IDC_STATIC,40,36,
                     119,8
-    LTEXT           "DLTC home: http://forums.gibberlings3.net",IDC_STATIC,
-                    40,49,136,8
+    LTEXT           "Forums: http://forums.gibberlings3.net",IDC_STATIC,40,
+                    49,120,8
 END
 
 IDD_CHITEM_DIALOG DIALOGEX 0, 0, 319, 274
@@ -6211,8 +6211,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,0,2
- PRODUCTVERSION 7,1,0,2
+ FILEVERSION 7,1,0,3
+ PRODUCTVERSION 7,1,0,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6227,17 +6227,17 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "www.dragonlancetc.com\0"
+            VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 1, 0, 2\0"
+            VALUE "FileVersion", "7, 1, 0, 3\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2009 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.1b\0"
-            VALUE "ProductVersion", "7, 1, 0, 2\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.1c\0"
+            VALUE "ProductVersion", "7, 1, 0, 3\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6339,6 +6339,7 @@ BEGIN
         MENUITEM "&Item",                       ID_CHECK_ITEM
         MENUITEM "&Projectile",                 ID_CHECK_PROJECTILE
         MENUITEM "Sc&ript",                     ID_CHECK_SCRIPT
+        MENUITEM "Spaw&n (INI)",                ID_CHECK_SPAWNINI
         MENUITEM "&Spell",                      ID_CHECK_SPELL
         MENUITEM "S&tore",                      ID_CHECK_STORE
         MENUITEM "Table (&2DA)",                ID_CHECK_2DA

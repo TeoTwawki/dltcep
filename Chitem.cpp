@@ -165,6 +165,7 @@ Cids the_ids;
 Cmus the_mus;
 Cchui the_chui;
 Csrc the_src;
+Cini the_ini;
 long creature_strrefs[SND_SLOT_COUNT];
 
 //2da, ids
@@ -193,6 +194,7 @@ CIntMapString listdomains;       //iwd2 domain spell list (number to resref mapp
 CIntMapString listinnates;       //iwd2 innate list (number to resref mapping)
 CIntMapString listsongs;         //iwd2 song list (number to resref mapping)
 CIntMapString listshapes;        //iwd2 wildshape list (number to resref mapping)
+CStringMapInt ini_entry;         //acceptable spawn ini entries
 
 CColorPicker colordlg;
 CItemPicker pickerdlg;
@@ -6061,6 +6063,89 @@ CString colortitle(unsigned int value)
   return tmpstr;
 }
 
+void init_spawn_entries()
+{
+  ini_entry.RemoveAll();
+  if(!has_xpvar() && !pst_compatible_var()) return;
+
+  ini_entry["critters"]=INI_SPAWN;
+  ini_entry["interval"]=INI_SPAWN;
+
+  //ini_entry["ai_alignment"]=INI_CREATURE;
+  ini_entry["ai_ea"]=INI_CREATURE;
+  ini_entry["ai_class"]=INI_CREATURE;
+  ini_entry["ai_faction"]=INI_CREATURE;
+  ini_entry["ai_gender"]=INI_CREATURE;
+  ini_entry["ai_general"]=INI_CREATURE;
+  ini_entry["ai_race"]=INI_CREATURE;
+  ini_entry["ai_specifics"]=INI_CREATURE;
+  ini_entry["ai_team"]=INI_CREATURE;
+  //ini_entry["auto_buddy"]=INI_CREATURE;
+  //ini_entry["control_var"]=INI_CREATURE;
+  //ini_entry["check_by_view_port"]=INI_CREATURE; //this seems to be unused by scripts, but exists in exe
+  //ini_entry["do_not_spawn"]=INI_CREATURE;
+  ini_entry["check_crowd"]=INI_CREATURE;
+  ini_entry["create_qty"]=INI_CREATURE;
+  ini_entry["cre_file"]=INI_CREATURE;
+  //ini_entry["death_faction"]=INI_CREATURE;
+  ini_entry["death_scriptname"]=INI_CREATURE;
+  //ini_entry["death_team"]=INI_CREATURE;
+  ini_entry["detail_level"]=INI_CREATURE;
+  ini_entry["dialog"]=INI_CREATURE;
+  ini_entry["facing"]=INI_CREATURE;
+  ini_entry["find_safest_point"]=INI_CREATURE;
+  //ini_entry["good_mod"]=INI_CREATURE;
+  //ini_entry["hold_selected_point_key"]=INI_CREATURE;
+  ini_entry["ignore_can_see"]=INI_CREATURE;
+  //ini_entry["inc_spawn_point_index"]=INI_CREATURE;
+  //ini_entry["lady_mod"]=INI_CREATURE;
+  //ini_entry["law_mod"]=INI_CREATURE;
+  //ini_entry["murder_mod"]=INI_CREATURE;
+  ini_entry["point_select"]=INI_CREATURE;
+  //ini_entry["point_select_var"]=INI_CREATURE;
+  ini_entry["save_selected_point"]=INI_CREATURE;
+  ini_entry["save_selected_facing"]=INI_CREATURE;
+  ini_entry["script_name"]=INI_CREATURE;
+  ini_entry["script_override"]=INI_CREATURE;
+  if(iwd2_structures())
+  {
+    ini_entry["script_special_1"]=INI_CREATURE;
+    ini_entry["script_special_2"]=INI_CREATURE;
+    ini_entry["script_movement"]=INI_CREATURE;
+    ini_entry["script_special_3"]=INI_CREATURE;
+    ini_entry["script_combat"]=INI_CREATURE;
+    ini_entry["script_team"]=INI_CREATURE;
+
+    ini_entry["area_diff_1"]=INI_CREATURE;
+    ini_entry["area_diff_2"]=INI_CREATURE;
+    ini_entry["area_diff_3"]=INI_CREATURE;
+    ini_entry["spec_var_inc"]=INI_CREATURE;
+    ini_entry["spec_var_operation"]=INI_CREATURE;
+    ini_entry["spec_var_value"]=INI_CREATURE;
+  }
+  else
+  {
+    ini_entry["script_area"]=INI_CREATURE;
+    ini_entry["script_class"]=INI_CREATURE;
+    ini_entry["script_default"]=INI_CREATURE;
+    ini_entry["script_general"]=INI_CREATURE;
+    ini_entry["script_race"]=INI_CREATURE;
+    ini_entry["script_specifics"]=INI_CREATURE;
+  }
+  ini_entry["spawn_facing_global"]=INI_CREATURE;
+  ini_entry["spawn_point"]=INI_CREATURE;
+  ini_entry["spawn_point_global"]=INI_CREATURE;
+  //ini_entry["spawn_time_of_day"]=INI_CREATURE;
+  ini_entry["spec"]=INI_CREATURE;
+  //ini_entry["spec_area"]=INI_CREATURE;
+  ini_entry["spec_var"]=INI_CREATURE;
+  ini_entry["spec_qty"]=INI_CREATURE;
+  //ini_entry["time_of_day"]=INI_CREATURE;
+
+  //screwed up, this is what in the exe
+  //ini_entry["check_view_port"]=INI_CREATURE;
+}
+
 CString convert_musiclist(CString tmpstr, bool onlyinternal)
 {
   CString prefix;
@@ -6980,7 +7065,7 @@ int VertexOrder(area_vertex *wedvertex, int count)
 CStringMapCStringMapInt::~CStringMapCStringMapInt()
 {
   CString key;
-  CStringMapInt *value;
+  CStringMapInt *value = NULL;
   POSITION pos;
   
   pos=GetStartPosition();

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.1b"
+#define PRG_VERSION "7.1c"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -217,6 +217,7 @@ ON_COMMAND(ID_SKIMSAV, OnSkimsav)
 ON_COMMAND(ID_EXTRACTION_RECOMPRESSSAV, OnRecompresssav)
 ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
 ON_COMMAND(ID_TOOLS_DECOMPILE, OnToolsDecompile)
+	ON_COMMAND(ID_CHECK_AVATAR2DA, OnCheckAvatar2da)
 ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
 ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
@@ -241,7 +242,7 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
-	ON_COMMAND(ID_CHECK_AVATAR2DA, OnCheckAvatar2da)
+	ON_COMMAND(ID_CHECK_SPAWNINI, OnCheckSpawnini)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -578,6 +579,8 @@ int CChitemDlg::scan_2da()
   int i;
 
   init_colors();
+  init_spawn_entries();
+
   pos=idsmaps.GetStartPosition();
   while(pos)
   {
@@ -2198,6 +2201,55 @@ int CChitemDlg::process_games()
   return gret;
 }
 
+int CChitemDlg::process_spawninis()
+{
+  int gret, ret;
+  POSITION pos;
+  CString key;
+  loc_entry fileloc, dummy;
+  
+  m_event.Empty();
+  UpdateData(UD_DISPLAY);
+  gret=0;
+  
+  log("Checking spawns...");
+  pos=inis.GetStartPosition();
+  start_panic();
+  while(pos && m_panicbutton)
+  {
+    ret=-1;
+    inis.GetNextAssoc(pos,key,fileloc); //cannot skip original bams, there are too many
+    if(!(chkflg&SKIPSOA)) //skipping SoA items
+    {
+      if(fileloc.bifname.Left(5)=="data\\")
+      {
+        continue;
+      }
+    }
+
+    changeitemname(key);
+    //this is not an area ini
+    if(!areas.Lookup(key,dummy))
+    {
+      log("no area");
+      continue;
+    }
+
+    ret=read_next_spawnini(fileloc);
+    if(ret) gret=1;
+    if(ret>=0)
+    {
+      ret=check_spawnini();
+      the_ini.RemoveAll();
+    }
+    newitem=FALSE;
+    if(ret) gret=1;
+  }
+  end_panic();
+  log("Done.");
+  return gret;
+}
+
 int CChitemDlg::process_maps()
 {
   int gret, ret;
@@ -2330,6 +2382,36 @@ void CChitemDlg::OnCheckUi()
     return;
   }
   MessageBox("No problem found!","User interface check",MB_OK|MB_ICONINFORMATION);
+}
+
+void CChitemDlg::OnCheckSpawnini() 
+{
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  if(!pst_compatible_var() && !has_xpvar())
+  {
+    MessageBox("Spawn inis exist only in IWD or PST!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  if(process_spawninis()) //has only check
+  {
+    switch(logtype)
+    {
+    case 0:
+      MessageBox("There were inconsistencies, change the logging type to see them!","Ini check",MB_OK|MB_ICONINFORMATION);
+      break;
+    case 2:
+      MessageBox("See the chitem.log for details on the inconsistencies!","Ini check",MB_OK|MB_ICONINFORMATION);
+      break;
+    }
+    return;
+  }
+  MessageBox("No problem found!","Ini check",MB_OK|MB_ICONINFORMATION);
 }
 
 void CChitemDlg::OnCheckStore() 
@@ -4287,7 +4369,6 @@ int CChitemDlg::read_next_creature(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4327,7 +4408,6 @@ int CChitemDlg::read_next_chui(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4355,7 +4435,6 @@ int CChitemDlg::read_next_projectile(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4383,7 +4462,6 @@ int CChitemDlg::read_next_effect(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4405,7 +4483,6 @@ int CChitemDlg::read_next_videocell(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4429,7 +4506,6 @@ int CChitemDlg::read_next_table(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4453,7 +4529,6 @@ int CChitemDlg::read_next_spell(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4608,7 +4683,7 @@ int CChitemDlg::read_next_area(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
+  CString tmp;
   loc_entry wedfileloc;
   
   fhandle=locate_file(fileloc, 0);
@@ -4669,7 +4744,6 @@ int CChitemDlg::read_next_bam(loc_entry fileloc, bool onlyheader)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4695,7 +4769,6 @@ int CChitemDlg::read_next_game(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4721,7 +4794,6 @@ int CChitemDlg::read_next_map(loc_entry fileloc)
 {
   int ret;
   int fhandle;
-  CString key, tmp;
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
@@ -4738,6 +4810,31 @@ int CChitemDlg::read_next_map(loc_entry fileloc)
   default: //serious error
     if(chkflg&NOSTRUCT) break;
     log("Serious error while looking up worldmap.");
+    break;
+  }
+  return ret;
+}
+
+int CChitemDlg::read_next_spawnini(loc_entry fileloc)
+{
+  int ret;
+  int fhandle;
+  
+  fhandle=locate_file(fileloc, 0);
+  if(fhandle<1) return -2;
+  ret=the_ini.ReadIniFromFile(fhandle, fileloc.size);
+  close(fhandle);
+  switch(ret)
+  {
+  case -1:
+    if(chkflg&NOSTRUCT) break;
+    log("Game file is inconsistent.");
+    break;
+  case 0:
+    break;
+  default: //serious error
+    if(chkflg&NOSTRUCT) break;
+    log("Serious error while looking up save game.");
     break;
   }
   return ret;
@@ -5036,3 +5133,4 @@ void CChitemDlg::OnHelpReadme()
   dlg.m_file="readme.txt";
   dlg.DoModal();
 }
+

@@ -31,6 +31,7 @@
 #include "mos.h"
 #include "chui.h"
 #include "src.h"
+#include "ini.h"
 #include "ItemPicker.h"
 #include "ColorPicker.h"
 
@@ -578,6 +579,7 @@ extern colortype colors[COLORNUM];
 
 extern void init_colors();
 extern CString colortitle(unsigned int value);
+extern void init_spawn_entries();
 extern int feature_resource(int feature);
 extern int *get_strref_opcodes();
 CString convert_musiclist(CString tmpstr, bool onlyinternal);
@@ -604,6 +606,7 @@ class CStringMapArray : public CStringMapTooltip
 public:
  int query_count(CString key);
 };
+
 class CStringListLocEntry: public CList<stringloc_entry, stringloc_entry&>
 {
 public:
@@ -724,6 +727,7 @@ extern Cmap the_map;
 extern Cmos the_mos;
 extern Cchui the_chui;
 extern Csrc the_src;
+extern Cini the_ini;
 
 extern tlk_header tlk_headerinfo[2];
 extern tlk_entry *tlk_entries[2];
@@ -768,6 +772,10 @@ extern CIntMapString listdomains;
 extern CIntMapString listinnates;
 extern CIntMapString listsongs;
 extern CIntMapString listshapes;
+extern CStringMapInt ini_entry;
+
+#define INI_CREATURE 1
+#define INI_SPAWN    2
 
 //area animation flags
 #define AA_MIRROR 2048

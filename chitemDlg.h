@@ -60,6 +60,7 @@ public:
   int check_game();
   int check_map();
   int check_bam();
+  int check_spawnini();
   int check_dialog(int check_or_scan);
   int check_script(int check_or_scan);
 
@@ -131,6 +132,7 @@ protected:
   int process_tables(); //only search
   int process_games(); // only check
   int process_maps(); // only check
+  int process_spawninis(); // only check
   int check_scriptitems();
   bool match_bam();
   bool match_projectile();
@@ -160,6 +162,14 @@ protected:
   int read_next_bam(loc_entry fileloc, bool onlyheader);
   int read_next_game(loc_entry fileloc);
   int read_next_map(loc_entry fileloc);
+  int read_next_spawnini(loc_entry fileloc);
+
+  bool check_value(CString section, CString key, bool error);
+  void check_keys(CString section, int type);
+  void check_creature_section(CString section, CString referenced);
+  int check_section(CString section);
+  void check_spawn_section(CString section, CString referenced);
+  int check_point_string(CString point);
   int check_area_actors();
   int check_area_trigger();
   int check_area_spawn();
@@ -350,6 +360,7 @@ protected:
 	afx_msg void OnUsedialogf();
 	afx_msg void OnToolsDecompile();
 	afx_msg void OnCheckAvatar2da();
+	afx_msg void OnCheckSpawnini();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

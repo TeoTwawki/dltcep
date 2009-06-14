@@ -64,9 +64,9 @@ void Ctbg::new_iap()
 int Ctbg::get_genre()
 {
   if(iwd2_structures()) return 5; //IWD2
-  else if(pst_compatible_var()) return 3; //IWD
-  else if(has_xpvar()) return 1; //PST
-  else if(bg1_compatible_area()) return 2; //BG1
+  else if(pst_compatible_var()) return 2; //PST
+  else if(has_xpvar()) return 3; //IWD
+  else if(bg1_compatible_area()) return 1; //BG1
   else return 4; //BG2
 }
 
