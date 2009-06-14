@@ -5318,16 +5318,24 @@ CAPTION "GemRB specific data"
 FONT 8, "MS Sans Serif"
 BEGIN
     PUSHBUTTON      "Back",IDOK,170,143,50,14
-    EDITTEXT        IDC_FLAGS,9,20,48,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     CONTROL         "Bounce",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    9,39,41,10
+                    9,37,41,10
     CONTROL         "Continue",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,9,54,44,10
+                    WS_TABSTOP,9,51,44,10
     CONTROL         "Freeze on hit",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,9,69,57,10
+                    WS_TABSTOP,9,65,57,10
     CONTROL         "No travel path",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,9,84,61,10
+                    WS_TABSTOP,9,79,61,10
+    CONTROL         "Oriented trail",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,93,55,10
+    CONTROL         "Curved path",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,107,55,10
+    CONTROL         "Random frame",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,121,62,10
+    CONTROL         "Pillar",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    9,135,31,10
 END
 
 

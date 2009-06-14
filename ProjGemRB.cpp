@@ -58,6 +58,10 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -86,5 +90,29 @@ void CProjGemRB::OnFlag3()
 void CProjGemRB::OnFlag4() 
 {
   the_projectile.header.extflags^=PROJ_NO_TRAVEL;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag5() 
+{
+  the_projectile.header.extflags^=PROJ_TRAIL_FACE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag6() 
+{
+  the_projectile.header.extflags^=PROJ_CURVE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag7() 
+{
+  the_projectile.header.extflags^=PROJ_RANDOM;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag8() 
+{
+  the_projectile.header.extflags^=PROJ_PILLAR;
 	UpdateData(UD_DISPLAY);
 }
