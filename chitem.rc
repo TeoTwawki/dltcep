@@ -5336,6 +5336,8 @@ BEGIN
                     WS_TABSTOP,9,121,62,10
     CONTROL         "Pillar",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     9,135,31,10
+    CONTROL         "Translucent",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,125,37,53,10
 END
 
 

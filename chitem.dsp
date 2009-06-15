@@ -273,6 +273,10 @@ SOURCE=.\ImageView.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ini.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\item.cpp
 # End Source File
 # Begin Source File
@@ -683,6 +687,10 @@ SOURCE=.\IcewindCre.h
 # Begin Source File
 
 SOURCE=.\ImageView.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ini.h
 # End Source File
 # Begin Source File
 
