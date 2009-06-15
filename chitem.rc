@@ -5320,10 +5320,10 @@ BEGIN
     PUSHBUTTON      "Back",IDOK,170,143,50,14
     EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
-    CONTROL         "Bounce",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    9,37,41,10
-    CONTROL         "Continue",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,9,51,44,10
+    CONTROL         "Bounce from walls",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,37,73,10
+    CONTROL         "Continue after hit",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,51,69,10
     CONTROL         "Freeze on hit",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,9,65,57,10
     CONTROL         "No travel path",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
@@ -5338,6 +5338,8 @@ BEGIN
                     9,135,31,10
     CONTROL         "Translucent",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,125,37,53,10
+    CONTROL         "Tinted by gradient",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,125,51,73,10
 END
 
 

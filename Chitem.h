@@ -538,6 +538,7 @@ extern CString DELETED_REFERENCE;
 #define PROJ_RANDOM      64      //random starting frame
 #define PROJ_PILLAR      128     //pillar projectile
 #define PROJ_TRANSLUCENT 256     //half-transparent travel projectile
+#define PROJ_TINTED      512     //tinted by gradient (better than paletted animations)
 
 #define TRANSPARENT_GREEN  0x00ff00
 
