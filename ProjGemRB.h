@@ -45,6 +45,7 @@ protected:
 	afx_msg void OnFlag8();
 	afx_msg void OnFlag9();
 	afx_msg void OnFlag10();
+	afx_msg void OnFlag11();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -5340,6 +5340,8 @@ BEGIN
                     WS_TABSTOP,125,37,53,10
     CONTROL         "Tinted by gradient",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,125,51,73,10
+    CONTROL         "Create iteration",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,125,65,63,10
 END
 
 

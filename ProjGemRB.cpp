@@ -64,6 +64,7 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
+	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -128,5 +129,11 @@ void CProjGemRB::OnFlag9()
 void CProjGemRB::OnFlag10() 
 {
   the_projectile.header.extflags^=PROJ_TINTED;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag11() 
+{
+  the_projectile.header.extflags^=PROJ_ITERATION;
 	UpdateData(UD_DISPLAY);
 }
