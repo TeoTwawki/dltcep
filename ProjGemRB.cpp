@@ -39,7 +39,7 @@ void CProjGemRB::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_FLAGS, tmpstr);
   the_projectile.header.extflags=strtonum(tmpstr);
   j=1;
-  for(i=0;i<16;i++)
+  for(i=0;i<18;i++)
   {
     cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
     if (cb)
@@ -65,6 +65,13 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
 	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
+	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
+	ON_BN_CLICKED(IDC_FLAG13, OnFlag13)
+	ON_BN_CLICKED(IDC_FLAG14, OnFlag14)
+	ON_BN_CLICKED(IDC_FLAG15, OnFlag15)
+	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
+	ON_BN_CLICKED(IDC_FLAG17, OnFlag17)
+	ON_BN_CLICKED(IDC_FLAG18, OnFlag18)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -135,5 +142,47 @@ void CProjGemRB::OnFlag10()
 void CProjGemRB::OnFlag11() 
 {
   the_projectile.header.extflags^=PROJ_ITERATION;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag12() 
+{
+  the_projectile.header.extflags^=PROJ_TILE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag13() 
+{
+  the_projectile.header.extflags^=PROJ_FALLING;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag14() 
+{
+  the_projectile.header.extflags^=PROJ_INCOMING;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag15() 
+{
+  the_projectile.header.extflags^=PROJ_LINE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag16() 
+{
+  the_projectile.header.extflags^=PROJ_WALL;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag17() 
+{
+  the_projectile.header.extflags^=PROJ_BACKGROUND;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag18() 
+{
+  the_projectile.header.extflags^=PROJ_POP;
 	UpdateData(UD_DISPLAY);
 }

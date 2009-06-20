@@ -5312,12 +5312,12 @@ BEGIN
     PUSHBUTTON      "Add effect",IDC_ADD2,411,90,62,14
 END
 
-IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 227, 164
+IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 306, 179
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "GemRB specific data"
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "Back",IDOK,170,143,50,14
+    PUSHBUTTON      "Back",IDOK,249,158,50,14
     EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     CONTROL         "Bounce from walls",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
@@ -5337,11 +5337,25 @@ BEGIN
     CONTROL         "Pillar",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     9,135,31,10
     CONTROL         "Translucent",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,125,37,53,10
+                    WS_TABSTOP,124,37,53,10
     CONTROL         "Tinted by gradient",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,125,51,73,10
+                    WS_TABSTOP,124,51,73,10
     CONTROL         "Create iteration",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,125,65,63,10
+                    WS_TABSTOP,124,65,63,10
+    CONTROL         "Tiled area of effect",IDC_FLAG12,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,124,79,75,10
+    CONTROL         "Falling path",IDC_FLAG13,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,124,93,52,10
+    CONTROL         "Incoming path",IDC_FLAG14,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,124,107,61,10
+    CONTROL         "Line area of effect",IDC_FLAG15,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,124,121,73,10
+    CONTROL         "Wall area of effect",IDC_FLAG16,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,124,135,74,10
+    CONTROL         "Draw behind target",IDC_FLAG17,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,36,76,10
+    CONTROL         "Pop in and out",IDC_FLAG18,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,51,62,10
 END
 
 
@@ -6172,9 +6186,9 @@ BEGIN
     IDD_PROJGEMRB, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 220
+        RIGHTMARGIN, 299
         TOPMARGIN, 7
-        BOTTOMMARGIN, 157
+        BOTTOMMARGIN, 172
     END
 END
 #endif    // APSTUDIO_INVOKED
