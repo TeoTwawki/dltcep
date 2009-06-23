@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.1c"
+#define PRG_VERSION "7.1d"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -3042,7 +3042,7 @@ void CChitemDlg::OnFindProjectile()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0x4c;
+  dlg.mask=0x4f;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find projectiles";

@@ -1466,7 +1466,6 @@ bool CChitemDlg::match_item()
   int featblock, featblock2;
   search_data tmpdata;
   int loc, cnt;
-  POSITION pos;
   
 #if 0
   for(int i=0;i<the_item.extheadcount;i++)
@@ -1578,16 +1577,7 @@ bool CChitemDlg::match_item()
   }
   if(searchflags&MP)
   {
-    pos=pro_references.FindIndex(tmpdata.projectile);
-    if(pos)
-    {
-      tmpstr=pro_references.GetAt(pos);
-      if(!tmpstr.GetLength() ) tmpstr="Unknown";
-    }
-    else
-    {
-      tmpstr="Unknown";
-    }
+    tmpstr=get_projectile_id(tmpdata.projectile,0);
     log("Found projectile %d-%s in extended header #%d",tmpdata.projectile,tmpstr,exthead+1);
   }
   if(searchflags&MF)
@@ -1731,7 +1721,6 @@ bool CChitemDlg::match_spell()
   int featblock, featblock2;
   search_data tmpdata;
   int loc, cnt;
-  POSITION pos;
   
 #if 0
   if (the_spell.header.splattr) {
@@ -1827,16 +1816,7 @@ bool CChitemDlg::match_spell()
   }
   if(searchflags&MP)
   {
-    pos=pro_references.FindIndex(tmpdata.projectile);
-    if(pos)
-    {
-      tmpstr=pro_references.GetAt(pos);
-      if(!tmpstr.GetLength() ) tmpstr="Unknown";
-    }
-    else
-    {
-      tmpstr="Unknown";
-    }
+    tmpstr=get_projectile_id(tmpdata.projectile,0);
     log("Found projectile %d-%s in extended header #%d",tmpdata.projectile,tmpstr,exthead+1);
   }
   if(searchflags&MF)
@@ -3055,6 +3035,7 @@ bool CChitemDlg::match_bam()
 
 bool CChitemDlg::match_projectile()
 {
+  CString tmpstr;
   int found;
   search_data tmpdata;
   
@@ -3118,6 +3099,18 @@ bool CChitemDlg::match_projectile()
     }
   }
 
+  if(found)
+  {
+    if(searchflags&MP)
+    { 
+      if(searchdata.projectile<=the_projectile.extension.projectile &&
+         searchdata.projectile2>=the_projectile.extension.projectile)
+      {
+        tmpdata.projectile=the_projectile.extension.projectile;
+      }
+      else found = 0;
+    }
+  }
   if(!found) return false;
 
   if(searchflags&MR)
@@ -3135,6 +3128,12 @@ bool CChitemDlg::match_projectile()
   if(searchflags&MT)
   {
     log("Found AOE flag: %0x", tmpdata.itemtype);
+  }
+
+  if(searchflags&MP)
+  {
+    tmpstr=get_projectile_id(tmpdata.projectile,0);
+    log("Found projectile %d-%s",tmpdata.projectile,tmpstr);
   }
   return true;
 }

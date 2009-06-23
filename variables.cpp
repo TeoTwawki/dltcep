@@ -1177,6 +1177,7 @@ void Cvariable::PositionHead()
     if(varname.Mid(6)==m_varpicker)
     {
       m_area=varname.Left(6);
+      m_value=value;
       goto endofquest;
     }
   }
