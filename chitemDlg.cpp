@@ -218,6 +218,7 @@ ON_COMMAND(ID_EXTRACTION_RECOMPRESSSAV, OnRecompresssav)
 ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
 ON_COMMAND(ID_TOOLS_DECOMPILE, OnToolsDecompile)
 	ON_COMMAND(ID_CHECK_AVATAR2DA, OnCheckAvatar2da)
+	ON_COMMAND(ID_CHECK_SPAWNINI, OnCheckSpawnini)
 ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
 ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
@@ -242,7 +243,7 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
-	ON_COMMAND(ID_CHECK_SPAWNINI, OnCheckSpawnini)
+	ON_COMMAND(ID_SEARCH_BMP, OnSearchBmp)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3134,6 +3135,25 @@ void CChitemDlg::OnSearchBam()
   }
 }
 
+void CChitemDlg::OnSearchBmp() 
+{
+  CFindItem dlg;
+  int ret;
+
+	dlg.mask=0x3c;
+  dlg.flags=searchflags;
+  dlg.searchdata=searchdata;
+  dlg.title="Find bitmaps";
+  dlg.mtype_title="Match size";
+  ret=dlg.DoModal();
+  if(ret==IDOK)
+  {
+    searchflags=dlg.flags;
+    searchdata=dlg.searchdata;
+    process_bams(MATCHING); //perform matches
+  }
+}
+
 void CChitemDlg::OnFindArea() 
 {
   CFindItem dlg;
@@ -5133,4 +5153,3 @@ void CChitemDlg::OnHelpReadme()
   dlg.m_file="readme.txt";
   dlg.DoModal();
 }
-

@@ -19,7 +19,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CProjGemRB)
 	enum { IDD = IDD_PROJGEMRB };
-		// NOTE: the ClassWizard will add data members here
+	CString	m_text;
 	//}}AFX_DATA
 
 
@@ -31,7 +31,8 @@ public:
 	//}}AFX_VIRTUAL
 
 // Implementation
-protected:
+protected:  
+  void RefreshStrings();
 
 	// Generated message map functions
 	//{{AFX_MSG(CProjGemRB)
@@ -53,6 +54,13 @@ protected:
 	afx_msg void OnFlag16();
 	afx_msg void OnFlag17();
 	afx_msg void OnFlag18();
+	afx_msg void OnKillfocus();
+	afx_msg void OnFlag19();
+	afx_msg void OnKillfocusString();
+	virtual BOOL OnInitDialog();
+	afx_msg void OnFlag20();
+	afx_msg void OnFlag21();
+	afx_msg void OnFlag22();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

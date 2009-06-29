@@ -451,7 +451,6 @@
 #define IDC_X27                         1125
 #define IDC_GENERAL                     1126
 #define IDC_PAR_DAMAGE                  1127
-#define IDC_EXTPASTE                    1128
 #define IDC_PAR_SPECIAL                 1128
 #define IDC_GENERAL2                    1129
 #define IDC_VARNAME                     1130
@@ -496,10 +495,10 @@
 #define IDC_FLAG16                      1169
 #define IDC_FLAG17                      1170
 #define IDC_FLAG18                      1171
-#define IDC_TARGETNUM                   1172
-#define IDC_PROJFRAME                   1173
-#define IDC_DURATION                    1174
-#define IDC_TIMING                      1175
+#define IDC_FLAG19                      1172
+#define IDC_FLAG20                      1173
+#define IDC_FLAG21                      1174
+#define IDC_FLAG22                      1175
 #define IDC_CONVREF                     1176
 #define IDC_DURATIONLABEL               1177
 #define IDC_THAC0                       1178
@@ -802,6 +801,7 @@
 #define IDC_UNKNOWN16                   1475
 #define IDC_UNKNOWN22                   1476
 #define IDC_UNKNOWN1A                   1477
+#define IDC_TARGETNUM                   1478
 #define IDC_WEAPON                      1479
 #define IDC_NORTHRES                    1480
 #define IDC_U48                         1481
@@ -881,6 +881,7 @@
 #define IDC_POS2Y2                      1555
 #define IDC_LONGNAMEREF                 1556
 #define IDC_LOCKED                      1557
+#define IDC_EXTPASTE                    1558
 #define IDC_SHORTNAMEREF                1559
 #define IDC_XPVALUE                     1560
 #define IDC_CURRXP                      1561
@@ -1077,6 +1078,7 @@
 #define IDC_MAXITEM                     1752
 #define IDC_ITEMNUMPICKER               1753
 #define IDC_VOLUMED                     1754
+#define IDC_PROJFRAME                   1755
 #define IDC_UNKNOWN20                   1756
 #define IDC_CLASS                       1757
 #define IDC_EXTEFFPASTE                 1758
@@ -1094,10 +1096,12 @@
 #define IDC_SCRIPTNAME2                 1770
 #define IDC_DOORPICKER                  1771
 #define IDC_DELEXP                      1772
-#define IDC_DOORID                      1773
 #define IDC_EXPLORED                    1773
 #define IDC_OPEN                        1774
 #define IDC_U54                         1775
+#define IDC_DOORID                      1776
+#define IDC_DURATION                    1777
+#define IDC_TIMING                      1778
 #define IDC_DIALOGTREE                  1779
 #define IDC_OPTION                      1780
 #define IDC_CONDITION                   1781
@@ -1854,6 +1858,7 @@
 #define ID_TOOLS_PLAYSOUND              33045
 #define ID_CHECK_AVATAR2DA              33046
 #define ID_CHECK_SPAWNINI               33047
+#define ID_SEARCH_BMP                   33048
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1861,8 +1866,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33048
-#define _APS_NEXT_CONTROL_VALUE         2348
+#define _APS_NEXT_COMMAND_VALUE         33049
+#define _APS_NEXT_CONTROL_VALUE         2349
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

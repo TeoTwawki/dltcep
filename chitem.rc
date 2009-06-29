@@ -1949,7 +1949,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit Area:"
 MENU IDR_AREA
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Load Area",IDC_LOAD,7,229,50,14
     PUSHBUTTON      "Load external area",IDC_LOADEX,90,229,64,14
@@ -2111,7 +2111,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit Projectile:"
 MENU IDR_PROJECT
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_TYPE,7,20,88,57,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
@@ -3423,7 +3423,7 @@ IDD_PROJEXT DIALOGEX 0, 0, 410, 191
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Area extension header"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_DURATION,142,72,55,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Back",IDOK,352,170,50,14
@@ -5312,12 +5312,12 @@ BEGIN
     PUSHBUTTON      "Add effect",IDC_ADD2,411,90,62,14
 END
 
-IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 306, 179
+IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 306, 219
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "GemRB specific data"
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "Back",IDOK,249,158,50,14
+    PUSHBUTTON      "Back",IDOK,249,198,50,14
     EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     CONTROL         "Bounce from walls",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
@@ -5356,6 +5356,17 @@ BEGIN
                     WS_TABSTOP,219,36,76,10
     CONTROL         "Pop in and out",IDC_FLAG18,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,219,51,62,10
+    EDITTEXT        IDC_STRREF,7,161,40,14,ES_AUTOHSCROLL
+    CONTROL         "Pop out phase",IDC_FLAG19,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,65,62,10
+    LTEXT           "Text displayed",IDC_STATIC,11,150,46,8
+    EDITTEXT        IDC_STRING,52,161,237,14,ES_AUTOHSCROLL
+    CONTROL         "Fade after explode",IDC_FLAG20,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,79,75,10
+    CONTROL         "Display string",IDC_FLAG21,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,93,57,10
+    CONTROL         "Random movement",IDC_FLAG22,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,107,77,10
 END
 
 
@@ -6188,7 +6199,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 299
         TOPMARGIN, 7
-        BOTTOMMARGIN, 172
+        BOTTOMMARGIN, 212
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -6344,6 +6355,7 @@ BEGIN
     BEGIN
         MENUITEM "&Area",                       ID_SEARCH_AREA
         MENUITEM "&BAM",                        ID_SEARCH_BAM
+        MENUITEM "B&MP",                        ID_SEARCH_BMP
         MENUITEM "&Creature",                   ID_SEARCH_CREATURE
         MENUITEM "&Dialog",                     ID_SEARCH_DIALOG
         MENUITEM "&Effect",                     ID_SEARCH_EFFECT

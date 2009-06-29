@@ -361,6 +361,7 @@ protected:
 	afx_msg void OnToolsDecompile();
 	afx_msg void OnCheckAvatar2da();
 	afx_msg void OnCheckSpawnini();
+	afx_msg void OnSearchBmp();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

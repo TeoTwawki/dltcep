@@ -529,24 +529,28 @@ extern CString DELETED_REFERENCE;
 #define PROJ_AFFECT_ONE 0x8000
 
 //extended flags for gemrb
-#define PROJ_BOUNCE      1       //bounce from walls
-#define PROJ_CONTINUE    2       //continue as travel projectile after triggered
-#define PROJ_FREEZE      4       //freeze after trigger and slowly fade out
-#define PROJ_NO_TRAVEL   8       //appear immediately on target
-#define PROJ_TRAIL_FACE  16      //trail bams also use face
-#define PROJ_CURVE       32      //curved path
-#define PROJ_RANDOM      64      //random starting frame
-#define PROJ_PILLAR      128     //pillar projectile
-#define PROJ_TRANSLUCENT 256     //half-transparent travel projectile
-#define PROJ_TINTED      512     //tinted by gradient (better than paletted animations)
-#define PROJ_ITERATION   1024    //create another projectile with projectile ID-1
-#define PROJ_TILE        2048    //place the travel bam all over the AOE
-#define PROJ_FALLING     4096    //the projectile will fall from above target (y=target.y, x=target-100)
-#define PROJ_INCOMING    8192    //the projectile will fall from above caster (y=caster.y, x=target-100)
-#define PROJ_LINE        16384   //solid line from source to target (ignore caster)
-#define PROJ_WALL        32768   //diagonal across the AOE circle, firewall type
-#define PROJ_BACKGROUND  65536   //draw behind target
-#define PROJ_POP         0x20000 //pop in/hold/pop out animation chain (use shadow for hold)
+#define PROJ_BOUNCE      1        //bounce from walls
+#define PROJ_CONTINUE    2        //continue as travel projectile after triggered
+#define PROJ_FREEZE      4        //freeze after trigger and slowly fade out
+#define PROJ_NO_TRAVEL   8        //appear immediately on target
+#define PROJ_TRAIL_FACE  16       //trail bams also use face
+#define PROJ_CURVE       32       //curved path
+#define PROJ_RANDOM      64       //random starting frame
+#define PROJ_PILLAR      128      //pillar projectile
+#define PROJ_TRANSLUCENT 256      //half-transparent travel projectile
+#define PROJ_TINTED      512      //tinted by gradient (better than paletted animations)
+#define PROJ_ITERATION   1024     //create another projectile with projectile ID-1
+#define PROJ_TILE        2048     //place the travel bam all over the AOE
+#define PROJ_FALLING     4096     //the projectile will fall from above target (y=target.y, x=target-100)
+#define PROJ_INCOMING    8192     //the projectile will fall from above caster (y=caster.y, x=target-100)
+#define PROJ_LINE        16384    //solid line from source to target (ignore caster)
+#define PROJ_WALL        32768    //diagonal across the AOE circle, firewall type
+#define PROJ_BACKGROUND  65536    //draw behind target
+#define PROJ_POP         0x20000  //pop in/hold/pop out animation chain (use shadow for hold)
+#define PROJ_POP_OUT     0x40000  //internal flag for pop out phase
+#define PROJ_FADE        0x80000  //fade after explode
+#define PROJ_TEXT        0x100000 //display text when the projectile is created
+#define PROJ_WANDERING   0x200000 //the projectile moves randomly
 
 #define TRANSPARENT_GREEN  0x00ff00
 
