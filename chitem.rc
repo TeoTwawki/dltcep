@@ -3423,7 +3423,7 @@ IDD_PROJEXT DIALOGEX 0, 0, 410, 191
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Area extension header"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_DURATION,142,72,55,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Back",IDOK,352,170,50,14
@@ -3495,7 +3495,7 @@ BEGIN
     LTEXT           "Explosion projectile (projectl.ids)",IDC_STATIC,249,89,
                     100,8
     EDITTEXT        IDC_VVC,200,165,55,14,ES_UPPERCASE | ES_AUTOHSCROLL
-    PUSHBUTTON      "Edit unknowns at 0x226",IDC_UNKNOWN,322,146,81,14
+    PUSHBUTTON      "GemRB specific",IDC_UNKNOWN,322,146,81,14
     PUSHBUTTON      "Browse",IDC_BROWSE,260,165,28,14
     PUSHBUTTON      "Browse",IDC_BROWSE2,375,126,28,14
 END
@@ -5369,6 +5369,44 @@ BEGIN
                     WS_TABSTOP,219,107,77,10
 END
 
+IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "GemRB specific area data"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Back",IDOK,195,198,50,14
+    EDITTEXT        IDC_UNKNOWN26,65,19,48,14,ES_AUTOHSCROLL
+    LTEXT           "0x26",IDC_STATIC,65,7,16,8
+    CONTROL         "Use explosion color for tint",IDC_FLAG1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,37,99,10
+    CONTROL         "Fill entire area",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,51,59,10
+    CONTROL         "Start scattered",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,65,62,10
+    CONTROL         "Paletted center",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,79,64,10
+    CONTROL         "Repeated scatter",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,93,71,10
+    CONTROL         "Paletted spread animation",IDC_FLAG6,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,107,97,10
+    CONTROL         "Use recoil field for spread",IDC_FLAG7,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,121,95,10
+    CONTROL         "Reserved",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,9,135,47,10
+    EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SOUND1,122,19,48,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_BAM1,7,162,48,14,ES_AUTOHSCROLL
+    LTEXT           "Area sound",IDC_STATIC,122,7,37,8
+    EDITTEXT        IDC_BAM2,122,162,48,14,ES_AUTOHSCROLL
+    LTEXT           "Flags",IDC_STATIC,11,7,18,8
+    LTEXT           "Spread animation",IDC_STATIC,7,150,56,8
+    LTEXT           "Recoil animation",IDC_STATIC,122,150,53,8
+    PUSHBUTTON      "Browse",IDC_BROWSE1,177,19,28,14
+    PUSHBUTTON      "Browse",IDC_BROWSE2,65,161,50,14
+    PUSHBUTTON      "Browse",IDC_BROWSE3,177,162,50,14
+    PUSHBUTTON      "Play",IDC_PLAY1,212,19,28,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -6198,6 +6236,14 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 299
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 212
+    END
+
+    IDD_PROJAREAGEMRB, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 245
         TOPMARGIN, 7
         BOTTOMMARGIN, 212
     END

@@ -1362,8 +1362,9 @@ void CProjExt::OnBrowse2()
 
 void CProjExt::OnUnknown() 
 {
-	// TODO: Add your control notification handler code here
+	CProjAreaGemRB dlg;
 	
+  dlg.DoModal();
 }
 
 BOOL CProjExt::PreTranslateMessage(MSG* pMsg) 

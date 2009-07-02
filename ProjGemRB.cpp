@@ -262,3 +262,182 @@ BOOL CProjGemRB::OnInitDialog()
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
+/////////////////////////////////////////////////////////////////////////////
+// CProjAreaGemRB dialog
+
+
+CProjAreaGemRB::CProjAreaGemRB(CWnd* pParent /*=NULL*/)
+	: CDialog(CProjAreaGemRB::IDD, pParent)
+{
+	//{{AFX_DATA_INIT(CProjAreaGemRB)
+		// NOTE: the ClassWizard will add member initialization here
+	//}}AFX_DATA_INIT
+}
+
+
+void CProjAreaGemRB::DoDataExchange(CDataExchange* pDX)
+{
+  CButton *cb;
+  CString tmpstr;
+  int i,j;
+  int flg;
+
+	CDialog::DoDataExchange(pDX);
+	//{{AFX_DATA_MAP(CProjAreaGemRB)
+		// NOTE: the ClassWizard will add DDX and DDV calls here
+	//}}AFX_DATA_MAP
+  tmpstr.Format("%d", the_projectile.extension.gemrbflags);
+  DDX_Text(pDX, IDC_FLAGS, tmpstr);
+  the_projectile.extension.gemrbflags=strtonum(tmpstr);
+  j=1;
+  for(i=0;i<8;i++)
+  {
+    cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
+    if (cb)
+    {
+      flg=!!(the_projectile.extension.gemrbflags&j);
+      cb->SetCheck(flg);
+      j<<=1;
+    }
+  }
+  RetrieveResref(tmpstr,the_projectile.extension.wavc2);
+  DDX_Text(pDX, IDC_SOUND1, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr,the_projectile.extension.wavc2);
+
+  RetrieveResref(tmpstr,the_projectile.extension.spread);
+  DDX_Text(pDX, IDC_BAM1, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr,the_projectile.extension.spread);
+
+  RetrieveResref(tmpstr,the_projectile.extension.second);
+  DDX_Text(pDX, IDC_BAM2, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr,the_projectile.extension.second);
+}
+
+
+BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
+	//{{AFX_MSG_MAP(CProjAreaGemRB)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
+	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
+	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_EN_KILLFOCUS(IDC_SOUND1, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_BAM1, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_BAM2, OnKillfocus)
+	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CProjAreaGemRB message handlers
+
+void CProjAreaGemRB::OnFlag1() 
+{
+  the_projectile.extension.gemrbflags^=APF_TINT;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag2() 
+{
+  the_projectile.extension.gemrbflags^=APF_FILL;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag3() 
+{
+  the_projectile.extension.gemrbflags^=APF_SCATTER;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag4() 
+{
+  the_projectile.extension.gemrbflags^=APF_VVCPAL;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag5() 
+{
+  the_projectile.extension.gemrbflags^=APF_SPREAD;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag6() 
+{
+  the_projectile.extension.gemrbflags^=APF_PALETTE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag7() 
+{
+  the_projectile.extension.gemrbflags^=APF_BOTH;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag8() 
+{
+  the_projectile.extension.gemrbflags^=APF_RESERVED;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnKillfocus() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnBrowse1() 
+{
+  CString tmpstr;
+  
+  pickerdlg.m_restype=REF_WAV;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.extension.wavc2);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_projectile.extension.wavc2);
+  }
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnBrowse2() 
+{
+  CString tmpstr;
+  
+  pickerdlg.m_restype=REF_BAM;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.extension.spread);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_projectile.extension.spread);
+  }
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnBrowse3() 
+{
+  CString tmpstr;
+  
+  pickerdlg.m_restype=REF_BAM;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.extension.second);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_projectile.extension.second);
+  }
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnPlay1() 
+{
+  CString tmpstr;
+
+  RetrieveResref(tmpstr, the_projectile.extension.wavc2);
+  play_acm(tmpstr,false,false);
+}

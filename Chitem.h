@@ -552,6 +552,17 @@ extern CString DELETED_REFERENCE;
 #define PROJ_TEXT        0x100000 //display text when the projectile is created
 #define PROJ_WANDERING   0x200000 //the projectile moves randomly
 
+
+//extended area flags for gemrb
+#define APF_TINT      1
+#define APF_FILL      2
+#define APF_SCATTER   4
+#define APF_VVCPAL    8
+#define APF_SPREAD    16
+#define APF_PALETTE   32
+#define APF_BOTH      64
+#define APF_RESERVED  128
+ 
 #define TRANSPARENT_GREEN  0x00ff00
 
 #define COLORNUM 256

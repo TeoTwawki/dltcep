@@ -270,6 +270,7 @@
 #define IDS_TISEXTRACT                  234
 #define IDD_PROJGEMRB                   234
 #define IDS_OVERLAY                     235
+#define IDD_PROJAREAGEMRB               235
 #define IDS_VEF                         236
 #define IDS_INI                         237
 #define IDS_FEATURE                     238
@@ -1867,7 +1868,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33049
-#define _APS_NEXT_CONTROL_VALUE         2349
+#define _APS_NEXT_CONTROL_VALUE         2351
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

@@ -570,9 +570,14 @@ typedef struct {
   unsigned char expgr2; //set off
   short expclr;
   short projectile; //another projectile comes now
-  char vvc[8];
+  char vvc[8];      //center animation (x)
   short conewidth;
-  char unknown26[218];
+  short unknown26;
+  char spread[8];   //spread animation  (a) 0x30
+  char second[8];   //recoil animation? (r) 0x38
+  char wavc2[8];    //area sound            0x40
+  long gemrbflags;  //gemrb specific area flags 0x48
+  char unknown44[188];
 } proj_extension;
 
 typedef struct
