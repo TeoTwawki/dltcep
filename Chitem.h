@@ -69,6 +69,7 @@ extern UINT WM_FINDREPLACE;
 #define MT_DOOR        10
 #define MT_BAM         11
 #define MT_EXPLORED    12
+#define MT_HEIGHT8     13
 
 //getpoint units (for ImageView)
 #define GP_POINT     0
@@ -551,7 +552,7 @@ extern CString DELETED_REFERENCE;
 #define PROJ_FADE        0x80000  //fade after explode
 #define PROJ_TEXT        0x100000 //display text when the projectile is created
 #define PROJ_WANDERING   0x200000 //the projectile moves randomly
-
+#define PROJ_CYCLE       0x400000 //the projectile will have a random cycle
 
 //extended area flags for gemrb
 #define APF_TINT      1
@@ -561,8 +562,9 @@ extern CString DELETED_REFERENCE;
 #define APF_SPREAD    16
 #define APF_PALETTE   32
 #define APF_BOTH      64
-#define APF_RESERVED  128
- 
+#define APF_MORE      128
+#define APF_FAILSPELL 256
+
 #define TRANSPARENT_GREEN  0x00ff00
 
 #define COLORNUM 256

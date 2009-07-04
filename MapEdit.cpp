@@ -1368,8 +1368,10 @@ CMapLink::CMapLink(CWnd* pParent /*=NULL*/)
 
 void CMapLink::DoDataExchange(CDataExchange* pDX)
 {
+  CButton *cb;
   CString tmpstr;
-  int i;
+  int i,j;
+  int flg;
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMapLink)
@@ -1389,6 +1391,19 @@ void CMapLink::DoDataExchange(CDataExchange* pDX)
 
     DDX_Text(pDX,IDC_DISTANCE,the_map.arealinks[m_map][m_first+m_linkpicker].distancescale);
     DDX_Text(pDX, IDC_FLAGS, the_map.arealinks[m_map][m_first+m_linkpicker].flags);
+
+    j=1;
+    for(i=0;i<4;i++)
+    {
+      cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
+      if (cb)
+      {
+        flg=!!(the_map.arealinks[m_map][m_first+m_linkpicker].flags&j);
+        cb->SetCheck(flg);
+        j<<=1;
+      }
+    }
+
     for(i=0;i<5;i++)
     {
       RetrieveResref(tmpstr, the_map.arealinks[m_map][m_first+m_linkpicker].encounters[i]);
@@ -1404,6 +1419,7 @@ void CMapLink::DoDataExchange(CDataExchange* pDX)
 static int linkboxids[]={IDC_LINKPICKER, IDC_AREALINK, IDC_ENTRANCE, IDC_REMOVE,
 IDC_CHANCE,IDC_FLAGS, IDC_DISTANCE,IDC_U1,IDC_U2,IDC_U3,IDC_U4,IDC_U5,
 IDC_BROWSE1,IDC_BROWSE2,IDC_BROWSE3,IDC_BROWSE4,IDC_BROWSE5,
+IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,
 0};
 
 void CMapLink::RefreshLink()
@@ -1536,6 +1552,10 @@ BEGIN_MESSAGE_MAP(CMapLink, CDialog)
 	ON_CBN_SELCHANGE(IDC_ENTRANCE, OnSelchangeEntrance)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1621,6 +1641,30 @@ void CMapLink::OnKillfocusDistance()
 void CMapLink::OnKillfocusFlags() 
 {
   UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+void CMapLink::OnFlag1() 
+{
+  the_map.arealinks[m_map][m_first+m_linkpicker].flags^=1;
+	UpdateData(UD_DISPLAY);
+}
+
+void CMapLink::OnFlag2() 
+{
+  the_map.arealinks[m_map][m_first+m_linkpicker].flags^=2;
+	UpdateData(UD_DISPLAY);
+}
+
+void CMapLink::OnFlag3() 
+{
+  the_map.arealinks[m_map][m_first+m_linkpicker].flags^=4;
+	UpdateData(UD_DISPLAY);
+}
+
+void CMapLink::OnFlag4() 
+{
+  the_map.arealinks[m_map][m_first+m_linkpicker].flags^=8;
 	UpdateData(UD_DISPLAY);
 }
 

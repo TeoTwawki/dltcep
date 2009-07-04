@@ -588,6 +588,17 @@ void CAreaEdit::OnCancel()
     }
     goto endofquest;
   }
+
+  if(the_area.changedmap[0] ||the_area.changedmap[1] ||the_area.changedmap[2] ) {
+    tmpstr.Format("Changes have been made to one or more auxiliary maps.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+    goto endofquest;
+  }
+
 endofquest:
 	CDialog::OnCancel();
 }

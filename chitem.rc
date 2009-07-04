@@ -1390,12 +1390,29 @@ IDD_PALETTE DIALOGEX 0, 0, 318, 212
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit Palette"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,75,191,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,189,191,50,14
     CONTROL         "",IDC_PALETTE,"Static",SS_BITMAP | SS_NOTIFY | 
                     SS_SUNKEN | WS_BORDER,23,24,17,15,0,HIDC_PALETTE
+    EDITTEXT        IDC_IDX,249,16,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_BLUE,249,35,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_BLUE2,276,35,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREEN,249,54,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GREEN2,276,54,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RED,249,73,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RED2,276,73,22,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "All",IDC_ALL,225,102,20,14
+    EDITTEXT        IDC_FROM,249,102,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TO,276,102,22,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Scale colours",IDC_SMOOTH,248,121,50,14
+    COMBOBOX        IDC_FUNCTION,225,148,86,60,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    PUSHBUTTON      "Swap",IDC_SWAP,225,164,20,14
+    PUSHBUTTON      "Modify RGB",IDC_RGB,248,164,50,14
+    CONTROL         "Keep gray",IDC_KEEPGRAY,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,250,183,48,10
+    DEFPUSHBUTTON   "OK",IDOK,75,191,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,189,191,50,14
     LTEXT           "1",IDC_STATIC,13,35,8,8
     LTEXT           "2",IDC_STATIC,13,45,8,8
     LTEXT           "3",IDC_STATIC,13,55,8,8
@@ -1428,30 +1445,13 @@ BEGIN
     LTEXT           "E",IDC_STATIC,179,13,8,8
     LTEXT           "F",IDC_STATIC,189,13,8,8
     LTEXT           "0",IDC_STATIC,25,13,8,8
-    EDITTEXT        IDC_RED,249,73,22,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_GREEN,249,54,22,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_BLUE,249,35,22,14,ES_AUTOHSCROLL
     LTEXT           "Red",IDC_STATIC,231,35,14,8
     LTEXT           "Green",IDC_STATIC,225,54,20,8
     LTEXT           "Blue",IDC_STATIC,230,73,15,8
-    EDITTEXT        IDC_IDX,249,16,22,14,ES_AUTOHSCROLL
     LTEXT           "Colour #",IDC_STATIC,217,16,28,8
-    PUSHBUTTON      "Scale colours",IDC_SMOOTH,248,121,50,14
-    EDITTEXT        IDC_TO,276,102,22,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_FROM,249,102,22,14,ES_AUTOHSCROLL
     LTEXT           "Changed interval",IDC_STATIC,248,91,54,8
-    PUSHBUTTON      "Modify RGB",IDC_RGB,248,164,50,14
-    COMBOBOX        IDC_FUNCTION,225,148,86,60,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
-    CONTROL         "Keep gray",IDC_KEEPGRAY,"Button",BS_AUTOCHECKBOX | 
-                    BS_PUSHLIKE | WS_TABSTOP,250,183,48,10
-    PUSHBUTTON      "All",IDC_ALL,225,102,20,14
     LTEXT           "Function to perform",IDC_STATIC,225,138,62,8
-    EDITTEXT        IDC_BLUE2,276,35,22,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_GREEN2,276,54,22,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_RED2,276,73,22,14,ES_AUTOHSCROLL
     LTEXT           "Adjustment",IDC_STATIC,276,20,36,8
-    PUSHBUTTON      "Swap",IDC_SWAP,225,164,20,14
 END
 
 IDD_SPELLGENERAL DIALOG DISCARDABLE  0, 0, 400, 199
@@ -3452,13 +3452,13 @@ BEGIN
     CONTROL         "Cone shape",IDC_ATTR12,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,142,146,54,10
     CONTROL         "13",IDC_ATTR13,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,
-                    139,24,10
+                    134,24,10
     CONTROL         "No explosion ?",IDC_ATTR14,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,13,149,63,10
+                    WS_TABSTOP,13,144,63,10
     CONTROL         "Delayed explosion ?",IDC_ATTR15,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,159,79,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,154,79,10
     CONTROL         "Affect only one ?",IDC_ATTR16,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,13,169,69,10
+                    WS_TABSTOP,13,164,69,10
     EDITTEXT        IDC_ATTR,13,16,55,14,ES_AUTOHSCROLL
     LTEXT           "Attributes (16 bits)",IDC_STATIC,13,7,57,8
     EDITTEXT        IDC_UNKNOWN2,76,16,55,14,ES_AUTOHSCROLL
@@ -3698,10 +3698,10 @@ BEGIN
     COMBOBOX        IDC_ENTRANCE,101,50,147,146,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     LTEXT           "Entrance",IDC_STATIC,101,37,30,8
-    EDITTEXT        IDC_DISTANCE,123,80,40,14,ES_AUTOHSCROLL
-    LTEXT           "Distance scale",IDC_STATIC,123,67,48,8
-    EDITTEXT        IDC_FLAGS,123,112,40,14,ES_AUTOHSCROLL
-    LTEXT           "Flags (0 will crash)",IDC_STATIC,123,99,58,8
+    EDITTEXT        IDC_DISTANCE,122,80,40,14,ES_AUTOHSCROLL
+    LTEXT           "Distance scale",IDC_STATIC,122,67,48,8
+    EDITTEXT        IDC_FLAGS,122,112,40,14,ES_AUTOHSCROLL
+    LTEXT           "Flags (0 will crash)",IDC_STATIC,122,99,58,8
     EDITTEXT        IDC_U1,7,80,60,14,ES_UPPERCASE | ES_AUTOHSCROLL
     LTEXT           "1. random encounter area",IDC_STATIC,7,67,82,8
     PUSHBUTTON      "Browse",IDC_BROWSE1,79,80,28,14
@@ -3717,10 +3717,18 @@ BEGIN
     EDITTEXT        IDC_U5,7,208,60,14,ES_UPPERCASE | ES_AUTOHSCROLL
     LTEXT           "5. random encounter area",IDC_STATIC,7,195,82,8
     PUSHBUTTON      "Browse",IDC_BROWSE5,79,208,28,14
-    EDITTEXT        IDC_CHANCE,123,144,40,14,ES_AUTOHSCROLL
-    LTEXT           "Chance of encounter",IDC_STATIC,123,131,68,8
+    EDITTEXT        IDC_CHANCE,183,80,40,14,ES_AUTOHSCROLL
+    LTEXT           "Chance of encounter",IDC_STATIC,183,67,68,8
     PUSHBUTTON      "Add link",IDC_ADD,201,168,50,14
     PUSHBUTTON      "Remove link",IDC_REMOVE,201,189,50,14
+    CONTROL         "North",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    122,136,33,10
+    CONTROL         "East",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    122,153,30,10
+    CONTROL         "South",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    122,170,35,10
+    CONTROL         "West",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    122,187,33,10
 END
 
 IDD_CREATUREITEMS DIALOG DISCARDABLE  0, 0, 400, 199
@@ -4765,13 +4773,18 @@ CAPTION "Maps"
 FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "Height map",IDC_HEIGHTMAP,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,400,15,54,10
-    CONTROL         "Light map",IDC_LIGHTMAP,"Button",BS_AUTORADIOBUTTON,400,
+                    WS_GROUP | WS_TABSTOP,361,15,54,10
+    CONTROL         "Light map",IDC_LIGHTMAP,"Button",BS_AUTORADIOBUTTON,361,
                     26,54,10
     CONTROL         "Night light map",IDC_NIGHTMAP,"Button",
-                    BS_AUTORADIOBUTTON,400,37,63,10
+                    BS_AUTORADIOBUTTON,361,37,63,10
     CONTROL         "Search map",IDC_SEARCHMAP,"Button",BS_AUTORADIOBUTTON,
-                    400,48,54,10
+                    361,48,54,10
+    CONTROL         "8 bits",IDC_HEIGHTMAP2,"Button",BS_AUTORADIOBUTTON,421,
+                    15,33,10
+    EDITTEXT        IDC_WIDTH,400,77,20,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    WS_GROUP
+    EDITTEXT        IDC_HEIGHT,434,77,20,14,ES_AUTOHSCROLL | ES_READONLY
     PUSHBUTTON      "Set to",IDC_SET,355,96,35,14,WS_GROUP
     COMBOBOX        IDC_VALUE,394,96,76,112,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
@@ -4781,10 +4794,8 @@ BEGIN
     PUSHBUTTON      "Edit palette",IDC_PALETTE,421,146,52,14
     PUSHBUTTON      "Edit map",IDC_EDIT,355,172,52,14
     PUSHBUTTON      "Undo floodfill",IDC_UNDO,421,172,52,14
-    GROUPBOX        "Choose map type",IDC_STATIC,390,1,80,61
+    GROUPBOX        "Choose map type",IDC_STATIC,356,1,114,61
     CONTROL         "",IDC_MAP,"Static",SS_BITMAP | SS_NOTIFY,7,1,15,13
-    EDITTEXT        IDC_HEIGHT,434,77,20,14,ES_AUTOHSCROLL | ES_READONLY
-    EDITTEXT        IDC_WIDTH,400,77,20,14,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Map dimensions",IDC_STATIC,400,64,52,8
     LTEXT           "x",IDC_STATIC,426,80,8,8
 END
@@ -5367,6 +5378,8 @@ BEGIN
                     WS_TABSTOP,219,93,57,10
     CONTROL         "Random movement",IDC_FLAG22,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,219,107,77,10
+    CONTROL         "Random cycle",IDC_FLAG23,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,121,61,10
 END
 
 IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
@@ -5391,8 +5404,8 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,9,107,97,10
     CONTROL         "Use recoil field for spread",IDC_FLAG7,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,9,121,95,10
-    CONTROL         "Reserved",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,9,135,47,10
+    CONTROL         "Double child projectiles",IDC_FLAG8,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,9,135,89,10
     EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_SOUND1,122,19,48,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_BAM1,7,162,48,14,ES_AUTOHSCROLL
@@ -5405,6 +5418,8 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_BROWSE2,65,161,50,14
     PUSHBUTTON      "Browse",IDC_BROWSE3,177,162,50,14
     PUSHBUTTON      "Play",IDC_PLAY1,212,19,28,14
+    CONTROL         "Apply spell on caster if failed",IDC_FLAG9,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,125,37,105,10
 END
 
 
@@ -6296,8 +6311,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,0,4
- PRODUCTVERSION 7,1,0,4
+ FILEVERSION 7,1,0,5
+ PRODUCTVERSION 7,1,0,5
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6315,14 +6330,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 1, 0, 4\0"
+            VALUE "FileVersion", "7, 1, 0, 5\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2009 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.1d\0"
-            VALUE "ProductVersion", "7, 1, 0, 4\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.1e\0"
+            VALUE "ProductVersion", "7, 1, 0, 5\0"
             VALUE "SpecialBuild", "\0"
         END
     END

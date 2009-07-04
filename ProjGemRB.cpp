@@ -81,8 +81,9 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_EN_KILLFOCUS(IDC_STRING, OnKillfocusString)
 	ON_BN_CLICKED(IDC_FLAG20, OnFlag20)
 	ON_BN_CLICKED(IDC_FLAG21, OnFlag21)
-	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocus)
 	ON_BN_CLICKED(IDC_FLAG22, OnFlag22)
+	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocus)
+	ON_BN_CLICKED(IDC_FLAG23, OnFlag23)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -222,6 +223,12 @@ void CProjGemRB::OnFlag22()
 	UpdateData(UD_DISPLAY);
 }
 
+void CProjGemRB::OnFlag23() 
+{
+  the_projectile.header.extflags^=PROJ_CYCLE;
+	UpdateData(UD_DISPLAY);
+}
+
 void CProjGemRB::RefreshStrings()
 {
   m_text=resolve_tlk_text(the_projectile.header.text);
@@ -290,7 +297,7 @@ void CProjAreaGemRB::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_FLAGS, tmpstr);
   the_projectile.extension.gemrbflags=strtonum(tmpstr);
   j=1;
-  for(i=0;i<8;i++)
+  for(i=0;i<16;i++)
   {
     cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
     if (cb)
@@ -331,10 +338,11 @@ BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
 	ON_EN_KILLFOCUS(IDC_SOUND1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM2, OnKillfocus)
-	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -385,7 +393,13 @@ void CProjAreaGemRB::OnFlag7()
 
 void CProjAreaGemRB::OnFlag8() 
 {
-  the_projectile.extension.gemrbflags^=APF_RESERVED;
+  the_projectile.extension.gemrbflags^=APF_MORE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag9() 
+{
+  the_projectile.extension.gemrbflags^=APF_FAILSPELL;
 	UpdateData(UD_DISPLAY);
 }
 

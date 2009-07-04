@@ -501,6 +501,7 @@
 #define IDC_FLAG21                      1174
 #define IDC_FLAG22                      1175
 #define IDC_CONVREF                     1176
+#define IDC_FLAG23                      1176
 #define IDC_DURATIONLABEL               1177
 #define IDC_THAC0                       1178
 #define IDC_ROLL                        1179
@@ -1423,6 +1424,7 @@
 #define IDC_SEARCHMAP                   2097
 #define IDC_HEIGHTMAP                   2098
 #define IDC_NOID                        2099
+#define IDC_HEIGHTMAP2                  2099
 #define IDC_FRAME2                      2100
 #define IDC_SET                         2101
 #define IDC_FIND                        2102
@@ -1868,7 +1870,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33049
-#define _APS_NEXT_CONTROL_VALUE         2351
+#define _APS_NEXT_CONTROL_VALUE         2352
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

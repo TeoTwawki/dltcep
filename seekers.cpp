@@ -3135,6 +3135,11 @@ bool CChitemDlg::match_projectile()
     tmpstr=get_projectile_id(tmpdata.projectile,0);
     log("Found projectile %d-%s",tmpdata.projectile,tmpstr);
   }
+  // debug
+  if(the_projectile.header.type==3 && the_projectile.extension.expgr2!=0xff) {
+    log("Projectile with areapro.2da index!");
+  }
+  //
   return true;
 }
 

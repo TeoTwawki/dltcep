@@ -201,6 +201,10 @@ void CImageView::SetMapType(int maptype, LPBYTE map)
     m_palette=the_area.htpal;
     m_max=15;
     break;
+  case MT_HEIGHT8:
+    m_palette=the_area.ht8pal;
+    m_max=255;
+    break;
   case MT_LIGHT:
     m_palette=the_area.lmpal;
     m_max=255;
@@ -914,7 +918,7 @@ BOOL CImageView::OnInitDialog()
   {
     switch(m_maptype)
     {
-    case MT_HEIGHT: SetWindowText("Edit heightmap: "+itemname+"HT"); break;
+    case MT_HEIGHT8: case MT_HEIGHT: SetWindowText("Edit heightmap: "+itemname+"HT"); break;
     case MT_LIGHT:
       if(the_area.m_night) tmpstr="LN";
       else tmpstr="LM";
@@ -1103,6 +1107,9 @@ void CImageView::OnBitmap()
     {
     case MT_EXPLORED:case MT_BLOCK:
       //changed area itself, no flag yet
+      break;
+    case MT_HEIGHT8:
+      the_area.changedmap[0]=true;
       break;
     default:
       the_area.changedmap[m_maptype]=true;

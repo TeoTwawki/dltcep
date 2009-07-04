@@ -811,6 +811,7 @@ protected:
 	afx_msg void OnSpecial();
 	afx_msg void OnRefresh();
 	afx_msg void OnNightmap();
+	afx_msg void OnHeightmap2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

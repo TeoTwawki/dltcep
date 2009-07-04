@@ -51,9 +51,11 @@ public:
   unsigned char *heightmap;
   bool changedmap[3];
   bool m_changed;
+  bool m_smallpalette;
   COLORREF lmpal[256];
   COLORREF srpal[16];
   COLORREF htpal[16];
+  COLORREF ht8pal[256];
 
   //.area
   int revision;

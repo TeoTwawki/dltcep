@@ -61,6 +61,7 @@ protected:
 	afx_msg void OnFlag20();
 	afx_msg void OnFlag21();
 	afx_msg void OnFlag22();
+	afx_msg void OnFlag23();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -106,6 +107,7 @@ protected:
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
 	afx_msg void OnPlay1();
+	afx_msg void OnFlag9();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

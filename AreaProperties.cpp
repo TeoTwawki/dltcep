@@ -6449,7 +6449,6 @@ BOOL CAreaAnim::PreTranslateMessage(MSG* pMsg)
 CAreaMap::CAreaMap()	: CPropertyPage(CAreaMap::IDD)
 {
 	//{{AFX_DATA_INIT(CAreaMap)
-	m_maptype = 0;
 	//}}AFX_DATA_INIT
   bgcolor=RGB(32,32,32);
   m_set = 0;
@@ -6458,6 +6457,8 @@ CAreaMap::CAreaMap()	: CPropertyPage(CAreaMap::IDD)
   the_palette = NULL;
   m_function=0;
   m_adjust=0;
+  if(the_area.m_smallpalette) m_maptype=0;
+  else m_maptype=4;
 }
 
 CAreaMap::~CAreaMap()
@@ -6475,6 +6476,8 @@ void CAreaMap::RefreshMap()
   {
     cw->EnableWindow(!iwd2_structures() && the_area.WedAvailable()&&(the_area.header.areatype&EXTENDED_NIGHT) );
   }
+  if(the_area.m_smallpalette) m_maptype=0;
+  else m_maptype=4;
 }
 
 BOOL CAreaMap::OnInitDialog() 
@@ -6492,10 +6495,11 @@ BOOL CAreaMap::OnInitDialog()
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
   }
+  UpdateData(UD_DISPLAY);
 	return TRUE;
 }
 
-static int maptypes[4]={MT_HEIGHT,MT_LIGHT, MT_LIGHT,MT_SEARCH};
+static int maptypes[5]={MT_HEIGHT,MT_LIGHT, MT_LIGHT,MT_SEARCH,MT_HEIGHT8};
 
 void CAreaMap::ResetCombo()
 {
@@ -6503,7 +6507,7 @@ void CAreaMap::ResetCombo()
   int maptype;
 
   maptype=maptypes[m_maptype];
-  if(maptype==MT_LIGHT) max=256;
+  if(maptype==MT_LIGHT || maptype==MT_HEIGHT8) max=256;
   else max=16;
   m_value_control.ResetContent();
   for(i=0;i<max;i++)
@@ -6528,6 +6532,12 @@ void CAreaMap::DoDataExchange(CDataExchange* pDX)
   case 0:
     the_map=the_area.heightmap;
     the_palette=the_area.htpal;
+    m_special_control.SetWindowText("");
+    m_special_control.EnableWindow(false);
+    break;
+  case 4: //height 8 bits
+    the_map=the_area.heightmap;
+    the_palette=the_area.ht8pal;
     m_special_control.SetWindowText("");
     m_special_control.EnableWindow(false);
     break;
@@ -6582,7 +6592,6 @@ BEGIN_MESSAGE_MAP(CAreaMap, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaMap)
 	ON_BN_CLICKED(IDC_HEIGHTMAP, OnHeightmap)
 	ON_BN_CLICKED(IDC_LIGHTMAP, OnLightmap)
-	ON_BN_CLICKED(IDC_NIGHTMAP, OnNightmap)
 	ON_BN_CLICKED(IDC_SEARCHMAP, OnSearchmap)
 	ON_CBN_KILLFOCUS(IDC_VALUE, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_CLEAR, OnClear)
@@ -6594,6 +6603,8 @@ BEGIN_MESSAGE_MAP(CAreaMap, CPropertyPage)
 	ON_BN_CLICKED(IDC_PALETTE, OnPalette)
 	ON_BN_CLICKED(IDC_SPECIAL, OnSpecial)
 	ON_COMMAND(ID_REFRESH, OnRefresh)
+	ON_BN_CLICKED(IDC_NIGHTMAP, OnNightmap)
+	ON_BN_CLICKED(IDC_HEIGHTMAP2, OnHeightmap2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -6602,6 +6613,14 @@ END_MESSAGE_MAP()
 
 void CAreaMap::OnHeightmap() 
 {
+  the_area.m_smallpalette=true;
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaMap::OnHeightmap2() 
+{
+  the_area.m_smallpalette=false;
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
@@ -6639,9 +6658,11 @@ void CAreaMap::Allocatemap(bool allocate)
     int size=(the_area.m_width/GR_WIDTH)*((the_area.m_height+GR_HEIGHT-1)/GR_HEIGHT);
     the_map=new BYTE[size];
   }
+  int maptype = maptypes[m_maptype];
+  if(maptype==MT_HEIGHT8) maptype=MT_HEIGHT;
   switch(m_maptype)
   {
-  case 0:
+  case 0: case 4:
     the_area.heightmap = the_map;
     break;
   case 1:
@@ -6656,7 +6677,7 @@ void CAreaMap::Allocatemap(bool allocate)
     the_area.searchmap = the_map;
     break;
   }
-  the_area.changedmap[maptypes[m_maptype]]=TRUE;
+  the_area.changedmap[maptype]=TRUE;
 }
 
 void CAreaMap::OnClear() 
@@ -6665,7 +6686,9 @@ void CAreaMap::OnClear()
   if(the_map) delete [] the_map;
 	Allocatemap(true);
   memset(the_map,0,(the_area.m_width/GR_WIDTH)*((the_area.m_height+GR_HEIGHT-1)/GR_HEIGHT) );
-  the_area.changedmap[maptypes[m_maptype]]=TRUE;
+  int maptype = maptypes[m_maptype];
+  if(maptype==MT_HEIGHT8) maptype=MT_HEIGHT;
+  the_area.changedmap[maptype]=TRUE;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6678,7 +6701,9 @@ void CAreaMap::OnSet()
     if(m_set>15) m_set=15;
   }
 	memset(the_map,m_set,(the_area.m_width/GR_WIDTH)*((the_area.m_height+GR_HEIGHT-1)/GR_HEIGHT) );
-  the_area.changedmap[maptypes[m_maptype]]=TRUE;
+  int maptype = maptypes[m_maptype];
+  if(maptype==MT_HEIGHT8) maptype=MT_HEIGHT;
+  the_area.changedmap[maptype]=TRUE;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6697,6 +6722,13 @@ void CAreaMap::OnInit()
   maptype=maptypes[m_maptype];
   switch(maptype)
   {
+  case MT_HEIGHT8:
+    //FIXME: this is not correct, but something
+    for(i=0;i<256;i++)
+    {
+      the_palette[i]=RGB(i, i, i);
+    }
+    break;
   case MT_HEIGHT:
     for(i=0;i<16;i++)
     {
@@ -6749,7 +6781,14 @@ void CAreaMap::OnInit()
     memcpy(the_palette, srpalette, sizeof(srpalette) );
     break;
   }
-  the_area.changedmap[maptype]=TRUE;
+  if(maptype==MT_HEIGHT8)
+  {
+    the_area.changedmap[MT_HEIGHT]=TRUE;
+  }
+  else
+  {
+    the_area.changedmap[maptype]=TRUE;
+  }
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6757,7 +6796,7 @@ void CAreaMap::OnPalette()
 {
 	CPaletteEdit dlg;
 
-  if(maptypes[m_maptype]!=MT_LIGHT)
+  if(maptypes[m_maptype]!=MT_LIGHT && maptypes[m_maptype]!=MT_HEIGHT8)
   {
     dlg.m_max=16;
   }  

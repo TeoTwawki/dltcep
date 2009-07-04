@@ -91,6 +91,7 @@ Carea::Carea()
   wedavailable=true;
   changedmap[0]=changedmap[1]=changedmap[2]=true;
   memset(&intheader,0,sizeof(intheader) );
+  m_smallpalette=true;
 }
 
 Carea::~Carea()
@@ -539,7 +540,14 @@ int Carea::WriteWedToFile(int fh)
   {
     if(changedmap[0])
     {
-      WriteMap("HT",heightmap,htpal,16);
+      if(m_smallpalette)
+      {
+        WriteMap("HT",heightmap,htpal,16);
+      }
+      else
+      {
+        WriteMap("HT",heightmap,ht8pal,256);
+      }
       changedmap[0]=false;
     }
   }
@@ -547,7 +555,8 @@ int Carea::WriteWedToFile(int fh)
   {
     if(changedmap[1])
     {
-      if(m_night) {
+      if(m_night)
+      {
         WriteMap("LN",lightmap,lmpal,256);
       }
       else
@@ -1488,6 +1497,7 @@ int Carea::ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palett
   Cbam tmpbam;
   CString resname;
   int mapsize;
+  int ret;
 
   RetrieveResref(resname,header.wed);
   resname+=Suffix;
@@ -1506,10 +1516,16 @@ int Carea::ReadMap(const char *Suffix, unsigned char *&Storage, COLORREF *Palett
   Storage = new unsigned char[mapsize];
   if(!Storage) return -3;
   memset(Storage, 0, mapsize);
+  ret = 0;
+  if(tmpbam.m_palettesize!=size) ret = 1;
   size = tmpbam.GetFrameDataSize(0);
-  if(size<mapsize) mapsize=size;
+  if(size<mapsize)
+  {
+    mapsize=size;
+    ret = 1;
+  }
   memcpy(Storage, tmpbam.GetFrameData(0), mapsize);
-  return 0;
+  return ret;
 }
 
 int Carea::ReadWedFromFile(int fh, long ml)
@@ -1574,7 +1590,13 @@ int Carea::ReadWedFromFile(int fh, long ml)
     ReadMap("LM", lightmap, lmpal, sizeof(lmpal) );
   }
   ReadMap("SR", searchmap, srpal, sizeof(srpal) );
-  ReadMap("HT", heightmap, htpal, sizeof(htpal) );
+  m_smallpalette=true;
+  ret = ReadMap("HT", heightmap, htpal, sizeof(htpal) );
+  if(ret==1)
+  {
+    m_smallpalette=false;
+    ReadMap("HT", heightmap, ht8pal, sizeof(ht8pal) );
+  }
   wedchanged=false;
   for(ret=0;ret<3;ret++) changedmap[ret]=false;
   ret=0;
