@@ -88,13 +88,7 @@ void Ccreature::SetupCharacter(int fullsize)
   tmpstr=resolve_tlk_text(header.shortname);
   StoreName(tmpstr,chrheader.name);
 }
-/*
-int Ccreature::WriteCharacterToFile(int fhandle, int calculate)
-{
-  int chrsize = WriteCreatureToFile(NULL,1);
 
-}
-*/
 int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
 {
   int chrsize, esize;

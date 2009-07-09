@@ -538,7 +538,10 @@ typedef struct {
   long spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
   long extflags;    //0x2c //flags used by gemrb
   long text;        //0x30 //text strref
-  char unknown34[204]; //unknown till next 256 block
+  long rgb;         //0x34 //rgb single pulse color
+  short pulsespeed; //0x36 //pulse speed
+  short shake;      //0x38 //screen shake
+  char unknown3c[196]; //unknown till next 256 block
   unsigned long attr;
   char bam1[8];
   char bam2[8];

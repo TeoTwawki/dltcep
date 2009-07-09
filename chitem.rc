@@ -5380,6 +5380,15 @@ BEGIN
                     WS_TABSTOP,219,107,77,10
     CONTROL         "Random cycle",IDC_FLAG23,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,219,121,61,10
+    EDITTEXT        IDC_RGB,70,19,50,14,ES_AUTOHSCROLL
+    LTEXT           "RGB color on hit",IDC_STATIC,70,7,53,8
+    PUSHBUTTON      "Pick color",IDC_COLOR,133,19,36,14
+    CONTROL         "RGB color on hit",IDC_FLAG24,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,135,68,10
+    EDITTEXT        IDC_SCREEN,235,19,40,14,ES_AUTOHSCROLL
+    LTEXT           "Screenshake on hit",IDC_STATIC,235,7,62,8
+    EDITTEXT        IDC_SPEED,182,19,40,14,ES_AUTOHSCROLL
+    LTEXT           "RGB speed",IDC_STATIC,182,7,38,8
 END
 
 IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
@@ -5407,10 +5416,10 @@ BEGIN
     CONTROL         "Double child projectiles",IDC_FLAG8,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,9,135,89,10
     EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_SOUND1,122,19,48,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_BAM1,7,162,48,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SOUND1,122,19,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_BAM1,7,162,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     LTEXT           "Area sound",IDC_STATIC,122,7,37,8
-    EDITTEXT        IDC_BAM2,122,162,48,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_BAM2,122,162,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     LTEXT           "Flags",IDC_STATIC,11,7,18,8
     LTEXT           "Spread animation",IDC_STATIC,7,150,56,8
     LTEXT           "Recoil animation",IDC_STATIC,122,150,53,8
@@ -5420,6 +5429,8 @@ BEGIN
     PUSHBUTTON      "Play",IDC_PLAY1,212,19,28,14
     CONTROL         "Apply spell on caster if failed",IDC_FLAG9,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,37,105,10
+    CONTROL         "Multiple directions (cone)",IDC_FLAG10,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,125,51,94,10
 END
 
 
@@ -6676,7 +6687,7 @@ BEGIN
         MENUITEM "&Save spell",                 ID_FILE_SAVE
         MENUITEM "Save spell &As ...",          ID_FILE_SAVEAS
         MENUITEM "Export &TBG spell file",      ID_FILE_TBG
-        MENUITEM "Export TP&2 item file",       ID_FILE_TP2
+        MENUITEM "Export TP&2 spell file",      ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -6921,6 +6932,8 @@ BEGIN
         MENUITEM "Load &external projectile",   ID_FILE_LOADEXTERNALSCRIPT
         MENUITEM "&Save projectile",            ID_FILE_SAVE
         MENUITEM "Save projectile &As ...",     ID_FILE_SAVEAS
+        MENUITEM "Export &TBG missile file",    ID_FILE_TBG
+        MENUITEM "Export TP&2 missile file",    ID_FILE_TP2
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END

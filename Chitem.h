@@ -553,17 +553,19 @@ extern CString DELETED_REFERENCE;
 #define PROJ_TEXT        0x100000 //display text when the projectile is created
 #define PROJ_WANDERING   0x200000 //the projectile moves randomly
 #define PROJ_CYCLE       0x400000 //the projectile will have a random cycle
+#define PROJ_RGB         0x800000 //the target will have a single color pulse effect
 
 //extended area flags for gemrb
-#define APF_TINT      1
-#define APF_FILL      2
-#define APF_SCATTER   4
-#define APF_VVCPAL    8
-#define APF_SPREAD    16
-#define APF_PALETTE   32
-#define APF_BOTH      64
-#define APF_MORE      128
-#define APF_FAILSPELL 256
+#define APF_TINT      1    //use tint for spread animation
+#define APF_FILL      2    //fill entire area
+#define APF_SCATTER   4    //start scattered
+#define APF_VVCPAL    8    //use palette for central animation
+#define APF_SPREAD    16   //refill emptied slots
+#define APF_PALETTE   32   //use palette gradient for spread animation
+#define APF_BOTH      64   //halve projectile count and draw both animations
+#define APF_MORE      128  //double child projectile count
+#define APF_FAILSPELL 256  //apply spell on caster if no one was hit
+#define APF_MULTIPLE  512  //shoot multiple single projectiles (based on cone width)
 
 #define TRANSPARENT_GREEN  0x00ff00
 

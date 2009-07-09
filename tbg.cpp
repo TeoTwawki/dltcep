@@ -1072,6 +1072,35 @@ int Ctbg::collect_dlgrefs()
   return 0;
 }
 
+int Ctbg::collect_prorefs()
+{ 
+  int count, pos;
+
+  if(!(the_projectile.header.extflags&PROJ_TEXT))
+  {
+    return 0;
+  }
+
+  count=1;
+  pos=0;
+  tlkentries=new tbg_tlk_reference[count];
+  if(!tlkentries) return -3;
+  tlkentrycount=count;        //physical size
+  strrefs=new unsigned long[count];
+  if(!strrefs)
+  {
+    delete [] tlkentries;
+    return -3;
+  }
+  strrefcount=count;
+
+  strrefs[0]=calc_offset(the_projectile.header,text);
+  if(!resolve_tbg_entry(the_projectile.header.text,tlkentries[0])) pos=1;
+  header.tlkentrycount=pos;   //logical size
+  header.strrefcount=pos;
+  return 0;
+}
+
 //alternative output, strrefs+offsets go to a tp2 file
 int Ctbg::OutputTP2(CString outfilename)
 {
@@ -1183,6 +1212,10 @@ int Ctbg::ExportFile(int filetype, CString outfilepath, int type)
     header.filelength=the_dialog.WriteDialogToFile(0,1);
     ret=collect_dlgrefs();
     break;
+  case REF_PRO:
+    header.filelength=the_projectile.WriteProjectileToFile(0,1);
+    ret=collect_prorefs();
+    break;
   default:
     ret=-99;
   }
@@ -1274,6 +1307,7 @@ int Ctbg::ExportFile(int filetype, CString outfilepath, int type)
   case REF_CHU: the_chui.WriteChuiToFile(fhandle,0); break;
   case REF_SRC: the_src.WriteStringToFile(fhandle,0); break;
   case REF_DLG: the_dialog.WriteDialogToFile(fhandle,0); break;
+  case REF_PRO: the_projectile.WriteProjectileToFile(fhandle,0); break;
   default: ret=-99;
   }
   for(i=0;i<header.tlkentrycount;i++)

@@ -113,6 +113,8 @@ protected:
 	afx_msg void OnBrowse9();
 	virtual void OnCancel();
 	afx_msg void OnFlag4();
+	afx_msg void OnFileTbg();
+	afx_msg void OnFileTp2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

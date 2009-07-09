@@ -52,8 +52,8 @@ const CString savedexts[]={".are",".sto",".tot",".toh","",
 
 char tbgext[NUM_OBJTYPE+1]={
   0,'r',0,'a',0,'b',0,'h','c','d',//10
-  'e','n',0,0,'-',0,0,0,0,0,'s',  //21
-  'p','t',0,0,0,0,0,0,'w',        //30
+  'e','n',0,0,'-',0,0,0,0,'m',    //20
+  's','p','t',0,0,0,0,0,0,'w',    //30
 };
 
 int idstrings[NUM_OBJTYPE+1]={IDS_UNKNOWN,IDS_2DA,IDS_MUSIC,IDS_AREA,  //4

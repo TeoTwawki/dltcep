@@ -503,6 +503,7 @@
 #define IDC_CONVREF                     1176
 #define IDC_FLAG23                      1176
 #define IDC_DURATIONLABEL               1177
+#define IDC_FLAG24                      1177
 #define IDC_THAC0                       1178
 #define IDC_ROLL                        1179
 #define IDC_DIE                         1180
@@ -1869,8 +1870,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33049
-#define _APS_NEXT_CONTROL_VALUE         2352
+#define _APS_NEXT_COMMAND_VALUE         33051
+#define _APS_NEXT_CONTROL_VALUE         2354
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

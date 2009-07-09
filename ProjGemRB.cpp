@@ -50,9 +50,15 @@ void CProjGemRB::DoDataExchange(CDataExchange* pDX)
       j<<=1;
     }
   }
-  tmpstr.Format("%d",  the_projectile.header.text);
+  tmpstr.Format("%d", the_projectile.header.text);
   DDX_Text(pDX, IDC_STRREF, tmpstr);
   the_projectile.header.text=strtonum(tmpstr);
+
+  tmpstr.Format("0x%08x", the_projectile.header.rgb);
+  DDX_Text(pDX, IDC_RGB, tmpstr);
+  the_projectile.header.rgb=strtonum(tmpstr);
+  DDX_Text(pDX, IDC_SPEED, the_projectile.header.pulsespeed);
+  DDX_Text(pDX, IDC_SCREEN, the_projectile.header.shake);
 }
 
 
@@ -76,14 +82,19 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
 	ON_BN_CLICKED(IDC_FLAG17, OnFlag17)
 	ON_BN_CLICKED(IDC_FLAG18, OnFlag18)
-	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
 	ON_BN_CLICKED(IDC_FLAG19, OnFlag19)
-	ON_EN_KILLFOCUS(IDC_STRING, OnKillfocusString)
 	ON_BN_CLICKED(IDC_FLAG20, OnFlag20)
 	ON_BN_CLICKED(IDC_FLAG21, OnFlag21)
 	ON_BN_CLICKED(IDC_FLAG22, OnFlag22)
-	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocus)
 	ON_BN_CLICKED(IDC_FLAG23, OnFlag23)
+	ON_BN_CLICKED(IDC_FLAG24, OnFlag24)
+	ON_BN_CLICKED(IDC_COLOR, OnColor)
+	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_RGB, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_SPEED, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_SCREEN, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_STRING, OnKillfocusString)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -229,6 +240,12 @@ void CProjGemRB::OnFlag23()
 	UpdateData(UD_DISPLAY);
 }
 
+void CProjGemRB::OnFlag24() 
+{
+  the_projectile.header.extflags^=PROJ_RGB;
+	UpdateData(UD_DISPLAY);
+}
+
 void CProjGemRB::RefreshStrings()
 {
   m_text=resolve_tlk_text(the_projectile.header.text);
@@ -259,6 +276,26 @@ void CProjGemRB::OnKillfocusString()
     the_projectile.header.text=store_tlk_text(the_projectile.header.text,m_text);
   }
 	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnColor() 
+{
+	int color;
+  CColorDialog dlg;
+  COLORREF predef[16];
+
+  for(int i=0;i<16;i++)
+  {
+    predef[i]=the_projectile.header.rgb;
+  }
+  dlg.m_cc.lpTemplateName="Pick a colour for the RGB effect";
+  dlg.m_cc.lpCustColors=predef;
+  if(dlg.DoModal()==IDOK)
+  {
+    color=dlg.GetColor();
+    the_projectile.header.rgb=color;
+  }
+  UpdateData(UD_DISPLAY);
 }
 
 BOOL CProjGemRB::OnInitDialog() 
@@ -334,15 +371,16 @@ BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
-	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
+	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_SOUND1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM2, OnKillfocus)
-	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -400,6 +438,12 @@ void CProjAreaGemRB::OnFlag8()
 void CProjAreaGemRB::OnFlag9() 
 {
   the_projectile.extension.gemrbflags^=APF_FAILSPELL;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag10() 
+{
+  the_projectile.extension.gemrbflags^=APF_MULTIPLE;
 	UpdateData(UD_DISPLAY);
 }
 

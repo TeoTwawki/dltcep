@@ -10,6 +10,7 @@
 #include "ProjEdit.h"
 #include "ProjgemRB.h"
 #include "ColorPicker.h"
+#include "tbg.h"
 #include "MyFileDialog.h"
 
 #ifdef _DEBUG
@@ -257,6 +258,8 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE7, OnBrowse7)
 	ON_BN_CLICKED(IDC_BROWSE8, OnBrowse8)
 	ON_BN_CLICKED(IDC_BROWSE13, OnBrowse9)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
 	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPEED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
@@ -298,7 +301,7 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1373,3 +1376,13 @@ BOOL CProjExt::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
+
+void CProjEdit::OnFileTbg() 
+{
+  ExportTBG(this, REF_PRO, 0);
+}
+
+void CProjEdit::OnFileTp2() 
+{
+  ExportTBG(this, REF_PRO, 1);
+}

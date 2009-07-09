@@ -84,6 +84,7 @@ private:
   int collect_chuirefs();
   int collect_srcrefs();
   int collect_dlgrefs();
+  int collect_prorefs();
 
   int AddToFile(int fhandle, CString filename, CString internalname, int ml);
   int ImportFile();

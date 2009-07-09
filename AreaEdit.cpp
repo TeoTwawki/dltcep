@@ -310,12 +310,12 @@ endofquest:
 
 void CAreaEdit::OnFileTbg() 
 {
- ExportTBG(this, REF_ARE, 0);
+  ExportTBG(this, REF_ARE, 0);
 }
 
 void CAreaEdit::OnFileTp2() 
 {
- ExportTBG(this, REF_ARE, 1);
+  ExportTBG(this, REF_ARE, 1);
 }
 
 void CAreaEdit::OnCheck() 
