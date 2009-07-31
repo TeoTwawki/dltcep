@@ -1646,6 +1646,10 @@
 #define IDC_PROJPICKER                  2340
 #define IDC_DAYMOVIE                    2342
 #define IDC_NIGHTMOVIE                  2343
+#define IDC_LADY                        2357
+#define IDC_MURDER                      2358
+#define IDC_FACTION                     2362
+#define IDC_TEAM                        2363
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1871,7 +1875,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33051
-#define _APS_NEXT_CONTROL_VALUE         2354
+#define _APS_NEXT_CONTROL_VALUE         2363
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

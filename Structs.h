@@ -847,13 +847,13 @@ typedef struct
   long magexp;
   long thiefxp;
   char internals[20]; //2a4
-  long unknown; //2b8
+  char good, law, lady, murder;
   char bestiary[32]; //2bc
   unsigned char dialogradius;
   unsigned char feetcircle;
   unsigned char unknown2de;
   unsigned char colornum;
-  unsigned long techflags;
+  unsigned long killflags;
   short colours[7]; //24e
   unsigned char unknown2f2[3];
   unsigned char colorslots[7];

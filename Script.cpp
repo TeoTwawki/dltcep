@@ -920,6 +920,21 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
               }
             }
           }
+
+          if((handle_trigger(trigger->opcode)&0xff)==CHECK_SPL2)
+          {
+            CString tmpstr = format_spell_id(trigger->bytes[0]);
+            memcpy(finddata.resource,tmpstr,8);
+            finddata.param1=bcnt;
+            if(searchdata.resource[0])
+            {
+              if(!strnicmp(finddata.resource,searchdata.resource,8))
+              {
+                return 1;
+              }
+            }
+          }
+
           break;
         case FLG_MTYPE:
           item=trigger->opcode&0x3fff;
@@ -980,6 +995,20 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           if(strlen(action->var2)<=8)
           {
             memcpy(finddata.resource,action->var2,8);
+            finddata.param1=bcnt;
+            if(searchdata.resource[0])
+            {
+              if(!strnicmp(finddata.resource,searchdata.resource,8))
+              {
+                return 1;
+              }
+            }
+          }
+
+          if((handle_action(action->opcode)&0xff)==CHECK_SPL2)
+          {
+            CString tmpstr = format_spell_id(action->bytes[0]);
+            memcpy(finddata.resource,tmpstr,8);
             finddata.param1=bcnt;
             if(searchdata.resource[0])
             {

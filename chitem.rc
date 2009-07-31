@@ -4890,22 +4890,22 @@ BEGIN
     PUSHBUTTON      "Back",IDCANCEL,211,304,42,14
 END
 
-IDD_CREATUREPST DIALOG DISCARDABLE  0, 0, 327, 233
+IDD_CREATUREPST DIALOG DISCARDABLE  0, 0, 459, 233
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Torment specific"
 FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_DIALOG,7,21,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_FEETCIRCLE,62,21,40,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_IDSSPECIES,119,21,93,161,CBS_DROPDOWN | CBS_SORT | 
+    EDITTEXT        IDC_DIALOG,7,21,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_FEETCIRCLE,58,21,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_IDSSPECIES,114,21,93,161,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_DEATH,217,21,96,134,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Back",IDCANCEL,138,212,50,14
     LTEXT           "Dialog radius",IDC_STATIC,7,7,42,8
-    LTEXT           "Feet circle size",IDC_STATIC,62,7,48,8
+    LTEXT           "Feet circle size",IDC_STATIC,58,7,48,8
     LTEXT           "Beast name",IDC_STATIC,217,7,38,8
-    LTEXT           "Species",IDC_STATIC,119,7,26,8
+    LTEXT           "Species",IDC_STATIC,114,7,26,8
     COMBOBOX        IDC_ATTR1,7,85,75,139,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_ATTR2,7,103,75,121,CBS_DROPDOWN | CBS_SORT | 
@@ -4935,14 +4935,62 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_BROWSE6,185,175,28,14
     EDITTEXT        IDC_CHAIR,91,193,87,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE7,185,193,28,14
-    EDITTEXT        IDC_COLOR,7,53,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_COLOR,7,53,40,14,ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           "# of colors",IDC_STATIC,7,41,34,8
     LTEXT           "Color gradient",IDC_STATIC,91,71,44,8
-    EDITTEXT        IDC_XPOS,67,53,78,14,ES_AUTOHSCROLL
-    LTEXT           "XP Mage",IDC_STATIC,67,41,30,8
-    EDITTEXT        IDC_XPOS2,165,53,78,14,ES_AUTOHSCROLL
-    LTEXT           "XP Thief",IDC_STATIC,165,41,28,8
-    PUSHBUTTON      "Edit overlays",IDC_OVERLAY,263,53,50,14
+    EDITTEXT        IDC_XPOS,58,53,78,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "XP Mage",IDC_STATIC,58,41,30,8
+    EDITTEXT        IDC_XPOS2,147,53,78,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "XP Thief",IDC_STATIC,152,41,28,8
+    PUSHBUTTON      "Edit overlays",IDC_OVERLAY,7,212,50,14
+    EDITTEXT        IDC_FLAGS,235,53,57,14,ES_AUTOHSCROLL
+    LTEXT           "Appearance flags",IDC_STATIC,235,39,56,8
+    EDITTEXT        IDC_GOOD,297,53,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LAWFUL,336,53,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LADY,375,53,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_MURDER,414,53,28,14,ES_AUTOHSCROLL
+    LTEXT           "Good",IDC_STATIC,297,41,18,8
+    LTEXT           "Lawful",IDC_STATIC,336,41,22,8
+    LTEXT           "Lady",IDC_STATIC,375,41,16,8
+    LTEXT           "Murder",IDC_STATIC,414,41,23,8
+    CONTROL         "Unknown",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,85,47,10
+    CONTROL         "Transparent",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,103,54,10
+    CONTROL         "Unknown",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,121,47,10
+    CONTROL         "Unknown",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,139,47,10
+    CONTROL         "Scriptname",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,157,51,10
+    CONTROL         "Character type",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,175,62,10
+    CONTROL         "Unknown",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,193,47,10
+    CONTROL         "Faction",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,236,211,39,10
+    CONTROL         "Team",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    297,85,34,10
+    CONTROL         "Invulnerable",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,103,55,10
+    CONTROL         "Good count",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,121,53,10
+    CONTROL         "Law count",IDC_FLAG12,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,139,49,10
+    CONTROL         "Lady count",IDC_FLAG13,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,157,51,10
+    CONTROL         "Murder count",IDC_FLAG14,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,175,58,10
+    CONTROL         "Don't face",IDC_FLAG15,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,193,49,10
+    CONTROL         "Auto buddy",IDC_FLAG16,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,297,211,52,10
+    LTEXT           "Faction",IDC_STATIC,389,7,24,8
+    COMBOBOX        IDC_FACTION,389,21,63,205,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_TEAM,318,21,63,205,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Team",IDC_STATIC,318,7,19,8
 END
 
 IDD_GAMESTATS DIALOG DISCARDABLE  0, 0, 227, 199
@@ -6181,7 +6229,7 @@ BEGIN
     IDD_CREATUREPST, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 320
+        RIGHTMARGIN, 452
         TOPMARGIN, 7
         BOTTOMMARGIN, 226
     END
@@ -6322,8 +6370,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,0,5
- PRODUCTVERSION 7,1,0,5
+ FILEVERSION 7,1,0,6
+ PRODUCTVERSION 7,1,0,6
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6341,14 +6389,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 1, 0, 5\0"
+            VALUE "FileVersion", "7, 1, 0, 6\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2009 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.1e\0"
-            VALUE "ProductVersion", "7, 1, 0, 5\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.1f\0"
+            VALUE "ProductVersion", "7, 1, 0, 6\0"
             VALUE "SpecialBuild", "\0"
         END
     END

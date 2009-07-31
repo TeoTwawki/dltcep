@@ -50,6 +50,22 @@ protected:
 	afx_msg void OnBrowse6();
 	afx_msg void OnBrowse7();
 	afx_msg void OnOverlay();
+	afx_msg void OnFlag1();
+	afx_msg void OnFlag2();
+	afx_msg void OnFlag3();
+	afx_msg void OnFlag4();
+	afx_msg void OnFlag5();
+	afx_msg void OnFlag6();
+	afx_msg void OnFlag7();
+	afx_msg void OnFlag8();
+	afx_msg void OnFlag9();
+	afx_msg void OnFlag10();
+	afx_msg void OnFlag11();
+	afx_msg void OnFlag12();
+	afx_msg void OnFlag13();
+	afx_msg void OnFlag14();
+	afx_msg void OnFlag15();
+	afx_msg void OnFlag16();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

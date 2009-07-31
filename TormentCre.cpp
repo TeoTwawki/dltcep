@@ -24,9 +24,11 @@ CTormentCre::CTormentCre(CWnd* pParent /*=NULL*/)
 
 void CTormentCre::DoDataExchange(CDataExchange* pDX)
 {
+  CButton *cb;
   CString tmpstr;
   int value;
-  int i;
+  int i,j;
+  int flg;
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CTormentCre)
@@ -42,6 +44,66 @@ void CTormentCre::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_XPOS2, the_creature.pstheader.thiefxp);
   DDX_Text(pDX, IDC_COLOR, the_creature.pstheader.colornum);
   DDV_MinMaxInt(pDX, the_creature.pstheader.colornum, 0,6);
+
+  value = the_creature.pstheader.good;
+  DDX_Text(pDX, IDC_GOOD, value);
+  DDV_MinMaxInt(pDX, the_creature.pstheader.good, -128, 127);
+  the_creature.pstheader.good=(char) value;
+
+  value = the_creature.pstheader.law;
+  DDX_Text(pDX, IDC_LAWFUL, value);
+  DDV_MinMaxInt(pDX, the_creature.pstheader.law, -128, 127);
+  the_creature.pstheader.law=(char) value;
+
+  value = the_creature.pstheader.lady;
+  DDX_Text(pDX, IDC_LADY, value);
+  DDV_MinMaxInt(pDX, the_creature.pstheader.lady, -128, 127);
+  the_creature.pstheader.lady=(char) value;
+
+  value = the_creature.pstheader.murder;
+  DDX_Text(pDX, IDC_MURDER, value);
+  DDV_MinMaxInt(pDX, the_creature.pstheader.murder, -128, 127);
+  the_creature.pstheader.murder=(char) value;
+
+  tmpstr.Format("0x%08x", the_creature.pstheader.killflags);
+  DDX_Text(pDX, IDC_FLAGS, tmpstr);
+  the_creature.pstheader.killflags=strtonum(tmpstr);
+
+  j=1;
+  for(i=0;i<16;i++)
+  {
+    cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
+    if (cb)
+    {
+      flg=!!(the_creature.pstheader.killflags&j);
+      cb->SetCheck(flg);
+      j<<=1;
+    }
+  }
+
+  tmpstr.Format("0x%x %s",the_creature.pstheader.idsteam,IDSToken("TEAM",the_creature.pstheader.idsteam, true) );
+  DDX_Text(pDX, IDC_TEAM, tmpstr);
+  value=IDSKey("TEAM", tmpstr);
+  if(value==-1)
+  {
+    the_creature.pstheader.idsteam=(BYTE) strtonum(tmpstr);
+  }
+  else
+  {
+    the_creature.pstheader.idsteam=(BYTE) value;
+  }
+
+  tmpstr.Format("0x%x %s",the_creature.pstheader.idsfaction,IDSToken("FACTION",the_creature.pstheader.idsfaction, true) );
+  DDX_Text(pDX, IDC_FACTION, tmpstr);
+  value=IDSKey("FACTION", tmpstr);
+  if(value==-1)
+  {
+    the_creature.pstheader.idsfaction=(BYTE) strtonum(tmpstr);
+  }
+  else
+  {
+    the_creature.pstheader.idsfaction=(BYTE) value;
+  }
 
   tmpstr.Format("0x%x %s",the_creature.pstheader.idsspecies,IDSToken("RACE",the_creature.pstheader.idsspecies, true) );
   DDX_Text(pDX, IDC_IDSSPECIES, tmpstr);
@@ -78,6 +140,23 @@ BEGIN_MESSAGE_MAP(CTormentCre, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE5, OnBrowse5)
 	ON_BN_CLICKED(IDC_BROWSE6, OnBrowse6)
 	ON_BN_CLICKED(IDC_BROWSE7, OnBrowse7)
+	ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
+	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
+	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
+	ON_BN_CLICKED(IDC_FLAG13, OnFlag13)
+	ON_BN_CLICKED(IDC_FLAG14, OnFlag14)
+	ON_BN_CLICKED(IDC_FLAG15, OnFlag15)
+	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
 	ON_EN_KILLFOCUS(IDC_FEETCIRCLE, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_IDSSPECIES, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_DEATH, OnDefaultKillfocus)
@@ -98,7 +177,13 @@ BEGIN_MESSAGE_MAP(CTormentCre, CDialog)
 	ON_CBN_KILLFOCUS(IDC_ATTR7, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS2, OnDefaultKillfocus)
-	ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
+	ON_EN_KILLFOCUS(IDC_GOOD, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_LAWFUL, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_LADY, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_MURDER, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_FACTION, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAGS, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_TEAM, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -133,6 +218,12 @@ BOOL CTormentCre::OnInitDialog()
   {
     cb->AddString(beastkillvars.GetNext(pos));
   }
+
+	cb=(CComboBox *) GetDlgItem(IDC_TEAM);
+  FillCombo("TEAM",cb,2);
+
+	cb=(CComboBox *) GetDlgItem(IDC_FACTION);
+  FillCombo("FACTION",cb,2);
 
 	cb=(CComboBox *) GetDlgItem(IDC_IDSSPECIES);
   FillCombo("RACE",cb,2);
@@ -211,6 +302,102 @@ void CTormentCre::OnOverlay()
 	CCreatureOverlay dlg;
 	
   dlg.DoModal();
+}
+
+void CTormentCre::OnFlag1() 
+{
+  the_creature.pstheader.killflags^=1;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag2() 
+{
+  the_creature.pstheader.killflags^=2;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag3() 
+{
+  the_creature.pstheader.killflags^=4;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag4() 
+{
+  the_creature.pstheader.killflags^=8;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag5() 
+{
+  the_creature.pstheader.killflags^=0x10;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag6() 
+{
+  the_creature.pstheader.killflags^=0x20;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag7() 
+{
+  the_creature.pstheader.killflags^=0x40;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag8() 
+{
+  the_creature.pstheader.killflags^=0x80;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag9() 
+{
+  the_creature.pstheader.killflags^=0x100;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag10() 
+{
+  the_creature.pstheader.killflags^=0x200;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag11() 
+{
+  the_creature.pstheader.killflags^=0x400;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag12() 
+{
+  the_creature.pstheader.killflags^=0x800;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag13() 
+{
+  the_creature.pstheader.killflags^=0x1000;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag14() 
+{
+  the_creature.pstheader.killflags^=0x2000;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag15() 
+{
+  the_creature.pstheader.killflags^=0x4000;
+	UpdateData(UD_DISPLAY);
+}
+
+void CTormentCre::OnFlag16() 
+{
+  the_creature.pstheader.killflags^=0x8000;
+	UpdateData(UD_DISPLAY);
 }
 
 BOOL CTormentCre::PreTranslateMessage(MSG* pMsg) 
