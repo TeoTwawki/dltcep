@@ -2945,8 +2945,8 @@ CAreaAmbient::~CAreaAmbient()
 static int ambientboxids[]={IDC_AMBIENTPICKER,IDC_WAVRES, IDC_POSX,IDC_POSY,
 IDC_RADIUS,IDC_HEIGHT, IDC_VOLUME, IDC_AMBINUMPICKER,IDC_ADDWAV, IDC_DELWAV, IDC_PLAY,
 IDC_BROWSE, IDC_NUM, IDC_GAP, IDC_SOUNDNUM, IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,
-IDC_U28, IDC_U2C, IDC_FLAGS,IDC_U90, IDC_SCHEDULE, IDC_UNKNOWN,IDC_MAXWAV, IDC_SET,
-IDC_COPY, IDC_PASTE, IDC_REMOVE,
+IDC_FLAG5,IDC_U28, IDC_U2C, IDC_FLAGS,IDC_U90, IDC_SCHEDULE, IDC_UNKNOWN,
+IDC_MAXWAV, IDC_SET,IDC_COPY, IDC_PASTE, IDC_REMOVE,
 0};
 
 #pragma warning(disable:4706)   
@@ -3009,7 +3009,7 @@ void CAreaAmbient::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_FLAGS, the_area.ambientheaders[m_ambientnum].flags);
     DDX_Text(pDX, IDC_U90, the_area.ambientheaders[m_ambientnum].unknown90);
     j=1;
-    for(i=0;i<4;i++)
+    for(i=0;i<5;i++)
     {
       cb2=(CButton *) GetDlgItem(IDC_FLAG1+i);
       if(the_area.ambientheaders[m_ambientnum].flags&j) cb2->SetCheck(true);
@@ -3140,6 +3140,7 @@ BEGIN_MESSAGE_MAP(CAreaAmbient, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_U90, OnKillfocusU90)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocusFlags)
 	ON_BN_CLICKED(IDC_SET, OnSet)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3433,6 +3434,12 @@ void CAreaAmbient::OnFlag3()
 void CAreaAmbient::OnFlag4() 
 {
 	the_area.ambientheaders[m_ambientnum].flags^=8;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaAmbient::OnFlag5() 
+{
+	the_area.ambientheaders[m_ambientnum].flags^=16;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -7154,3 +7161,4 @@ BEGIN_MESSAGE_MAP(CAreaPropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CAreaPropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+

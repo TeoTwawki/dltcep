@@ -453,6 +453,7 @@
 #define IDC_GENERAL                     1126
 #define IDC_PAR_DAMAGE                  1127
 #define IDC_PAR_SPECIAL                 1128
+#define IDC_PAR_ANIM                    1128
 #define IDC_GENERAL2                    1129
 #define IDC_VARNAME                     1130
 #define IDC_DESTY                       1131
@@ -1650,6 +1651,7 @@
 #define IDC_MURDER                      2358
 #define IDC_FACTION                     2362
 #define IDC_TEAM                        2363
+#define IDC_HEXADECIMAL                 2363
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1875,7 +1877,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33051
-#define _APS_NEXT_CONTROL_VALUE         2363
+#define _APS_NEXT_CONTROL_VALUE         2366
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

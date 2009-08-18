@@ -48,6 +48,7 @@ public:
   CString m_idsname;
   CString m_opcode;
   int m_par_type;
+  int m_hexadecimal;
   int m_limitedeffect;
   int m_defduration;
   CIntMapInt m_efftext;
@@ -109,6 +110,7 @@ protected:
 	afx_msg void OnToolsIdsbrowser();
 	afx_msg void OnDefaultKillfocus();
 	afx_msg void OnParSpecial();
+	afx_msg void OnHexadecimal();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

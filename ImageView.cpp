@@ -23,6 +23,7 @@ CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pPare
 	m_showgrid = FALSE;
 	m_fill = FALSE;
 	//}}AFX_DATA_INIT
+  m_text=true;
   m_max=15;
   m_bm=NULL;
   m_clipx=0;
@@ -59,6 +60,7 @@ void CImageView::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CImageView)
 	DDX_Control(pDX, IDC_FILL, m_fill_control);
+	DDX_Control(pDX, IDC_OVERLAY, m_overlay_control);
 	DDX_Control(pDX, IDC_SHOWGRID, m_showgrid_control);
 	DDX_Control(pDX, IDC_VALUE, m_value_control);
 	DDX_Control(pDX, IDC_SHOWALL, m_showall_control);
@@ -72,6 +74,7 @@ void CImageView::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_SHOWALL, m_showall);
 	DDX_Check(pDX, IDC_SHOWGRID, m_showgrid);
 	DDX_Check(pDX, IDC_FILL, m_fill);
+	DDX_Check(pDX, IDC_OVERLAY, m_text);
 	//}}AFX_DATA_MAP
   
   if(m_max && (m_value!=-1) )
@@ -99,6 +102,7 @@ BEGIN_MESSAGE_MAP(CImageView, CDialog)
 	ON_CBN_SELCHANGE(IDC_VALUE, OnSelchangeValue)
 	ON_BN_CLICKED(IDC_SHOWGRID, OnShowgrid)
 	ON_BN_CLICKED(IDC_FILL, OnFill)
+  ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
 	//}}AFX_MSG_MAP
 	ON_COMMAND(ID_REFRESH, RefreshDialog)
 END_MESSAGE_MAP()
@@ -183,6 +187,11 @@ void CImageView::InitView(int flags, Cmos *my_mos)
   {
     CenterPolygon((CPtrList *) m_map, m_value);
   }
+}
+
+void CImageView::SetOverlay(bool type)
+{
+  m_text=type;
 }
 
 unsigned long boolean_palette[2]={0,1};
@@ -696,13 +705,25 @@ void CImageView::DrawGrid()
       {
         if(m_showall || (m_map[p]==m_value) )
         {
-          if(m_max==255) tmpstr.Format("%02x",m_map[p]);
-          else tmpstr.Format("%d",m_map[p]);
-          int tx=i+(xs-10)/2;
-          if(tx<0) tx=0;
-          int ty=j+(ys-12)/2;
-          if(ty<0) ty=0;
-          dcBmp.TextOut(tx,ty,tmpstr);
+          if (m_text) {
+            if(m_max==255) tmpstr.Format("%02x",m_map[p]);
+            else tmpstr.Format("%d",m_map[p]);
+            int tx=i+(xs-10)/2;
+            if(tx<0) tx=0;
+            int ty=j+(ys-12)/2;
+            if(ty<0) ty=0;
+            dcBmp.TextOut(tx,ty,tmpstr);
+          } else {
+            CRect r;
+            COLORREF c = m_palette[m_map[p]];
+            
+            CBrush b((c&0xff)<<16 | (c&0xff0000)>>16 | c&0xff00 );
+            r.left=i+xs/3;
+            r.top=j+ys/3;
+            r.right=i+2*xs/3;
+            r.bottom=j+2*ys/3;
+            dcBmp.FrameRect(r, &b);
+          }
         }
         p++;
       }
@@ -874,6 +895,7 @@ void CImageView::RedrawContent()
   if(m_max>1)
   {
     m_showall_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
+    m_overlay_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
   }
   
   m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_SHOWGRID));
@@ -883,6 +905,7 @@ void CImageView::RedrawContent()
   if(m_enablebutton&IW_SHOWALL)
   {
     m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    m_overlay_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+210,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
   }
   if(m_enablebutton&(IW_EDITMAP|IW_GETPOLYGON) )
   {
@@ -1385,6 +1408,12 @@ void CImageView::OnShowgrid()
 }
 
 void CImageView::OnFill() 
+{
+  UpdateData(UD_RETRIEVE);
+  PostMessage(WM_COMMAND,ID_REFRESH,0);
+}
+
+void CImageView::OnOverlay() 
 {
   UpdateData(UD_RETRIEVE);
   PostMessage(WM_COMMAND,ID_REFRESH,0);

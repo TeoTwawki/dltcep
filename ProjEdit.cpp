@@ -33,7 +33,7 @@ CProjEdit::CProjEdit(CWnd* pParent /*=NULL*/)
   hbs=hbb=0;
 }
 
-static int sparkboxids[]={ IDC_SPARKCOLOUR, IDC_UNKNOWN0E, 0};
+static int sparkboxids[]={ IDC_SPARKCOLOUR, IDC_UNKNOWN0E, IDC_UNKNOWN2A, 0};
 static int bamcolorids[]={IDC_MPTRAVEL, IDC_U1, IDC_U2, IDC_U3,
 IDC_U4, IDC_U5, IDC_U6, IDC_U7, 0};
 static int smokeboxids[]={IDC_DELAY, IDC_MPSMOKE, IDC_SMOKETYPE,
@@ -72,6 +72,7 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_FLAGS, the_projectile.header.sparks);
 
   DDX_Text(pDX, IDC_UNKNOWN0E, the_projectile.header.unknown0e);
+  DDX_Text(pDX, IDC_UNKNOWN2A, the_projectile.header.spknumber);
 
   RetrieveResref(tmpstr,the_projectile.header.wavc1);
   DDX_Text(pDX, IDC_SOUND1, tmpstr);
@@ -90,7 +91,7 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
 
   tmpstr=get_spark_colour(the_projectile.header.spkcolour);
   DDX_Text(pDX, IDC_SPARKCOLOUR, tmpstr);
-  the_projectile.header.spkcolour=strtonum(tmpstr);
+  the_projectile.header.spkcolour=(short) strtonum(tmpstr);
 
   tmpstr.Format("%d", the_projectile.header.attr);
   DDX_Text(pDX, IDC_ATTR, tmpstr);
@@ -200,6 +201,14 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	//{{AFX_MSG_MAP(CProjEdit)
+	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
+	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
+	ON_COMMAND(ID_FILE_NEW, OnNew)
+	ON_COMMAND(ID_FILE_LOAD, OnLoad)
+	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
+	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
+	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
 	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
@@ -238,7 +247,6 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_BN_CLICKED(IDC_UNKNOWN154, OnUnknown154)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
-	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_BN_CLICKED(IDC_UNKNOWN2C, OnUnknown2c)
 	ON_EN_SETFOCUS(IDC_U1, OnSetfocusU1)
 	ON_EN_SETFOCUS(IDC_U2, OnSetfocusU2)
@@ -259,8 +267,6 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE8, OnBrowse8)
 	ON_BN_CLICKED(IDC_BROWSE13, OnBrowse9)
 	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
-	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
-	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
 	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPEED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
@@ -297,13 +303,9 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_U5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U6, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U7, DefaultKillfocus)
-	ON_COMMAND(ID_FILE_NEW, OnNew)
-	ON_COMMAND(ID_FILE_LOAD, OnLoad)
-	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
-	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_EN_KILLFOCUS(IDC_SEQ1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SEQ2, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN2A, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

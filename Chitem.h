@@ -337,7 +337,7 @@ extern CString ammo_types[NUM_AMTYPE];
 
 #define NUM_FEATS 458 //hardcoded feature number (iwd2)
 
-#define NUM_TMTYPE  11
+#define NUM_TMTYPE  12
 //effect duration types
 #define TIMING_DURATION 0
 #define TIMING_PERMANENT 1

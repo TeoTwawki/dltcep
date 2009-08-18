@@ -535,7 +535,8 @@ typedef struct {
   char wavc1[8];
   char wavc2[8];
   char wavc3[8];
-  long spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
+  short spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
+  short spknumber;
   long extflags;    //0x2c //flags used by gemrb
   long text;        //0x30 //text strref
   long rgb;         //0x34 //rgb single pulse color
@@ -596,9 +597,8 @@ typedef struct
   unsigned long power;
   parameter par1;
   parameter par2;
-  unsigned char timing;
-  unsigned char unknown;
-  unsigned short unknown2;
+  unsigned short timing;
+  unsigned short unknown2; //part of timing
   unsigned long duration;
   unsigned short prob2;
   unsigned short prob1;

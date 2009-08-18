@@ -2975,8 +2975,8 @@ CString get_save_type(int stype)
 
 CString timing_types[NUM_TMTYPE]={
   "0-Duration","1-Permanent","2-While equiped","3-Delayed duration",
-    "4-Delayed","5-Delayed?","6-Delayed duration absolute","7-Delayed absolute","8-Permanent not saved",
-    "9-Permanent after death","10-Trigger"
+    "4-Delayed","5-Delayed unsaved","6-Delayed duration absolute","7-Delayed absolute","8-Permanent not saved",
+    "9-Permanent after death","10-Trigger","0x1000-Duration absolute"
 };
 
 int has_duration[]={TIMING_DURATION,TIMING_DELDDUR,TIMING_DELAYED,
@@ -2991,7 +2991,9 @@ CString get_timing_type(int tmtype)
 {
   CString tmp;
   
-  if(tmtype<0 || tmtype>=NUM_TMTYPE)
+  if(tmtype==0x1000) return timing_types[NUM_TMTYPE-1]; //special
+
+  if(tmtype<0 || tmtype>=NUM_TMTYPE-1)
   {
     tmp.Format("0x%x-Unknown",tmtype);
     return tmp;

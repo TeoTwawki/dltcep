@@ -37,6 +37,7 @@ public:
 	CImageView(CWnd* pParent = NULL);   // standard constructor
   void InitView(int flags, Cmos *my_mos=NULL); //sets the viewer to the current mos dimensions
   void SetMapType(int maptype, LPBYTE map);
+  void SetOverlay(bool type);
   void RedrawContent();
   void RefreshDialog();
   void SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int frame);
@@ -47,6 +48,7 @@ public:
 	//{{AFX_DATA(CImageView)
 	enum { IDD = IDD_IMAGEVIEW };
 	CButton	m_fill_control;
+	CButton	m_overlay_control;
 	CButton	m_showgrid_control;
 	CComboBox	m_value_control;
 	CButton	m_showall_control;
@@ -61,6 +63,7 @@ public:
 	BOOL	m_showall;
 	BOOL	m_showgrid;
 	BOOL	m_fill;
+  BOOL m_text;
 	//}}AFX_DATA
   int m_actvertex, m_vertexcount;
   int m_max;
@@ -130,6 +133,7 @@ protected:
 	afx_msg void OnSelchangeValue();
 	afx_msg void OnShowgrid();
 	afx_msg void OnFill();
+	afx_msg void OnOverlay();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

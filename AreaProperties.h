@@ -415,6 +415,7 @@ protected:
 	afx_msg void OnKillfocusU90();
 	afx_msg void OnKillfocusFlags();
 	afx_msg void OnSet();
+	afx_msg void OnFlag5();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

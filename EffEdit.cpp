@@ -42,6 +42,7 @@ CEffEdit::CEffEdit(CWnd* pParent /*=NULL*/)
 	m_text2 = _T("");
 	//}}AFX_DATA_INIT
   m_par_type=0;
+  m_hexadecimal=0;
   the_ids.new_ids();
   m_idsname="";
 }
@@ -99,7 +100,7 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
   
   tmpstr=get_timing_type(the_effect.header.timing);
   DDX_Text(pDX, IDC_TIMING, tmpstr);
-  the_effect.header.timing=(BYTE) strtonum(tmpstr);
+  the_effect.header.timing=(unsigned short) strtonum(tmpstr);
  
   DDX_Text(pDX, IDC_UNKNOWN, (short &) the_effect.header.unknown2); //part of timing
 
@@ -216,7 +217,14 @@ void CEffEdit::RefreshDialog()
   int *strref_opcodes;
   CButton *cb;
   CString tmp;
+  CString longformat;
   int strref;
+
+  if(m_hexadecimal) {
+    longformat="0x%08x";
+  } else {
+    longformat="%ld";
+  }
 
   SetWindowText("Edit effect: "+itemname);
   cb=(CButton *) GetDlgItem(IDC_PLAY);
@@ -224,15 +232,15 @@ void CEffEdit::RefreshDialog()
   switch(m_par_type)
   {
   case 0:
-    m_param2.Format("%ld",the_effect.header.par2.parl);
+    m_param2.Format(longformat,the_effect.header.par2.parl);
     cb=(CButton *) GetDlgItem(IDC_PAR_UNDEFINED);
     break;
   case 1: //colour
-    m_param2.Format("%ld",the_effect.header.par2.parl);
+    m_param2.Format(longformat,the_effect.header.par2.parl);
     cb=(CButton *) GetDlgItem(IDC_PAR_COLOR);
     break;
   case 2: //ids
-    tmp=IDSName(the_effect.header.par2.parl, true);
+    tmp=IDSName2(the_effect.header.par2.parl, true);
     if((unsigned long) the_effect.header.par2.parl <9)
     {
       m_param2.Format("%d-%s",the_effect.header.par2.parl, IDSType(the_effect.header.par2.parl, true) );
@@ -244,11 +252,11 @@ void CEffEdit::RefreshDialog()
     cb=(CButton *) GetDlgItem(IDC_PAR_IDS);
     break;
   case 3:
-    m_param2.Format("%d-%s",the_effect.header.par2.parl,DamageType(the_effect.header.par2.parl)+DamageStyle(the_effect.header.par2.parl));
+    m_param2.Format(longformat+"-%s",the_effect.header.par2.parl,DamageType(the_effect.header.par2.parl)+DamageStyle(the_effect.header.par2.parl));
     cb=(CButton *) GetDlgItem(IDC_PAR_DAMAGE);
     break;
   case 4:
-    m_param2.Format("%d",the_effect.header.par2.parl);
+    m_param2.Format(longformat,the_effect.header.par2.parl);
     cb=(CButton *) GetDlgItem(IDC_PAR_SPECIAL);
     break;
   }
@@ -259,12 +267,12 @@ void CEffEdit::RefreshDialog()
     m_param1=colortitle(the_effect.header.par1.parl);
     break;
   case 0:case 3:
-    m_param1.Format("%ld",the_effect.header.par1.parl);
+    m_param1.Format(longformat,the_effect.header.par1.parl);
     break;
   case 2: //ids
     tmp=IDSToken(tmp, the_effect.header.par1.parl, false);
     if(tmp.IsEmpty()) tmp="unknown";
-    m_param1.Format("%ld-%s",the_effect.header.par1.parl, tmp);
+    m_param1.Format(longformat+"-%s",the_effect.header.par1.parl, tmp);
     break;
   case 4:
     m_param1.Format("0x%04x %s",the_effect.header.par1.parl,IDSToken("ANIMATE",the_effect.header.par1.parl, false) );
@@ -347,10 +355,11 @@ BOOL CEffEdit::OnInitDialog()
     }
   }
 
-  for(i=0;i<NUM_TMTYPE;i++)
+  for(i=0;i<NUM_TMTYPE-1;i++)
   {
     m_timing_control.AddString(get_timing_type(i));
   }
+  m_timing_control.AddString(get_timing_type(0x1000));
 
   for(i=0;i<NUM_ETTYPE;i++)
   {
@@ -536,6 +545,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_CBN_SELCHANGE(IDC_EFFOPCODE2, OnSelchangeEffopcode)
 	ON_EN_KILLFOCUS(IDC_POS1X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_HEXADECIMAL, OnHexadecimal)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -949,6 +959,11 @@ void CEffEdit::OnParDamage()
   RefreshDialog();
 }
 
+void CEffEdit::OnHexadecimal() 
+{
+  m_hexadecimal = !m_hexadecimal;
+	RefreshDialog();
+}
 
 void CEffEdit::OnParSpecial() 
 {
