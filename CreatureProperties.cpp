@@ -1806,6 +1806,7 @@ BEGIN_MESSAGE_MAP(CCreatureStrings, CPropertyPage)
 	ON_BN_CLICKED(IDC_PASTE, OnPaste)
 	ON_BN_CLICKED(IDC_EXPORT, OnExport)
 	ON_BN_CLICKED(IDC_IMPORT, OnImport)
+	ON_BN_CLICKED(IDC_CLEAR, OnClear)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1945,6 +1946,12 @@ void CCreatureStrings::OnPaste()
 	memcpy(the_creature.header.strrefs,creature_strrefs,m_stringcount*sizeof(long) );	
   RefreshStrings();
   UpdateData(UD_DISPLAY);
+}
+
+
+void CCreatureStrings::OnClear() 
+{
+	memset(the_creature.header.strrefs, -1, m_stringcount*sizeof(long) );	
 }
 
 void CCreatureStrings::OnExport() 
@@ -3178,6 +3185,7 @@ void CCreatureItem::OnClearall()
 	the_creature.KillItems();
 	memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );
   *(int *) (the_creature.itemslots+the_creature.slotcount)=1000;
+  the_creature.header.itemcnt=0;
   the_creature.m_changed=true;
   RefreshItem();
   UpdateData(UD_DISPLAY);

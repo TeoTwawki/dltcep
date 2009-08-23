@@ -28,8 +28,8 @@ CChuiEdit::CChuiEdit(CWnd* pParent /*=NULL*/)	: CDialog(CChuiEdit::IDD, pParent)
 	//}}AFX_DATA_INIT
 }
 
-static int labelbits[8]={1,2,4,8,16,32,64,128};
-static int buttonbits[8]={0,0,0,1,2,4,0,8};
+static int labelbits[9]={1,2,4,8,16,32,64,128,0};
+static int buttonbits[9]={0,0,0,1,2,4,0,8,32};
 
 static int winids[]={IDC_WINDOWPICKER,
 0};
@@ -47,7 +47,7 @@ IDC_LENGTH, IDC_TYPE, IDC_U3, IDC_DELCTRL,
 static int buttonboxids[]={IDC_BAM, IDC_BROWSE2, IDC_CYCLE,
 IDC_BAMFRAME1,IDC_BAMFRAME2, IDC_BAMFRAME3,IDC_BAMFRAME4,
 IDC_BUTTONCYCLE, IDC_BUTTONBAM, IDC_BUTTONFLAG, IDC_BAM2,
-IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG8,
+IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG8, IDC_FLAG9,
 IDC_BUTTONFRAME1,IDC_BUTTONFRAME2, IDC_BUTTONFRAME3,IDC_BUTTONFRAME4,
 0};
 
@@ -64,7 +64,7 @@ IDC_SLIDERFRAME1, IDC_SLIDERFRAME2, IDC_UNKNOWN,
 0};
 
 static int editboxids[]={IDC_BAM, IDC_BAM2, IDC_BAM3, IDC_BAM4, IDC_BAM5,
-IDC_BROWSE2,IDC_BROWSE3,IDC_BROWSE4,IDC_BROWSE5,IDC_BROWSE6,
+IDC_BROWSE2,IDC_BROWSE3,IDC_BROWSE4,IDC_BROWSE5,IDC_BROWSE6, IDC_BAMFRAME6,
 IDC_EDITMOS1,IDC_EDITMOS2,IDC_EDITMOS3,IDC_UNKNOWN4, IDC_UNKNOWN5, IDC_UNKNOWN6,
 0};
 
@@ -141,7 +141,7 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     DDX_Text(pDX, IDC_BAMFRAME2, cc->pressed);
     DDX_Text(pDX, IDC_BAMFRAME3, cc->disabled);
     DDX_Text(pDX, IDC_BAMFRAME4, cc->selected);
-    for(i=0;i<8;i++)
+    for(i=0;i<9;i++)
     {
       k=!!(cc->flags&buttonbits[i]);
       DDX_Check(pDX,IDC_FLAG1+i,k);
@@ -216,6 +216,7 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     DDX_Text(pDX, IDC_UNKNOWN4, cc->length);
     DDX_Text(pDX, IDC_UNKNOWN5, cc->xpos);
     DDX_Text(pDX, IDC_UNKNOWN6, cc->ypos);
+    DDX_Text(pDX, IDC_BAMFRAME6, cc->uppercase);
     }
     break;
   case CC_TEXT:
@@ -262,7 +263,7 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
 
     DDX_Text(pDX,IDC_BAMFRAME6, cc->justify);
     
-    for(i=0;i<8;i++)
+    for(i=0;i<9;i++)
     {
       k=!!(cc->justify&labelbits[i]);
       DDX_Check(pDX,IDC_FLAG1+i,k);
@@ -407,6 +408,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
 	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
@@ -1394,6 +1396,11 @@ void CChuiEdit::OnFlag7()
 void CChuiEdit::OnFlag8() 
 {
 	OnLabelFlag(7);	
+}
+
+void CChuiEdit::OnFlag9() 
+{
+	OnLabelFlag(8);
 }
 
 void CChuiEdit::OnPreview() 

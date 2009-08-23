@@ -244,14 +244,15 @@ typedef struct//3
   char mos2[8];
   char mos3[8];
   char cursor[8]; //cursor bam
-  long unknown1;
+  short cycle;
+  short frame;
   short xpos;
   short ypos;
   long unknown2;
   char font[8]; //font bam
   char unknown3[34];
   short length;
-  long unknown4;
+  long uppercase;
 } chui_editbox;
 
 typedef struct//5
@@ -1733,7 +1734,9 @@ typedef struct {
   long slocoffset;
   long sloccount;
   long realtime;
-  char unknown78[60];
+  long ppoffset;
+  long ppcount;
+  char unknown80[52];
 } gam_header;
 
 typedef struct {

@@ -33,6 +33,7 @@ Cgame::Cgame()
   pcextensions=NULL;
   deathvariables=NULL;
   slocs=NULL;
+  pplocs=NULL;
 
 	//memset(qslots,0,sizeof(qslots));
   npccount=0;
@@ -46,7 +47,7 @@ Cgame::Cgame()
   journalcount=0;
   deathvariablecount=0;
   sloccount=0;
-
+  ppcount=0;
   revision=20; //bg2 revision is 2.0
 }
 
@@ -63,6 +64,7 @@ Cgame::~Cgame()
   KillMazeData();
   KillJournals();
   KillSavedLocs();
+  KillPPLocs();
   KillDeathVariables();
 }
 
@@ -261,6 +263,8 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
     if(revision==22) fullsize+=4;
     header.slocoffset=fullsize;
     fullsize+=header.sloccount*sizeof(gam_sloc);
+    header.ppoffset=fullsize;
+    fullsize+=header.ppcount*sizeof(gam_sloc);
   }
 
   if(calculate)
@@ -387,6 +391,11 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   }
   esize=sloccount*sizeof(gam_sloc);
   if(write(fhandle,slocs,esize)!=esize)
+  {
+    return -2;
+  }
+  esize=ppcount*sizeof(gam_sloc);
+  if(write(fhandle,pplocs,esize)!=esize)
   {
     return -2;
   }
@@ -764,7 +773,34 @@ read_pc:
       return -2;
     }
     fullsize+=esize;
-  } else sloccount = 0;
+
+
+    flg=adjust_actpoint(header.ppoffset);
+    if(flg<0)
+    {
+      return flg;
+    }
+    if(flg) ret|=flg;
+
+    if(ppcount!=header.ppcount)
+    {
+      KillPPLocs();
+      pplocs = new gam_sloc[header.ppcount];
+      if(!slocs) return -3;
+      ppcount=header.ppcount;
+    }
+    esize =sizeof(gam_sloc)*header.ppcount;
+    if(read(fhandle,pplocs, esize)!=esize)
+    {
+      return -2;
+    }
+    fullsize+=esize;
+  }
+  else
+  {
+    sloccount = 0;
+    ppcount = 0;
+  }
 
   if(revision==22) //this is a hack for iwd2
   {

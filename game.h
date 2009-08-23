@@ -30,7 +30,7 @@ public:
   int journalcount;
   int pcstructcount, npcstructcount;
   int pcextensioncount, npcextensioncount;
-  int sloccount;
+  int sloccount, ppcount;
 
   gam_variable *variables, *deathvariables;
   gam_npc *pcs, *npcs;
@@ -38,6 +38,7 @@ public:
   gam_mazedata *mazedata;
   gam_journal *journals;
   gam_sloc *slocs;
+  gam_sloc *pplocs;
   char **npcstructs;
   char **pcstructs;
   gam_npc_extension *pcextensions, *npcextensions;
@@ -170,6 +171,15 @@ public:
       delete[] slocs;
       slocs=NULL;
       sloccount=0;
+    }
+  }
+  inline void KillPPLocs()
+  {
+    if(pplocs)
+    {
+      delete[] pplocs;
+      pplocs=NULL;
+      ppcount=0;
     }
   }
 private:

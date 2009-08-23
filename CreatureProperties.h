@@ -350,6 +350,7 @@ protected:
 	afx_msg void OnPaste();
 	afx_msg void OnExport();
 	afx_msg void OnImport();
+	afx_msg void OnClear();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
