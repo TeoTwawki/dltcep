@@ -859,9 +859,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnKillfocusProjpicker();
 	afx_msg void OnSelchangeProjpicker();
-	afx_msg void OnAdd();
 	afx_msg void OnRemove();
 	afx_msg void OnBrowse();
+	afx_msg void OnAdd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

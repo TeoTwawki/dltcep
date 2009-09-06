@@ -7007,6 +7007,7 @@ BEGIN_MESSAGE_MAP(CAreaProj, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_PROJPICKER, OnKillfocusProjpicker)
 	ON_CBN_SELCHANGE(IDC_PROJPICKER, OnSelchangeProjpicker)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -7102,6 +7103,12 @@ void CAreaProj::OnBrowse()
   }
   RefreshProj();
 	UpdateData(UD_DISPLAY);	
+}
+
+void CAreaProj::OnAdd() 
+{
+	// TODO: Add your control notification handler code here
+	
 }
 
 BOOL CAreaProj::PreTranslateMessage(MSG* pMsg) 
