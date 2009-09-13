@@ -476,8 +476,8 @@ BEGIN
                     WS_TABSTOP,307,7,33,10
     CONTROL         "Cold Iron",IDC_COLD,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,307,22,44,10
-    CONTROL         "Unsellable (stolen item)",IDC_STOLEN,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,307,39,88,10
+    CONTROL         "Lefthanded (buggy)",IDC_STOLEN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,307,39,77,10
     CONTROL         "Conversible",IDC_CONVERSIBLE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,307,54,53,10
     CONTROL         "Pulsating (PST)",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
@@ -4736,11 +4736,11 @@ BEGIN
                     328,178,33,10
     CONTROL         "Top",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     296,192,29,10
-    CONTROL         "7",IDC_FLAG7,"Button",BS_AUTOCHECKBOX |
-                    WS_TABSTOP,296,161,51,10
+    CONTROL         "7",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,296,
+                    161,51,10
     CONTROL         "Bottom",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     328,192,38,10
-    CONTROL         "Lowercase",IDC_FLAG9,"Button",BS_AUTOCHECKBOX |
+    CONTROL         "Lowercase",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,296,161,51,10
     LTEXT           "Text justification",IDC_BUTTONFLAG,240,122,52,8
     LTEXT           "Steps",IDC_STEPS,193,150,19,8
@@ -6385,8 +6385,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,1,0,7
- PRODUCTVERSION 7,1,0,7
+ FILEVERSION 7,1,0,8
+ PRODUCTVERSION 7,1,0,8
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6404,14 +6404,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 1, 0, 7\0"
+            VALUE "FileVersion", "7, 1, 0, 8\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2009 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.1g\0"
-            VALUE "ProductVersion", "7, 1, 0, 7\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.1h\0"
+            VALUE "ProductVersion", "7, 1, 0, 8\0"
             VALUE "SpecialBuild", "\0"
         END
     END

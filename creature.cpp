@@ -453,6 +453,7 @@ int Ccreature::fix_items()
   }
   delete [] items;
   items=newitems;
+  header.itemcnt=itemcount;
   return ret;
 }
 
