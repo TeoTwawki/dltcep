@@ -324,6 +324,8 @@
 #define IDS_ACOMBAT                     286
 #define IDS_CHANCE                      287
 #define IDS_GROUND                      288
+#define IDS_ATTR7_IWD2                  289
+#define IDS_ATTR7_BG2                   290
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002

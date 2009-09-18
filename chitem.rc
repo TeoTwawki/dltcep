@@ -7790,6 +7790,8 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_GROUND              "The animation is covered by actors."
+    IDS_ATTR7_IWD2          "Simplified duration"
+    IDS_ATTR7_BG2           "No failure"
 END
 
 #endif    // English (U.S.) resources

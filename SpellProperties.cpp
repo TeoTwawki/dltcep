@@ -230,6 +230,18 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
       checkbox->SetCheck(!!(the_spell.header.splattr&bit));
     }
   }
+
+  if (the_spell.revision==20)
+  {
+    tmpstr.LoadString(IDS_ATTR7_IWD2);
+  }
+  else
+  {
+    tmpstr.LoadString(IDS_ATTR7_BG2);
+  }
+  checkbox=(class CButton *) GetDlgItem(IDC_ATTR7);
+  checkbox->SetWindowText(tmpstr);
+
   value=!!(the_spell.header.splattr&64) && (the_spell.revision==20);
   if(value)
   {
