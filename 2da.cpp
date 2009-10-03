@@ -158,51 +158,67 @@ int ReadIdsFromFile(int fhandle, CStringList &refs, int add, int length)
   switch(add)
   {
   case -1:
-    prev=-1;
     break;
   case 0:
     read_string(fpoi, "\n"); //skipping crap
-    prev=-1;
     break;
   case 1:
-   refs.AddTail("Default");//0
+   if(!refs.GetCount())
+   {
+     refs.AddTail("Default");//0
+   }
    read_string(fpoi, "\n"); //skipping crap
-   prev=0;
    break;
   case 2:
-    refs.AddTail("Default");//0
-    refs.AddTail("None");   //1
+    if(!refs.GetCount())
+    {
+      refs.AddTail("Default");//0
+      refs.AddTail("None");   //1
+    }
     read_string(fpoi, "\n"); //skipping crap
-    prev=0;
     break;
   default:
     fclose(fpoi);
     return -2; //internal error
   }
+  prev=refs.GetCount()-1;
   do
   {
     ret=read_string(fpoi, " ",tmpref,sizeof(tmpref));
     if(ret!=1) break;
     tmpref[MAXIDSIZE-1]=0;
     cnt=strtonum(tmpref);
+    if (add==2) cnt++;
     ret=read_string(fpoi,"\n",tmpref,sizeof(tmpref));
     if(ret!=1 && ret!=2) break;
     tmpref[MAXIDSIZE-1]=0;
-    while(cnt>prev)
+    if (cnt>prev)
     {
-      prev++;
-      if(cnt==prev)
+      while(cnt>prev)
       {
-        ref=tmpref;
-        ref.TrimRight();
-        refs.AddTail(ref);
-      }
-      else
-      {
-        refs.AddTail("");
+        prev++;
+        if(cnt==prev)
+        {
+          ref=tmpref;
+          ref.TrimRight();
+          refs.AddTail(ref);
+        }
+        else
+        {
+          refs.AddTail("");
+        }
       }
     }
-    if(cnt>2000) break; //cut it out at 2000!
+    else
+    {
+      POSITION pos;
+
+      ref=tmpref;
+      ref.TrimRight();
+      pos = refs.FindIndex(cnt);
+      refs.SetAt(pos, ref);
+    }
+    if(cnt>5000) break; //cut it out at 5000!
   }
   while(1);
   fclose(fpoi);
@@ -278,11 +294,14 @@ int ReadSongIds(loc_entry entry, CString2List &refs)
   return ReadSongIdsFromFile(fhandle, refs, entry.size);
 }
 
-int ReadIds(loc_entry entry, CStringList &refs, int add)
+int ReadIds(loc_entry entry, CStringList &refs, int add, bool clear)
 {
   int fhandle;
 
-  refs.RemoveAll();
+  if (clear)
+  {
+    refs.RemoveAll();
+  }
   xorflag=position=0;
   fhandle=locate_file(entry, 0);
   if(fhandle<1) return -1;

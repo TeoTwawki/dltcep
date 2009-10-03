@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.1h"
+#define PRG_VERSION "7.2"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -687,7 +687,7 @@ int CChitemDlg::scan_2da()
     if(val<0)
     {
       idrefs.Lookup("SECTYPE",tmploc);
-      val=ReadIds(tmploc,sectype_names,0);
+      val=ReadIds(tmploc,sectype_names,0, true);
     }
     if(val<0)
     {
@@ -698,7 +698,7 @@ int CChitemDlg::scan_2da()
     if(val<0)
     {
       idrefs.Lookup("SCHOOL",tmploc);
-      val=ReadIds(tmploc,school_names,0);
+      val=ReadIds(tmploc,school_names,0, true);
     }
     if(val<0)
     {
@@ -837,7 +837,7 @@ int CChitemDlg::scan_2da()
     }
     
     idrefs.Lookup("MISSILE",tmploc);
-    val=ReadIds(tmploc, pro_titles,1);
+    val=ReadIds(tmploc, pro_titles,1, true);
     if(val<0)
     {
       MessageBox("missile.ids not found, projectiles won't be described.","Warning",MB_ICONEXCLAMATION|MB_OK);
@@ -847,21 +847,21 @@ int CChitemDlg::scan_2da()
   {
     idrefs.Lookup("MISSILE",tmploc);
 
-    val=ReadIds(tmploc, pro_references,1);
+    val=ReadIds(tmploc, pro_titles,1,true);
     if (val<0) {
  		  int fhandle = open(theApp.m_defpath+"\\missile.ids", O_BINARY|O_RDONLY);
       if (fhandle>0) {
-        ReadIdsFromFile(fhandle, pro_references, 1, -1);
+        ReadIdsFromFile(fhandle, pro_titles, 1, -1);
       }
     }
   }
 
   if(!has_xpvar() && !pst_compatible_var())
-  {
+  {  //these are present in all bioware but not in blackisle
     if(!bg1_compatible_area())
-    {
+    { //these are in the bg2 branch only
       idrefs.Lookup("PROJECTL",tmploc);
-      val=ReadIds(tmploc, pro_references,2);
+      val=ReadIds(tmploc, pro_references,2, true);
       if(val<0)
       {
         pro_references.RemoveAll();
@@ -884,6 +884,12 @@ int CChitemDlg::scan_2da()
     {
       MessageBox("Colour definitions not found, using default.","Warning",MB_ICONEXCLAMATION|MB_OK);
     }
+  }
+
+  //GemRB specific overrides
+  if (idrefs.Lookup("GEMPRJTL",tmploc))
+  {
+    ReadIds(tmploc, pro_references,2, false);
   }
 
   darefs.Lookup("SPELDESC", tmploc);

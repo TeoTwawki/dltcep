@@ -969,6 +969,7 @@ int IDSKey(CString filename, CString key);
 CString IDSToken(CString filename, int value, bool unused);
 int get_idsfile(CString idsname, bool forced);
 int FillCombo(CString idsname, CComboBox *cb, int len);
+void FillProjectile(CComboBox &cb, int start);
 CString get_resist_type(int rtype);
 CString get_save_type(int stype);
 CString get_timing_type(int tmtype);

@@ -2452,9 +2452,7 @@ void CItemExtended::RefreshExtended()
 
 BOOL CItemExtended::OnInitDialog() 
 {
-  POSITION pos, pos2;
   int i;
-  CString tmp, tmp2;
 
 	CPropertyPage::OnInitDialog();
   m_extheadnum_control.SetDroppedWidth(80);
@@ -2494,17 +2492,8 @@ BOOL CItemExtended::OnInitDialog()
     m_melee_control.AddString(animnames[i]);
   }
 
-  pos=pro_references.GetHeadPosition();
-  pos2=pro_titles.GetHeadPosition();
-  i=0;
-  while(pos)
-  {
-    if(pos2) tmp2=pro_titles.GetNext(pos2);
-    else tmp2.Format("???");
-    tmp.Format("%d-%s (%s)",i,tmp2, pro_references.GetNext(pos) );
-    m_projid_control.AddString(tmp);
-    i++;
-  }
+  FillProjectile(m_projid_control, 0);
+
   RefreshExtended();
   //tooltips
   {

@@ -2899,6 +2899,27 @@ int FillCombo(CString idsname, CComboBox *cb, int len)
   return 0;
 }
 
+void FillProjectile(CComboBox &cb, int i)
+{
+  POSITION pos, pos2;
+  CString tmp, tmp2, tmp3;
+
+  pos=pro_references.GetHeadPosition();
+  pos2=pro_titles.GetHeadPosition();
+
+  while(pos || pos2)
+  {
+    if(pos2) tmp2=pro_titles.GetNext(pos2);
+    else tmp2.Format("???");
+    if(pos) tmp3=pro_references.GetNext(pos);
+    else tmp3.Format("-");
+
+    tmp.Format("%d-%s (%s)",i,tmp2, tmp3 );
+    cb.AddString(tmp);
+    i++;
+  }
+}
+
 CString DamageType(int hex)
 {
   switch(hex&0xffff0000)

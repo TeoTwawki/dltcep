@@ -1246,9 +1246,9 @@ void CSpellExtended::RefreshExtended()
 
 BOOL CSpellExtended::OnInitDialog() 
 {
-  POSITION pos, pos2;
+  //POSITION pos, pos2;
   int i;
-  CString tmp, tmp2;
+  //CString tmp, tmp2;
 
 	CPropertyPage::OnInitDialog();
 
@@ -1269,17 +1269,8 @@ BOOL CSpellExtended::OnInitDialog()
     m_target_control.AddString(get_target_type(i));
   }
 
-  pos=pro_references.GetHeadPosition();
-  pos2=pro_titles.GetHeadPosition();
-  i=0;
-  while(pos)
-  {
-    if(pos2) tmp2=pro_titles.GetNext(pos2);
-    else tmp2.Format("???");
-    tmp.Format("%d-%s (%s)",i,tmp2, pro_references.GetNext(pos) );
-    m_projid_control.AddString(tmp);
-    i++;
-  }
+  FillProjectile(m_projid_control, 0);
+
   RefreshExtended();
   //tooltips
   {
