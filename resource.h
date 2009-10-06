@@ -326,6 +326,17 @@
 #define IDS_GROUND                      288
 #define IDS_ATTR7_IWD2                  289
 #define IDS_ATTR7_BG2                   290
+#define IDS_MAKEOVERLAY                 291
+#define IDS_REMOVEOVERLAY               292
+#define IDS_COPYPOLY                    293
+#define IDS_PASTEPOLY                   294
+#define IDS_REMOVEPOLY                  295
+#define IDS_ADDPOLY                     296
+#define IDS_SELECTPOLY                  297
+#define IDS_EDITPOLY                    298
+#define IDS_EDITTILE                    299
+#define IDS_REMOVEDOOR                  300
+#define IDS_OPEN                        301
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -1654,6 +1665,7 @@
 #define IDC_FACTION                     2362
 #define IDC_TEAM                        2363
 #define IDC_HEXADECIMAL                 2363
+#define IDC_HOSTILE                     2367
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1879,7 +1891,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33051
-#define _APS_NEXT_CONTROL_VALUE         2366
+#define _APS_NEXT_CONTROL_VALUE         2372
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

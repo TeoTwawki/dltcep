@@ -2153,7 +2153,7 @@ CItemExtended::~CItemExtended()
 static int forceidboxids[8]={IDC_ID, IDC_NOID,0,0,0,0,0,0};
 
 static int keenboxids[32]={IDC_STRBONUS,IDC_BREAKABLE,0,0,0,0,0,0,
-0,0,0,IDC_RECHARGES,0,0,0,0,
+0,0,IDC_HOSTILE,IDC_RECHARGES,0,0,0,0,
 IDC_FLAG1, IDC_FLAG2,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0};
 
@@ -2217,10 +2217,15 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
 
     DDX_Text(pDX, IDC_UNKNOWN1, the_item.extheaders[extheadnum].unknown03);
 
-    DDX_Text(pDX, IDC_THAC0,the_item.extheaders[extheadnum].thaco);
-    DDX_Text(pDX, IDC_ROLL,(short &) the_item.extheaders[extheadnum].dammult);
-    DDX_Text(pDX, IDC_DIE,(short &) the_item.extheaders[extheadnum].damdice);
-    DDX_Text(pDX, IDC_ADD,(short &) the_item.extheaders[extheadnum].damplus);
+    DDX_Text(pDX, IDC_THAC0, the_item.extheaders[extheadnum].thaco);
+    DDX_Text(pDX, IDC_ROLL, the_item.extheaders[extheadnum].dammult);
+    DDX_Text(pDX, IDC_DIE, the_item.extheaders[extheadnum].damdice);
+    DDX_Text(pDX, IDC_ADD, the_item.extheaders[extheadnum].damplus);
+
+    tmpstr=format_schooltype(the_item.extheaders[extheadnum].school);
+    DDX_Text(pDX, IDC_SCHOOL, tmpstr);
+    tmpstr=format_sectype(the_item.extheaders[extheadnum].sectype);
+    DDX_Text(pDX, IDC_SECTYPE, tmpstr);
 
     tmpstr=get_damage_type(the_item.extheaders[extheadnum].damtype);
     DDX_Text(pDX, IDC_DAMAGETYPE, tmpstr);
@@ -2296,9 +2301,14 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     DDX_Text(pDX, IDC_UNKNOWN1, the_item.extheaders[extheadnum].unknown03);
 
   	DDX_Text(pDX, IDC_THAC0,the_item.extheaders[extheadnum].thaco);
-    DDX_Text(pDX, IDC_ROLL,(short &) the_item.extheaders[extheadnum].dammult);
-    DDX_Text(pDX, IDC_DIE,(short &) the_item.extheaders[extheadnum].damdice);
+    DDX_Text(pDX, IDC_ROLL, the_item.extheaders[extheadnum].dammult);
+    DDX_Text(pDX, IDC_DIE, the_item.extheaders[extheadnum].damdice);
     DDX_Text(pDX, IDC_ADD,the_item.extheaders[extheadnum].damplus);
+
+    DDX_Text(pDX, IDC_SCHOOL, tmpstr);
+    the_item.extheaders[extheadnum].school=(unsigned char) strtonum(tmpstr);
+    DDX_Text(pDX, IDC_SECTYPE, tmpstr);
+    the_item.extheaders[extheadnum].sectype=(unsigned char) strtonum(tmpstr);
 
     DDX_Text(pDX, IDC_DAMAGETYPE, tmpstr);
     the_item.extheaders[extheadnum].damtype=(unsigned char) strtonum(tmpstr);
@@ -2367,6 +2377,8 @@ void CItemExtended::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CItemExtended)
+	DDX_Control(pDX, IDC_SECTYPE, m_sectype_control);
+	DDX_Control(pDX, IDC_SCHOOL, m_school_control);
 	DDX_Control(pDX, IDC_MELEE, m_melee_control);
   DDX_Control(pDX, IDC_USEICON, m_useicon_control);
 	DDX_Control(pDX, IDC_PROJID, m_projid_control);
@@ -2452,7 +2464,9 @@ void CItemExtended::RefreshExtended()
 
 BOOL CItemExtended::OnInitDialog() 
 {
-  int i;
+  CString tmpstr, tmpstr2;
+  POSITION pos;
+  int i, num;
 
 	CPropertyPage::OnInitDialog();
   m_extheadnum_control.SetDroppedWidth(80);
@@ -2475,6 +2489,28 @@ BOOL CItemExtended::OnInitDialog()
   for(i=0;i<NUM_AMTYPE;i++)
   {
     m_projframe_control.AddString(ammo_types[i]);
+  }
+
+  pos=school_names.GetHeadPosition();
+  num=0;
+  while(pos)
+  {
+    tmpstr2=school_names.GetNext(pos);
+    if(tmpstr2.IsEmpty()) tmpstr2="Unknown";
+    tmpstr.Format("0x%02x-%s",num, tmpstr2);
+    m_school_control.AddString(tmpstr);
+    num++;
+  }
+
+  pos=sectype_names.GetHeadPosition();
+  num=0;
+  while(pos)
+  {
+    tmpstr2=sectype_names.GetNext(pos);
+    if(tmpstr2.IsEmpty()) tmpstr2="Unknown";
+    tmpstr.Format("0x%02x-%s",num, tmpstr2);
+    m_sectype_control.AddString(tmpstr);
+    num++;
   }
   
   for(i=0;i<NUM_DTYPE;i++)
@@ -2531,10 +2567,10 @@ static int extids[]={
   IDC_EXTUSEICON, IDC_USEICON,
   IDC_EXTHEADNUM, IDC_EXTTYPE, IDC_LOC, IDC_TARGETNUM, IDC_TARGET,
   IDC_PROJFRAME, IDC_RANGE, IDC_SPEED, IDC_IDENTIFY, IDC_UNKNOWN1,
-  IDC_THAC0, IDC_ROLL, IDC_DIE, IDC_ADD, IDC_DAMAGETYPE, 
-  IDC_BOW, IDC_XBOW, IDC_MISC, IDC_ANIM1, IDC_ANIM2, IDC_ANIM3,
-  IDC_CHARGES, IDC_PERDAY, 
-  IDC_FLAGS, IDC_STRBONUS, IDC_BREAKABLE, IDC_RECHARGES, 
+  IDC_THAC0, IDC_ROLL, IDC_DIE, IDC_ADD, IDC_SCHOOL, IDC_SECTYPE,
+  IDC_DAMAGETYPE, IDC_BOW, IDC_XBOW, IDC_MISC,
+  IDC_ANIM1, IDC_ANIM2, IDC_ANIM3, IDC_CHARGES, IDC_PERDAY, 
+  IDC_FLAGS, IDC_STRBONUS, IDC_BREAKABLE, IDC_HOSTILE, IDC_RECHARGES, 
   IDC_FLAG1, IDC_FLAG2, IDC_PROJID,  IDC_ID, IDC_NOID, IDC_MELEE, 
   //buttons
   //last button really belongs here!
@@ -2594,9 +2630,11 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_MELEE, OnSelchangeMelee)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
 	ON_BN_CLICKED(IDC_STRBONUS, OnStrbonus)
 	ON_BN_CLICKED(IDC_BREAKABLE, OnBreakable)
-	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
+	ON_BN_CLICKED(IDC_HOSTILE, OnHostile)
+	ON_EN_KILLFOCUS(IDC_SECTYPE, OnKillfocusSectype)
 	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
@@ -2608,7 +2646,8 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_CBN_KILLFOCUS(IDC_PROJID, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnDefaultKillfocus)
 	ON_CBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
-	ON_EN_KILLFOCUS(IDC_IDENTIFY, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_IDENTIFY, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_SCHOOL, OnKillfocusSchool)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2685,6 +2724,13 @@ void CItemExtended::OnFlag2()
   UpdateData(UD_DISPLAY);
 }
 
+void CItemExtended::OnHostile() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=4<<8;
+  UpdateData(UD_DISPLAY);
+}
+
 void CItemExtended::OnRecharges() 
 {
   UpdateData(UD_RETRIEVE);
@@ -2725,6 +2771,19 @@ void CItemExtended::OnKillfocusRoll()
 }
 
 void CItemExtended::OnKillfocusDie() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+
+void CItemExtended::OnKillfocusSectype() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemExtended::OnKillfocusSchool() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);

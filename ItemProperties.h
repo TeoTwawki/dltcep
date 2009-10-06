@@ -410,6 +410,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CItemExtended)
 	enum { IDD = IDD_ITEMEFFECT };
+	CComboBox	m_sectype_control;
+	CComboBox	m_school_control;
 	CComboBox	m_melee_control;
   CStatic m_useicon_control;
 	CComboBox	m_projid_control;
@@ -493,6 +495,9 @@ protected:
 	afx_msg void OnRecharges();
 	afx_msg void OnStrbonus();
 	afx_msg void OnBreakable();
+	afx_msg void OnHostile();
+	afx_msg void OnKillfocusSectype();
+	afx_msg void OnKillfocusSchool();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

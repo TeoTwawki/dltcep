@@ -299,7 +299,7 @@ BOOL CSpellGeneral::OnInitDialog()
   {
     tmpstr2=school_names.GetNext(pos);
     if(tmpstr2.IsEmpty()) tmpstr2="Unknown";
-    tmpstr.Format("0x%0x-%s",num, tmpstr2);
+    tmpstr.Format("0x%02x-%s",num, tmpstr2);
     m_school_control.AddString(tmpstr);
     num++;
   }
@@ -310,7 +310,7 @@ BOOL CSpellGeneral::OnInitDialog()
   {
     tmpstr2=sectype_names.GetNext(pos);
     if(tmpstr2.IsEmpty()) tmpstr2="Unknown";
-    tmpstr.Format("0x%0x-%s",num, tmpstr2);
+    tmpstr.Format("0x%02x-%s",num, tmpstr2);
     m_sectype_control.AddString(tmpstr);
     num++;
   }

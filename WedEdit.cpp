@@ -313,11 +313,28 @@ BOOL CWedEdit::OnInitDialog()
     
     m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
     m_tooltip.AddTool(GetDlgItem(IDC_EDIT), IDS_TISEXTRACT);
-    m_tooltip.AddTool(GetDlgItem(IDC_CLEAR), IDS_CLEANUP);
+    m_tooltip.AddTool(GetDlgItem(IDC_CLEANUP), IDS_CLEANUP);
     m_tooltip.AddTool(GetDlgItem(IDC_NEW), IDS_OVERLAY);
     m_tooltip.AddTool(GetDlgItem(IDC_REMOVE), IDS_DELOVER);
     m_tooltip.AddTool(GetDlgItem(IDC_EDITTILE), IDS_TILES);
+    m_tooltip.AddTool(GetDlgItem(IDC_EDITTILE2), IDS_EDITTILE);
+    m_tooltip.AddTool(GetDlgItem(IDC_OPEN), IDS_OPEN);
+    m_tooltip.AddTool(GetDlgItem(IDC_DROP), IDS_REMOVEDOOR);
+    m_tooltip.AddTool(GetDlgItem(IDC_PASTE), IDS_PASTEPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_ADD3), IDS_ADDPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_REMOVE3), IDS_REMOVEPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_SELECTION), IDS_SELECTPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_EDITDOORPOLY), IDS_EDITPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_COPY), IDS_COPYPOLY);
     m_tooltip.AddTool(GetDlgItem(IDC_ORDER), IDS_ORDER);
+    m_tooltip.AddTool(GetDlgItem(IDC_TRANSPARENT), IDS_MAKEOVERLAY);
+    m_tooltip.AddTool(GetDlgItem(IDC_CLEAR), IDS_REMOVEOVERLAY);
+    m_tooltip.AddTool(GetDlgItem(IDC_COPY2), IDS_COPYPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_PASTE2), IDS_PASTEPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_ADD2), IDS_ADDPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_REMOVE2), IDS_REMOVEPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_SELECTION2), IDS_SELECTPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_EDITWALLPOLY), IDS_EDITPOLY);
   }
 	UpdateData(UD_DISPLAY);
 	return TRUE;

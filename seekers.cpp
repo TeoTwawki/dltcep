@@ -1134,6 +1134,33 @@ int CChitemDlg::check_extheader(int itemtype)
       log("The THAC0 is bigger than 20 in extended header #%d.",i+1);
       ret|=BAD_EXTHEAD;
     }
+
+    switch(atype)
+    {
+    case 1:
+      tmp=0xfffffffc;
+      break;
+    case 2:
+      tmp=0xfffffffc;
+      break;
+    case 3:
+      tmp=0xfffff3ff;
+      break;
+    case 4:
+      tmp=0xfffffffc;
+      break;
+    default:
+      tmp=0xffffffff;
+    }
+    
+    if (iwd2_structures()) {
+      tmp&=0xfffcffff;   //Keen and ignore armor
+    }
+
+    if(the_item.extheaders[i].flags&tmp) {
+      log("Unusual item flags: %08x for %s in extended header #%d.", the_item.extheaders[i].flags, get_attack_type(atype), i+1);
+      ret|=BAD_EXTHEAD;
+    }
     
     tmp=the_item.extheaders[i].proref;
     if(check_pro_num(tmp) )
@@ -1352,7 +1379,8 @@ int CChitemDlg::check_charges(int atype, int i)
       }
       break;
     case 3:
-      if(recharge&(~2049)) //add iwd2 flags too
+      //2049
+      if(recharge&(~3072)) //add iwd2 flags too
       {
         log("Extended header #%d has unknown recharge flag: %8x.",i+1,recharge);
         ret|=BAD_EXTHEAD;

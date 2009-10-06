@@ -540,7 +540,7 @@ STYLE DS_SYSMODAL | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Extended Effects"
 FONT 8, "MS Sans Serif"
 BEGIN
-    COMBOBOX        IDC_EXTHEADNUM,68,14,27,126,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_EXTHEADNUM,68,14,32,126,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     EDITTEXT        IDC_EXTUSEICON,133,14,51,14,ES_UPPERCASE | 
                     ES_AUTOHSCROLL
@@ -556,7 +556,7 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_TARGETNUM,123,42,17,12,ES_AUTOHSCROLL | ES_NUMBER
     COMBOBOX        IDC_TARGET,142,42,73,105,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
-                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+                    WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_PROJFRAME,217,42,73,105,CBS_DROPDOWN | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_RANGE,292,43,30,12,ES_AUTOHSCROLL | ES_NUMBER
@@ -564,59 +564,65 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN1,356,43,30,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_THAC0,7,68,40,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_ROLL,50,68,18,12,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "d",IDC_STATIC,71,69,8,8
     EDITTEXT        IDC_DIE,82,68,18,12,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_ADD,112,68,17,12,ES_AUTOHSCROLL
-    COMBOBOX        IDC_DAMAGETYPE,131,68,74,107,CBS_DROPDOWN | 
-                    CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_IDENTIFY,209,68,30,12,ES_AUTOHSCROLL
-    CONTROL         "Need ID",IDC_ID,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    242,60,43,10
-    CONTROL         "Use strength",IDC_STRBONUS,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,288,60,56,10
-    CONTROL         "Breakable",IDC_BREAKABLE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,343,60,48,10
-    CONTROL         "Mustn't ID",IDC_NOID,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,242,72,48,10
-    CONTROL         "Recharges",IDC_RECHARGES,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,319,72,51,10
-    CONTROL         "Ignore shield (IWD2)",IDC_FLAG1,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,319,83,81,10
-    EDITTEXT        IDC_TOOLTIPTEXT,7,95,93,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TOOLTIPREF,106,95,39,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CHARGES,149,94,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    COMBOBOX        IDC_PERDAY,183,94,77,123,CBS_DROPDOWN | WS_VSCROLL | 
-                    WS_TABSTOP
-    EDITTEXT        IDC_FLAGS,264,94,43,12,ES_AUTOHSCROLL
-    CONTROL         "Keen (IWD2)",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,319,96,57,10
-    CONTROL         "Bow",IDC_BOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
-                    112,30,10
-    CONTROL         "Xbow",IDC_XBOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
-                    122,34,10
-    CONTROL         "Sling",IDC_MISC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
-                    132,31,10
-    COMBOBOX        IDC_MELEE,44,122,109,69,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_DAMAGETYPE,136,68,99,107,CBS_DROPDOWN | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_ANIM1,162,122,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_ANIM2,201,122,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_ANIM3,240,122,30,12,ES_AUTOHSCROLL | ES_NUMBER
-    COMBOBOX        IDC_PROJID,279,122,114,137,CBS_DROPDOWN | 
-                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_EXTEFFNUM,44,145,319,121,CBS_DROPDOWNLIST | 
+    COMBOBOX        IDC_SCHOOL,237,68,74,123,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
                     WS_VSCROLL | WS_TABSTOP
-    LTEXT           "/",IDC_STATIC,368,146,8,8
+    COMBOBOX        IDC_SECTYPE,315,68,78,123,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_IDENTIFY,37,89,30,12,ES_AUTOHSCROLL
+    CONTROL         "Need ID",IDC_ID,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    77,89,43,10
+    CONTROL         "Mustn't ID",IDC_NOID,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,122,89,48,10
+    EDITTEXT        IDC_FLAGS,261,89,43,12,ES_AUTOHSCROLL
+    CONTROL         "Use strength",IDC_STRBONUS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,315,83,56,10
+    CONTROL         "Breakable",IDC_BREAKABLE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,315,95,48,10
+    CONTROL         "Hostile",IDC_HOSTILE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,262,107,37,10
+    CONTROL         "Recharges",IDC_RECHARGES,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,262,119,51,10
+    CONTROL         "Ignore shield (IWD2)",IDC_FLAG1,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,315,107,81,10
+    CONTROL         "Keen (IWD2)",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,315,119,57,9
+    EDITTEXT        IDC_TOOLTIPTEXT,7,116,93,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TOOLTIPREF,106,116,39,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CHARGES,149,115,30,12,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_PERDAY,183,115,77,123,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    CONTROL         "Bow",IDC_BOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    132,30,10
+    CONTROL         "Xbow",IDC_XBOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    142,34,10
+    CONTROL         "Sling",IDC_MISC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,
+                    152,31,10
+    COMBOBOX        IDC_MELEE,44,142,109,69,CBS_DROPDOWNLIST | 
+                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_ANIM1,162,142,30,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_ANIM2,201,142,30,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_ANIM3,240,142,30,12,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_PROJID,279,142,114,137,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_EXTEFFNUM,44,162,319,121,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "d",IDC_STATIC,71,69,8,8
+    LTEXT           "/",IDC_STATIC,368,163,8,8
     PUSHBUTTON      "Edit",IDC_EDIT,183,177,35,14
     PUSHBUTTON      "Remove",IDC_EXTEFFREMOVE,226,177,35,14
     PUSHBUTTON      "Add",IDC_EXTEFFADD,269,177,35,14
     PUSHBUTTON      "Copy",IDC_EXTEFFCOPY,312,177,35,14
     PUSHBUTTON      "Paste",IDC_EXTEFFPASTE,355,177,35,14
     LTEXT           "Extended header:",IDC_STATIC,7,16,57,8
-    LTEXT           "Effect #",IDC_STATIC,7,147,26,8
-    LTEXT           "Tooltip:",IDC_STATIC,7,84,24,8
+    LTEXT           "Effect #",IDC_STATIC,7,164,26,8
+    LTEXT           "Tooltip:",IDC_STATIC,7,105,24,8
     LTEXT           "Attack type:",IDC_STATIC,7,31,39,8
     LTEXT           "Use location:",IDC_STATIC,66,31,42,8
-    LTEXT           "ID flags",IDC_STATIC,208,58,25,8
+    LTEXT           "ID flags",IDC_STATIC,7,89,25,8
     LTEXT           "Speed",IDC_STATIC,324,32,22,8
     LTEXT           "Range",IDC_STATIC,292,32,22,8
     LTEXT           "Target number && type",IDC_STATIC,123,31,68,8
@@ -624,21 +630,23 @@ BEGIN
     LTEXT           "+",IDC_STATIC,104,69,8,8
     LTEXT           "Damage rolls",IDC_STATIC,57,58,42,8
     LTEXT           "Thac0 +",IDC_STATIC,7,58,28,8
-    LTEXT           "Damage type",IDC_STATIC,131,58,43,8
-    LTEXT           "00",IDC_EFFNUM,377,146,9,8
-    LTEXT           "/",IDC_STATIC,99,16,8,8
-    LTEXT           "0",IDC_HEADNUM,109,16,8,8
-    LTEXT           "Charges",IDC_STATIC,149,84,27,8
-    LTEXT           "Melee animation:",IDC_STATIC,44,112,54,8
-    LTEXT           "Projectile animation:",IDC_STATIC,279,112,64,8
+    LTEXT           "Damage type",IDC_STATIC,136,58,43,8
+    LTEXT           "00",IDC_EFFNUM,377,163,9,8
+    LTEXT           "/",IDC_STATIC,103,16,8,8
+    LTEXT           "0",IDC_HEADNUM,113,16,8,8
+    LTEXT           "Charges",IDC_STATIC,149,105,27,8
+    LTEXT           "Melee animation:",IDC_STATIC,44,132,54,8
+    LTEXT           "Projectile animation:",IDC_STATIC,279,132,64,8
     LTEXT           "0x3",IDC_STATIC,356,32,12,8
-    LTEXT           "Tooltip strref",IDC_STATIC,106,84,40,8
-    LTEXT           "Charge removal",IDC_STATIC,183,84,50,8
+    LTEXT           "Tooltip strref",IDC_STATIC,106,105,40,8
+    LTEXT           "Charge removal",IDC_STATIC,183,105,50,8
     LTEXT           "Use icon",IDC_STATIC,134,4,29,8
-    LTEXT           "Overhand",IDC_STATIC,162,112,32,8
-    LTEXT           "Backhand",IDC_STATIC,201,112,34,8
-    LTEXT           "Thrust",IDC_STATIC,240,112,21,8
-    LTEXT           "Functional  flags",IDC_STATIC,264,84,52,8
+    LTEXT           "Overhand",IDC_STATIC,162,132,32,8
+    LTEXT           "Backhand",IDC_STATIC,201,132,34,8
+    LTEXT           "Thrust",IDC_STATIC,240,132,21,8
+    LTEXT           "Functional flags",IDC_STATIC,204,89,52,8
+    LTEXT           "School",IDC_STATIC,240,58,23,8
+    LTEXT           "Secondary type",IDC_STATIC,315,58,50,8
 END
 
 IDD_ITEMPICKER DIALOG DISCARDABLE  0, 0, 160, 217
@@ -7792,6 +7800,17 @@ BEGIN
     IDS_GROUND              "The animation is covered by actors."
     IDS_ATTR7_IWD2          "Simplified duration"
     IDS_ATTR7_BG2           "No failure"
+    IDS_MAKEOVERLAY         "Merge this polygon into an overlay. (The polygon will be removed)."
+    IDS_REMOVEOVERLAY       "Remove this polygon from an overlay. (The polygon will be removed.)"
+    IDS_COPYPOLY            "Copy this polygon."
+    IDS_PASTEPOLY           "Paste in a previously copied polygon."
+    IDS_REMOVEPOLY          "Remove the selected polygon."
+    IDS_ADDPOLY             "Add a new polygon."
+    IDS_SELECTPOLY          "Select a polygon interactively from the area."
+    IDS_EDITPOLY            "Edit the selected polygon."
+    IDS_EDITTILE            "Edit tiles and overlays of the selected door."
+    IDS_REMOVEDOOR          "Delete the selected door."
+    IDS_OPEN                "Select between open and closed door polygons."
 END
 
 #endif    // English (U.S.) resources

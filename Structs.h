@@ -425,8 +425,10 @@ typedef struct
   unsigned short projectile;
   unsigned short speed;
   short thaco;
-  unsigned short damdice;
-  unsigned short dammult;
+  unsigned char damdice;
+  unsigned char school;
+  unsigned char dammult;
+  unsigned char sectype;
   short damplus;
   unsigned short damtype;
   unsigned short fbcount;
