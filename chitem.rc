@@ -2420,7 +2420,7 @@ BEGIN
     EDITTEXT        IDC_CRERES,152,47,72,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,231,47,31,14
     PUSHBUTTON      "Remove",IDC_DELCRE,270,47,31,14
-    EDITTEXT        IDC_FREQUENCY,7,88,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIFF,7,88,33,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_DELAY,49,88,33,14,ES_AUTOHSCROLL
     COMBOBOX        IDC_METHOD,91,88,96,104,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
@@ -2444,17 +2444,16 @@ BEGIN
     LTEXT           "Creature",IDC_STATIC,152,33,28,8
     LTEXT           "/ 0",IDC_MAXCRE,246,20,16,8
     GROUPBOX        "Spawned creatures",IDC_STATIC,147,7,167,60,BS_FLAT
-    LTEXT           "Frequency ?",IDC_STATIC,7,74,40,8
+    LTEXT           "Difficulty",IDC_STATIC,7,74,28,8
     LTEXT           "Delay ?",IDC_STATIC,49,74,42,8
     LTEXT           "Spawn method ?",IDC_STATIC,96,74,54,8
     LTEXT           "Schedule",IDC_STATIC,7,156,31,8
     LTEXT           "Static",IDC_TIMEOFDAY,94,172,38,8
     LTEXT           "Day chance",IDC_STATIC,91,109,40,8
-    LTEXT           "0x7C",IDC_STATIC,196,74,17,8
-    LTEXT           "0x80",IDC_STATIC,239,74,16,8
+    LTEXT           "Expiry",IDC_STATIC,196,74,20,8
+    LTEXT           "Walk distances",IDC_STATIC,239,74,50,8
     LTEXT           "%",IDC_STATIC,185,124,8,8
-    LTEXT           "Difficulty ?",IDC_STATIC,7,109,34,8
-    LTEXT           "0x82",IDC_STATIC,280,74,16,8
+    LTEXT           "Maximum",IDC_STATIC,7,109,30,8
     LTEXT           "Enabled",IDC_STATIC,100,33,27,8
     LTEXT           "%",IDC_STATIC,129,124,8,8
     LTEXT           "Night chance",IDC_STATIC,150,109,44,8

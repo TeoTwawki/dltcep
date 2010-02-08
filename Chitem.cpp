@@ -4225,6 +4225,10 @@ int get_script_handle(CString key)
   if(scripts.Lookup(tmp,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) //falling back to same directory
+    {
+      fhandle=open(lastopenedoverride+"//"+key+".bcs",O_RDONLY|O_BINARY);
+    }
     if(fhandle<1) return -2;
     scripts.SetAt(tmp,fileloc);
     return fhandle;
@@ -4250,17 +4254,25 @@ int read_area(CString key)
   if(areas.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    areas.SetAt(key,fileloc);
-    the_mos.new_mos();
-    ret=the_area.ReadAreaFromFile(fhandle, fileloc.size);
-    close(fhandle);
-    if(ret>=0)
-    {
-      ret=ReadWed(ret);
-    }
   }
-  else return -1;
+  else
+  {
+    fhandle = -1;
+  }
+  if(fhandle<1) //falling back to same directory
+  {
+     fhandle=open(lastopenedoverride+"//"+key+".are",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1) return -2;
+  areas.SetAt(key,fileloc);
+  the_mos.new_mos();
+  ret=the_area.ReadAreaFromFile(fhandle, fileloc.size);
+  close(fhandle);
+  if(ret>=0)
+  {
+    ret=ReadWed(ret);
+  }
+ 
   return ret;
 }
 
@@ -4379,12 +4391,19 @@ int read_item(CString key)
   if(items.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    items.SetAt(key,fileloc);
-    ret=the_item.ReadItemFromFile(fhandle, fileloc.size);
-    close(fhandle);
   }
-  else return -1;
+  else
+  {
+    fhandle = -1;
+  }
+  if(fhandle<1) //falling back to same directory
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".itm",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1) return -2;
+  items.SetAt(key,fileloc);
+  ret=the_item.ReadItemFromFile(fhandle, fileloc.size);
+  close(fhandle);
   return ret;
 }
 
@@ -4433,12 +4452,19 @@ int read_spell(CString key)
   if(spells.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    spells.SetAt(key,fileloc);
-    ret=the_spell.ReadSpellFromFile(fhandle, fileloc.size);
-    close(fhandle);
   }
-  else return -1;
+  else
+  {
+    fhandle = -1;
+  }
+  if(fhandle<1) //falling back to same directory
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".spl",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1) return -2;
+  spells.SetAt(key,fileloc);
+  ret=the_spell.ReadSpellFromFile(fhandle, fileloc.size);
+  close(fhandle);
   return ret;
 }
 
@@ -4487,12 +4513,19 @@ int read_store(CString key)
   if(stores.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    items.SetAt(key,fileloc);
-    ret=the_store.ReadStoreFromFile(fhandle, fileloc.size);
-    close(fhandle);
   }
-  else return -1;
+  else
+  {
+    fhandle = -1;
+  }
+  if(fhandle<1) //falling back to same directory
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".sto",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1) return -2;
+  items.SetAt(key,fileloc);
+  ret=the_store.ReadStoreFromFile(fhandle, fileloc.size);
+  close(fhandle);
   return ret;
 }
 
@@ -4607,12 +4640,15 @@ int read_projectile(CString key)
   if(projects.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
-    if(fhandle<1) return -2;
-    projects.SetAt(key,fileloc);
-    ret=the_projectile.ReadProjectileFromFile(fhandle, fileloc.size);
-    close(fhandle);
   }
-  else return -1;
+  if(fhandle<1) //falling back to same directory
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".sto",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1) return -2;
+  projects.SetAt(key,fileloc);
+  ret=the_projectile.ReadProjectileFromFile(fhandle, fileloc.size);
+  close(fhandle);
   return ret;
 }
 
@@ -5366,6 +5402,10 @@ int read_tis(CString key, Cmos *cb, int lazy)
   if(tis.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) //falling back to same directory
+    {
+      fhandle=open(lastopenedoverride+"//"+key+".TIS",O_RDONLY|O_BINARY);
+    }
     if(fhandle<1)
     {
       ret=-2;
@@ -5470,6 +5510,10 @@ int play_acm(CString key, bool acm_or_wavc, int justload)
   if(ret)
   {
     fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) //falling back to same directory
+    {
+      fhandle=open(lastopenedoverride+"//"+key+".acm",O_RDONLY|O_BINARY);
+    }
     if(fhandle<1) return -2;
     ConvertAcmWav(fhandle,fileloc.size, memory, samples_written, acm_or_wavc?(editflg&FORCESTEREO):0);
     close(fhandle);

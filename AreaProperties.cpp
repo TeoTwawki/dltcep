@@ -2181,7 +2181,7 @@ CAreaSpawn::~CAreaSpawn()
 }
 
 static int spawnboxids[]={IDC_SPAWNPICKER, IDC_POSX, IDC_POSY, IDC_SCHEDULE, IDC_TIMEOFDAY,
-IDC_FREQUENCY,IDC_DELAY,IDC_METHOD,IDC_UNKNOWN7C, IDC_UNKNOWN80, IDC_UNKNOWN82,
+IDC_DIFF,IDC_DELAY,IDC_METHOD,IDC_UNKNOWN7C, IDC_UNKNOWN80, IDC_UNKNOWN82,
 IDC_MIN,IDC_MAX, IDC_LOW, IDC_HIGH, IDC_CRERES, IDC_SPAWNNUMPICKER,IDC_ADDCRE, IDC_DELCRE,
 IDC_MAXCRE, IDC_BROWSE, IDC_UNKNOWN, IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_SET,
 0};
@@ -2231,14 +2231,14 @@ void CAreaSpawn::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_POSY, the_area.spawnheaders[m_spawnnum].py);
     tmpstr.Format("/ %d",the_area.spawnheaders[m_spawnnum].creaturecnt);
     DDX_Text(pDX, IDC_MAXCRE, tmpstr);
-    DDX_Text(pDX,IDC_FREQUENCY,the_area.spawnheaders[m_spawnnum].frequency);
+    DDX_Text(pDX,IDC_DIFF,the_area.spawnheaders[m_spawnnum].difficulty);
     DDX_Text(pDX,IDC_DELAY,the_area.spawnheaders[m_spawnnum].delay);
 //    if(!the_area.spawnheaders[m_spawnnum].delay) the_area.spawnheaders[m_spawnnum].delay=1;
     tmpstr=get_spawntype(the_area.spawnheaders[m_spawnnum].method);
     DDX_Text(pDX,IDC_METHOD,tmpstr);
     the_area.spawnheaders[m_spawnnum].method=(short) strtonum(tmpstr);
-    DDX_Text(pDX,IDC_UNKNOWN7C,the_area.spawnheaders[m_spawnnum].unknown7c);
-    DDX_Text(pDX,IDC_UNKNOWN80,the_area.spawnheaders[m_spawnnum].unknown80);
+    DDX_Text(pDX,IDC_UNKNOWN7C,the_area.spawnheaders[m_spawnnum].expiry);
+    DDX_Text(pDX,IDC_UNKNOWN80,the_area.spawnheaders[m_spawnnum].randomwalk);
     DDX_Text(pDX,IDC_UNKNOWN82,the_area.spawnheaders[m_spawnnum].unknown82);
     DDX_Text(pDX,IDC_MIN,the_area.spawnheaders[m_spawnnum].min);
     DDX_Text(pDX,IDC_MAX,the_area.spawnheaders[m_spawnnum].max);
@@ -2348,7 +2348,7 @@ BEGIN_MESSAGE_MAP(CAreaSpawn, CPropertyPage)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
 	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
-	ON_EN_KILLFOCUS(IDC_FREQUENCY, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_DIFF, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN80, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN7C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_HIGH, DefaultKillfocus)
@@ -2486,8 +2486,8 @@ void CAreaSpawn::OnAdd()
   newspawns[the_area.spawncount].percent1=100;
   newspawns[the_area.spawncount].percent2=100;
   newspawns[the_area.spawncount].method=1;
-  newspawns[the_area.spawncount].unknown7c=1000;
-  newspawns[the_area.spawncount].unknown80=1000;
+  newspawns[the_area.spawncount].expiry=1000;
+  newspawns[the_area.spawncount].randomwalk=1000;
   newspawns[the_area.spawncount].unknown82=1000;
 
   if(the_area.spawnheaders)

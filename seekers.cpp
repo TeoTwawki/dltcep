@@ -6425,20 +6425,61 @@ CString code_sf_suffixes[CODE_SF_COUNT]={"g1","g2","g3"};
 int need_suffix_two[CODE_SF_COUNT]={1,0,0};
 int need_suffix_four[CODE_SF_COUNT]={1,1,0};
 
+int four_files_cycles[CODE_SF_COUNT]={48,24,0};
+int four_files_2_cycles[CODE_SF_COUNT]={48,16,0};
+
 int CChitemDlg::check_ani_four_files(CString prefix)
 {
+  CString resref;
   int i;
   int res, res2;
+  Cbam tmp;
 
   for(i=0;i<CODE_SF_COUNT;i++)
   {
-    res=check_resource(prefix+code_sf_suffixes[i], false);
-    res2=check_resource(prefix+code_sf_suffixes[i]+"e", false);
+    resref=prefix+code_sf_suffixes[i];
+    res=check_resource(resref, false);
+    res2=check_resource(resref+"e", false);
     if(res!=res2) return -2;
 
     if(!res ^ need_suffix_four[i])
     {
       return 1;
+    }
+
+    if(four_files_cycles[i])
+    {
+      resref.MakeUpper();
+      if(read_bam_preview(resref,&tmp)) return -2;
+      if(tmp.GetCycleCount()!=four_files_cycles[i]) return 1;
+    }
+  }
+  return 0;
+}
+
+int CChitemDlg::check_ani_four_files_2(CString prefix)
+{
+  CString resref;
+  int i;
+  int res, res2;
+  Cbam tmp;
+
+  for(i=0;i<CODE_SF_COUNT;i++)
+  {
+    resref=prefix+code_sf_suffixes[i];
+    res=check_resource(resref, false);
+    res2=check_resource(resref+"e", false);
+    if(res!=res2) return -2;
+
+    if(!res ^ need_suffix_four[i])
+    {
+      return 1;
+    }
+    if(four_files_2_cycles[i])
+    {
+      resref.MakeUpper();
+      if(read_bam_preview(resref,&tmp)) return -2;
+      if(tmp.GetCycleCount()!=four_files_2_cycles[i]) return 1;
     }
   }
   return 0;
@@ -6463,8 +6504,10 @@ int CChitemDlg::check_ani_two_files(CString prefix)
   return 0;
 }
 
-#define CODE_MIRROR2_COUNT 13
+#define CODE_MIRROR2_COUNT 12
 CString code_mirror2_suffixes[CODE_MIRROR_COUNT]={"g1","g2","g11","g12","g13","g14","g15","g21","g22","g23","g24","g25","g26"};
+int code_mirror_2_cycles[CODE_MIRROR_COUNT]={54, 63, 54, 54, 54, 54, 54, 63, 63, 63, 63, 63, 63};
+//int code_mirror_2b_cycles[CODE_MIRROR_COUNT]={54, 55, 54, 54, 54, 54, 54, 55, 55, 55, 55, 55};
 
 int CChitemDlg::check_ani_code_mirror_2(CString prefix)
 {
@@ -6472,6 +6515,7 @@ int CChitemDlg::check_ani_code_mirror_2(CString prefix)
   int i;
   int res;
   int cnt;
+  Cbam tmp;
 
   cnt=0;
   for(i=0;i<CODE_MIRROR2_COUNT;i++)
@@ -6482,6 +6526,9 @@ int CChitemDlg::check_ani_code_mirror_2(CString prefix)
     {
       cnt++;
     }
+    resref.MakeUpper();
+    if(read_bam_preview(resref,&tmp)) return -2;
+    if(tmp.GetCycleCount()!=code_mirror_2_cycles[i]) return 1;
   }
 
   if(cnt) return 1;    //missing at least one file
@@ -6822,7 +6869,6 @@ int CChitemDlg::check_ani_pst_animation_3(CString prefix)
 int CChitemDlg::check_all_types(CString prefix, int except)
 {
   int type, res;
-
   for(type=0;type<21;type++)
   {
     if(type==except) continue;
@@ -6841,11 +6887,13 @@ int CChitemDlg::check_all_types(CString prefix, int except)
     case 10: res=check_ani_two_files_2(prefix); break;
     case 11: res=check_ani_four_frames(prefix); break; //large animations
     case 12: res=check_ani_nine_frames(prefix); break; //huge animations
-    case 16: res=check_ani_pst_animation_1(prefix); break;
-    case 17: res=check_ani_pst_ghost(prefix); break;
-    case 18: res=check_ani_pst_stand(prefix); break;
-    case 19: res=check_ani_pst_animation_2(prefix); break; //std->stc
-    case 20: res=check_ani_pst_animation_3(prefix); break; //stc->std
+    case 14: res=check_ani_four_files_2(prefix); break;
+
+    case 56: res=check_ani_pst_animation_1(prefix); break;
+    case 57: res=check_ani_pst_ghost(prefix); break;
+    case 58: res=check_ani_pst_stand(prefix); break;
+    case 59: res=check_ani_pst_animation_2(prefix); break; //std->stc
+    case 60: res=check_ani_pst_animation_3(prefix); break; //stc->std
     default: res=-3; break;
     }
     if(!res) return type;
@@ -6903,11 +6951,13 @@ int CChitemDlg::check_avatar()
     case 10: res=check_ani_two_files_2(prefix); break;
     case 11: res=check_ani_four_frames(prefix); break; //large animations
     case 12: res=check_ani_nine_frames(prefix); break; //huge animations
-    case 16: res=check_ani_pst_animation_1(prefix); break;
-    case 17: res=check_ani_pst_ghost(prefix); break;
-    case 18: res=check_ani_pst_stand(prefix); break;
-    case 19: res=check_ani_pst_animation_2(prefix); break; //std->stc
-    case 20: res=check_ani_pst_animation_3(prefix); break; //stc->std
+    case 14: res=check_ani_four_files_2(prefix); break;
+
+    case 56: res=check_ani_pst_animation_1(prefix); break;
+    case 57: res=check_ani_pst_ghost(prefix); break;
+    case 58: res=check_ani_pst_stand(prefix); break;
+    case 59: res=check_ani_pst_animation_2(prefix); break; //std->stc
+    case 60: res=check_ani_pst_animation_3(prefix); break; //stc->std
     default:
       res=-3; break;
     }
@@ -6928,6 +6978,9 @@ int CChitemDlg::check_avatar()
       //this is not an exact error, completely missing animations are fine
       //but if we have a better suggestion, it means avatars.2da is wrong
       log("Invalid animation %s (%s) for type %d.", prefix, id, type);
+    }
+    if(res)
+    {
       type=check_all_types(prefix, type);
       if(type>=0)
       {

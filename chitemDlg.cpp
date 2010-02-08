@@ -2695,6 +2695,8 @@ void CChitemDlg::OnCheckWorldmap()
 
 void CChitemDlg::OnCheckAvatar2da() 
 {
+  int old;
+
   if(bgfolder.IsEmpty())
   {
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
@@ -2703,6 +2705,9 @@ void CChitemDlg::OnCheckAvatar2da()
 
   m_event.Empty();
   UpdateData(UD_DISPLAY);
+
+  old=chkflg;
+  chkflg&=~NORESCHK;
 
   if(check_avatar())
   {
@@ -2715,8 +2720,10 @@ void CChitemDlg::OnCheckAvatar2da()
       MessageBox("See the chitem.log for details on the inconsistencies!","Avatar check",MB_OK|MB_ICONINFORMATION);
       break;
     }
+    chkflg=old;
     return;
   }
+  chkflg=old;
   MessageBox("No problem found!","Avatar check",MB_OK|MB_ICONINFORMATION);
 }
 

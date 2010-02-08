@@ -1419,11 +1419,11 @@ typedef struct {
   short px, py;
   char creatures[10][8];
   short creaturecnt;
-  short frequency;
+  short difficulty;
   short delay; //seconds
   short method; //usually 1
-  long unknown7c;
-  short unknown80;
+  long expiry;
+  short randomwalk;
   short unknown82;
   short max;
   short min; // ?
@@ -1883,7 +1883,7 @@ typedef struct {
   short quickitems[3];
   short quickslots[3];
   char unknown00[144];
-	long qslots[9];
+  long qslots[9];
   char name[32];
   long talkcount;
   long nameofmpv; //name of most powerful vanquished

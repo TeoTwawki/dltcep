@@ -233,6 +233,7 @@ protected:
   int check_ani_two_files_2(CString prefix);
   int check_ani_two_files_3(CString prefix);
   int check_ani_four_files(CString prefix);
+  int check_ani_four_files_2(CString prefix);
   int check_ani_six_files(CString prefix);
   int check_ani_six_files_2(CString prefix);
   int check_ani_twentytwo(CString prefix);

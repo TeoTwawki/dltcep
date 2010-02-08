@@ -426,13 +426,15 @@ int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
   POSITION pos;
   int idx, max;
 
+  max=GetCountPolygon();
   if(m_maptype==MT_DOOR)
   {
     m_value&=~1;
     m_value+=2;
   }
   else m_value++;
-  max=GetCountPolygon();
+  if (m_value>=max) m_value=0;
+
   pos=GetPolygonAt(polygons, m_value);
   for(idx=m_value;idx<max;idx++)
   {
