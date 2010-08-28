@@ -130,6 +130,7 @@ extern UINT WM_FINDREPLACE;
 #define SPT_STRREF2  '2I'
 #define SPT_STRREF3  '3I'
 #define SPT_ZERO     '0'  //argument that isn't required (own feature)
+#define SPT_STRING   'S'
 #define SPT_STRING1  'S1'
 #define SPT_STRING2  'S2'
 #define SPT_AREA1    'SA'   //area (inserted)

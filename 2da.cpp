@@ -1338,11 +1338,12 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
     }
 
     //comment out if not needed
-    
-    if (name.Compare("spellcasteffect")==0)
+    /*
+    if (name.Compare("inline")==0)
     {
       nop();
     }
+    */
 
     objectcnt=0;
     pointcnt=0;

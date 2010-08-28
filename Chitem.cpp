@@ -3032,8 +3032,8 @@ CString get_duration_label(int tmtype)
 }
 
 CString efftarget_types[NUM_ETTYPE]={
-  "0 None","1 Self","2 Pre-Target","3 Party","4 All living","5 Not in party",
-  "6 Not evil","7 Unknown","8 Except self","9 Original caster",
+  "0 None","1 Self","2 Pre-Target","3 Party","4 Everyone","5 Not in party",
+  "6 Kin to source","7 Kin to target","8 Except self","9 Original caster",
   "10 Unknown","11 Unknown","12 Unknown",
   "13 Unknown",
 };
@@ -3696,7 +3696,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 
-    OO,   OO,   OO,   OO,   OO,   PO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   PO,   DV,   OO,   OO,   OO,  
 //0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 
     OO,   OO,   GG,   GG,   GG,   LL,   LL,   LL,   OO,   OO,  
 //0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 
@@ -3826,7 +3826,7 @@ int iwd2_trigger_flags[MAX_TRIGGER]={
 //0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 
-    OO,   OO,   OO,   OO,   OO,   PO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   PO,   DV,   OO,   OO,   OO,  
 //0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 

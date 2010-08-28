@@ -158,6 +158,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   case 10: //this is totsc (maybe bg1 too)
     mysize=sizeof(gam_bg_npc);
     memcpy(&header,"GAMEV1.1",8);
+    header.weather1=1;
     break;
   case 11://this is iwd1
     mysize=sizeof(gam_iwd_npc);
@@ -289,6 +290,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   }
   for(i=0;i<header.pccount;i++)
   {
+    if(pcs[i].cresize) memset(pcs[i].creresref,0,sizeof(pcs[i].creresref) );
     if(write(fhandle,pcs+i,sizeof(gam_npc) )!=sizeof(gam_npc) )
     {
       return -2;
@@ -309,6 +311,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
 
   for(i=0;i<header.npccount;i++)
   {
+    if(npcs[i].cresize) memset(npcs[i].creresref,0,sizeof(npcs[i].creresref) );
     if(write(fhandle,npcs+i,sizeof(gam_npc) )!=sizeof(gam_npc) )
     {
       return -2;
@@ -470,7 +473,8 @@ int Cgame::ReadGameFromFile(int fh, long ml)
     mysize=sizeof(gam_bg_npc);
     goto read_pc;
   }
-  if(!memcmp(header.revision,"V1.1",4) )
+  if(!memcmp(header.revision,"V1.1",4) ||
+     !memcmp(header.revision,"V1.0",4))
   { //this is a hack for PST
     if((header.pcoffset==184) || (header.variableoffset==184) )
     {

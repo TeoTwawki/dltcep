@@ -51,7 +51,7 @@ CString format_parameters(compiler_data &compiler_data)
       if(compiler_data.parameters[i].idsfile.IsEmpty()) add="integer";
       else add="ids:"+compiler_data.parameters[i].idsfile;
       break;
-    case SPT_STRING1: case SPT_STRING2: add="string"; break;
+    /*case SPT_STRING:*/case SPT_STRING1: case SPT_STRING2: add="string"; break;
     case SPT_STRREF:case SPT_STRREF2: case SPT_STRREF3: add="strref"; break;
     case SPT_ACTION: add="action"; break;
     case SPT_POINT: add="point"; break;

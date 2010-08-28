@@ -861,7 +861,6 @@ typedef struct
   unsigned char unknown2f2[3];
   unsigned char colorslots[7];
   unsigned char unknown2fc[21];
-  //char unknown2dc[29+24]; //2dc
   unsigned char idsspecies;
   unsigned char idsteam;
   unsigned char idsfaction;
@@ -1518,7 +1517,7 @@ typedef struct {
   short countblockopen;
   short countblockclose;
   long firstblockclose;
-  long unknown54;
+  long unknown54; //short,short
   char openres[8];
   char closeres[8];
   long cursortype;

@@ -139,8 +139,8 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     DDX_Text(pDX, IDC_BAM2, cc->flags);
     DDX_Text(pDX, IDC_BAMFRAME1, cc->unpressed);
     DDX_Text(pDX, IDC_BAMFRAME2, cc->pressed);
-    DDX_Text(pDX, IDC_BAMFRAME3, cc->disabled);
-    DDX_Text(pDX, IDC_BAMFRAME4, cc->selected);
+    DDX_Text(pDX, IDC_BAMFRAME3, cc->selected);
+    DDX_Text(pDX, IDC_BAMFRAME4, cc->disabled);
     for(i=0;i<9;i++)
     {
       k=!!(cc->flags&buttonbits[i]);
