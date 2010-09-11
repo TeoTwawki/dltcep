@@ -601,13 +601,6 @@ typedef struct
   CString initial;
 } folderbrowse_t;
 
-struct OPENFILENAMEEX : public OPENFILENAME 
-{ 
-  void * pvReserved;
-  DWORD dwReserved;
-  DWORD FlagsEx;
-};
-
 extern colortype colors[COLORNUM];
 
 extern void init_colors();

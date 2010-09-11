@@ -75,6 +75,7 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 		StoreResref(tmpstr,the_game.header.curarea);
 		DDX_Text(pDX, IDC_SCREEN, the_game.header.controls);
     DDX_Text(pDX, IDC_UNKNOWN48, the_game.header.unknown48);
+    DDX_Text(pDX, IDC_UNKNOWN64, the_game.header.version);
 		i = the_game.header.formation;
 		DDX_Slider(pDX, IDC_SLIDER,i);
 		the_game.header.formation = (short) i;

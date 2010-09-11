@@ -1730,7 +1730,7 @@ typedef struct {
   long reputation;
   char curarea[8];
   long controls;
-  long unknown64;
+  long version;
   long familiaroffset;
   long slocoffset;
   long sloccount;

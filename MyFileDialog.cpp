@@ -20,18 +20,21 @@ CMyFileDialog::CMyFileDialog(BOOL bOpenFileDialog,LPCTSTR lpszDefExt,LPCTSTR lps
                              DWORD dwFlags,LPCTSTR lpszFilter, CWnd *pParentWnd) :
 CFileDialog(bOpenFileDialog, lpszDefExt, lpszFileName, dwFlags, lpszFilter, pParentWnd)
 {
+	//use the newer commdlg version
   if ((DWORD)(LOBYTE(LOWORD(::GetVersion())))>=5) {
-    if (m_ofn.lStructSize<sizeof(OPENFILENAMEEX)) {
-      m_ofn.lStructSize = sizeof(OPENFILENAMEEX);
+    if (m_ofn.lStructSize==76) {
+      m_ofn.lStructSize = 88;
     }
   }
 
+	//increase the buffer size
   if (m_ofn.nMaxFile<MAXBUFFSIZE)
   {
     strncpy(external,m_ofn.lpstrFile,MAXBUFFSIZE);
     m_ofn.lpstrFile=external;
     m_ofn.nMaxFile=MAXBUFFSIZE;
   }
+	
 };
 
 CMyFileDialog::~CMyFileDialog()

@@ -422,7 +422,7 @@ void CGameEdit::NewGame()
 
   memset(&the_game.header,0,sizeof(gam_header) );
   memset(&the_game.pstheader,0,sizeof(gam_pst_header) );
-  the_game.header.unknown48=-1; //seems to be always -1
+  the_game.header.unknown48=-1;
   the_game.header.unknown1count=100;
 	//formations (except pst)
 	the_game.header.reputation=100;
@@ -437,13 +437,16 @@ void CGameEdit::NewGame()
   the_game.header.unknown1offset=sizeof(gam_header);
   memset(&the_game.familiar,0,sizeof(gam_familiar) );
   memset(the_game.familiardata,0,sizeof(the_game.familiardata));
+  the_game.header.version=0;
   if(iwd2_structures()) //iwd2
   {
+    the_game.header.version=3;
     the_game.revision=22;
     return;
   }
   if(has_xpvar()) //iwd
   {
+    the_game.header.version=3;
     the_game.revision=11;
     return;
   }
@@ -463,10 +466,12 @@ void CGameEdit::NewGame()
   if (tob_specific())
   {
     the_game.revision=21;
+    the_game.header.version=4;
   }
   else
   {
     the_game.revision=20;
+    the_game.header.version=3;
   }
 }
 
