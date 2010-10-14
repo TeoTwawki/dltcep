@@ -1670,7 +1670,7 @@ int Cbam::InsertCycle(int nCycleWanted)
   INF_BAM_CYCLE *newCycles;
   int FirstFrameIndex;
 
-  if(!m_pCycles && nCycleWanted) return -1;
+  if(!m_pCycles && (nCycleWanted>0) ) return -1;
   if(nCycleWanted<0)
   {
     nCycleWanted=m_nCycles;

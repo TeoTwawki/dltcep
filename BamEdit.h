@@ -69,8 +69,10 @@ protected:
   void AddonBam(Cbam &addon);
   void AddinBam(Cbam &addin);
   int WriteAllFrames(CString newname, Cbam &my_bam);
+  void GetBMPCycle(CString dir, Cbam &bam);
   void Flip5Cycles();
   void Flip8Cycles(int nCount);
+  CString LeastFileInDir(CString dir);
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -137,6 +139,7 @@ protected:
 	afx_msg void OnFrameMinimizeframe();
 	afx_msg void OnToolsMinimalframe();
 	afx_msg void OnZoom();
+	afx_msg void OnImportCycles();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

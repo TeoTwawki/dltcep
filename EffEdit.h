@@ -67,6 +67,7 @@ protected:
   CToolTipCtrl m_tooltip;
 
   void RefreshDialog();
+  void UpdateTooltip();
   void Explode(int *boxids, int parid, int buttonid);
   void SaveEff(int save);
  	afx_msg void DefaultKillfocus();

@@ -28,7 +28,7 @@ static char BASED_CODE szFilter2[] = "Bitmap files (*.bmp)|*.bmp|Paperdoll files
 CString GetNumberTag(CString fullname, int &startnumber, int &digits)
 {
   int len;
-
+  
   len=fullname.GetLength();
   for(digits=0;digits<5 && digits<len;digits++)
   {
@@ -43,11 +43,11 @@ CString GetNumberTag(CString fullname, int &startnumber, int &digits)
 // CBamEdit dialog
 
 CBamEdit::CBamEdit(CWnd* pParent /*=NULL*/)
-	: CDialog(CBamEdit::IDD, pParent)
+: CDialog(CBamEdit::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CBamEdit)
-	m_framenum2 = 0;
-	//}}AFX_DATA_INIT
+  //{{AFX_DATA_INIT(CBamEdit)
+  m_framenum2 = 0;
+  //}}AFX_DATA_INIT
   topleft=CPoint(40,40);
   bgcolor=RGB(32,32,32);
   background=0;
@@ -79,23 +79,23 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
   BOOL rle;
   CStatic *bf_control;
   CButton *cb_control;
-
-	CDialog::DoDataExchange(pDX);
-
-	//{{AFX_DATA_MAP(CBamEdit)
-	DDX_Control(pDX, IDC_SAVEORDER, m_saveorder_control);
-	DDX_Control(pDX, IDC_BAMFRAME4, m_bamframe4_control);
-	DDX_Control(pDX, IDC_BAMFRAME3, m_bamframe3_control);
-	DDX_Control(pDX, IDC_BAMFRAME2, m_bamframe2_control);
-	DDX_Control(pDX, IDC_BAMFRAME1, m_bamframe1_control);
-	DDX_Control(pDX, IDC_CYCFRAME, m_cycleframe_control);
-	DDX_Control(pDX, IDC_CYCLE, m_cyclenum_control);
-	DDX_Control(pDX, IDC_FRAME, m_framenum_control);
-	DDX_Text(pDX, IDC_FRAME2, m_framenum2);
-	//}}AFX_DATA_MAP
-	DDX_Check(pDX, IDC_COMPRESSED, the_bam.m_bCompressed); //kept it for simplicity
+  
+  CDialog::DoDataExchange(pDX);
+  
+  //{{AFX_DATA_MAP(CBamEdit)
+  DDX_Control(pDX, IDC_SAVEORDER, m_saveorder_control);
+  DDX_Control(pDX, IDC_BAMFRAME4, m_bamframe4_control);
+  DDX_Control(pDX, IDC_BAMFRAME3, m_bamframe3_control);
+  DDX_Control(pDX, IDC_BAMFRAME2, m_bamframe2_control);
+  DDX_Control(pDX, IDC_BAMFRAME1, m_bamframe1_control);
+  DDX_Control(pDX, IDC_CYCFRAME, m_cycleframe_control);
+  DDX_Control(pDX, IDC_CYCLE, m_cyclenum_control);
+  DDX_Control(pDX, IDC_FRAME, m_framenum_control);
+  DDX_Text(pDX, IDC_FRAME2, m_framenum2);
+  //}}AFX_DATA_MAP
+  DDX_Check(pDX, IDC_COMPRESSED, the_bam.m_bCompressed); //kept it for simplicity
   DDX_Text(pDX, IDC_TRANSPARENT, the_bam.m_header.chTransparentIndex);
-
+  
   framenum=(unsigned short) m_framenum_control.GetCurSel();
   if(pDX->m_bSaveAndValidate==UD_DISPLAY)
   {
@@ -124,7 +124,7 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
     {
       GetDlgItem(cycleids[i])->EnableWindow(tmp>0);
     }
-
+    
     rle=the_bam.GetFrameRLE(framenum);
     framepos=the_bam.GetFramePos(framenum);
     origin=the_bam.GetFramePos(0);
@@ -190,8 +190,8 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_XPOS, framepos.x);
     DDX_Text(pDX, IDC_YPOS, framepos.y);
     DDX_Check(pDX, IDC_RLE, rle);
-//    DDX_Text(pDX, IDC_XSIZE, framesize.x); //don't store frame size, it needs review
-//    DDX_Text(pDX, IDC_YSIZE, framesize.y); //
+    //    DDX_Text(pDX, IDC_XSIZE, framesize.x); //don't store frame size, it needs review
+    //    DDX_Text(pDX, IDC_YSIZE, framesize.y); //
     //store them
     if(the_bam.GetFrameCount()>framenum)
     {
@@ -213,14 +213,14 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
 
 void CBamEdit::NewBam()
 {
-	itemname="new animation";
+  itemname="new animation";
   the_bam.new_bam();
 }
 
 void CBamEdit::RefreshMenu()
 {
   CMenu *pMenu;
-
+  
   pMenu=GetMenu();
   if(pMenu)
   {
@@ -238,9 +238,9 @@ void CBamEdit::RefreshDialog()
   int so; //save order in bam
   int i;
   int tmp;
-
+  
   SetWindowText("Edit animation: "+itemname);
-
+  
   nFrames=the_bam.GetFrameCount();
   tmp=m_framenum_control.GetCurSel();
   if(tmp<0) tmp=0;
@@ -254,7 +254,7 @@ void CBamEdit::RefreshDialog()
   {
     m_framenum_control.SetCurSel(tmp-1);
   }
-
+  
   nFrames=the_bam.GetCycleCount();
   tmp=m_cyclenum_control.GetCurSel();
   if(tmp<0) tmp=0;
@@ -268,7 +268,7 @@ void CBamEdit::RefreshDialog()
   {
     m_cyclenum_control.SetCurSel(tmp-1);
   }
-    
+  
   m_saveorder_control.ResetContent();
   so=the_bam.GetSaveOrder();
   for(i=0;i<4;i++)
@@ -289,7 +289,7 @@ void CBamEdit::RefreshFramePicker()
   CString tmpstr;
   int i;
   int pos;
-
+  
   if(m_play&CONTINUOUS)
   {
     playindex=0;
@@ -321,94 +321,95 @@ void CBamEdit::RefreshFramePicker()
 }
 
 BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
-	//{{AFX_MSG_MAP(CBamEdit)
-	ON_BN_CLICKED(IDC_COMPRESSED, OnCompressed)
-	ON_BN_CLICKED(IDC_LOAD, OnLoad)
-	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
-	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
-	ON_CBN_KILLFOCUS(IDC_FRAME, OnKillfocusFrame)
-	ON_CBN_SELCHANGE(IDC_FRAME, OnSelchangeFrame)
-	ON_CBN_KILLFOCUS(IDC_CYCLE, OnKillfocusCycle)
-	ON_CBN_SELCHANGE(IDC_CYCLE, OnSelchangeCycle)
-	ON_CBN_SELCHANGE(IDC_CYCFRAME, OnSelchangeCycframe)
-	ON_BN_CLICKED(IDC_PLAY, OnPlay)
-	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_BACKGROUND, OnBackground)
-	ON_COMMAND(ID_SAVEPALETTE, OnSavepalette)
-	ON_COMMAND(ID_LOADPALETTE, OnLoadpalette)
-	ON_COMMAND(ID_EDITPALETTE, OnEditpalette)
-	ON_COMMAND(ID_COLORSCALE, OnColorscale)
-	ON_COMMAND(ID_FORCEPALETTE, OnForcepalette)
-	ON_COMMAND(ID_ORDERPALETTE, OnOrderpalette)
-	ON_COMMAND(ID_TRIMPALETTE, OnTrimpalette)
-	ON_BN_CLICKED(IDC_PAPERDOLL, OnPaperdoll)
-	ON_CBN_SELCHANGE(IDC_SAVEORDER, OnSelchangeSaveorder)
-	ON_BN_CLICKED(IDC_DROPFRAME, OnDropframe)
-	ON_COMMAND(ID_COLORSCALE2, OnColorscale2)
-	ON_COMMAND(ID_REVERSECYCLE, OnReversecycle)
-	ON_BN_CLICKED(IDC_NEW, OnNew)
-	ON_COMMAND(ID_FILE_SAVE, OnSave)
-	ON_BN_CLICKED(IDC_CHECK, OnCheck)
-	ON_BN_CLICKED(IDC_DROPCYC, OnDropcyc)
-	ON_BN_CLICKED(IDC_ADDFRAME, OnAddframe)
-	ON_BN_CLICKED(IDC_DELFRAME, OnDelframe)
-	ON_BN_CLICKED(IDC_NEWFRAME, OnNewframe)
-	ON_BN_CLICKED(IDC_NEWCYCLE, OnNewcycle)
-	ON_BN_CLICKED(IDC_SET, OnSet)
-	ON_COMMAND(ID_CONTINUOUSPLAY, OnContinuousplay)
-	ON_BN_CLICKED(IDC_CLEANUP, OnCleanup)
-	ON_COMMAND(ID_CYCLE_INSERTCYCLE, OnInsertcycle)
-	ON_BN_CLICKED(IDC_CENTER, OnCenter)
-	ON_BN_CLICKED(IDC_POS, OnCenterPos)
-	ON_BN_CLICKED(IDC_IMPORT, OnImport)
-	ON_COMMAND(ID_FILE_LOADEXTERNALBMP, OnLoadexBmp)
-	ON_COMMAND(ID_TOOLS_COMPRESSALLFRAMES, OnCompressFrames)
-	ON_COMMAND(ID_TOOLS_DECOMPRESSALLFRAMES, OnDecompress)
-	ON_COMMAND(ID_TOOLS_ALIGNALL, OnAlign)
-	ON_COMMAND(ID_CYCLE_COPYCYCLE, OnCopycycle)
-	ON_COMMAND(ID_CYCLE_PASTECYCLE, OnPastecycle)
-	ON_COMMAND(ID_SHIFT_FORWARD, OnShiftForward)
-	ON_COMMAND(ID_SHIFT_BACKWARD, OnShiftBackward)
-	ON_COMMAND(ID_FILE_LOADBMP, OnFileLoadbmp)
-	ON_COMMAND(ID_FILE_MERGEBAM, OnFileMergebam)
-	ON_COMMAND(ID_FILE_MERGEEXTERNALBAM, OnFileMergeexternalbam)
-	ON_COMMAND(ID_FLIPCYCLE, OnFlipcycle)
-	ON_COMMAND(ID_FLIPFRAME, OnFlipframe)
-	ON_COMMAND(ID_CREATEMIRROR, OnCreatemirror)
-	ON_COMMAND(ID_TOOLS_DROPALLBUTLAST, OnDropallbutlast)
-	ON_COMMAND(ID_REDUCEORIENTATION, OnReduceorientation)
-	ON_COMMAND(ID_MERGEBAM, OnMergebam)
-	ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
-	ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
-	ON_COMMAND(ID_FRAME_MINIMIZEFRAME, OnFrameMinimizeframe)
-	ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
-	ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_YPOS, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_RLE, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_FRAME2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_TRANSPARENT, DefaultKillfocus)
-	ON_COMMAND(ID_FILE_LOADBAM, OnLoad)
-	ON_COMMAND(ID_FILE_LOADEXTERNALBAM, OnLoadex)
-	ON_COMMAND(ID_FILE_SAVEBAMAS, OnSaveas)
-	ON_COMMAND(ID_ANIMATECYCLE, OnPlay)
-	ON_COMMAND(ID_FILE_NEW, OnNew)
-	ON_COMMAND(ID_FILE_SAVEBAM, OnSave)
-	ON_COMMAND(ID_CLEANUP, OnCleanup)
-	ON_COMMAND(ID_CYCLE_SETCYCLE, OnSet)
-	ON_COMMAND(ID_CYCLE_REMOVECYCLE, OnDropcyc)
-	ON_COMMAND(ID_EDIT_DROPFRAME, OnDropframe)
-	ON_COMMAND(ID_CYCLE_ADDCYCLE, OnNewcycle)
-	ON_COMMAND(ID_EDIT_ADDFRAME, OnAddframe)
-	ON_COMMAND(ID_EDIT_IMPORTFRAME, OnNewframe)
-	ON_COMMAND(ID_CYCLE_DROPFRAME, OnDelframe)
-	ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
-	ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
-	ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
-	ON_COMMAND(ID_TOOLS_SPLITFRAMES, SplitBAM)
-	ON_BN_CLICKED(IDC_ZOOM, OnZoom)
-	//}}AFX_MSG_MAP
+//{{AFX_MSG_MAP(CBamEdit)
+ON_BN_CLICKED(IDC_COMPRESSED, OnCompressed)
+ON_BN_CLICKED(IDC_LOAD, OnLoad)
+ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
+ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
+ON_CBN_KILLFOCUS(IDC_FRAME, OnKillfocusFrame)
+ON_CBN_SELCHANGE(IDC_FRAME, OnSelchangeFrame)
+ON_CBN_KILLFOCUS(IDC_CYCLE, OnKillfocusCycle)
+ON_CBN_SELCHANGE(IDC_CYCLE, OnSelchangeCycle)
+ON_CBN_SELCHANGE(IDC_CYCFRAME, OnSelchangeCycframe)
+ON_BN_CLICKED(IDC_PLAY, OnPlay)
+ON_WM_TIMER()
+ON_BN_CLICKED(IDC_BACKGROUND, OnBackground)
+ON_COMMAND(ID_SAVEPALETTE, OnSavepalette)
+ON_COMMAND(ID_LOADPALETTE, OnLoadpalette)
+ON_COMMAND(ID_EDITPALETTE, OnEditpalette)
+ON_COMMAND(ID_COLORSCALE, OnColorscale)
+ON_COMMAND(ID_FORCEPALETTE, OnForcepalette)
+ON_COMMAND(ID_ORDERPALETTE, OnOrderpalette)
+ON_COMMAND(ID_TRIMPALETTE, OnTrimpalette)
+ON_BN_CLICKED(IDC_PAPERDOLL, OnPaperdoll)
+ON_CBN_SELCHANGE(IDC_SAVEORDER, OnSelchangeSaveorder)
+ON_BN_CLICKED(IDC_DROPFRAME, OnDropframe)
+ON_COMMAND(ID_COLORSCALE2, OnColorscale2)
+ON_COMMAND(ID_REVERSECYCLE, OnReversecycle)
+ON_BN_CLICKED(IDC_NEW, OnNew)
+ON_COMMAND(ID_FILE_SAVE, OnSave)
+ON_BN_CLICKED(IDC_CHECK, OnCheck)
+ON_BN_CLICKED(IDC_DROPCYC, OnDropcyc)
+ON_BN_CLICKED(IDC_ADDFRAME, OnAddframe)
+ON_BN_CLICKED(IDC_DELFRAME, OnDelframe)
+ON_BN_CLICKED(IDC_NEWFRAME, OnNewframe)
+ON_BN_CLICKED(IDC_NEWCYCLE, OnNewcycle)
+ON_BN_CLICKED(IDC_SET, OnSet)
+ON_COMMAND(ID_CONTINUOUSPLAY, OnContinuousplay)
+ON_BN_CLICKED(IDC_CLEANUP, OnCleanup)
+ON_COMMAND(ID_CYCLE_INSERTCYCLE, OnInsertcycle)
+ON_BN_CLICKED(IDC_CENTER, OnCenter)
+ON_BN_CLICKED(IDC_POS, OnCenterPos)
+ON_BN_CLICKED(IDC_IMPORT, OnImport)
+ON_COMMAND(ID_FILE_LOADEXTERNALBMP, OnLoadexBmp)
+ON_COMMAND(ID_TOOLS_COMPRESSALLFRAMES, OnCompressFrames)
+ON_COMMAND(ID_TOOLS_DECOMPRESSALLFRAMES, OnDecompress)
+ON_COMMAND(ID_TOOLS_ALIGNALL, OnAlign)
+ON_COMMAND(ID_CYCLE_COPYCYCLE, OnCopycycle)
+ON_COMMAND(ID_CYCLE_PASTECYCLE, OnPastecycle)
+ON_COMMAND(ID_SHIFT_FORWARD, OnShiftForward)
+ON_COMMAND(ID_SHIFT_BACKWARD, OnShiftBackward)
+ON_COMMAND(ID_FILE_LOADBMP, OnFileLoadbmp)
+ON_COMMAND(ID_FILE_MERGEBAM, OnFileMergebam)
+ON_COMMAND(ID_FILE_MERGEEXTERNALBAM, OnFileMergeexternalbam)
+ON_COMMAND(ID_FLIPCYCLE, OnFlipcycle)
+ON_COMMAND(ID_FLIPFRAME, OnFlipframe)
+ON_COMMAND(ID_CREATEMIRROR, OnCreatemirror)
+ON_COMMAND(ID_TOOLS_DROPALLBUTLAST, OnDropallbutlast)
+ON_COMMAND(ID_REDUCEORIENTATION, OnReduceorientation)
+ON_COMMAND(ID_MERGEBAM, OnMergebam)
+ON_COMMAND(ID_CYCLE_ALIGNFRAMES, OnCycleAlignframes)
+ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
+ON_COMMAND(ID_FRAME_MINIMIZEFRAME, OnFrameMinimizeframe)
+ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
+ON_BN_CLICKED(IDC_ZOOM, OnZoom)
+ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
+ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
+ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
+ON_EN_KILLFOCUS(IDC_YPOS, DefaultKillfocus)
+ON_BN_CLICKED(IDC_RLE, DefaultKillfocus)
+ON_EN_KILLFOCUS(IDC_FRAME2, DefaultKillfocus)
+ON_EN_KILLFOCUS(IDC_TRANSPARENT, DefaultKillfocus)
+ON_COMMAND(ID_FILE_LOADBAM, OnLoad)
+ON_COMMAND(ID_FILE_LOADEXTERNALBAM, OnLoadex)
+ON_COMMAND(ID_FILE_SAVEBAMAS, OnSaveas)
+ON_COMMAND(ID_ANIMATECYCLE, OnPlay)
+ON_COMMAND(ID_FILE_NEW, OnNew)
+ON_COMMAND(ID_FILE_SAVEBAM, OnSave)
+ON_COMMAND(ID_CLEANUP, OnCleanup)
+ON_COMMAND(ID_CYCLE_SETCYCLE, OnSet)
+ON_COMMAND(ID_CYCLE_REMOVECYCLE, OnDropcyc)
+ON_COMMAND(ID_EDIT_DROPFRAME, OnDropframe)
+ON_COMMAND(ID_CYCLE_ADDCYCLE, OnNewcycle)
+ON_COMMAND(ID_EDIT_ADDFRAME, OnAddframe)
+ON_COMMAND(ID_EDIT_IMPORTFRAME, OnNewframe)
+ON_COMMAND(ID_CYCLE_DROPFRAME, OnDelframe)
+ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
+ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
+ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
+ON_COMMAND(ID_TOOLS_SPLITFRAMES, SplitBAM)
+ON_COMMAND(ID_TOOLS_IMPORTCYCLES, OnImportCycles)
+//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -418,10 +419,10 @@ BOOL CBamEdit::OnInitDialog()
 {
   CString tmpstr1, tmpstr2, tmpstr;
   CWnd *bc;
-
+  
   m_zoom=BM_RESIZE;
-	CDialog::OnInitDialog();
-	RefreshDialog();
+  CDialog::OnInitDialog();
+  RefreshDialog();
   if(no_compress())
   {
     bc=GetDlgItem(IDC_COMPRESSED);
@@ -478,29 +479,29 @@ BOOL CBamEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_SET), IDS_SETFRAME);
     m_tooltip.AddTool(GetDlgItem(IDC_DELFRAME), IDS_DELFRAME);
   }
-
-	return TRUE;
-}
   
+  return TRUE;
+}
+
 void CBamEdit::OnFileLoadbmp() 
 {
-	int res;
-	
+  int res;
+  
   pickerdlg.m_restype=REF_BMP;
   pickerdlg.m_picked=itemname;
-	res=pickerdlg.DoModal();  
-	if(res==IDOK)
-	{
+  res=pickerdlg.DoModal();  
+  if(res==IDOK)
+  {
     m_play&=~PLAYBAM;
-		res=read_bmp(pickerdlg.m_picked,&the_bam,0);
+    res=read_bmp(pickerdlg.m_picked,&the_bam,0);
     switch(res)
     {
     case -1:
       MessageBox("Bitmap loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
+      itemname=pickerdlg.m_picked;
       break;
     case 0:
-  		itemname=pickerdlg.m_picked;
+      itemname=pickerdlg.m_picked;
       break;
     default:
       MessageBox("Cannot read bitmap!","Error",MB_ICONSTOP|MB_OK);
@@ -508,7 +509,7 @@ void CBamEdit::OnFileLoadbmp()
       break;
     }
     RefreshDialog();
-	}
+  }
 }
 
 void CBamEdit::OnLoad() 
@@ -516,6 +517,7 @@ void CBamEdit::OnLoad()
   LoadBam(&the_bam);
 }
 
+//adds new cycle
 void CBamEdit::AddonBam(Cbam &addon)
 {
   int i,j;
@@ -524,7 +526,7 @@ void CBamEdit::AddonBam(Cbam &addon)
   CPoint acd;
   int RLE;
   int res;
-
+  
   nStartFrame = the_bam.GetFrameCount();
   for(i=0;i<addon.GetFrameCount();i++)
   {
@@ -547,6 +549,7 @@ void CBamEdit::AddonBam(Cbam &addon)
   RefreshDialog();
 }
 
+//adds frames to existing cycles
 void CBamEdit::AddinBam(Cbam &addin)
 {
   int i,j;
@@ -554,7 +557,7 @@ void CBamEdit::AddinBam(Cbam &addin)
   CPoint ocd, acd;
   int RLE;
   int res;
-
+  
   nStartFrame = the_bam.GetFrameCount();
   for(i=0;i<addin.GetFrameCount();i++)
   {
@@ -579,31 +582,31 @@ void CBamEdit::AddinBam(Cbam &addin)
 void CBamEdit::OnFileMergebam() 
 {
   Cbam additional;
-
+  
   additional.new_bam();
-	LoadBam(&additional);
-	AddonBam(additional);
+  LoadBam(&additional);
+  AddonBam(additional);
 }
 
 void CBamEdit::LoadBam(Cbam *resource)
 {
-	int res;
-	
+  int res;
+  
   pickerdlg.m_restype=REF_BAM;
   pickerdlg.m_picked=itemname;
-	res=pickerdlg.DoModal();  
-	if(res==IDOK)
-	{
+  res=pickerdlg.DoModal();  
+  if(res==IDOK)
+  {
     m_play&=~PLAYBAM;
-		res=read_bam(pickerdlg.m_picked, resource);
+    res=read_bam(pickerdlg.m_picked, resource);
     switch(res)
     {
     case -1:
       MessageBox("Animation loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
+      itemname=pickerdlg.m_picked;
       break;
     case 0:
-  		itemname=pickerdlg.m_picked;
+      itemname=pickerdlg.m_picked;
       break;
     default:
       MessageBox("Cannot read animation!","Error",MB_ICONSTOP|MB_OK);
@@ -611,7 +614,7 @@ void CBamEdit::LoadBam(Cbam *resource)
       break;
     }
     RefreshDialog();
-	}
+  }
 }
 
 void CBamEdit::OnLoadex() 
@@ -622,10 +625,10 @@ void CBamEdit::OnLoadex()
 void CBamEdit::OnFileMergeexternalbam() 
 {
   Cbam additional;
-
+  
   additional.new_bam();
-	LoadBamEx(&additional);
-	AddonBam(additional);
+  LoadBamEx(&additional);
+  AddonBam(additional);
 }
 
 void CBamEdit::LoadBamEx(Cbam *resource)
@@ -637,7 +640,7 @@ void CBamEdit::LoadBamEx(Cbam *resource)
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
   CMyFileDialog m_getfiledlg(TRUE, "bam", makeitemname(".bam",0), res, szFilter);
-
+  
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -678,7 +681,7 @@ int CBamEdit::WriteAllFrames(CString newname, Cbam &my_bam)
   CString filename;
   int i;
   int res;
-
+  
   res=0;
   for(i=0;i<my_bam.GetFrameCount();i++)
   {
@@ -696,7 +699,7 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
   CString tmpstr;
   int res;
   bool bmpsave;
-
+  
   if(readonly)
   {
     MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
@@ -708,7 +711,7 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   CMyFileDialog m_getfiledlg(FALSE, "", makeitemname(".bam",0), res, ImageFilter(0x35));
-
+  
   if(save)
   {
     newname=itemname;
@@ -788,26 +791,26 @@ void CBamEdit::OnSaveas()
 
 void CBamEdit::OnNew() 
 {
-	NewBam();
+  NewBam();
   RefreshDialog();
 }
 
 void CBamEdit::OnCompressed() 
 {
-	the_bam.m_bCompressed^=1;
-	UpdateData(UD_DISPLAY);
+  the_bam.m_bCompressed^=1;
+  UpdateData(UD_DISPLAY);
 }
 
 void CBamEdit::OnZoom() 
 {
   m_zoom^=BM_ZOOM; 
-	UpdateData(UD_DISPLAY);
+  UpdateData(UD_DISPLAY);
 }
 
 void CBamEdit::DefaultKillfocus() 
 {
-	UpdateData(UD_RETRIEVE);	
-	UpdateData(UD_DISPLAY);
+  UpdateData(UD_RETRIEVE);	
+  UpdateData(UD_DISPLAY);
 }
 
 
@@ -815,8 +818,8 @@ void CBamEdit::OnToolsMinimalframe()
 {
   int i;
   bool val, ret = 0;
-
-	for(i=0;i<the_bam.m_header.wFrameCount;i++)
+  
+  for(i=0;i<the_bam.m_header.wFrameCount;i++)
   {
     val = the_bam.ShrinkFrame(i);
     ret |= val;
@@ -831,7 +834,7 @@ void CBamEdit::OnToolsMinimalframe()
 void CBamEdit::OnFrameMinimizeframe() 
 {
   int i;
-
+  
   i=m_framenum_control.GetCurSel();
   if (i<0) return;
   if (the_bam.ShrinkFrame(i))
@@ -845,7 +848,7 @@ void CBamEdit::OnCenterPos()
 {
   CPoint point;
   int i;
-
+  
   i=m_framenum_control.GetCurSel();
   if (i<0) return;
   point=the_bam.GetFrameSize(i);
@@ -856,35 +859,35 @@ void CBamEdit::OnCenterPos()
 void CBamEdit::OnKillfocusFrame() 
 {
   int nIndex;
-
-	UpdateData(UD_RETRIEVE);
+  
+  UpdateData(UD_RETRIEVE);
   m_framenum2=m_framenum_control.GetCurSel();
   if(m_framenum2<0) m_framenum2=0;
   m_framenum_control.SetCurSel(m_framenum2);
   m_cyclenum_control.SetCurSel(the_bam.FindFrame(m_framenum2, nIndex) );
   RefreshFramePicker();
   m_cycleframe_control.SetCurSel(nIndex);
-	RefreshDialog();
+  RefreshDialog();
 }
 
 void CBamEdit::OnSelchangeFrame() 
 {
   int nIndex;
-
+  
   m_framenum2=m_framenum_control.GetCurSel();
   if(m_framenum2<0) m_framenum2=0; //don't allow this field to go below 0
   m_framenum_control.SetCurSel(m_framenum2);
   m_cyclenum_control.SetCurSel(the_bam.FindFrame(m_framenum2, nIndex) );
   RefreshFramePicker();
   m_cycleframe_control.SetCurSel(nIndex);
-	RefreshDialog();
+  RefreshDialog();
 }
 
 void CBamEdit::OnKillfocusCycle() 
 {
   int nCycle, nFrameIndex;
-
-	UpdateData(UD_RETRIEVE);
+  
+  UpdateData(UD_RETRIEVE);
   nCycle=m_cyclenum_control.GetCurSel();
   if(nCycle<0) nCycle=m_cyclenum_control.SetCurSel(0);
   nFrameIndex=the_bam.GetFrameIndex(nCycle,0);
@@ -901,7 +904,7 @@ void CBamEdit::OnKillfocusCycle()
 void CBamEdit::OnSelchangeCycle() 
 {
   int nCycle, nFrameIndex;
-
+  
   nCycle=m_cyclenum_control.GetCurSel();
   if(nCycle<0) nCycle=m_cyclenum_control.SetCurSel(0);
   nFrameIndex=the_bam.GetFrameIndex(nCycle,0);
@@ -912,18 +915,18 @@ void CBamEdit::OnSelchangeCycle()
   {
     m_framenum2=nFrameIndex;
   }
-	UpdateData(UD_DISPLAY);
+  UpdateData(UD_DISPLAY);
 }
 
 void CBamEdit::OnSelchangeCycframe() 
 {
   int nCycle, nIndex;
-
+  
   nIndex=m_cycleframe_control.GetCurSel();
   nCycle=m_cyclenum_control.GetCurSel();
   m_framenum2=the_bam.GetFrameIndex(nCycle,nIndex);
   m_framenum_control.SetCurSel(m_framenum2);
-	UpdateData(UD_DISPLAY);
+  UpdateData(UD_DISPLAY);
 }
 
 void CBamEdit::OnTimer(UINT nIDEvent)
@@ -932,7 +935,7 @@ void CBamEdit::OnTimer(UINT nIDEvent)
   CPoint newtopleft;
   CPoint origin;
   CButton *cb;
-
+  
   if(!(m_play&PLAYBAM) || playindex>playmax)
   {
     KillTimer(nIDEvent);
@@ -958,13 +961,13 @@ void CBamEdit::OnTimer(UINT nIDEvent)
   m_bamframe1_control.MoveWindow(CRect(newtopleft,the_bam.GetFrameSize(nFrameIndex)));
   m_bamframe1_control.SetBitmap(hbanim);
   playindex++;
-	CDialog::OnTimer(nIDEvent);
+  CDialog::OnTimer(nIDEvent);
 }
 
 void CBamEdit::OnPlay() 
 {
   int nIndex, nCycle;
-
+  
   if(m_play&PLAYBAM)
   {
     m_play&=~PLAYBAM;
@@ -988,8 +991,8 @@ void CBamEdit::OnPlay()
 void CBamEdit::OnSavepalette() 
 {
   Cbam palette; //save palette of a bam
-	
-	palette.new_bam();
+  
+  palette.new_bam();
   palette.SetCompress(0);
   memcpy(palette.m_palette,the_bam.m_palette,the_bam.m_palettesize); //sizeof(palette)
   palette.m_palettesize=the_bam.m_palettesize;
@@ -1007,7 +1010,7 @@ void CBamEdit::Loadpalette(bool force_or_import)
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
   CMyFileDialog m_getfiledlg(TRUE, NULL, makeitemname(".bam",0), res, szFilter);
-
+  
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -1054,10 +1057,10 @@ void CBamEdit::OnForcepalette()
 void CBamEdit::OnEditpalette() 
 {
   palettetype palette;
-	CPaletteEdit dlg;
+  CPaletteEdit dlg;
   BYTE *pClr;
   int i;
-
+  
   if(!the_bam.HasPalette())
   {
     the_bam.InitPalette();
@@ -1068,9 +1071,9 @@ void CBamEdit::OnEditpalette()
     pClr = (BYTE *) (palette+i);
     *(pClr+3) = (unsigned char) (i);
   }
-
+  
   dlg.SetPalette(palette, m_function, m_adjust);
-
+  
   if(dlg.DoModal()==IDOK)
   {
     memcpy(the_bam.m_palette,palette,sizeof(palette) );
@@ -1083,7 +1086,7 @@ void CBamEdit::OnEditpalette()
 
 void CBamEdit::OnBackground() 
 {
-	background^=1;
+  background^=1;
   if(background&1)
   {
     bgcolor=RGB(240,224,160);
@@ -1100,7 +1103,7 @@ void CBamEdit::OnBackground()
 
 void CBamEdit::OnPaperdoll() 
 {
-	background^=2;
+  background^=2;
   if(background&2)
   {
     background=2;
@@ -1118,9 +1121,9 @@ RGB(255,255,255),RGB(255,255,255),RGB(255,255,255),RGB(255,255,255)
 
 void CBamEdit::OnColorscale() 
 {
-	CColorDialog dlg;
+  CColorDialog dlg;
   COLORREF mycolor;
-
+  
   dlg.m_cc.lpTemplateName="Pick a shade colour";
   dlg.m_cc.lpCustColors=predefcolors;
   if(dlg.DoModal()==IDOK)
@@ -1133,9 +1136,9 @@ void CBamEdit::OnColorscale()
 
 void CBamEdit::OnColorscale2() 
 {
-	CColorDialog dlg;
+  CColorDialog dlg;
   COLORREF mycolor;
-
+  
   dlg.m_cc.lpTemplateName="Pick a shade colour (keep gray)";
   dlg.m_cc.lpCustColors=predefcolors;
   if(dlg.DoModal()==IDOK)
@@ -1160,11 +1163,11 @@ void CBamEdit::OnTrimpalette()
 
 void CBamEdit::OnSelchangeSaveorder() 
 {
-	int sel;
+  int sel;
   int tmp1[4];
   int tmp2;
   int i;
-
+  
   sel=m_saveorder_control.GetCurSel();
   if(sel>0 && sel<4)
   {
@@ -1192,7 +1195,7 @@ void CBamEdit::OnSelchangeSaveorder()
 void CBamEdit::OnDelframe() 
 {
   int nIndex, nCycle;
-
+  
   nIndex=m_cycleframe_control.GetCurSel();
   if(nIndex<0) return;
   nCycle=m_cyclenum_control.GetCurSel();
@@ -1210,7 +1213,7 @@ void CBamEdit::OnDelframe()
 void CBamEdit::OnCycleDropframe10() 
 {
   int nIndex, nCycle;
-
+  
   nIndex=m_cycleframe_control.GetCurSel();
   if(nIndex<0) return;
   nCycle=m_cyclenum_control.GetCurSel();
@@ -1229,7 +1232,7 @@ void CBamEdit::OnAddframe()
 {
   CString tmpstr;
   int nIndex, nCycle;
-
+  
   nIndex=the_bam.GetFrameCount();  
   if(m_framenum2==nIndex)
   {
@@ -1243,9 +1246,9 @@ void CBamEdit::OnAddframe()
   if(m_framenum2>nIndex || m_framenum2<0)
   {
 badframe:
-    tmpstr.Format("Please enter a frame number between %d and %d",0,nIndex);
-    MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
-    return;
+  tmpstr.Format("Please enter a frame number between %d and %d",0,nIndex);
+  MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
+  return;
   }
   nIndex=m_cycleframe_control.GetCurSel()+1;
   nCycle=m_cyclenum_control.GetCurSel();
@@ -1261,7 +1264,7 @@ void CBamEdit::OnSet()
 {
   CString tmpstr;
   int nIndex, nCycle;
-
+  
   nIndex=the_bam.GetFrameCount();  
   if(m_framenum2==nIndex)
   {
@@ -1275,13 +1278,13 @@ void CBamEdit::OnSet()
   if(m_framenum2>nIndex || m_framenum2<0)
   {
 badframe:
-    tmpstr.Format("Please enter a frame number between %d and %d",0,nIndex);
-    MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
-    return;
+  tmpstr.Format("Please enter a frame number between %d and %d",0,nIndex);
+  MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
+  return;
   }
   nIndex=m_cycleframe_control.GetCurSel();
   nCycle=m_cyclenum_control.GetCurSel();
-	if(the_bam.SetFrameIndex(nCycle,nIndex, m_framenum2))
+  if(the_bam.SetFrameIndex(nCycle,nIndex, m_framenum2))
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
   }
@@ -1291,7 +1294,7 @@ badframe:
 void CBamEdit::OnDropframe() 
 {
   int nFrameIndex;
-
+  
   nFrameIndex=m_framenum_control.GetCurSel();
   if(the_bam.DropFrame(nFrameIndex))
   {
@@ -1300,26 +1303,173 @@ void CBamEdit::OnDropframe()
   RefreshDialog();
 }
 
+CString CBamEdit::LeastFileInDir(CString dir)
+{
+  CString tmpfilename, format;
+  CString internalname;
+  _finddata_t fdata;
+  int dirhandle, startframe, digits;
+  
+  dirhandle=_findfirst(dir+"\\*.bmp",&fdata);
+  if(dirhandle<1)
+  {
+    return "";
+  }
+  
+  do
+  {
+    if(fdata.attrib&_A_SUBDIR) continue;
+    tmpfilename=dir+"/"+fdata.name;
+    break;
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+
+  if (tmpfilename.IsEmpty() ) return "";
+
+  //cutting off .bmp
+  tmpfilename = tmpfilename.Left(tmpfilename.GetLength()-4);
+
+  internalname=GetNumberTag(tmpfilename, startframe, digits);
+  format.Format("%%s%%0%dd.bmp", digits);
+  while(startframe)
+  {
+    tmpfilename.Format(format,internalname,startframe-1);
+    if (file_exists(tmpfilename) )
+    {
+      startframe--;
+    }
+    else break;
+  }
+  tmpfilename.Format(format, internalname, startframe);
+  return tmpfilename;
+}
+
+void CBamEdit::GetBMPCycle(CString dir, Cbam &bam)
+{
+  Cbam tmpbam;
+  CString tmpfilename, format;
+  CString internalname;
+  int nFrameIndex;
+  int fhandle, startframe, digits;
+  int res;
+
+  bam.new_bam();
+  bam.InsertCycle(0);
+  nFrameIndex = 0;  
+  tmpfilename=LeastFileInDir(dir);
+  if (tmpfilename.IsEmpty()) return;
+  tmpfilename = tmpfilename.Left(tmpfilename.GetLength()-4);
+  internalname=GetNumberTag(tmpfilename, startframe, digits);
+  
+  if(itemname.IsEmpty()) itemname="new bam";
+  format.Format("%%s%%0%dd.bmp", digits);
+  do
+  {
+    tmpfilename.Format(format,internalname,++startframe);
+    fhandle = open(tmpfilename, O_RDONLY|O_BINARY);
+    
+    if(!fhandle)
+    {
+      res=-2;
+      break;
+    }
+    //import
+    res=tmpbam.ReadBmpFromFile(fhandle,-1);
+    close(fhandle);
+    if(res) break;
+
+    //let's hope this works better
+    tmpbam.DropUnusedPalette();            //try to free up at least one entry
+    tmpbam.OrderPalette();
+    tmpbam.m_header.chTransparentIndex=255;  //this is the least likely used entry
+    tmpbam.OrderPalette();
+
+    if(bam.GetFrameCount())
+    {
+      tmpbam.ForcePalette(bam.m_palette); //forcing the major palette
+    }
+    else
+    { //taking the first palette without change
+      memcpy(bam.m_palette,tmpbam.m_palette,sizeof(bam.m_palette) ); 
+    }
+
+    res=bam.AddFrame(nFrameIndex,tmpbam.GetFrameDataSize(0));
+    if(res) break;
+    bam.ImportFrameData(nFrameIndex, tmpbam, 0);
+  }
+  while(++nFrameIndex<65000);
+  bam.AddFrameToCycle(0,0,0,nFrameIndex);
+}
+
+void CBamEdit::OnImportCycles() 
+{
+  Cbam tmpbam;
+  CString folder;
+  folderbrowse_t fb;
+  _finddata_t fdata;
+  int dirhandle;
+  
+  fb.title="Select input folder with cycles";	
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+  folder=fb.initial;
+  
+  the_bam.new_bam();
+  dirhandle=_findfirst(folder+"\\*.*",&fdata);
+  if(dirhandle<1)
+  {
+    return;
+  }
+  
+  do
+  {
+    if(fdata.name[0]=='.') continue;
+    
+    if(fdata.attrib&_A_SUBDIR)
+    {
+      GetBMPCycle(folder+"/"+fdata.name, tmpbam);
+      if (tmpbam.GetCycleCount()==1)
+      {
+        itemname=fdata.name;
+        if (the_bam.GetCycleCount())
+        {
+          tmpbam.ForcePalette(the_bam.m_palette); //forcing the major palette
+        }
+        else
+        {
+          memcpy(the_bam.m_palette,tmpbam.m_palette,sizeof(the_bam.m_palette) );   
+        }
+
+        AddonBam(tmpbam);
+      }
+    }
+  }
+  while(!_findnext(dirhandle, &fdata));
+  _findclose(dirhandle);
+  
+  RefreshDialog();
+}
+
 void CBamEdit::OnImport() //this imports many frames
 {
   Cbam tmpbam;
-	CString tmpstr,internalname, tmpfilename, format;
+  CString tmpstr,internalname, tmpfilename, format;
   int nFrameIndex, nStartFrame;
   int startframe, digits;
   int fhandle;
   int res;
-	
+  
   //simply reading the first bmp as a bam
   res=PickBmpFile(the_bam);
   if(res) goto endofquest;
   internalname=GetNumberTag(itemname, startframe, digits);
   itemname=internalname;
   if(itemname.IsEmpty()) itemname="new bam";
+  format.Format("%s%%s%%0%dd.bmp",m_folder,digits);
   nFrameIndex=the_bam.GetFrameCount();
   nStartFrame=nFrameIndex;
   do
   {
-    format.Format("%s%%s%%0%dd.bmp",m_folder,digits);
     tmpfilename.Format(format,internalname,++startframe);
     if(!file_exists(tmpfilename) ) break;
     fhandle=open(tmpfilename,O_RDONLY|O_BINARY);
@@ -1363,7 +1513,7 @@ endofquest:
 
 void CBamEdit::OnLoadexBmp() 
 {
-	PickBmpFile(the_bam);
+  PickBmpFile(the_bam);
   RefreshDialog();
 }
 
@@ -1372,7 +1522,7 @@ int CBamEdit::PickBmpFile(Cbam &tmpbam)
   CString filepath;
   int fhandle;
   int res;
-
+  
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
   CMyFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, szFilter2);
@@ -1397,7 +1547,7 @@ restart:
     {
       res=tmpbam.ReadPltFromFile(fhandle,-1);      
     }
-
+    
     close(fhandle);
     switch(res)
     {
@@ -1426,7 +1576,7 @@ void CBamEdit::OnNewframe() //this imports one frame
   CPoint CycleData;
   int nFrameIndex;
   int nCycle;
-
+  
   nFrameIndex=the_bam.GetFrameCount(); 
   tmpstr.Format("Do you want to insert frame #%d?",nFrameIndex);
   if(MessageBox(tmpstr,"Bam editor",MB_YESNO)==IDYES)
@@ -1437,7 +1587,7 @@ void CBamEdit::OnNewframe() //this imports one frame
     }
   }
   else goto endofquest;
-
+  
   m_play&=~PLAYBAM;
   //importing
   
@@ -1462,7 +1612,7 @@ void CBamEdit::OnNewframe() //this imports one frame
     CycleData=the_bam.GetCycleData(nCycle);
     the_bam.AddFrameToCycle(nCycle,CycleData.y,nFrameIndex,1);
   }
-
+  
 endofquest:
   RefreshDialog();
 }
@@ -1470,8 +1620,8 @@ endofquest:
 void CBamEdit::OnDropcyc() 
 {
   int nCycle;
-
-	nCycle=m_cyclenum_control.GetCurSel();
+  
+  nCycle=m_cyclenum_control.GetCurSel();
   if(the_bam.DropCycle(nCycle))
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
@@ -1483,10 +1633,10 @@ void CBamEdit::OnDropcyc()
 void CBamEdit::OnInsertcycle() 
 {
   int nCycle;
-
-	nCycle=m_cyclenum_control.GetCurSel();
+  
+  nCycle=m_cyclenum_control.GetCurSel();
   if(nCycle<0) nCycle=0;
-	if(the_bam.InsertCycle(nCycle)<0)
+  if(the_bam.InsertCycle(nCycle)<0)
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
   }
@@ -1498,13 +1648,13 @@ void CBamEdit::OnCopycycle()
 {
   CPoint CycleData;
   int nCycle;
-
-	nCycle=m_cyclenum_control.GetCurSel();
+  
+  nCycle=m_cyclenum_control.GetCurSel();
   CycleData=the_bam.GetCycleData(nCycle);
   if(m_cycledata) delete [] m_cycledata;
   m_cycledata=NULL;
   m_cyclesize=0;
-	if(CycleData.y<1) return;
+  if(CycleData.y<1) return;
   m_cycledata=new short[CycleData.y]; //x=firstframe, y=count
   if(!m_cycledata) return;
   m_cyclesize=CycleData.y;
@@ -1515,20 +1665,20 @@ void CBamEdit::OnPastecycle()
 {
   CPoint CycleData;
   int nCycle;
-
-	nCycle=m_cyclenum_control.GetCurSel();
+  
+  nCycle=m_cyclenum_control.GetCurSel();
   CycleData=the_bam.GetCycleData(nCycle);
   if(CycleData.y<0) return; // allow 0
-	the_bam.ReplaceCycle(nCycle,m_cycledata,m_cyclesize);
+  the_bam.ReplaceCycle(nCycle,m_cycledata,m_cyclesize);
   RefreshDialog();
 }
 
 void CBamEdit::OnNewcycle() 
 {
   int nCycle;
-
-	nCycle=m_cyclenum_control.GetCurSel()+1;
-	if(the_bam.InsertCycle(nCycle)<0)
+  
+  nCycle=m_cyclenum_control.GetCurSel()+1;
+  if(the_bam.InsertCycle(nCycle)<0)
   {
     MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
   }
@@ -1541,8 +1691,8 @@ void CBamEdit::OnCenter()
 {
   int i;
   CPoint point;
-
-	i=the_bam.GetFrameCount();
+  
+  i=the_bam.GetFrameCount();
   while(i--)
   {
     point=the_bam.GetFrameSize(i);
@@ -1555,8 +1705,8 @@ void CBamEdit::OnCleanup()
 {
   CString tmpstr;
   int n;
-
-	n=the_bam.DropUnusedFrame(1);
+  
+  n=the_bam.DropUnusedFrame(1);
   if(n)
   {
     tmpstr.Format("Dropped %d unused frames.",n);
@@ -1570,7 +1720,7 @@ void CBamEdit::OnReversecycle()
   int nCycle;
   CPoint CycleData;
   int i;
-
+  
   nCycle=m_cyclenum_control.GetCurSel();
   if (nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
@@ -1589,7 +1739,7 @@ void CBamEdit::OnShiftForward()
   int nCycle;
   CPoint CycleData;
   int i;
-
+  
   nCycle=m_cyclenum_control.GetCurSel();
   if (nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
@@ -1607,7 +1757,7 @@ void CBamEdit::OnShiftBackward()
   int nCycle;
   CPoint CycleData;
   int i;
-
+  
   nCycle=m_cyclenum_control.GetCurSel();
   if (nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
@@ -1626,17 +1776,17 @@ void CBamEdit::OnFlipcycle()
   int nCycle;
   CPoint CycleData;
   int i;
-
+  
   nCycle=m_cyclenum_control.GetCurSel();
   if(nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
   //collecting the frames to be flipped, we must flip a frame only once
   //this is why we collect them into a set first
-	for(i=0;i<CycleData.y;i++)
+  for(i=0;i<CycleData.y;i++)
   {
     WhichFrames[the_bam.m_pFrameLookup[CycleData.x+i]]=1;
   }
-
+  
   //using the set, we flip the frames one by one
   POSITION pos;
   pos=WhichFrames.GetStartPosition();
@@ -1653,10 +1803,10 @@ void CBamEdit::Flip8Cycles(int nCount)
   CPoint CycleData;
   int nCycle;
   int x;
-
+  
   for(nCycle=0;nCycle<nCount;nCycle+=8)
   {
-  //leftup
+    //leftup
     m_cyclenum_control.SetCurSel(nCycle+3);
     OnCopycycle();
     m_cyclenum_control.SetCurSel(nCycle+5);
@@ -1677,7 +1827,7 @@ void CBamEdit::Flip8Cycles(int nCount)
       m_cyclenum_control.SetCurSel(nCycle+x);
       OnFlipcycle();
     }
-  //dropping the frames from the old cycles
+    //dropping the frames from the old cycles
     for(x=0;x<5;x++)
     {
       CycleData=the_bam.GetCycleData(nCycle+x);
@@ -1690,7 +1840,7 @@ void CBamEdit::Flip5Cycles()
 {
   CPoint CycleData;
   int nCycle;
-
+  
   //leftup
   m_cyclenum_control.SetCurSel(3);
   OnCopycycle();
@@ -1752,7 +1902,7 @@ void CBamEdit::OnDropallbutlast()
   CPoint CycleData;
   int nCycle;
   int nFrameData;
-
+  
   nCycle=the_bam.GetCycleCount();
   while(nCycle--)
   {
@@ -1776,14 +1926,14 @@ void CBamEdit::OnDropallbutlast()
 
 void CBamEdit::OnReduceorientation() 
 {
-	int nCycle;
-
+  int nCycle;
+  
   nCycle = the_bam.GetCycleCount();
   while((nCycle-=2)>0)
   {
     the_bam.DropCycle(nCycle);    
   }
-	
+  
   the_bam.DropUnusedFrame(1);
   RefreshDialog();
 }
@@ -1791,10 +1941,10 @@ void CBamEdit::OnReduceorientation()
 void CBamEdit::OnMergebam() 
 {
   Cbam additional;
-
+  
   additional.new_bam();
-	LoadBam(&additional);
-	
+  LoadBam(&additional);
+  
   if(additional.GetCycleCount()!=the_bam.GetCycleCount())
   {
     MessageBox("Not the same number of cycles!","Warning",MB_ICONEXCLAMATION|MB_OK);
@@ -1808,10 +1958,10 @@ void CBamEdit::OnMergebam()
 void CBamEdit::OnFlipframe() 
 {
   int nFrameWanted;
-
+  
   nFrameWanted=m_framenum_control.GetCurSel();
   if(nFrameWanted<0) return;
-	the_bam.FlipFrame(nFrameWanted);
+  the_bam.FlipFrame(nFrameWanted);
   UpdateData(UD_DISPLAY);
 }
 
@@ -1819,11 +1969,11 @@ void CBamEdit::OnAlign()
 {
   int nFrameWanted;
   CPoint point;
-
+  
   point=the_bam.GetFramePos(0);
-	for(nFrameWanted=1;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
+  for(nFrameWanted=1;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
   {
-	  the_bam.SetFramePos(nFrameWanted,point.x,point.y);
+    the_bam.SetFramePos(nFrameWanted,point.x,point.y);
   }
   UpdateData(UD_DISPLAY);
 }
@@ -1834,7 +1984,7 @@ void CBamEdit::OnCycleAlignframes()
   int nCycle;
   CPoint CycleData;
   int i;
-
+  
   nCycle=m_cyclenum_control.GetCurSel();
   if(nCycle<0) return;
   CycleData=the_bam.GetCycleData(nCycle);
@@ -1842,7 +1992,7 @@ void CBamEdit::OnCycleAlignframes()
   //collecting the frames to be flipped, we must flip a frame only once
   //this is why we collect them into a set first
   point=the_bam.GetFramePos(the_bam.m_pFrameLookup[CycleData.x]);
-	for(i=1;i<CycleData.y;i++)
+  for(i=1;i<CycleData.y;i++)
   {
     the_bam.SetFramePos(the_bam.m_pFrameLookup[CycleData.x+i],point.x,point.y);
   }
@@ -1851,68 +2001,68 @@ void CBamEdit::OnCycleAlignframes()
 
 static inline int GetSplitSize(int scale)
 {
-	int div = (scale+MAX_DIMENSION-1)/MAX_DIMENSION;
-	return scale/div;
+  int div = (scale+MAX_DIMENSION-1)/MAX_DIMENSION;
+  return scale/div;
 }
 
 void CBamEdit::SplitBAM()
 {
-	CPoint p,q;
-	int i,j;
-	int fc = the_bam.GetFrameCount();
-	int width = 0;
-	int height = 0;
-	Cbam tmpbam;
-
-	for(i=0;i<fc;i++)
-	{
-		p=the_bam.GetFrameSize(i);
+  CPoint p,q;
+  int i,j;
+  int fc = the_bam.GetFrameCount();
+  int width = 0;
+  int height = 0;
+  Cbam tmpbam;
+  
+  for(i=0;i<fc;i++)
+  {
+    p=the_bam.GetFrameSize(i);
     q=the_bam.GetFramePos(i);
     j = p.x+q.x;
-		if (width<j)
-		{
-			width=j;
-		}
+    if (width<j)
+    {
+      width=j;
+    }
     j = p.y+q.y;
-		if (height<j)
-		{
-			height=j;
-		}
-	}
-	if (width<MAX_DIMENSION && height<MAX_DIMENSION)
-	{
-		MessageBox("This BAM doesn't require splitting.","BAM Editor",MB_OK);
-		return;
-	}
+    if (height<j)
+    {
+      height=j;
+    }
+  }
+  if (width<MAX_DIMENSION && height<MAX_DIMENSION)
+  {
+    MessageBox("This BAM doesn't require splitting.","BAM Editor",MB_OK);
+    return;
+  }
   CString tmpstr;
   CString key;
   int quarter = 0;
-	int wsplit = GetSplitSize(width);
+  int wsplit = GetSplitSize(width);
   int hsplit = GetSplitSize(height);
-	for(i=0;i<width;i+=wsplit)
-	{
-		for(j=0;j<height;j+=hsplit)
-		{
+  for(i=0;i<width;i+=wsplit)
+  {
+    for(j=0;j<height;j+=hsplit)
+    {
       int ws = wsplit;
       int hs = hsplit;
-
+      
       if (i+ws>width) ws=width-i;
       if (j+hs>height) hs=height-j;
-			tmpbam.CopyStructure(the_bam, i, j, ws, hs);
+      tmpbam.CopyStructure(the_bam, i, j, ws, hs);
       key.Format("%s.%d",itemname, quarter++);
       tmpstr="";
       write_bam(key,tmpstr,&tmpbam);
-		}
-	}
+    }
+  }
 }
 
 void CBamEdit::OnDecompress() 
 {
   int nFrameWanted;
-
-	for(nFrameWanted=0;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
+  
+  for(nFrameWanted=0;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
   {
-	  the_bam.SetFrameRLE(nFrameWanted,0);
+    the_bam.SetFrameRLE(nFrameWanted,0);
   }
   UpdateData(UD_DISPLAY);
 }
@@ -1920,25 +2070,25 @@ void CBamEdit::OnDecompress()
 void CBamEdit::OnCompressFrames() 
 {
   int nFrameWanted;
-
-	for(nFrameWanted=0;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
+  
+  for(nFrameWanted=0;nFrameWanted<the_bam.GetFrameCount();nFrameWanted++)
   {
-	  the_bam.SetFrameRLE(nFrameWanted,1);
+    the_bam.SetFrameRLE(nFrameWanted,1);
   }
   UpdateData(UD_DISPLAY);
 }
 
 void CBamEdit::OnContinuousplay() 
 {
-	m_play^=CONTINUOUS;
-	RefreshMenu();
+  m_play^=CONTINUOUS;
+  RefreshMenu();
 }
 
 void CBamEdit::OnCheck() 
 {
   int ret;
-
-	ret=((CChitemDlg *) AfxGetMainWnd())->check_bam();
+  
+  ret=((CChitemDlg *) AfxGetMainWnd())->check_bam();
   if(ret)
   {
     MessageBox(lasterrormsg,"BAM editor",MB_ICONEXCLAMATION|MB_OK);
@@ -1948,7 +2098,7 @@ void CBamEdit::OnCheck()
 void CBamEdit::PostNcDestroy() 
 {
   int i;
-
+  
   for(i=0;i<4;i++)
   {
     if(hbf[i]) DeleteObject(hbf[i]);
@@ -1956,7 +2106,7 @@ void CBamEdit::PostNcDestroy()
   if(hbanim) DeleteObject(hbanim);
   if(m_cycledata) delete [] m_cycledata;
   m_cycledata=0;
-	CDialog::PostNcDestroy();
+  CDialog::PostNcDestroy();
 }
 
 BOOL CBamEdit::PreTranslateMessage(MSG* pMsg)

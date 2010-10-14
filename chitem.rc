@@ -6392,8 +6392,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,2,0,1
- PRODUCTVERSION 7,2,0,1
+ FILEVERSION 7,2,0,2
+ PRODUCTVERSION 7,2,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6411,14 +6411,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 2, 0, 1\0"
+            VALUE "FileVersion", "7, 2, 0, 2\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2010 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.2a\0"
-            VALUE "ProductVersion", "7, 2, 0, 1\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.2b\0"
+            VALUE "ProductVersion", "7, 2, 0, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6660,6 +6660,7 @@ BEGIN
         MENUITEM "&Drop unused frames",         ID_CLEANUP
         MENUITEM "&Center frames",              ID_TOOLS_CENTERFRAMES
         MENUITEM "&Import frames",              ID_TOOLS_IMPORTFRAMES
+        MENUITEM "&Import cycles",              ID_TOOLS_IMPORTCYCLES
         MENUITEM "Comp&ress all",               ID_TOOLS_COMPRESSALLFRAMES
         MENUITEM "&Uncompress all",             ID_TOOLS_DECOMPRESSALLFRAMES
         MENUITEM "&Align all",                  ID_TOOLS_ALIGNALL
@@ -7765,7 +7766,7 @@ BEGIN
     IDS_ROLL                "The highest affected level. (Or die count)."
     IDS_PARAM1              "Parameter 1 for the effect, its meaning is dependent on the opcode."
     IDS_PARAM2              "Parameter 2 for the effect, its meaning is dependent on the opcode. Usually determines an opcode subtype."
-    IDS_PROB1               "The lowest probability of the effect."
+    IDS_PROB1               "The lowest probability of the effect. In GemRB, if it is 100 then the probability depends on a stat."
     IDS_PROB2               "The highest probability of the effect."
     IDS_TOB                 "Tob engine specific features."
     IDS_DELOVER             "Removes the selected overlay."
@@ -7810,6 +7811,7 @@ BEGIN
     IDS_EDITTILE            "Edit tiles and overlays of the selected door."
     IDS_REMOVEDOOR          "Delete the selected door."
     IDS_OPEN                "Select between open and closed door polygons."
+    IDS_PROB2B              "The probability depends on a stat:"
 END
 
 #endif    // English (U.S.) resources

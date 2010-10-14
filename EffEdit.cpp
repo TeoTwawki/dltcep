@@ -122,12 +122,21 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_PROB1,(short &) the_effect.header.prob1);
   DDV_MinMaxInt(pDX, (short &) the_effect.header.prob1, 0 , 100);
   DDX_Text(pDX, IDC_PROB2,(short &) the_effect.header.prob2);
-  DDV_MinMaxInt(pDX, (short &) the_effect.header.prob2, 0 , 100);
-  
-  if(the_effect.header.prob2<the_effect.header.prob1)
-  {
-    the_effect.header.prob2=the_effect.header.prob1;
+  if (the_effect.header.prob1==100) {
+    //gemrb extension, chance by stat
+    DDV_MinMaxInt(pDX, (short &) the_effect.header.prob2, 0 , 255);
+  } else {
+    DDV_MinMaxInt(pDX, (short &) the_effect.header.prob2, 0 , 100);
   }
+  
+  if (the_effect.header.prob1<100)
+  {
+    if(the_effect.header.prob2<the_effect.header.prob1)
+    {
+      the_effect.header.prob2=the_effect.header.prob1;
+    }
+  }
+  UpdateTooltip();
 
   tmpstr=get_save_type(the_effect.header.stype);
   DDX_Text(pDX, IDC_SAVETYPE, tmpstr);
@@ -318,6 +327,19 @@ static const int limiteffboxids[]={IDC_VVC, IDC_BROWSE2, IDC_VARNAME,IDC_SCHOOL,
  IDC_POS2X, IDC_POS2Y,
 0};
 
+void CEffEdit::UpdateTooltip()
+{
+  CString tmpstr, tmpstr1;
+  
+  if (the_effect.header.prob1==100) {
+    tmpstr1.LoadString(IDS_PROB2B);
+    tmpstr.Format("%s%s", tmpstr1, IDSToken("STATS", the_effect.header.prob2, true));
+    m_tooltip.AddTool(GetDlgItem(IDC_PROB2), tmpstr);
+  } else {
+    m_tooltip.AddTool(GetDlgItem(IDC_PROB2), IDS_PROB2);
+  }
+}
+
 BOOL CEffEdit::OnInitDialog() 
 {
   POSITION pos;
@@ -425,8 +447,10 @@ BOOL CEffEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_PAR_COLOR), IDS_PCOLOR);
     m_tooltip.AddTool(GetDlgItem(IDC_PAR_IDS), IDS_PIDS);
 
-    m_tooltip.AddTool(GetDlgItem(IDC_PROB1), IDS_PROB1);
-    m_tooltip.AddTool(GetDlgItem(IDC_PROB2), IDS_PROB2);
+    tmpstr1.LoadString(IDS_PROB1);
+    m_tooltip.AddTool(GetDlgItem(IDC_PROB1), tmpstr1);
+    UpdateTooltip();
+
     m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN), IDS_UNKNOWN);
     m_tooltip.AddTool(GetDlgItem(IDC_PAR1), IDS_PARAM1);
     m_tooltip.AddTool(GetDlgItem(IDC_PAR1B1), IDS_PARAM1);

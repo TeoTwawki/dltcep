@@ -337,6 +337,7 @@
 #define IDS_EDITTILE                    299
 #define IDS_REMOVEDOOR                  300
 #define IDS_OPEN                        301
+#define IDS_PROB2B                      302
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -1883,6 +1884,7 @@
 #define ID_CHECK_AVATAR2DA              33046
 #define ID_CHECK_SPAWNINI               33047
 #define ID_SEARCH_BMP                   33048
+#define ID_TOOLS_IMPORTCYCLES           33051
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1890,7 +1892,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33051
+#define _APS_NEXT_COMMAND_VALUE         33052
 #define _APS_NEXT_CONTROL_VALUE         2372
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
