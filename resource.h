@@ -1648,25 +1648,25 @@
 #define IDC_CD                          2303
 #define IDC_ZOOM                        2304
 #define IDC_SUBRACE                     2305
+#define IDC_TOTAL                       2306
+#define IDC_MEMORISED2                  2307
+#define IDC_STATIC1                     2308
+#define IDC_ANIMLIST                    2309
+#define IDC_PROJPICKER                  2310
+#define IDC_BREAKABLE                   2311
 #define IDC_SKILL                       2312
 #define IDC_SKILLPICKER                 2313
-#define IDC_ANIMLIST                    2319
+#define IDC_HEXADECIMAL                 2314
+#define IDC_HOSTILE                     2315
+#define IDC_TEAM                        2316
+#define IDC_LADY                        2317
+#define IDC_MURDER                      2318
+#define IDC_FACTION                     2319
 #define IDC_FILTER                      2320
+#define IDC_NIGHTMOVIE                  2321
 #define IDC_SHADOW                      2322
-#define IDC_BREAKABLE                   2331
-#define IDC_BUTTON1                     2333
-#define IDC_TOTAL                       2336
-#define IDC_MEMORISED2                  2337
-#define IDC_STATIC1                     2338
-#define IDC_PROJPICKER                  2340
-#define IDC_DAYMOVIE                    2342
-#define IDC_NIGHTMOVIE                  2343
-#define IDC_LADY                        2357
-#define IDC_MURDER                      2358
-#define IDC_FACTION                     2362
-#define IDC_TEAM                        2363
-#define IDC_HEXADECIMAL                 2363
-#define IDC_HOSTILE                     2367
+#define IDC_BUTTON1                     2323
+#define IDC_DAYMOVIE                    2324
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1893,7 +1893,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33052
-#define _APS_NEXT_CONTROL_VALUE         2372
+#define _APS_NEXT_CONTROL_VALUE         2325
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

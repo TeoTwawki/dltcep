@@ -202,6 +202,9 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_POS1Y, the_effect.header.sy);
   DDX_Text(pDX, IDC_POS2X, the_effect.header.dx);
   DDX_Text(pDX, IDC_POS2Y, the_effect.header.dy);
+
+  DDX_Text(pDX, IDC_MIN, the_effect.header.minlevel);
+  DDX_Text(pDX, IDC_MAX, the_effect.header.maxlevel);
 }
 
 void CEffEdit::SetDefaultDuration(int arg)
@@ -324,7 +327,7 @@ void CEffEdit::RefreshDialog()
 static const int limiteffboxids[]={IDC_VVC, IDC_BROWSE2, IDC_VARNAME,IDC_SCHOOL,
  IDC_PAR3, IDC_PAR4, IDC_U3, IDC_U4, IDC_U5, IDC_UNKNOWN, IDC_SECTYPE, 
  IDC_SOURCE, IDC_RESOURCE3, IDC_BROWSE3, IDC_BROWSE4, IDC_POS1X, IDC_POS1Y,
- IDC_POS2X, IDC_POS2Y,
+ IDC_POS2X, IDC_POS2Y, IDC_MIN, IDC_MAX,
 0};
 
 void CEffEdit::UpdateTooltip()
@@ -486,6 +489,7 @@ BOOL CEffEdit::OnInitDialog()
   }
   if(m_limitedeffect)
   {
+    GetDlgItem(IDC_TYPE)->SetWindowText("Dice/level limit");
     i=0;
     while(limiteffboxids[i])
     {

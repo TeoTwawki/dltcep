@@ -612,7 +612,9 @@ typedef struct
   long sbonus;
   long unknown2c;
   long school;
-  long u3,u4,u5;
+  long u3;
+  long minlevel;
+  long maxlevel;  
   long resist;
   long par3;
   long par4;
@@ -628,7 +630,7 @@ typedef struct
   long slot;      //the equipping slot
   char variable[32];
   long casterlevel;//(in items this is set to 10)
-  long unused8;
+  long firstcast;
   long sectype;
   unsigned char unused9[60];
 } eff_header;
