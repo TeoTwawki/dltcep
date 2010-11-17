@@ -34,7 +34,8 @@ static int buttonbits[9]={0,0,0,1,2,4,0,8,32};
 static int winids[]={IDC_WINDOWPICKER,
 0};
 static int winboxids[]={IDC_ID, IDC_XPOS, IDC_YPOS, IDC_WIDTH, IDC_HEIGHT,
-IDC_MOS, IDC_BACKGROUND, IDC_FLAGS, IDC_U1, IDC_U2, IDC_CTRLCNT, IDC_CONTROLPICKER,
+IDC_MOS, IDC_BACKGROUND, IDC_FLAGS, IDC_U1, IDC_SHADOW, IDC_OTHER,
+IDC_CTRLCNT, IDC_CONTROLPICKER,
 
 //buttons
 IDC_BROWSE, IDC_DELWIN, IDC_ADDCTRL,
@@ -184,10 +185,10 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     DDX_Text(pDX,IDC_UNKNOWN2,cc->ypos);
     DDX_Text(pDX,IDC_UNKNOWN3,cc->jumpwidth);
     DDX_Text(pDX,IDC_UNKNOWN4,cc->jumpcount);
-    DDX_Text(pDX,IDC_UNKNOWN5,cc->unknown5);
-    DDX_Text(pDX,IDC_UNKNOWN6,cc->unknown6);
-    DDX_Text(pDX,IDC_UNKNOWN7,cc->unknown7);
-    DDX_Text(pDX,IDC_UNKNOWN8,cc->unknown8);
+    DDX_Text(pDX,IDC_UNKNOWN5,cc->top);
+    DDX_Text(pDX,IDC_UNKNOWN6,cc->bottom);
+    DDX_Text(pDX,IDC_UNKNOWN7,cc->left);
+    DDX_Text(pDX,IDC_UNKNOWN8,cc->right);
     }
     break;
   case CC_EDITBOX:
@@ -341,7 +342,10 @@ void CChuiEdit::DoDataExchange(CDataExchange* pDX)
     GetDlgItem(IDC_BROWSE)->EnableWindow(flg&flg2);
 
     DDX_Text(pDX, IDC_U1, the_chui.windows[pos].unknown1);
-    DDX_Text(pDX, IDC_U2, the_chui.windows[pos].unknown2);
+    DDX_Text(pDX, IDC_OTHER, the_chui.windows[pos].other);
+    cb = (CButton *) GetDlgItem(IDC_SHADOW);
+    flg2=the_chui.windows[pos].other&1;
+    cb->SetCheck(flg2);
 
     tmpstr.Format("/ %d",the_chui.windows[pos].controlcount);
     DDX_Text(pDX, IDC_CTRLCNT, tmpstr);
@@ -387,6 +391,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BACKGROUND, OnBackground)
+	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
 	ON_CBN_SELCHANGE(IDC_CONTROLPICKER, OnSelchangeControlpicker)
 	ON_CBN_KILLFOCUS(IDC_TYPE, OnKillfocusType)
 	ON_BN_CLICKED(IDC_ADDCTRL, OnAddctrl)
@@ -409,6 +414,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_EN_KILLFOCUS(IDC_ID2, OnKillfocusId2)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
 	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
@@ -432,7 +438,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_MOS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U1, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U2, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_OTHER, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_XPOS2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_YPOS2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_WIDTH2, DefaultKillfocus)
@@ -451,7 +457,6 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_BAM5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAMFRAME5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAMFRAME6, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_ID2, OnKillfocusId2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -767,6 +772,18 @@ void CChuiEdit::DefaultKillfocus()
 {
 	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);	
+}
+
+void CChuiEdit::OnShadow() 
+{
+  int pos;
+
+  pos=m_windowpicker.GetCurSel();
+  if(pos>=0)
+  {
+	  the_chui.windows[pos].other^=1;
+  }
+  UpdateData(UD_DISPLAY);
 }
 
 void CChuiEdit::OnBackground() 
@@ -1613,3 +1630,4 @@ BOOL CChuiEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);	
   return CDialog::PreTranslateMessage(pMsg);
 }
+

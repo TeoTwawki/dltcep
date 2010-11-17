@@ -1077,7 +1077,7 @@ BEGIN
     LTEXT           "Effect opcode",IDC_STATIC,7,7,46,8
     LTEXT           "Probability",IDC_STATIC,120,63,33,8
     LTEXT           "%",IDC_STATIC,185,79,8,8
-    LTEXT           "Dice/level limit",IDC_STATIC,120,121,47,8
+    LTEXT           "Dice type/count",IDC_TYPE,120,121,52,8
     GROUPBOX        "Parameter style",IDC_STATIC,7,153,229,27,BS_FLAT
     LTEXT           "Saving throw",IDC_STATIC,7,184,42,8
     LTEXT           "Power",IDC_STATIC,180,121,21,8
@@ -1103,6 +1103,9 @@ BEGIN
     LTEXT           "Position",IDC_STATIC,7,271,26,8
     LTEXT           "Slot",IDC_STATIC,283,241,13,8
     LTEXT           "Target",IDC_STATIC,107,271,22,8
+    EDITTEXT        IDC_MIN,223,281,23,14,ES_AUTOHSCROLL
+    LTEXT           "Level limit",IDC_STATIC,223,270,32,8
+    EDITTEXT        IDC_MAX,253,281,23,14,ES_AUTOHSCROLL
 END
 
 IDD_VARIABLES DIALOG DISCARDABLE  0, 0, 220, 110
@@ -4627,10 +4630,10 @@ BEGIN
     EDITTEXT        IDC_MOS,7,49,63,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,76,49,32,14
     CONTROL         "Has background",IDC_BACKGROUND,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,112,51,69,10
+                    WS_TABSTOP,112,41,69,10
     EDITTEXT        IDC_FLAGS,186,49,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_U1,235,49,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U2,284,49,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_OTHER,284,49,40,14,ES_AUTOHSCROLL
     COMBOBOX        IDC_CONTROLPICKER,7,77,55,154,CBS_DROPDOWNLIST | 
                     CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_ID2,88,77,40,14,ES_AUTOHSCROLL
@@ -4673,7 +4676,7 @@ BEGIN
     LTEXT           "Background image",IDC_STATIC,7,38,60,8
     LTEXT           "Flags",IDC_STATIC,186,38,18,8
     LTEXT           "0x02",IDC_STATIC,235,38,16,8
-    LTEXT           "0x1a",IDC_STATIC,284,38,16,8
+    LTEXT           "Other flags",IDC_STATIC,284,38,35,8
     LTEXT           "Select control",IDC_STATIC,7,67,44,8
     LTEXT           "/ 0",IDC_CTRLCNT,66,80,18,8
     LTEXT           "ID",IDC_STATIC,88,66,8,8
@@ -4701,8 +4704,8 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN4,193,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN5,227,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN6,261,189,25,14,ES_AUTOHSCROLL
-    LTEXT           "Knob position              Jump width && count    Unknowns",
-                    IDC_UNKNOWN,90,178,175,8
+    LTEXT           "Knob position              Jump width && count   Top          Bottom      Left            Right",
+                    IDC_UNKNOWN,89,178,258,8
     EDITTEXT        IDC_UNKNOWN7,295,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN8,329,189,25,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_BAM3,90,161,63,14,ES_AUTOHSCROLL
@@ -4751,6 +4754,8 @@ BEGIN
                     WS_TABSTOP,296,161,51,10
     LTEXT           "Text justification",IDC_BUTTONFLAG,240,122,52,8
     LTEXT           "Steps",IDC_STEPS,193,150,19,8
+    CONTROL         "Disable shadow",IDC_SHADOW,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,112,52,66,10
 END
 
 IDD_SRCEDIT DIALOGEX 0, 0, 416, 221
@@ -5060,7 +5065,7 @@ IDD_GAMEGENERAL DIALOGEX 0, 0, 248, 182
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit general game data"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_STARTAREA,7,19,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_GAMETIME,115,19,48,14,ES_AUTOHSCROLL | ES_NUMBER

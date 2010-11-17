@@ -186,7 +186,7 @@ typedef struct
   short controlcount;
   char mos[8];
   short controlidx; //first control index
-  short unknown2;   //may be strref
+  short other;   //may be strref
 } chui_window;
 
 typedef struct
@@ -232,10 +232,10 @@ typedef struct//2
   short ypos;
   short jumpwidth;
   short jumpcount;
-  short unknown5;
-  short unknown6;
-  short unknown7;
-  short unknown8;
+  short top;
+  short bottom;
+  short left;
+  short right;
 } chui_slider;
 
 typedef struct//3
