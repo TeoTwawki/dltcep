@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.2b"
+#define PRG_VERSION "7.2c"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -3037,11 +3037,12 @@ void CChitemDlg::OnFindcre()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0xc0fffffc;
+  dlg.mask=0xc0ffffff;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find creatures";
   dlg.mtype_title="Match animation";
+  dlg.proj_title="Match MC flags";
   ret=dlg.DoModal();
   if(ret==IDOK)
   {

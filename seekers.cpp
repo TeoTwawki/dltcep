@@ -2100,6 +2100,15 @@ bool CChitemDlg::match_creature()
     }
   }
 
+  if(searchflags&MP)
+  {
+    tmpdata.projectile=the_creature.header.flags;
+    if (!(tmpdata.projectile&searchdata.projectile))
+    {
+      return false;
+    }
+  }
+
   if(searchflags&(1<<FLG_MEA) )
   {
     tmpdata.ea=the_creature.header.idsea;
@@ -2328,6 +2337,10 @@ bool CChitemDlg::match_creature()
   if(searchflags&MT)
   {
     log("Found 0x%x-%s",(unsigned short) tmpdata.itemtype,IDSToken("ANIMATE",(unsigned short) tmpdata.itemtype, false) );
+  }
+  if(searchflags&MP)
+  {
+    log("Found MC flag: 0x%x",tmpdata.projectile);
   }
   if(searchflags&MF)
   {

@@ -27,6 +27,7 @@ void CFindItem::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CFindItem)
+	DDX_Control(pDX, IDC_MPROJ, m_proj_control);
 	DDX_Control(pDX, IDC_CHANGE, m_change_control);
 	DDX_Control(pDX, IDC_MTYPE, m_mtype_control);
 	//}}AFX_DATA_MAP
@@ -41,9 +42,9 @@ void CFindItem::DoDataExchange(CDataExchange* pDX)
   if(pDX->m_bSaveAndValidate==UD_RETRIEVE)
   {
     DDX_Text(pDX, IDC_PROJ, tmpstr);
-    searchdata.projectile=(short) strtonum(tmpstr);
+    searchdata.projectile=(unsigned long) strtonum(tmpstr);
     DDX_Text(pDX, IDC_PROJ2, tmpstr);
-    searchdata.projectile2=(short) strtonum(tmpstr);
+    searchdata.projectile2=(unsigned long) strtonum(tmpstr);
     DDX_Text(pDX, IDC_ITEMTYPE, tmpstr);
     searchdata.itemtype=(short) strtonum(tmpstr);
     DDX_Text(pDX, IDC_ITEMTYPE2, tmpstr);
@@ -263,6 +264,11 @@ BOOL CFindItem::OnInitDialog()
   Refresh();
   SetWindowText(title);
   m_mtype_control.SetWindowText(mtype_title);
+  if(proj_title.GetLength())
+  {
+    m_proj_control.SetWindowText(proj_title);
+  }
+
   //well this is a weird piece of code,
   //i don't even want to talk about it
   for(i=0;fieldlist[i];i++)

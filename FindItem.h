@@ -23,9 +23,11 @@ public:
   search_data searchdata;
   CString title;
   CString mtype_title;
+  CString proj_title;
 // Dialog Data
 	//{{AFX_DATA(CFindItem)
 	enum { IDD = IDD_FINDITEM };
+	CButton	m_proj_control;
 	CComboBox	m_change_control;
 	CButton	m_mtype_control;
 	//}}AFX_DATA

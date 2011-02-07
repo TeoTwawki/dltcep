@@ -686,7 +686,8 @@ int Read2daField(CString daname, int line, int column)
     if(!read_string(fpoi, "\n",tmpref,sizeof(tmpref))) return defval; //line not found
   }
   columns=explode(tmpref,' ',count2);
-  if((count1==count2) && (count1>column))
+  ///if((count1==count2) && (count1>column))
+  if(count2>column)
   {
     defval=strtonum(columns[column]);
   }

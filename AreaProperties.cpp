@@ -1410,8 +1410,9 @@ IDC_DIALOG, IDC_UNKNOWN30, IDC_POS1X2, IDC_POS1Y2, IDC_STRING,
 IDC_FLAGS, IDC_TUNDET, IDC_TRESET, IDC_PARTY, IDC_TDETECT,
 IDC_TUNK1, IDC_TUNK2, IDC_TNPC, IDC_TUNK3, IDC_TDEACTIVATED, IDC_NONPC,
 IDC_TOVERRIDE, IDC_TDOOR, IDC_TUNK4,IDC_TUNK5,IDC_TUNK6,IDC_TUNK7,
-IDC_BROWSE, IDC_BROWSE2, IDC_BROWSE3, IDC_BROWSE4, IDC_SELECTION,
-IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_UNKNOWN, IDC_CURSOR, IDC_SET,
+IDC_BROWSE, IDC_BROWSE2, IDC_BROWSE3, IDC_BROWSE4, IDC_BROWSE5,
+IDC_SELECTION, IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_UNKNOWN, 
+IDC_CURSOR, IDC_SET, IDC_WAVRES,
 0};
 
 static int triggerflagids[]={IDC_TUNDET, IDC_TRESET, IDC_PARTY, IDC_TDETECT,
@@ -1521,6 +1522,11 @@ void CAreaTrigger::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_DIALOG, tmpstr);
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr, the_area.triggerheaders[m_triggernum].dialogref);
+
+    RetrieveResref(tmpstr, the_area.triggerheaders[m_triggernum].wavres);
+    DDX_Text(pDX, IDC_WAVRES, tmpstr);
+    DDV_MaxChars(pDX, tmpstr, 8);
+    StoreResref(tmpstr, the_area.triggerheaders[m_triggernum].wavres);
 
     if (pst_compatible_var())
     {
@@ -1634,6 +1640,8 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_BN_CLICKED(IDC_EDITPOLYGON, OnEditpolygon)
 	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	ON_BN_CLICKED(IDC_STRING, OnString)
+	ON_BN_CLICKED(IDC_SET2, OnSet2)
+	ON_BN_CLICKED(IDC_BROWSE5, OnBrowse5)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
@@ -1653,7 +1661,7 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y2, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_SET2, OnSet2)
+	ON_EN_KILLFOCUS(IDC_WAVRES, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1777,6 +1785,20 @@ void CAreaTrigger::OnBrowse4()
     StoreResref(pickerdlg.m_picked,the_area.triggerheaders[m_triggernum].destref);
   }
   fill_destination(pickerdlg.m_picked, &m_entrancenamepicker);
+  RefreshTrigger();
+	UpdateData(UD_DISPLAY);	
+}
+
+
+void CAreaTrigger::OnBrowse5() 
+{
+  if(m_triggernum<0) return;
+  pickerdlg.m_restype=REF_WAV;
+  RetrieveResref(pickerdlg.m_picked,the_area.triggerheaders[m_triggernum].wavres);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_area.triggerheaders[m_triggernum].wavres);
+  }
   RefreshTrigger();
 	UpdateData(UD_DISPLAY);	
 }
@@ -5127,6 +5149,24 @@ BOOL CAreaDoor::OnInitDialog()
     m_tooltip.SetTipBkColor(RGB(240,224,160));
 
     m_tooltip.AddTool(GetDlgItem(IDC_DOORPICKER), IDS_LABEL);
+    CWnd *cw = GetDlgItem(IDC_FLAG1);
+    if (pst_compatible_var()) {
+      m_tooltip.AddTool(cw, IDS_DOORCLOSED);
+      cw->SetWindowText("Closed");
+    } else {
+      m_tooltip.AddTool(cw, IDS_DOOROPEN);
+    }
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG2), IDS_DOORLOCKED);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG3), IDS_DOORRESET);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG4), IDS_DOORDETECT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG5), IDS_DOORBROKEN);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG6), IDS_DOORNOTCLOSED);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG7), IDS_DOORLINKED);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG8), IDS_DOORSECRET);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG9), IDS_DOORFOUND);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG10), IDS_DOORTRANS);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG11), IDS_DOORKEY);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG12), IDS_DOORSLIDE);
   }
   UpdateData(UD_DISPLAY);
   return TRUE;

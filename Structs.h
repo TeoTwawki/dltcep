@@ -1409,7 +1409,8 @@ typedef struct {
   char key[8];
   char scriptref[8]; //script of this trigger  
   short pointx, pointy;
-  char unknown[44];
+  char unknown[36];
+  char wavres[8]; //pst thing too
   short pstpointx, pstpointy;
   long dialogstrref; //at least in pst, trigger points can talk
   char dialogref[8];
@@ -2109,7 +2110,7 @@ typedef struct {
   char newresource[8];
   long strref;
   long param1, param2; //to display parameters for effects
-  short projectile, projectile2;
+  long projectile, projectile2;
   short itemtype, itemtype2;
   short feature, feature2;
   char resource[8];

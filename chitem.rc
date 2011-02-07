@@ -2332,19 +2332,19 @@ BEGIN
                     WS_TABSTOP
     EDITTEXT        IDC_FLAGS,232,18,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN30,276,18,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TPOSX,139,59,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_TPOSY,176,59,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_KEY,214,59,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_TPOSX,139,56,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TPOSY,176,56,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_KEY,213,56,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_DETECT,139,88,24,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_REMOVAL,176,88,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_SCRIPT,214,88,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
-    EDITTEXT        IDC_TRAPPED,139,119,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DETECTED,176,119,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DIALOG,214,119,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_SCRIPT,213,88,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_TRAPPED,139,120,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DETECTED,176,120,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DIALOG,213,120,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
     CONTROL         "Walk to it?",IDC_TOVERRIDE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,142,140,50,10
-    EDITTEXT        IDC_POS1X2,139,166,24,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_POS1Y2,176,166,24,14,ES_AUTOHSCROLL
+                    WS_TABSTOP,142,139,50,10
+    EDITTEXT        IDC_POS1X2,139,171,24,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_POS1Y2,176,171,24,14,ES_AUTOHSCROLL
     CONTROL         "Invisible trap",IDC_TUNDET,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,287,42,55,10
     CONTROL         "Reset trap",IDC_TRESET,"Button",BS_AUTOCHECKBOX | 
@@ -2386,25 +2386,28 @@ BEGIN
     GROUPBOX        "Travel trigger",IDC_STATIC,7,80,129,66,BS_FLAT
     LTEXT           "Destination",IDC_STATIC,10,90,36,8
     GROUPBOX        "Trap",IDC_STATIC,135,33,212,158,BS_FLAT
-    LTEXT           "Detection",IDC_STATIC,139,77,32,8
-    LTEXT           "Removal",IDC_STATIC,176,77,29,8
+    LTEXT           "Detection",IDC_STATIC,139,75,32,8
+    LTEXT           "Removal",IDC_STATIC,176,75,29,8
     LTEXT           "Entrance",IDC_STATIC,10,103,30,8
-    LTEXT           "Trapped",IDC_STATIC,139,106,28,8
-    LTEXT           "Detected",IDC_STATIC,176,106,30,8
-    LTEXT           "Launch point",IDC_STATIC,139,48,42,8
-    LTEXT           "Key",IDC_STATIC,214,48,13,8
-    LTEXT           "Dialog",IDC_STATIC,214,106,21,8
-    LTEXT           "Script",IDC_STATIC,214,77,19,8
+    LTEXT           "Trapped",IDC_STATIC,139,107,28,8
+    LTEXT           "Detected",IDC_STATIC,176,107,30,8
+    LTEXT           "Launch point",IDC_STATIC,139,43,42,8
+    LTEXT           "Key",IDC_STATIC,213,43,13,8
+    LTEXT           "Dialog",IDC_STATIC,213,107,21,8
+    LTEXT           "Script",IDC_STATIC,213,75,19,8
     LTEXT           "/ 0",IDC_MAXTRIGGER,129,20,24,8
     LTEXT           "Flags",IDC_STATIC,232,6,18,8
     LTEXT           "%",IDC_STATIC,166,90,8,8
     LTEXT           "%",IDC_STATIC,204,90,8,8
-    PUSHBUTTON      "Browse",IDC_BROWSE,256,59,28,14
+    PUSHBUTTON      "Browse",IDC_BROWSE,256,56,28,14
     PUSHBUTTON      "Browse",IDC_BROWSE2,256,88,28,14
-    PUSHBUTTON      "Browse",IDC_BROWSE3,256,119,28,14
+    PUSHBUTTON      "Browse",IDC_BROWSE3,256,120,28,14
     LTEXT           "Operating point",IDC_STATIC,139,157,49,8
-    PUSHBUTTON      "Edit strings",IDC_STRING,213,166,50,14
+    PUSHBUTTON      "Edit strings",IDC_STRING,213,171,50,14
     PUSHBUTTON      "Set walk point",IDC_SET2,411,129,62,14
+    EDITTEXT        IDC_WAVRES,213,152,40,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BROWSE5,256,152,28,14
+    LTEXT           "Wav resource",IDC_STATIC,213,139,46,8
 END
 
 IDD_AREASPAWN DIALOG DISCARDABLE  0, 0, 480, 198
@@ -3114,21 +3117,21 @@ BEGIN
     CONTROL         "Detectable",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,148,91,51,10
     CONTROL         "Linked",IDC_FLAG7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    93,104,41,10
+                    95,104,41,10
     CONTROL         "Transp.",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,52,117,40,10
+                    WS_TABSTOP,50,117,40,10
     CONTROL         "Locked",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    52,91,40,10
+                    50,91,40,10
     CONTROL         "Broken",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     7,104,39,10
     CONTROL         "Secret",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     148,104,39,10
     CONTROL         "Use up key",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,93,117,52,10
+                    WS_TABSTOP,95,117,52,10
     CONTROL         "Reset trap",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,93,91,49,10
-    CONTROL         "6",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,
-                    104,20,10
+                    WS_TABSTOP,95,91,49,10
+    CONTROL         "Unclosed",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,50,104,46,10
     CONTROL         "Found it",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,7,117,41,10
     CONTROL         "Slide",IDC_FLAG12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
@@ -6397,8 +6400,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,2,0,2
- PRODUCTVERSION 7,2,0,2
+ FILEVERSION 7,2,0,3
+ PRODUCTVERSION 7,2,0,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6416,14 +6419,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 2, 0, 2\0"
+            VALUE "FileVersion", "7, 2, 0, 3\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2010 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.2b\0"
-            VALUE "ProductVersion", "7, 2, 0, 2\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.2c\0"
+            VALUE "ProductVersion", "7, 2, 0, 3\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -7354,8 +7357,9 @@ IDD_CREATUREGENERAL DLGINIT
 BEGIN
     IDC_DUALFLAGS, 0x403, 14, 0
 0x7830, 0x3030, 0x3030, 0x4e20, 0x726f, 0x616d, 0x006c, 
-    IDC_DUALFLAGS, 0x403, 15, 0
-0x7830, 0x3030, 0x3130, 0x5520, 0x6b6e, 0x6f6e, 0x6e77, "\000" 
+    IDC_DUALFLAGS, 0x403, 21, 0
+0x7830, 0x3030, 0x3130, 0x4320, 0x6e6f, 0x6563, 0x746e, 0x6172, 0x6974, 
+0x6e6f, "\000" 
     IDC_DUALFLAGS, 0x403, 17, 0
 0x7830, 0x3030, 0x3230, 0x4e20, 0x206f, 0x6f63, 0x7072, 0x6573, "\000" 
     IDC_DUALFLAGS, 0x403, 19, 0
@@ -7387,19 +7391,30 @@ BEGIN
 
     IDC_DUALFLAGS, 0x403, 14, 0
 0x7830, 0x3031, 0x3030, 0x5520, 0x756e, 0x6573, 0x0064, 
-    IDC_DUALFLAGS, 0x403, 14, 0
-0x7830, 0x3032, 0x3030, 0x5520, 0x756e, 0x6573, 0x0064, 
-    IDC_DUALFLAGS, 0x403, 14, 0
-0x7830, 0x3034, 0x3030, 0x5520, 0x756e, 0x6573, 0x0064, 
-    IDC_DUALFLAGS, 0x403, 20, 0
+    IDC_DUALFLAGS, 0x403, 28, 0
+0x7830, 0x3032, 0x3030, 0x4320, 0x6972, 0x6974, 0x6163, 0x206c, 0x6170, 
+0x6874, 0x2820, 0x5749, 0x3244, 0x0029, 
+    IDC_DUALFLAGS, 0x403, 28, 0
+0x7830, 0x3034, 0x3030, 0x4320, 0x6e61, 0x7520, 0x6573, 0x6520, 0x6978, 
+0x7374, 0x2820, 0x5749, 0x3244, 0x0029, 
+    IDC_DUALFLAGS, 0x403, 35, 0
 0x7830, 0x3038, 0x3030, 0x5720, 0x7361, 0x6920, 0x206e, 0x6150, 0x7472, 
-0x0079, 
-    IDC_DUALFLAGS, 0x403, 22, 0
-0x7830, 0x3031, 0x3030, 0x2030, 0x6948, 0x6464, 0x6e65, 0x2820, 0x5749, 
-0x3244, 0x0029, 
+0x2f79, 0x6e45, 0x6261, 0x656c, 0x2064, 0x4928, 0x4457, 0x2932, "\000" 
+    IDC_DUALFLAGS, 0x403, 26, 0
+0x7830, 0x3031, 0x3030, 0x2030, 0x6553, 0x6e65, 0x7020, 0x7261, 0x7974, 
+0x2820, 0x5749, 0x3244, 0x0029, 
     IDC_DUALFLAGS, 0x403, 28, 0
 0x7830, 0x3032, 0x3030, 0x2030, 0x6e49, 0x7576, 0x6e6c, 0x7265, 0x6261, 
 0x656c, 0x2820, 0x5749, 0x3244, 0x0029, 
+    IDC_DUALFLAGS, 0x403, 31, 0
+0x7830, 0x3034, 0x3030, 0x2030, 0x6f4e, 0x2d6e, 0x6874, 0x6572, 0x7461, 
+0x6e65, 0x6e69, 0x2067, 0x4928, 0x4457, 0x2932, "\000" 
+    IDC_DUALFLAGS, 0x403, 23, 0
+0x7830, 0x3038, 0x3030, 0x2030, 0x6f4e, 0x7420, 0x6c61, 0x206b, 0x4928, 
+0x4457, 0x2932, "\000" 
+    IDC_DUALFLAGS, 0x403, 26, 0
+0x7830, 0x3031, 0x3030, 0x3030, 0x4e20, 0x206f, 0x6572, 0x7574, 0x6e72, 
+0x2820, 0x5749, 0x3244, 0x0029, 
     IDC_NUMATTACKS, 0x403, 2, 0
 0x0030, 
     IDC_NUMATTACKS, 0x403, 4, 0
@@ -7817,6 +7832,23 @@ BEGIN
     IDS_REMOVEDOOR          "Delete the selected door."
     IDS_OPEN                "Select between open and closed door polygons."
     IDS_PROB2B              "The probability depends on a stat:"
+    IDS_DOOROPEN            "Set when the door is open."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DOORCLOSED          "Set when the door is closed."
+    IDS_DOORLOCKED          "Set when the door is locked."
+    IDS_DOORRESET           "The trap isn't disabled after it was triggered."
+    IDS_DOORDETECT          "The secret door is detectable."
+    IDS_DOORBROKEN          "The door was opened by force."
+    IDS_DOORNOTCLOSED       "The door won't be closed as time passes."
+    IDS_DOORLINKED          "The door is linked to a travel region."
+    IDS_DOORSECRET          "This is a secret door."
+    IDS_DOORFOUND           "The secret door was found."
+    IDS_DOORTRANS           "The door doesn't block visibility."
+    IDS_DOORKEY             "The key will be destructed when the door is unlocked."
+    IDS_DOORSLIDE           "The impeded block is ignored."
 END
 
 #endif    // English (U.S.) resources

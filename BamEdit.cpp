@@ -1366,7 +1366,7 @@ void CBamEdit::GetBMPCycle(CString dir, Cbam &bam)
   format.Format("%%s%%0%dd.bmp", digits);
   do
   {
-    tmpfilename.Format(format,internalname,++startframe);
+    tmpfilename.Format(format,internalname,startframe++);
     fhandle = open(tmpfilename, O_RDONLY|O_BINARY);
     
     if(!fhandle)
