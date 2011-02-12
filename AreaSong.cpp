@@ -121,18 +121,7 @@ void CAreaSong::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAreaSong, CDialog)
 	//{{AFX_MSG_MAP(CAreaSong)
-	ON_EN_KILLFOCUS(IDC_AMBI1D, OnKillfocusAmbi1d)
-	ON_EN_KILLFOCUS(IDC_AMBI2D, OnKillfocusAmbi2d)
-	ON_EN_KILLFOCUS(IDC_VOLUMED, OnKillfocusVolumed)
-	ON_EN_KILLFOCUS(IDC_AMBI1N, OnKillfocusAmbi1n)
-	ON_EN_KILLFOCUS(IDC_AMBI2N, OnKillfocusAmbi2n)
-	ON_EN_KILLFOCUS(IDC_VOLUMEN, OnKillfocusVolumen)
-	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocusFlags)
-	ON_CBN_KILLFOCUS(IDC_DAY, OnKillfocusDay)
-	ON_CBN_KILLFOCUS(IDC_NIGHT, OnKillfocusNight)
-	ON_CBN_KILLFOCUS(IDC_UNKNOWN1, OnKillfocusUnknown1)
-	ON_CBN_KILLFOCUS(IDC_BATTLE, OnKillfocusBattle)
-	ON_CBN_KILLFOCUS(IDC_UNKNOWN2, OnKillfocusUnknown2)
+	ON_EN_KILLFOCUS(IDC_AMBI1D, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_CLEAR, OnClear)
 	ON_BN_CLICKED(IDC_MUSDAY, OnMusday)
 	ON_BN_CLICKED(IDC_MUSNIGHT, OnMusnight)
@@ -147,79 +136,29 @@ BEGIN_MESSAGE_MAP(CAreaSong, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_EN_KILLFOCUS(IDC_AMBI2D, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_VOLUMED, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_AMBI1N, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_AMBI2N, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_VOLUMEN, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_DAY, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_NIGHT, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_UNKNOWN1, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_BATTLE, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_UNKNOWN2, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN3, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN4, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN5, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN6, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN7, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CAreaSong message handlers
 
-void CAreaSong::OnKillfocusDay() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusNight() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusUnknown1() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusBattle() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusUnknown2() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusAmbi1d() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusAmbi2d() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusVolumed() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusAmbi1n() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusAmbi2n() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusVolumen() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaSong::OnKillfocusFlags() 
+void CAreaSong::DefaultKillfocus() 
 {
 	UpdateData(UD_RETRIEVE);
 	UpdateData(UD_DISPLAY);

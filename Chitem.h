@@ -417,15 +417,15 @@ extern CString WEIDU_LOG;
 extern CString SELF_REFERENCE;
 extern CString DELETED_REFERENCE;
 // dialog transition trigger flags
-#define HAS_TEXT    1
-#define HAS_TRIGGER 2
-#define HAS_ACTION  4
-#define LEAF_NODE   8
-#define HAS_JOURNAL 16  //journal entry
-//#define ????? 32
-#define HAS_QUEST   64  //missing quest
-//#define ????? 128
-#define HAS_SOLVED  0x100 //solved quest
+#define HAS_TEXT     1
+#define HAS_TRIGGER  2
+#define HAS_ACTION   4
+#define LEAF_NODE    8
+#define HAS_JOURNAL  16    //journal entry
+//#define ????? 32 - doubles the line???
+#define HAS_QUEST    64    //missing quest
+#define REMOVE_QUEST 128   //delete quest
+#define HAS_SOLVED   0x100 //solved quest
 
 /////// script/dialog variable checking /////////
 #define NO_CHECK     0
@@ -957,9 +957,11 @@ int ChuiControlSize(int controltype);
 CString find_justification(int code);
 CString ChuiControlName(int controltype);
 CString IDSType(int ids, bool addtwo);
+int IDSIndex(CString idsname, bool addtwo);
 CString IDSName(int ids, bool addtwo);
 CString IDSName2(int ids, bool addtwo);
 int IDSKey(CString filename, CString key);
+int IDSKey2(CString filename, CString key);
 CString IDSToken(CString filename, int value, bool unused);
 int get_idsfile(CString idsname, bool forced);
 int FillCombo(CString idsname, CComboBox *cb, int len);

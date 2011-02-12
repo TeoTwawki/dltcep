@@ -135,15 +135,8 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
 
   tmpstr.Format("0x%04x %s",the_projectile.header.smokeanim,IDSToken("ANIMATE",the_projectile.header.smokeanim, false) );
   DDX_Text(pDX, IDC_SMOKETYPE, tmpstr);
-  k=IDSKey("ANIMATE", tmpstr);
-  if(k==-1)
-  {
-    the_projectile.header.smokeanim=(unsigned short) strtonum(tmpstr);
-  }
-  else
-  {
-    the_projectile.header.smokeanim=(unsigned short) k;
-  }
+  k=IDSKey2("ANIMATE", tmpstr);
+  the_projectile.header.smokeanim=(unsigned short) k;
 
   for(i=0;i<3;i++)
   {
@@ -1034,15 +1027,8 @@ void CProjExt::DoDataExchange(CDataExchange* pDX)
 
   tmpstr.Format("0x%04x %s",the_projectile.extension.fragmentanim,IDSToken("ANIMATE",the_projectile.extension.fragmentanim, false) );
   DDX_Text(pDX, IDC_FRAGMENT, tmpstr);
-  k=IDSKey("ANIMATE", tmpstr);
-  if(k==-1)
-  {
-    the_projectile.extension.fragmentanim=(unsigned short) strtonum(tmpstr);
-  }
-  else
-  {
-    the_projectile.extension.fragmentanim=(unsigned short) k;
-  }
+  k=IDSKey2("ANIMATE", tmpstr);
+  the_projectile.extension.fragmentanim=(unsigned short) k;
 
   DDX_Text(pDX, IDC_DURATION, the_projectile.extension.duration);
 
@@ -1205,6 +1191,7 @@ BEGIN_MESSAGE_MAP(CProjExt, CDialog)
 	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
 	ON_EN_KILLFOCUS(IDC_ATTR, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN2, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TRIGGER, DefaultKillfocus)
@@ -1218,7 +1205,7 @@ BEGIN_MESSAGE_MAP(CProjExt, CDialog)
 	ON_CBN_KILLFOCUS(IDC_PROJECTILE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_COLOR, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_VVC, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
+	ON_EN_KILLFOCUS(IDC_DELAY, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

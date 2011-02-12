@@ -147,29 +147,15 @@ void IWD2Creature::DoDataExchange(CDataExchange* pDX)
   {
     tmpstr.Format("0x%x %s",the_creature.iwd2header.enemy[i],IDSToken("RACE",the_creature.iwd2header.enemy[i], true) );
     DDX_Text(pDX, IDC_U10+i, tmpstr);
-    value=IDSKey("RACE", tmpstr);
-    if(value==-1)
-    {
-      the_creature.iwd2header.enemy[i]=(BYTE) strtonum(tmpstr);
-    }
-    else
-    {
-      the_creature.iwd2header.enemy[i]=(BYTE) value;
-    }
+    value=IDSKey2("RACE", tmpstr);
+    the_creature.iwd2header.enemy[i]=(BYTE) value;
   }
 
   value = (the_creature.header.idsrace<<16)+the_creature.iwd2header.subrace;
   tmpstr.Format("0x%x %s",the_creature.iwd2header.subrace,IDSToken("SUBRACE", value, true) );
   DDX_Text(pDX, IDC_SUBRACE, tmpstr);
-  value=IDSKey("SUBRACE", tmpstr);
-  if(value==-1)
-  {
-    the_creature.iwd2header.subrace=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.iwd2header.subrace=(BYTE) value;
-  }
+  value=IDSKey2("SUBRACE", tmpstr);
+  the_creature.iwd2header.subrace=(BYTE) value;
 
   DDX_Text(pDX, IDC_XPLIST, the_creature.iwd2header.cr);
 

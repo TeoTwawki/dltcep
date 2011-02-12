@@ -678,11 +678,7 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
 
     tmpstr.Format("0x%04x %s",the_area.actorheaders[m_actornum].animation,IDSToken("ANIMATE",the_area.actorheaders[m_actornum].animation, false) );
     DDX_Text(pDX, IDC_ANIMATION, tmpstr);
-    the_area.actorheaders[m_actornum].animation=IDSKey("ANIMATE", tmpstr);
-    if(the_area.actorheaders[m_actornum].animation==-1)
-    {
-      the_area.actorheaders[m_actornum].animation=strtonum(tmpstr);
-    }
+    the_area.actorheaders[m_actornum].animation=IDSKey2("ANIMATE", tmpstr);
     
     //this is a short number
     tmpstr=format_direction(the_area.actorheaders[m_actornum].face);
@@ -856,6 +852,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_BN_CLICKED(IDC_SETDEST, OnSetdest)
 	ON_BN_CLICKED(IDC_BROWSE9, OnBrowse9)
 	ON_BN_CLICKED(IDC_EMBED, OnEmbed)
+	ON_BN_CLICKED(IDC_BUTTON1, OnButton1)
 	ON_EN_KILLFOCUS(IDC_CRERES, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
@@ -876,8 +873,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_U36, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_FACE, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_ANIMATION, DefaultKillfocus)
-	ON_EN_CHANGE(IDC_AREA, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_BUTTON1, OnButton1)
+	ON_EN_KILLFOCUS(IDC_AREA, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

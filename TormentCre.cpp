@@ -83,39 +83,19 @@ void CTormentCre::DoDataExchange(CDataExchange* pDX)
 
   tmpstr.Format("0x%x %s",the_creature.pstheader.idsteam,IDSToken("TEAM",the_creature.pstheader.idsteam, true) );
   DDX_Text(pDX, IDC_TEAM, tmpstr);
-  value=IDSKey("TEAM", tmpstr);
-  if(value==-1)
-  {
-    the_creature.pstheader.idsteam=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.pstheader.idsteam=(BYTE) value;
-  }
+  value=IDSKey2("TEAM", tmpstr);
+  the_creature.pstheader.idsteam=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.pstheader.idsfaction,IDSToken("FACTION",the_creature.pstheader.idsfaction, true) );
   DDX_Text(pDX, IDC_FACTION, tmpstr);
-  value=IDSKey("FACTION", tmpstr);
-  if(value==-1)
-  {
-    the_creature.pstheader.idsfaction=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.pstheader.idsfaction=(BYTE) value;
-  }
+  value=IDSKey2("FACTION", tmpstr);
+  the_creature.pstheader.idsfaction=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.pstheader.idsspecies,IDSToken("RACE",the_creature.pstheader.idsspecies, true) );
   DDX_Text(pDX, IDC_IDSSPECIES, tmpstr);
-  value=IDSKey("RACE", tmpstr);
-  if(value==-1)
-  {
-    the_creature.pstheader.idsspecies=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.pstheader.idsspecies=(BYTE) value;
-  }
+  value=IDSKey2("RACE", tmpstr);
+  the_creature.pstheader.idsspecies=(BYTE) value;
+
   if(!the_creature.pstheader.idsspecies) the_creature.pstheader.idsspecies=the_creature.header.idsrace;
 
   for(i=0;i<7;i++)

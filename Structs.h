@@ -539,13 +539,19 @@ typedef struct {
   char wavc2[8];
   char wavc3[8];
   short spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
-  short spknumber;
+  short spknumber;  
   long extflags;    //0x2c //flags used by gemrb
   long text;        //0x30 //text strref
   long rgb;         //0x34 //rgb single pulse color
-  short pulsespeed; //0x36 //pulse speed
-  short shake;      //0x38 //screen shake
-  char unknown3c[196]; //unknown till next 256 block
+  short pulsespeed; //0x38 //pulse speed
+  short shake;      //0x3a //screen shake
+  short affects;    //0x3c //ids targeting value (0-255) just like with ids targeting opcode
+  short atype;      //0x3e //ids targeting type (1-7) just like with ids targeting opcode
+  short affects2;   //0x40 //second ids targeting value
+  short atype2;     //0x42 //second ids targeting type
+  char failspell[8];//0x44 //un-hardcoded failure effect for projectile specific effects
+  char succspell[8];//0x4c //un-hardcoded success effect for projectile specific effects
+  char unknown54[172]; //unknown till next 256 block
   unsigned long attr;
   char bam1[8];
   char bam2[8];

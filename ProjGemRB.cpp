@@ -28,7 +28,8 @@ CProjGemRB::CProjGemRB(CWnd* pParent /*=NULL*/)
 void CProjGemRB::DoDataExchange(CDataExchange* pDX)
 {
   CButton *cb;
-  CString tmpstr;
+  CString tmpstr, tmpstr2;
+  CString idsname;
   int i,j;
   int flg;
 
@@ -59,6 +60,37 @@ void CProjGemRB::DoDataExchange(CDataExchange* pDX)
   the_projectile.header.rgb=strtonum(tmpstr);
   DDX_Text(pDX, IDC_SPEED, the_projectile.header.pulsespeed);
   DDX_Text(pDX, IDC_SCREEN, the_projectile.header.shake);
+
+  idsname=IDSName2(the_projectile.header.atype, true);
+  tmpstr.Format("%d %s", the_projectile.header.atype, idsname);
+  DDX_Text(pDX, IDC_IDS, tmpstr);
+  the_projectile.header.atype = (short) IDSIndex(tmpstr, true);
+
+  tmpstr2 = IDSToken(idsname, the_projectile.header.affects, false);
+  tmpstr.Format("%d %s", the_projectile.header.affects, tmpstr2);
+  DDX_Text(pDX, IDC_VALUE, tmpstr);
+  the_projectile.header.affects = (short) IDSKey2(idsname, tmpstr);
+
+  idsname=IDSName2(the_projectile.header.atype2, true);
+  tmpstr.Format("%d %s", the_projectile.header.atype2, idsname);
+  DDX_Text(pDX, IDC_IDS2, tmpstr);
+  the_projectile.header.atype2 = (short) IDSIndex(tmpstr, true);
+
+  tmpstr2 = IDSToken(idsname, the_projectile.header.affects2, false);
+  tmpstr.Format("%d %s", the_projectile.header.affects2, tmpstr2);
+  DDX_Text(pDX, IDC_VALUE2, tmpstr);
+  the_projectile.header.affects2 = (short) IDSKey2(idsname, tmpstr);
+
+  RetrieveResref(tmpstr, the_projectile.header.failspell);
+  DDX_Text(pDX, IDC_SPELL, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr, the_projectile.header.failspell);
+
+  RetrieveResref(tmpstr, the_projectile.header.succspell);
+  DDX_Text(pDX, IDC_SPELL2, tmpstr);
+  DDV_MaxChars(pDX, tmpstr, 8);
+  StoreResref(tmpstr, the_projectile.header.succspell);
+
 }
 
 
@@ -82,19 +114,27 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
 	ON_BN_CLICKED(IDC_FLAG17, OnFlag17)
 	ON_BN_CLICKED(IDC_FLAG18, OnFlag18)
+	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocus)
 	ON_BN_CLICKED(IDC_FLAG19, OnFlag19)
+	ON_EN_KILLFOCUS(IDC_STRING, OnKillfocusString)
 	ON_BN_CLICKED(IDC_FLAG20, OnFlag20)
 	ON_BN_CLICKED(IDC_FLAG21, OnFlag21)
 	ON_BN_CLICKED(IDC_FLAG22, OnFlag22)
 	ON_BN_CLICKED(IDC_FLAG23, OnFlag23)
-	ON_BN_CLICKED(IDC_FLAG24, OnFlag24)
 	ON_BN_CLICKED(IDC_COLOR, OnColor)
-	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocus)
+	ON_BN_CLICKED(IDC_FLAG24, OnFlag24)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_EN_KILLFOCUS(IDC_RGB, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPEED, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_SCREEN, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
-	ON_EN_KILLFOCUS(IDC_STRING, OnKillfocusString)
+	ON_EN_KILLFOCUS(IDC_SPELL, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_IDS, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_VALUE, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_SPELL2, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_IDS2, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_VALUE2, OnKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -296,6 +336,28 @@ void CProjGemRB::OnColor()
     the_projectile.header.rgb=color;
   }
   UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnBrowse() 
+{
+  pickerdlg.m_restype=REF_SPL;
+  RetrieveResref(pickerdlg.m_picked, the_projectile.header.failspell);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked, the_projectile.header.failspell);
+  }
+	UpdateData(UD_DISPLAY);	
+}
+
+void CProjGemRB::OnBrowse2() 
+{
+  pickerdlg.m_restype=REF_SPL;
+  RetrieveResref(pickerdlg.m_picked, the_projectile.header.succspell);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked, the_projectile.header.succspell);
+  }
+	UpdateData(UD_DISPLAY);	
 }
 
 BOOL CProjGemRB::OnInitDialog() 

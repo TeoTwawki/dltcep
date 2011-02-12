@@ -147,7 +147,7 @@ FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "",IDC_VERSION,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2002-2009 Avenger",IDC_STATIC,40,23,119,8
+    LTEXT           "Copyright (C) 2002-2011 Avenger",IDC_STATIC,40,23,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
     LTEXT           "Source: http://gemrb.sourceforge.net",IDC_STATIC,40,36,
                     119,8
@@ -5401,7 +5401,7 @@ BEGIN
     PUSHBUTTON      "Add effect",IDC_ADD2,411,90,62,14
 END
 
-IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 306, 219
+IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 306, 279
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "GemRB specific data"
 FONT 8, "MS Sans Serif"
@@ -5461,12 +5461,24 @@ BEGIN
                     WS_TABSTOP,219,135,68,10
     EDITTEXT        IDC_STRREF,7,161,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_STRING,52,161,237,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Back",IDOK,249,198,50,14
+    PUSHBUTTON      "Back",IDOK,249,258,50,14
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     LTEXT           "Text displayed",IDC_STATIC,11,150,46,8
     LTEXT           "RGB color on hit",IDC_STATIC,70,7,53,8
     LTEXT           "Screenshake on hit",IDC_STATIC,235,7,62,8
     LTEXT           "RGB speed",IDC_STATIC,182,7,38,8
+    EDITTEXT        IDC_SPELL,8,193,69,14,ES_AUTOHSCROLL
+    LTEXT           "Failure spell",IDC_STATIC,8,181,38,8
+    EDITTEXT        IDC_IDS,8,224,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VALUE,156,224,62,14,ES_AUTOHSCROLL
+    LTEXT           "IDS targeting types",IDC_STATIC,8,211,61,8
+    LTEXT           "IDS targeting values",IDC_STATIC,156,211,65,8
+    PUSHBUTTON      "Browse",IDC_BROWSE,82,193,39,14
+    EDITTEXT        IDC_SPELL2,156,193,69,14,ES_AUTOHSCROLL
+    LTEXT           "Success spell",IDC_STATIC,156,181,44,8
+    PUSHBUTTON      "Browse",IDC_BROWSE2,230,193,39,14
+    EDITTEXT        IDC_IDS2,82,224,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VALUE2,230,224,62,14,ES_AUTOHSCROLL
 END
 
 IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
@@ -6341,7 +6353,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 299
         TOPMARGIN, 7
-        BOTTOMMARGIN, 212
+        BOTTOMMARGIN, 272
     END
 
     IDD_PROJAREAGEMRB, DIALOG
@@ -6400,8 +6412,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,2,0,3
- PRODUCTVERSION 7,2,0,3
+ FILEVERSION 7,2,0,4
+ PRODUCTVERSION 7,2,0,4
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6419,14 +6431,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 2, 0, 3\0"
+            VALUE "FileVersion", "7, 2, 0, 4\0"
             VALUE "InternalName", "dltcep\0"
-            VALUE "LegalCopyright", "Copyright (C) 2002-2010 Avenger\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002-2011 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.2c\0"
-            VALUE "ProductVersion", "7, 2, 0, 3\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.2d\0"
+            VALUE "ProductVersion", "7, 2, 0, 4\0"
             VALUE "SpecialBuild", "\0"
         END
     END

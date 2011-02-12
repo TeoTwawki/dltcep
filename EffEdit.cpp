@@ -334,6 +334,7 @@ void CEffEdit::UpdateTooltip()
 {
   CString tmpstr, tmpstr1;
   
+  if (!m_tooltip) return;
   if (the_effect.header.prob1==100) {
     tmpstr1.LoadString(IDS_PROB2B);
     tmpstr.Format("%s%s", tmpstr1, IDSToken("STATS", the_effect.header.prob2, true));
@@ -804,11 +805,8 @@ void CEffEdit::OnKillfocusPar1()
   UpdateData(UD_RETRIEVE);
   switch(m_par_type) {
   case 4:
-    the_effect.header.par1.parl=IDSKey("ANIMATE", m_param1);
-    if(the_effect.header.par1.parl!=0xffffffff)
-    {
-      break;
-    }
+    the_effect.header.par1.parl=IDSKey2("ANIMATE", m_param1);
+    break;    
     //fall through
   default:
     the_effect.header.par1.parl=strtonum(m_param1);
@@ -874,14 +872,7 @@ void CEffEdit::OnKillfocusPar2()
   case 0:
     break;
   case 2: //ids
-    for(x=0;x<NUM_IDS;x++)
-    {
-      if(idstype[x]==tmp)
-      {
-        the_effect.header.par2.parl=x+2;
-        goto endofquest;
-      }
-    }
+    the_effect.header.par2.parl = IDSIndex(tmp, true);
     break;
   case 3:
     y=0x10000;

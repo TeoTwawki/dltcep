@@ -128,11 +128,7 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
   the_creature.header.state=strtonum(tmpstr);
   tmpstr.Format("0x%04x %s",the_creature.header.animid,IDSToken("ANIMATE",the_creature.header.animid, false) );
   DDX_Text(pDX, IDC_ANIMATION, tmpstr);
-  the_creature.header.animid=IDSKey("ANIMATE", tmpstr);
-  if(the_creature.header.animid==0xffffffff)
-  {
-    the_creature.header.animid=strtonum(tmpstr);
-  }
+  the_creature.header.animid=IDSKey2("ANIMATE", tmpstr);
 
   value=the_creature.header.thac0;
   DDX_Text(pDX, IDC_THAC0, value);
@@ -150,99 +146,43 @@ void CCreatureGeneral::DoDataExchange(CDataExchange* pDX)
 
   tmpstr.Format("0x%x %s",the_creature.header.idsea,IDSToken("EA",the_creature.header.idsea, true) );
   DDX_Text(pDX, IDC_IDSEA, tmpstr);
-  value=IDSKey("EA",tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsea=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsea=(BYTE) value;
-  }
+  value=IDSKey2("EA",tmpstr);
+  the_creature.header.idsea=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.idsgeneral,IDSToken("GENERAL",the_creature.header.idsgeneral, true) );
   DDX_Text(pDX, IDC_IDSGENERAL, tmpstr);
-  value=IDSKey("GENERAL", tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsgeneral=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsgeneral=(BYTE) value;
-  }
+  value=IDSKey2("GENERAL", tmpstr);
+  the_creature.header.idsgeneral=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.idsrace,IDSToken("RACE",the_creature.header.idsrace, true) );
   DDX_Text(pDX, IDC_IDSRACE, tmpstr);
-  value=IDSKey("RACE", tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsrace=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsrace=(BYTE) value;
-  }
+  value=IDSKey2("RACE", tmpstr);
+  the_creature.header.idsrace=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.idsclass,IDSToken("CLASS",the_creature.header.idsclass, true) );
   DDX_Text(pDX, IDC_IDSCLASS, tmpstr);
-  value=IDSKey("CLASS", tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsclass=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsclass=(BYTE) value;
-  }
+  value=IDSKey2("CLASS", tmpstr);
+  the_creature.header.idsclass=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.idsspecific,IDSToken("SPECIFIC",the_creature.header.idsspecific, true) );
   DDX_Text(pDX, IDC_IDSSPECIFIC, tmpstr);
-  value=IDSKey("SPECIFIC", tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsspecific=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsspecific=(BYTE) value;
-  }
+  value=IDSKey2("SPECIFIC", tmpstr);
+  the_creature.header.idsspecific=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.idsgender,IDSToken("GENDER",the_creature.header.idsgender, true) );
   DDX_Text(pDX, IDC_IDSGENDER, tmpstr);
-  value=IDSKey("GENDER", tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsgender=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsgender=(BYTE) value;
-  }
+  value=IDSKey2("GENDER", tmpstr);
+  the_creature.header.idsgender=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.idsalign,IDSToken(IDSName2(ALIGN,false),the_creature.header.idsalign, true) );
   DDX_Text(pDX, IDC_IDSALIGNMENT, tmpstr);
-  value=IDSKey(IDSName(ALIGN,false), tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.idsalign=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.idsalign=(BYTE) value;
-  }
+  value=IDSKey2(IDSName(ALIGN,false), tmpstr);
+  the_creature.header.idsalign=(BYTE) value;
 
   tmpstr.Format("0x%x %s",the_creature.header.enemy,IDSToken("RACE",the_creature.header.enemy, true) );
   DDX_Text(pDX, IDC_HATED, tmpstr);
-  value=IDSKey("RACE", tmpstr);
-  if(value==-1)
-  {
-    the_creature.header.enemy=(BYTE) strtonum(tmpstr);
-  }
-  else
-  {
-    the_creature.header.enemy=(BYTE) value;
-  }
+  value=IDSKey2("RACE", tmpstr);
+  the_creature.header.enemy=(BYTE) value;
 
   //tmpstr.Format("0x%08x",the_creature.header.kit);
   tmpstr=FindKit(the_creature.header.kit);
@@ -3480,9 +3420,16 @@ void CCreatureItem::AddSpell(int slot, CString spellres)
   }
   for(i=0;i<the_creature.selectcount;i++)
   {
-    if((i!=slot) && (the_creature.selects[i].index>=m_spellslot) )
+    if((i!=slot) )
     {
-      the_creature.selects[i].index++;
+      if (the_creature.selects[i].index>m_spellslot)
+      {
+        the_creature.selects[i].index++;
+      }
+      else if ((the_creature.selects[i].index==m_spellslot) && i>slot)
+      {
+        the_creature.selects[i].index++;
+      }
     }
   }
   the_creature.m_changed=true;

@@ -44,18 +44,7 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CAreaSong)
-	afx_msg void OnKillfocusAmbi1d();
-	afx_msg void OnKillfocusAmbi2d();
-	afx_msg void OnKillfocusVolumed();
-	afx_msg void OnKillfocusAmbi1n();
-	afx_msg void OnKillfocusAmbi2n();
-	afx_msg void OnKillfocusVolumen();
-	afx_msg void OnKillfocusFlags();
-	afx_msg void OnKillfocusDay();
-	afx_msg void OnKillfocusNight();
-	afx_msg void OnKillfocusUnknown1();
-	afx_msg void OnKillfocusBattle();
-	afx_msg void OnKillfocusUnknown2();
+	afx_msg void DefaultKillfocus();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnClear();
 	afx_msg void OnMusday();

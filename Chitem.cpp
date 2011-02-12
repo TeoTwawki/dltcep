@@ -2787,6 +2787,19 @@ CString IDSType(int ids, bool addtwo)
   return idstype[ids];
 }
 
+int IDSIndex(CString name, bool addtwo)
+{
+  name.MakeLower();
+  for(int x=0;x<NUM_IDS;x++)
+  {
+    if(idstype[x]==name)
+    {
+      return x+(addtwo?2:0);
+    }
+  }
+  return strtonum(name);
+}
+
 CString IDSName2(int ids, bool addtwo)
 {
   if(addtwo) ids-=2;
@@ -2840,6 +2853,16 @@ int IDSKey(CString filename, CString key)
   }
   value=-1;
   idsfile->Lookup(key, value);
+  return value;
+}
+
+int IDSKey2(CString filename, CString key)
+{
+  int value = IDSKey(filename, key);
+  if (value==-1)
+  {
+    value = strtonum(key);
+  }
   return value;
 }
 
@@ -4604,7 +4627,11 @@ int ReadWed(int res)
   {
     fhandle=locate_file(wedfileloc, 0);
   }
-  else fhandle=-1;
+  else
+  {
+    fhandle=-1;
+  }
+
   if(fhandle<1) //falling back to same directory
   {
     fhandle=open(lastopenedoverride+"//"+wed+".WED",O_RDONLY|O_BINARY);
@@ -4641,6 +4668,11 @@ int read_projectile(CString key)
   {
     fhandle=locate_file(fileloc, 0);
   }
+  else
+  {
+    fhandle = -1;
+  }
+
   if(fhandle<1) //falling back to same directory
   {
     fhandle=open(lastopenedoverride+"//"+key+".sto",O_RDONLY|O_BINARY);
@@ -5220,7 +5252,10 @@ int read_bmp(CString key, Cbam *cb, int lazy)
   {
     fhandle=locate_file(fileloc, 0);
   }
-  else fhandle=-1;
+  else
+  {
+    fhandle=-1;
+  }
   if(fhandle<1)
   {
     fhandle=open(lastopenedoverride+"//"+key+".bmp",O_RDONLY|O_BINARY);

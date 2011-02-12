@@ -1433,6 +1433,7 @@
 #define IDC_PST                         2077
 #define IDC_IDS                         2078
 #define IDC_DELETE                      2079
+#define IDC_IDS2                        2079
 #define IDC_EDIT                        2080
 #define IDC_FROMSP                      2081
 #define IDC_TOSP                        2082
@@ -1906,7 +1907,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33052
-#define _APS_NEXT_CONTROL_VALUE         2325
+#define _APS_NEXT_CONTROL_VALUE         2327
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif
