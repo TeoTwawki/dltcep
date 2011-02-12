@@ -5401,16 +5401,16 @@ BEGIN
     PUSHBUTTON      "Add effect",IDC_ADD2,411,90,62,14
 END
 
-IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 306, 279
+IDD_PROJGEMRB DIALOG DISCARDABLE  0, 0, 347, 274
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "GemRB specific data"
 FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_FLAGS,9,19,48,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_RGB,70,19,50,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Pick color",IDC_COLOR,133,19,36,14
-    EDITTEXT        IDC_SPEED,182,19,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_SCREEN,235,19,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RGB,86,19,50,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Pick color",IDC_COLOR,142,19,36,14
+    EDITTEXT        IDC_SPEED,190,19,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SCREEN,265,19,40,14,ES_AUTOHSCROLL
     CONTROL         "Bounce from walls",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,9,37,73,10
     CONTROL         "Continue after hit",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
@@ -5428,57 +5428,60 @@ BEGIN
     CONTROL         "Pillar",IDC_FLAG8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     9,135,31,10
     CONTROL         "Translucent",IDC_FLAG9,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,124,37,53,10
+                    WS_TABSTOP,86,37,53,10
     CONTROL         "Tinted by gradient",IDC_FLAG10,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,124,51,73,10
+                    WS_TABSTOP,86,51,73,10
     CONTROL         "Create iteration",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,124,65,63,10
+                    WS_TABSTOP,86,65,63,10
     CONTROL         "Tiled area of effect",IDC_FLAG12,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,124,79,75,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,86,79,75,10
     CONTROL         "Falling path",IDC_FLAG13,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,124,93,52,10
+                    WS_TABSTOP,86,93,52,10
     CONTROL         "Incoming path",IDC_FLAG14,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,124,107,61,10
+                    WS_TABSTOP,86,107,61,10
     CONTROL         "Line area of effect",IDC_FLAG15,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,124,121,73,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,86,121,73,10
     CONTROL         "Wall area of effect",IDC_FLAG16,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,124,135,74,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,86,135,74,10
     CONTROL         "Draw behind target",IDC_FLAG17,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,37,76,10
+                    WS_TABSTOP,178,37,76,10
     CONTROL         "Pop in and out",IDC_FLAG18,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,51,62,10
+                    WS_TABSTOP,178,51,62,10
     CONTROL         "Pop out phase",IDC_FLAG19,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,65,62,10
+                    WS_TABSTOP,178,65,62,10
     CONTROL         "Fade after explode",IDC_FLAG20,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,79,75,10
+                    WS_TABSTOP,178,79,75,10
     CONTROL         "Display string",IDC_FLAG21,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,93,57,10
+                    WS_TABSTOP,178,93,57,10
     CONTROL         "Random movement",IDC_FLAG22,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,107,77,10
+                    WS_TABSTOP,178,107,77,10
     CONTROL         "Random cycle",IDC_FLAG23,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,121,61,10
+                    WS_TABSTOP,178,121,61,10
     CONTROL         "RGB color on hit",IDC_FLAG24,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,219,135,68,10
+                    WS_TABSTOP,178,135,68,10
     EDITTEXT        IDC_STRREF,7,161,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_STRING,52,161,237,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Back",IDOK,249,258,50,14
+    EDITTEXT        IDC_STRING,52,161,280,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Back",IDOK,290,253,50,14
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     LTEXT           "Text displayed",IDC_STATIC,11,150,46,8
-    LTEXT           "RGB color on hit",IDC_STATIC,70,7,53,8
-    LTEXT           "Screenshake on hit",IDC_STATIC,235,7,62,8
-    LTEXT           "RGB speed",IDC_STATIC,182,7,38,8
+    LTEXT           "RGB color on hit",IDC_STATIC,86,7,53,8
+    LTEXT           "Screenshake on hit",IDC_STATIC,265,7,62,8
+    LTEXT           "RGB speed",IDC_STATIC,190,7,38,8
     EDITTEXT        IDC_SPELL,8,193,69,14,ES_AUTOHSCROLL
     LTEXT           "Failure spell",IDC_STATIC,8,181,38,8
-    EDITTEXT        IDC_IDS,8,224,62,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_VALUE,156,224,62,14,ES_AUTOHSCROLL
-    LTEXT           "IDS targeting types",IDC_STATIC,8,211,61,8
-    LTEXT           "IDS targeting values",IDC_STATIC,156,211,65,8
+    EDITTEXT        IDC_IDS,8,229,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VALUE,95,229,62,14,ES_AUTOHSCROLL
+    LTEXT           "IDS target type and value",IDC_STATIC,8,216,82,8
+    LTEXT           "Secondary IDS target type and value",IDC_STATIC,182,216,
+                    118,8
     PUSHBUTTON      "Browse",IDC_BROWSE,82,193,39,14
     EDITTEXT        IDC_SPELL2,156,193,69,14,ES_AUTOHSCROLL
     LTEXT           "Success spell",IDC_STATIC,156,181,44,8
     PUSHBUTTON      "Browse",IDC_BROWSE2,230,193,39,14
-    EDITTEXT        IDC_IDS2,82,224,62,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_VALUE2,230,224,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_IDS2,182,229,62,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VALUE2,269,229,62,14,ES_AUTOHSCROLL
+    CONTROL         "Touch",IDC_FLAG25,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    265,37,37,10
 END
 
 IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
@@ -6351,9 +6354,9 @@ BEGIN
     IDD_PROJGEMRB, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 299
+        RIGHTMARGIN, 340
         TOPMARGIN, 7
-        BOTTOMMARGIN, 272
+        BOTTOMMARGIN, 267
     END
 
     IDD_PROJAREAGEMRB, DIALOG

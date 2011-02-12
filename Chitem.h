@@ -555,6 +555,7 @@ extern CString DELETED_REFERENCE;
 #define PROJ_WANDERING   0x200000 //the projectile moves randomly
 #define PROJ_CYCLE       0x400000 //the projectile will have a random cycle
 #define PROJ_RGB         0x800000 //the target will have a single color pulse effect
+#define PROJ_TOUCH       0x1000000//an attack roll is needed for success (failure payload will be used if failed)
 
 //extended area flags for gemrb
 #define APF_TINT      1    //use tint for spread animation

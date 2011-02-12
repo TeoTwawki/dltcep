@@ -41,7 +41,7 @@ void CProjGemRB::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_FLAGS, tmpstr);
   the_projectile.header.extflags=strtonum(tmpstr);
   j=1;
-  for(i=0;i<24;i++)
+  for(i=0;i<25;i++)
   {
     cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
     if (cb)
@@ -135,6 +135,7 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_EN_KILLFOCUS(IDC_SPELL2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_IDS2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_VALUE2, OnKillfocus)
+	ON_BN_CLICKED(IDC_FLAG25, OnFlag25)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -283,6 +284,12 @@ void CProjGemRB::OnFlag23()
 void CProjGemRB::OnFlag24() 
 {
   the_projectile.header.extflags^=PROJ_RGB;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjGemRB::OnFlag25() 
+{
+  the_projectile.header.extflags^=PROJ_TOUCH;
 	UpdateData(UD_DISPLAY);
 }
 

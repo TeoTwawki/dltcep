@@ -533,6 +533,7 @@
 #define IDC_DURATIONLABEL               1177
 #define IDC_FLAG24                      1177
 #define IDC_THAC0                       1178
+#define IDC_FLAG25                      1178
 #define IDC_ROLL                        1179
 #define IDC_DIE                         1180
 #define IDC_ADD                         1181
