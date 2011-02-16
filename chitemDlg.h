@@ -28,6 +28,7 @@
 #define BAD_INDEX     4096
 #define BAD_COMPRESS  8192
 #define BAD_VERTEX    16384
+#define BAD_VAR       32768
 /////////////////////////////////////////////////////////////////////////////
 // CChitemDlg dialog
 enum logtype_vals {LOG_NO, LOG_SCREEN, LOG_FILE};
@@ -198,6 +199,7 @@ protected:
   int check_storeitemtype();
   int check_storeentries();
   int check_storetype(unsigned int type, int iscont);
+  int check_variable(const gam_variable *var, CString scope);
   int check_proj_explode();
   int check_proj_header();
   int check_weaprofs(int itemtype);

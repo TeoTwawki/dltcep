@@ -45,9 +45,12 @@ public:
 protected:
   CToolTipCtrl m_tooltip;
 
+  void RefreshDialogPartial();
   void RefreshDialog();
   void SaveGame(int save);
   int GetActualPosition(CComboBox &cb);
+  void DeleteVariable(int pos);
+  void DeleteVariable2(int pos);
 
 	// Generated message map functions
 	//{{AFX_MSG(CGameEdit)
@@ -105,6 +108,7 @@ protected:
 	afx_msg void OnGeneral();
 	afx_msg void OnPCData();
 	afx_msg void OnEditblock2();
+	afx_msg void OnFix();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -125,7 +125,7 @@ void load_variables(HWND parent, int verbose, int novalue, CStringMapInt &vars)
     var.Format("%.32s",line+8);
     area.MakeUpper();
     var.TrimRight();
-    var.MakeLower();
+    var.MakeUpper();
     if(novalue) vars[area+var]=2;
     else vars[area+var]=*(long *) (&line[40]);
   }
@@ -458,11 +458,13 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     log("Crippled variable name: %s (%s)", varname, tmp);
     return 1;
   }
-  varname.MakeLower();
+  varname.MakeUpper();
+  /*
   for(i=0;i<6;i++)
   {
     varname.SetAt(i,(char) toupper(varname[i]) );
   }
+  */
   if(varname.Left(6)!="GLOBAL" && !pst_compatible_var() )
   {
     for(i=0;i<6;i++)

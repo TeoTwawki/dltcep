@@ -256,6 +256,22 @@ CString ResolveName(char *customname, creature_header *creatureheader)
   return ret;
 }
 
+void CGameEdit::RefreshDialogPartial()
+{
+  CString tmpstr;
+  int pos;
+
+  pos=m_variablepicker.GetCurSel();
+  tmpstr.Format("Variables (%d/%d)", the_game.header.variablecount, pos);
+  GetDlgItem(IDC_VARHEADER)->SetWindowText(tmpstr);
+
+  pos=m_dvarpicker.GetCurSel();
+  tmpstr.Format("Variables (%d/%d)", the_game.pstheader.dvarcount, pos);
+  GetDlgItem(IDC_VARHEADER2)->SetWindowText(tmpstr);
+
+  UpdateData(UD_DISPLAY);
+}
+
 void CGameEdit::RefreshDialog()
 {
   CString tmpstr, name;
@@ -312,6 +328,10 @@ void CGameEdit::RefreshDialog()
   pos=m_variablepicker.GetCurSel();
   if(pos<0) pos=0;
   m_variablepicker.ResetContent();
+
+  tmpstr.Format("Variables (%d/%d)", the_game.header.variablecount, pos);
+  GetDlgItem(IDC_VARHEADER)->SetWindowText(tmpstr);
+
   for(i=0;i<the_game.header.variablecount;i++)
   {
     tmpstr.Format("%-.32s (%d)",the_game.variables[i].variablename, the_game.variables[i].value);
@@ -324,6 +344,10 @@ void CGameEdit::RefreshDialog()
     pos=m_dvarpicker.GetCurSel();
     if(pos<0) pos=0;
     m_dvarpicker.ResetContent();
+
+    tmpstr.Format("Variables (%d/%d)", the_game.pstheader.dvarcount, pos);
+    GetDlgItem(IDC_VARHEADER2)->SetWindowText(tmpstr);
+
     for(i=0;i<the_game.pstheader.dvarcount;i++)
     {
       tmpstr.Format("%-.32s (%d)",the_game.deathvariables[i].variablename, the_game.deathvariables[i].value);
@@ -529,12 +553,13 @@ BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
 	ON_BN_CLICKED(IDC_EDITLINK2, OnEditlink2)
 	ON_BN_CLICKED(IDC_GENERAL, OnGeneral)
 	ON_BN_CLICKED(IDC_EDITBLOCK, OnPCData)
+	ON_BN_CLICKED(IDC_EDITBLOCK2, OnEditblock2)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_BN_CLICKED(IDC_EDITBLOCK2, OnEditblock2)
+	ON_COMMAND(ID_FIX, OnFix)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -708,6 +733,47 @@ void CGameEdit::OnCheck()
   {
     MessageBox(lasterrormsg,"Game editor",MB_ICONEXCLAMATION|MB_OK);
   }
+}
+
+
+void CGameEdit::OnFix() 
+{
+  CString tmpstr;
+  int cnt;
+  int i;
+
+	i=the_game.variablecount;
+  while(i--)
+  {
+    RetrieveVariable(tmpstr, the_game.variables[i].variablename, false);
+    if (!variables.Lookup("GLOBAL"+tmpstr, cnt) ) {
+      ((CChitemDlg *) AfxGetMainWnd())->log("Fixing global variable: %s", tmpstr);
+      tmpstr.Replace(" ","");
+      if (!variables.Lookup("GLOBAL"+tmpstr, cnt) ) {
+        ((CChitemDlg *) AfxGetMainWnd())->log("Deleting global variable: %s", tmpstr);
+        DeleteVariable(i);
+        continue;
+      }
+    }
+    StoreVariable(tmpstr, the_game.variables[i].variablename, false);
+  }
+
+	i=the_game.deathvariablecount;
+  while(i--)
+  {
+    RetrieveVariable(tmpstr, the_game.deathvariables[i].variablename, false);
+    if (!variables.Lookup("KAPUTZ"+tmpstr, cnt) ) {
+      ((CChitemDlg *) AfxGetMainWnd())->log("Fixing kaputz variable: %s", tmpstr);
+      tmpstr.Replace(" ","");
+      if (!variables.Lookup("KAPUTZ"+tmpstr, cnt) ) {
+        ((CChitemDlg *) AfxGetMainWnd())->log("Deleting kaputz variable: %s", tmpstr);
+        DeleteVariable2(i);
+        continue;
+      }
+    }
+    StoreVariable(tmpstr, the_game.deathvariables[i].variablename, false);
+  }
+  RefreshDialog();
 }
 
 void CGameEdit::OnKillfocusNpcpicker() 
@@ -953,6 +1019,7 @@ void CGameEdit::OnKillfocusVariablepicker()
 
 void CGameEdit::OnSelchangeVariablepicker() 
 {
+  RefreshDialogPartial();
 	UpdateData(UD_DISPLAY);
 }
 
@@ -976,13 +1043,10 @@ int CGameEdit::GetActualPosition(CComboBox &cb)
   if(pos<0) return -1;
   return cb.GetItemData(pos);
 }
-void CGameEdit::OnDelvar() 
+
+void CGameEdit::DeleteVariable(int pos)
 {
   gam_variable *newvars;
-  int pos;
-
-  pos=GetActualPosition(m_variablepicker);
-  if(pos<0 || pos>=the_game.header.variablecount) return;  
 
   newvars=new gam_variable[the_game.variablecount--];
   if(!newvars)
@@ -997,6 +1061,16 @@ void CGameEdit::OnDelvar()
   the_game.header.variablecount=the_game.variablecount;
   if(pos==the_game.variablecount) pos--;
   m_variablepicker.SetCurSel(pos);
+}
+
+void CGameEdit::OnDelvar() 
+{
+  int pos;
+
+  pos=GetActualPosition(m_variablepicker);
+  if(pos<0 || pos>=the_game.header.variablecount) return;
+  DeleteVariable(pos);
+
   RefreshDialog();
 }
 
@@ -1025,6 +1099,7 @@ void CGameEdit::OnKillfocusVariablepicker2()
 
 void CGameEdit::OnSelchangeVariablepicker2() 
 {
+  RefreshDialogPartial();
 	UpdateData(UD_DISPLAY);
 }
 
@@ -1040,13 +1115,10 @@ void CGameEdit::OnKillfocusVarname2()
   RefreshDialog();
 }
 
-void CGameEdit::OnDelvar2() 
+void CGameEdit::DeleteVariable2(int pos)
 {
   gam_variable *newvars;
-  int pos;
 
-	pos=GetActualPosition(m_dvarpicker);
-  if(pos<0 || pos>the_game.pstheader.dvarcount) return;  
   newvars=new gam_variable[the_game.deathvariablecount--];
   if(!newvars)
   {
@@ -1060,6 +1132,15 @@ void CGameEdit::OnDelvar2()
   the_game.pstheader.dvarcount=the_game.deathvariablecount;
   if(pos==the_game.deathvariablecount) pos--;
   m_dvarpicker.SetCurSel(pos);
+}
+
+void CGameEdit::OnDelvar2() 
+{
+  int pos;
+
+	pos=GetActualPosition(m_dvarpicker);
+  if(pos<0 || pos>the_game.pstheader.dvarcount) return;
+  DeleteVariable(pos);
   RefreshDialog();
 }
 

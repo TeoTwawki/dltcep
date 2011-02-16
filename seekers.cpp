@@ -5587,6 +5587,19 @@ int CChitemDlg::check_bam()
   return ret;
 }
 
+int CChitemDlg::check_variable(const gam_variable *var, CString scope)
+{
+  int cnt;
+  CString varname;
+
+  varname = scope+var->variablename;
+  if (variables.Lookup(varname, cnt))
+  {
+    return 0;
+  }
+  return BAD_VAR;
+}
+
 int CChitemDlg::check_game()
 {
   CString tmpstr;
@@ -5619,6 +5632,22 @@ int CChitemDlg::check_game()
       log("Invalid familiar: %-.8s",the_game.familiar.familiars[i]);
       ret=BAD_RESREF;
     }
+  }
+  if (pst_compatible_var()) {
+    for(i=0;i<the_game.variablecount;i++) {
+      if (check_variable(the_game.variables+i,"GLOBAL")) {
+        log("Invalid global variable: %-.32s", the_game.variables[i].variablename);
+        ret|=BAD_VAR;
+      }
+    }
+
+    for(i=0;i<the_game.deathvariablecount;i++) {
+      if (check_variable(the_game.deathvariables+i,"KAPUTZ")) {
+        log("Invalid kaputz variable: %-.32s", the_game.deathvariables[i].variablename);
+        ret|=BAD_VAR;
+      }
+    }
+
   }
   return ret;
 }

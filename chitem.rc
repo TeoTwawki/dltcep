@@ -3588,8 +3588,8 @@ BEGIN
     LTEXT           "Ypos",IDC_STATIC,150,27,17,8
     LTEXT           "Creature",IDC_STATIC,11,53,28,8
     GROUPBOX        "Familiars",IDC_STATIC,162,80,129,31,BS_FLAT
-    GROUPBOX        "Variables",IDC_STATIC,7,80,155,78,BS_FLAT
-    GROUPBOX        "Death variables",IDC_STATIC,7,153,155,74,BS_FLAT
+    GROUPBOX        "Variables",IDC_VARHEADER,7,80,155,78,BS_FLAT
+    GROUPBOX        "Death variables",IDC_VARHEADER2,7,153,155,74,BS_FLAT
     LTEXT           "Value",IDC_STATIC,11,127,19,8
     LTEXT           "Value",IDC_STATIC,11,196,19,8
     GROUPBOX        "Journal",IDC_STATIC,162,106,129,94,BS_FLAT
@@ -5410,7 +5410,7 @@ BEGIN
     EDITTEXT        IDC_RGB,86,19,50,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Pick color",IDC_COLOR,142,19,36,14
     EDITTEXT        IDC_SPEED,190,19,40,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_SCREEN,265,19,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SCREEN,260,19,40,14,ES_AUTOHSCROLL
     CONTROL         "Bounce from walls",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,9,37,73,10
     CONTROL         "Continue after hit",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
@@ -5465,7 +5465,7 @@ BEGIN
     LTEXT           "Additional flags",IDC_STATIC,9,7,48,8
     LTEXT           "Text displayed",IDC_STATIC,11,150,46,8
     LTEXT           "RGB color on hit",IDC_STATIC,86,7,53,8
-    LTEXT           "Screenshake on hit",IDC_STATIC,265,7,62,8
+    LTEXT           "Screenshake on hit",IDC_STATIC,260,7,62,8
     LTEXT           "RGB speed",IDC_STATIC,190,7,38,8
     EDITTEXT        IDC_SPELL,8,193,69,14,ES_AUTOHSCROLL
     LTEXT           "Failure spell",IDC_STATIC,8,181,38,8
@@ -5481,7 +5481,13 @@ BEGIN
     EDITTEXT        IDC_IDS2,182,229,62,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_VALUE2,269,229,62,14,ES_AUTOHSCROLL
     CONTROL         "Touch",IDC_FLAG25,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    265,37,37,10
+                    260,37,37,10
+    CONTROL         "Negate IDS",IDC_FLAG26,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,260,51,53,10
+    CONTROL         "Negate second IDS",IDC_FLAG27,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,260,65,79,10
+    CONTROL         "Both tests must pass",IDC_FLAG28,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,260,79,81,10
 END
 
 IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
@@ -6925,6 +6931,7 @@ BEGIN
         MENUITEM "E&xit",                       IDCANCEL
     END
     MENUITEM "&Check",                      ID_CHECK
+    MENUITEM "&Fix",                        ID_FIX
 END
 
 IDR_TLKMENU MENU DISCARDABLE 

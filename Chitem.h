@@ -556,6 +556,9 @@ extern CString DELETED_REFERENCE;
 #define PROJ_CYCLE       0x400000 //the projectile will have a random cycle
 #define PROJ_RGB         0x800000 //the target will have a single color pulse effect
 #define PROJ_TOUCH       0x1000000//an attack roll is needed for success (failure payload will be used if failed)
+#define PROJ_NOTIDS      0x2000000//negate the result of the first IDS check
+#define PROJ_NOTIDS2     0x4000000//negate the result of the second IDS check
+#define PROJ_BOTH        0x8000000//both IDS check must succeed for a pass
 
 //extended area flags for gemrb
 #define APF_TINT      1    //use tint for spread animation

@@ -67,6 +67,9 @@ protected:
 	afx_msg void OnBrowse();
 	afx_msg void OnBrowse2();
 	afx_msg void OnFlag25();
+	afx_msg void OnFlag26();
+	afx_msg void OnFlag27();
+	afx_msg void OnFlag28();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

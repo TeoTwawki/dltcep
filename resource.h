@@ -480,7 +480,6 @@
 #define IDC_GENERAL                     1126
 #define IDC_PAR_DAMAGE                  1127
 #define IDC_PAR_SPECIAL                 1128
-#define IDC_PAR_ANIM                    1128
 #define IDC_GENERAL2                    1129
 #define IDC_VARNAME                     1130
 #define IDC_DESTY                       1131
@@ -528,15 +527,14 @@
 #define IDC_FLAG20                      1173
 #define IDC_FLAG21                      1174
 #define IDC_FLAG22                      1175
-#define IDC_CONVREF                     1176
 #define IDC_FLAG23                      1176
-#define IDC_DURATIONLABEL               1177
 #define IDC_FLAG24                      1177
-#define IDC_THAC0                       1178
 #define IDC_FLAG25                      1178
-#define IDC_ROLL                        1179
+#define IDC_FLAG26                      1179
 #define IDC_DIE                         1180
+#define IDC_FLAG27                      1180
 #define IDC_ADD                         1181
+#define IDC_FLAG28                      1181
 #define IDC_ADD2                        1182
 #define IDC_EFFNUM                      1183
 #define IDC_ADD3                        1184
@@ -1161,6 +1159,7 @@
 #define IDC_BROWSE1                     1803
 #define IDC_MAXACTOR                    1804
 #define IDC_SPARKCOLOUR                 1805
+#define IDC_PAR_ANIM                    1806
 #define IDC_X                           1807
 #define IDC_MAXDOOR                     1808
 #define IDC_Y                           1809
@@ -1193,7 +1192,6 @@
 #define IDC_STARTAREA                   1836
 #define IDC_GAMETIME                    1837
 #define IDC_JOURNALPICKER               1838
-#define IDC_REALTIME                    1838
 #define IDC_ADDJOURNAL                  1839
 #define IDC_DELJOURNAL                  1840
 #define IDC_MODIFIED                    1841
@@ -1396,6 +1394,7 @@
 #define IDC_DSIZE                       2038
 #define IDC_RED2                        2039
 #define IDC_DECOMPILED                  2040
+#define IDC_EDITBLOCK2                  2041
 #define IDC_LABEL3                      2042
 #define IDC_TAG                         2043
 #define IDC_REMBAF                      2044
@@ -1434,7 +1433,6 @@
 #define IDC_PST                         2077
 #define IDC_IDS                         2078
 #define IDC_DELETE                      2079
-#define IDC_IDS2                        2079
 #define IDC_EDIT                        2080
 #define IDC_FROMSP                      2081
 #define IDC_TOSP                        2082
@@ -1455,7 +1453,6 @@
 #define IDC_SEARCHMAP                   2097
 #define IDC_HEIGHTMAP                   2098
 #define IDC_NOID                        2099
-#define IDC_HEIGHTMAP2                  2099
 #define IDC_FRAME2                      2100
 #define IDC_SET                         2101
 #define IDC_FIND                        2102
@@ -1602,7 +1599,6 @@
 #define IDC_POS2                        2243
 #define IDC_EDITBLOCK                   2244
 #define IDC_STH1                        2245
-#define IDC_EDITBLOCK2                  2245
 #define IDC_STH2                        2246
 #define IDC_STH3                        2247
 #define IDC_STH4                        2248
@@ -1682,6 +1678,15 @@
 #define IDC_SHADOW                      2322
 #define IDC_BUTTON1                     2323
 #define IDC_DAYMOVIE                    2324
+#define IDC_CONVREF                     2325
+#define IDC_DURATIONLABEL               2326
+#define IDC_VARHEADER                   2327
+#define IDC_VARHEADER2                  2328
+#define IDC_THAC0                       2329
+#define IDC_ROLL                        2330
+#define IDC_REALTIME                    2331
+#define IDC_IDS2                        2332
+#define IDC_HEIGHTMAP2                  2333
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1900,6 +1905,7 @@
 #define ID_CHECK_SPAWNINI               33047
 #define ID_SEARCH_BMP                   33048
 #define ID_TOOLS_IMPORTCYCLES           33051
+#define ID_FIX                          33052
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1907,8 +1913,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33052
-#define _APS_NEXT_CONTROL_VALUE         2327
+#define _APS_NEXT_COMMAND_VALUE         33053
+#define _APS_NEXT_CONTROL_VALUE         2334
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif
