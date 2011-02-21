@@ -559,6 +559,7 @@ extern CString DELETED_REFERENCE;
 #define PROJ_NOTIDS      0x2000000//negate the result of the first IDS check
 #define PROJ_NOTIDS2     0x4000000//negate the result of the second IDS check
 #define PROJ_BOTH        0x8000000//both IDS check must succeed for a pass
+#define PROJ_DELAY       0x10000000//delay payload until initial animation finishes
 
 //extended area flags for gemrb
 #define APF_TINT      1    //use tint for spread animation
@@ -571,6 +572,8 @@ extern CString DELETED_REFERENCE;
 #define APF_MORE      128  //double child projectile count
 #define APF_FAILSPELL 256  //apply spell on caster if no one was hit
 #define APF_MULTIPLE  512  //shoot multiple single projectiles (based on cone width)
+#define APF_COUNT_HD  0x400//count enemies' HD (only if affect one is set)
+#define APF_REVERSE   0x800//reverse targeting of enemy and ally (party only/enemy)
 
 #define TRANSPARENT_GREEN  0x00ff00
 

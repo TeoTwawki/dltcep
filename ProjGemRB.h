@@ -26,12 +26,16 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CProjGemRB)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:  
+  CToolTipCtrl m_tooltip;
+
   void RefreshStrings();
 
 	// Generated message map functions
@@ -70,6 +74,7 @@ protected:
 	afx_msg void OnFlag26();
 	afx_msg void OnFlag27();
 	afx_msg void OnFlag28();
+	afx_msg void OnFlag29();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -93,12 +98,15 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CProjAreaGemRB)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
 
 	// Generated message map functions
 	//{{AFX_MSG(CProjAreaGemRB)
@@ -117,6 +125,9 @@ protected:
 	afx_msg void OnPlay1();
 	afx_msg void OnFlag9();
 	afx_msg void OnFlag10();
+	afx_msg void OnFlag11();
+	afx_msg void OnFlag12();
+	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

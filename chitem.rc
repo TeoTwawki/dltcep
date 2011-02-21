@@ -5488,14 +5488,16 @@ BEGIN
                     WS_TABSTOP,260,65,79,10
     CONTROL         "Both tests must pass",IDC_FLAG28,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,260,79,81,10
+    CONTROL         "Delay payload",IDC_FLAG29,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,260,93,61,10
 END
 
-IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 219
+IDD_PROJAREAGEMRB DIALOG DISCARDABLE  0, 0, 252, 233
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "GemRB specific area data"
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "Back",IDOK,195,198,50,14
+    PUSHBUTTON      "Back",IDOK,195,212,50,14
     EDITTEXT        IDC_UNKNOWN26,65,19,48,14,ES_AUTOHSCROLL
     LTEXT           "0x26",IDC_STATIC,65,7,16,8
     CONTROL         "Use explosion color for tint",IDC_FLAG1,"Button",
@@ -5530,6 +5532,14 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,37,105,10
     CONTROL         "Multiple directions (cone)",IDC_FLAG10,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,51,94,10
+    EDITTEXT        IDC_COUNT,7,195,23,14,ES_AUTOHSCROLL
+    LTEXT           "Target count (or HD)",IDC_STATIC,7,182,66,8
+    LTEXT           "d",IDC_STATIC,32,198,8,8
+    EDITTEXT        IDC_COUNT2,42,195,23,14,ES_AUTOHSCROLL
+    CONTROL         "Use hit die instead of count",IDC_FLAG11,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,125,65,102,10
+    CONTROL         "Reverse EA targeting",IDC_FLAG12,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,125,79,83,10
 END
 
 
@@ -6370,7 +6380,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 245
         TOPMARGIN, 7
-        BOTTOMMARGIN, 212
+        BOTTOMMARGIN, 226
     END
 END
 #endif    // APSTUDIO_INVOKED

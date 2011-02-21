@@ -590,7 +590,9 @@ typedef struct {
   char second[8];   //recoil animation? (r) 0x38
   char wavc2[8];    //area sound            0x40
   long gemrbflags;  //gemrb specific area flags 0x48
-  char unknown44[188];
+  short dicecount;
+  short dicesides;
+  char unknown45[184];
 } proj_extension;
 
 typedef struct

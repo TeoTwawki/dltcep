@@ -127,6 +127,7 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG25, OnFlag25)
 	ON_BN_CLICKED(IDC_FLAG26, OnFlag26)
 	ON_BN_CLICKED(IDC_FLAG27, OnFlag27)
+	ON_BN_CLICKED(IDC_FLAG28, OnFlag28)
 	ON_EN_KILLFOCUS(IDC_RGB, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_SPEED, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_SCREEN, OnKillfocus)
@@ -137,7 +138,7 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_EN_KILLFOCUS(IDC_SPELL2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_IDS2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_VALUE2, OnKillfocus)
-	ON_BN_CLICKED(IDC_FLAG28, OnFlag28)
+	ON_BN_CLICKED(IDC_FLAG29, OnFlag29)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -313,6 +314,12 @@ void CProjGemRB::OnFlag28()
 	UpdateData(UD_DISPLAY);
 }
 
+void CProjGemRB::OnFlag29() 
+{
+  the_projectile.header.extflags^=PROJ_DELAY;
+	UpdateData(UD_DISPLAY);
+}
+
 void CProjGemRB::RefreshStrings()
 {
   m_text=resolve_tlk_text(the_projectile.header.text);
@@ -392,9 +399,25 @@ BOOL CProjGemRB::OnInitDialog()
 	CDialog::OnInitDialog();
 	
   RefreshStrings();
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
+  }
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
+
+BOOL CProjGemRB::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CProjAreaGemRB dialog
 
@@ -447,6 +470,9 @@ void CProjAreaGemRB::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_BAM2, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr,the_projectile.extension.second);
+
+  DDX_Text(pDX, IDC_COUNT, the_projectile.extension.dicecount);
+  DDX_Text(pDX, IDC_COUNT2, the_projectile.extension.dicesides);
 }
 
 
@@ -460,16 +486,20 @@ BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
-	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
-	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
+	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
-	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocus)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
+	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
+	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
 	ON_EN_KILLFOCUS(IDC_SOUND1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM2, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_COUNT, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_COUNT2, OnKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -536,6 +566,19 @@ void CProjAreaGemRB::OnFlag10()
 	UpdateData(UD_DISPLAY);
 }
 
+void CProjAreaGemRB::OnFlag11() 
+{
+  the_projectile.extension.gemrbflags^=APF_COUNT_HD;
+	UpdateData(UD_DISPLAY);
+}
+
+
+void CProjAreaGemRB::OnFlag12() 
+{
+  the_projectile.extension.gemrbflags^=APF_REVERSE;
+	UpdateData(UD_DISPLAY);
+}
+
 void CProjAreaGemRB::OnKillfocus() 
 {
 	UpdateData(UD_RETRIEVE);
@@ -589,3 +632,25 @@ void CProjAreaGemRB::OnPlay1()
   play_acm(tmpstr,false,false);
 }
 
+
+BOOL CProjAreaGemRB::OnInitDialog() 
+{
+	CDialog::OnInitDialog();
+	
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
+  }
+  UpdateData(UD_DISPLAY);
+	return TRUE;
+}
+
+BOOL CProjAreaGemRB::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
+}

@@ -536,6 +536,7 @@
 #define IDC_ADD                         1181
 #define IDC_FLAG28                      1181
 #define IDC_ADD2                        1182
+#define IDC_FLAG29                      1182
 #define IDC_EFFNUM                      1183
 #define IDC_ADD3                        1184
 #define IDC_HEADNUM                     1185
@@ -1914,7 +1915,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33053
-#define _APS_NEXT_CONTROL_VALUE         2334
+#define _APS_NEXT_CONTROL_VALUE         2335
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif
