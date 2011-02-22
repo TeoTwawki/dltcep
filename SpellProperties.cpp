@@ -169,6 +169,13 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
   }
   else  //display
   {
+    //gemrb simplified duration hack
+    if (the_spell.header.itmattr&0x40) {
+      GetDlgItem(IDC_LEVELINC)->SetWindowText("Duration per level and constant");
+    } else {
+      GetDlgItem(IDC_LEVELINC)->SetWindowText("0x28                     0x2C");
+    }
+
     tmpstr=format_spelltype(the_spell.header.spelltype);
     DDX_Text(pDX,IDC_SPELLTYPEPICKER, tmpstr);
     tmpstr=format_priesttype(the_spell.header.priesttype);

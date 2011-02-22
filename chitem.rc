@@ -1543,8 +1543,8 @@ BEGIN
     LTEXT           "School/casting graphics",IDC_STATIC,40,36,78,8
     LTEXT           "0xC (strref)",IDC_STATIC,139,106,34,8
     LTEXT           "0x24",IDC_STATIC,194,106,16,8
-    LTEXT           "0x28",IDC_STATIC,230,106,16,8
-    LTEXT           "0x2C",IDC_STATIC,285,106,17,8
+    LTEXT           "0x28                     0x2C",IDC_LEVELINC,230,106,104,
+                    8
     LTEXT           "0x30",IDC_STATIC,340,106,16,8
     LTEXT           "0x38 (stack)",IDC_STATIC,139,134,40,8
     LTEXT           "0x42",IDC_STATIC,194,134,16,8
@@ -1556,7 +1556,7 @@ BEGIN
     LTEXT           "0x5C",IDC_STATIC,285,162,17,8
     LTEXT           "0x60",IDC_STATIC,340,162,16,8
     LTEXT           "Spellbook icon",IDC_STATIC,321,6,48,8
-    LTEXT           "Unknowns",IDC_STATIC,281,39,35,8
+    LTEXT           "GemRB flags",IDC_STATIC,281,39,42,8
     LTEXT           "Not in combat",IDC_STATIC,281,68,45,8
     LTEXT           "IWD2",IDC_STATIC,336,61,20,8
     LTEXT           "Other",IDC_STATIC,338,51,18,8
