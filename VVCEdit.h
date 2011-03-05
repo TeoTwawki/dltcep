@@ -67,14 +67,17 @@ protected:
 	afx_msg void OnPos1();
 	afx_msg void OnPos2();
 	afx_msg void OnUsebam();
-	afx_msg void OnU2();
-	afx_msg void OnU3();
+	afx_msg void OnLightspot();
+	afx_msg void OnHeight();
 	afx_msg void OnMirror();
 	afx_msg void OnMirror2();
 	afx_msg void OnBlend();
 	virtual void OnCancel();
 	afx_msg void OnWall();
 	afx_msg void OnRed();
+	afx_msg void OnPalette();
+	afx_msg void OnBrowse4();
+	afx_msg void OnPlay3();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -1688,6 +1688,7 @@
 #define IDC_REALTIME                    2331
 #define IDC_IDS2                        2332
 #define IDC_HEIGHTMAP2                  2333
+#define IDC_LIGHTSPOT                   2334
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1915,7 +1916,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33053
-#define _APS_NEXT_CONTROL_VALUE         2334
+#define _APS_NEXT_CONTROL_VALUE         2335
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

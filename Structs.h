@@ -1205,8 +1205,7 @@ typedef struct
   char filetype[4]; //'VVC '
   char revision[4]; //'V1.0 '
   char bam[8];
-  long unknown10;
-  long unknown14;
+  char shadow[8];
   unsigned char transparency;
   unsigned char trans2;
   unsigned char colouring;
@@ -1216,30 +1215,27 @@ typedef struct
   long unknown24;
   long xpos;
   long ypos;
-  long unknown30;
+  long hasorient;
   long framerate;
-  long unknown38;
-  long unknown3c;
+  long facecount;
+  long currorient;
   long position;
-  long unknown44;
-  long unknown48;
+  char palette[8];
   long zpos;
-  long unknown50;
-  long unknown54;
-  long unknown58;
+  long spotX;
+  long spotY;
+  long spotZ;
   long duration;
-  long unknown60;
-  long unknown64;
+  char name[8];
   long seq1;
   long seq2;
-  long unknown70;
-  long unknown74;
+  long currentseq;
+  long spanseq;
   char sound1[8];
   char sound2[8];
-  long unknown88;
-  long unknown8c;
+  char alpha[8];
   long unknown90;
-  char unknown94[8];
+  char sound3[8];
   char unused[336];
 } vvc_header;
 

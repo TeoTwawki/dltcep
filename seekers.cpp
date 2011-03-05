@@ -3982,27 +3982,27 @@ int CChitemDlg::check_videocell()
 
   if(the_videocell.header.sequencing&2)
   {
-    log("COVER!");
+    log("lightspot!");
   }
 #endif  
   ret=0;
-  if(the_videocell.header.trans2&1)
+  if((the_videocell.header.trans2&1) && (the_videocell.header.transparency&128) )
   {
       ret|=BAD_ATTR;
-      log("0x1 in trans2 causes assertion failure in all known cases!");
+      log("0x1 in trans2 and 0x80 in transparancy causes assertion failure!");
   }
   if(the_videocell.header.transparency&4)
   {
-    if(!(the_videocell.header.unknown10&0xff) )
+    if(!(the_videocell.header.shadow[0]) )
     {
       ret|=BAD_ATTR;
-      log("0x4 in transparency causes crash if unknown10 lowest byte isn't set!");
+      log("0x4 in transparency causes crash if shadow isn't set!");
     }
   }
   if((the_videocell.header.transparency&10)==10)
   {
     ret|=BAD_ATTR;
-    log("Transparency+brightest flag causes assetion failure!");
+    log("Transparency+brightest flag causes assertion failure!");
   }
   
   if(the_videocell.header.sequencing&8)

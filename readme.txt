@@ -1,12 +1,76 @@
 Dragonlance TC Editor Pro
 Unofficial game file editor/checker/browser for IE (Infinity Engine) games.
+Official game file editor for GemRB
 
-Current version: V7.0j
+Current version: V7.2d
 
 Changes:
 
+V7.2d
+- GemRB specific spell and projectile fields
+
+V7.2c
+- fixed default saving throws in creature editor
+- try to preserve the order of spell indices in spell pages (weidu chokes on an unordered spellbook)
+- fixed some iwd effect descriptions
+- fixed whole bam importer frame count in cycles
+
+V7.2b
+- updated effect targeting types
+- added whole bam import from bmp sequences
+- slider control unknown fields are not unknown anymore
+- window 0x1a field is not unknown anymore
+
+V7.2a
+- fixed button disabled/selected fields in the chu editor
+
+V7.2
+- more item extended header checks and edited fields
+- falling back to load tileset from same directory as .are, if it isn't in the game override
+- fixed a crasher bug in the polygon selector
+
+V7.1f
+- creature editor knows more pst specific fields
+
+V7.1e
+- extended area projectile editor with gemrb specific fields
+- fixed tab order in animation/palette editor (a long forgotten request)
+- area link flags
+- 8 bits heightmap editor
+
+V7.1d
+- fixed var.var editor to look up the initial values
+- improved projectile finder (now it can look for projectiles in projectiles)
+- hopefully removed all references to the old dltc homepage which fell prey to some domain squatter
+
+V7.1c
+- spawn.ini checker (pst/iwd/how/iwd2)
+- gemrb specific projectile flags
+
+V7.1b
+- You can edit the dream movies in areas (see pocket plane in tob)
+- At least one crash bugfix i got somewhere smile.gif
+- internal script compiler now somewhat works! (I still don't recommend it for real use)
+- iwd2 creature levels are now editable
+- kit selector combobox is filled (you need a correct kit.ids)
+
+V7.1a
+- grid/polygon color is customisable in the .ini file
+- window placement improved
+
+V7.1
+- implemented .sav repackaging
+- fixed cbf compression
+- added remove all button to area actor editor (removes all after the selected one)
+- fixed tob .gam editor (familiars)
+
+V7.0k
+- fixed a problem with bam preview
+
 V7.0j
 - fixed problem with pst creature writer (saving corrupted creatures with overlays)
+- ability to edit familiar structure in iwd2
+- updated iwd2 opcode list
 
 V7.0i
 - applied Igi's patch for filedialog (with modification) 
@@ -308,9 +372,10 @@ Credits:
 Maltanar - for sharing information and code
 Theo - for sharing information and code
 Ken Baker - for starting TeamBG (now defunct)
-Max/Potencius - for creating TDD and DLTC (dragonlancetc.com)
+Max/Potencius - for creating TDD and DLTC (dragonlancetc.com, defunct site)
 Manveru - for starting IESDP, a great site for IE file formats (now defunct)
 Igi - for maintaining IESDP and creating DLTCEP tutorials (iesdp.gibberlings3.net)
+Yovaneth - for creating the most comprehensive DLTCEP area editing tutorial (http://www.simpilot.net/~sc/dltcep/index.htm)
 Jon Olav Hauglid - author of NI, for clearing up some unknowns (www.idi.ntnu.no/~joh/ni/index.html)
 Abel@TeamX - for the ACM handler routines (www.teamx.ru)
 Westley Weimer - for WeiDU (weidu.org)
@@ -325,9 +390,9 @@ Additional information:
 Read the accompanying textfiles for instructions on editing various filetypes.
 
 For modding tips, information, tools and other resources visit us at www.gibberlings3.net!
-The DLTCEP support forum is on the following website: www.dragonlancetc.com/forums/index.php?board=9
+For DLTCEP specific information, visit the DLTCEP homepage at http://forums.gibberlings3.net/index.php?showforum=137
 
-The (somewhat outdated) sources for this program are available on gemrb.sourceforge.net in the CVS under module Utilities.
+The (somewhat outdated) sources for this program are available on gemrb.git.sourceforge.net under module dltcep.
 Modifications to this program may not be misrepresented as the original, otherwise you are free to port it to other systems (i would like to know about it).
 DLTCEP is constantly growing, generally I release a new version each week (or month) therefore if you altered the program it is better you supply the patch on the sourceforge site.
 
