@@ -99,7 +99,7 @@ void CVVCEdit::DoDataExchange(CDataExchange* pDX)
   //
   tmpstr.Format("0x%x",the_videocell.header.sequencing);
   DDX_Text(pDX, IDC_SEQUENCING, tmpstr);
- 	DDV_MaxChars(pDX, tmpstr, 8);
+ 	DDV_MaxChars(pDX, tmpstr, 10);
   the_videocell.header.sequencing=strtonum(tmpstr);
   //
   DDX_Text(pDX, IDC_DURATION, the_videocell.header.duration);
