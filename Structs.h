@@ -537,7 +537,7 @@ typedef struct {
   short unknown0e;
   char wavc1[8];
   char wavc2[8];
-  char wavc3[8];
+  char vvc[8];
   short spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
   short spknumber;  
   long extflags;    //0x2c //flags used by gemrb
@@ -1584,10 +1584,12 @@ typedef struct {
   long offset;
   short size;
   short proj;
-  long unknown10;
+  short delay;
+  short explosions;
   short posx,posy;
-  short unknown18;
-  short unknown1a;
+  short posz;
+  unsigned char ea;
+  unsigned char caster;
 } area_trap;
 
 typedef struct {

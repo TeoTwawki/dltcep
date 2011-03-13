@@ -84,10 +84,10 @@ void CProjEdit::DoDataExchange(CDataExchange* pDX)
   DDV_MaxChars(pDX, tmpstr,8);
   StoreResref(tmpstr,the_projectile.header.wavc2);
 
-  RetrieveResref(tmpstr,the_projectile.header.wavc3);
-  DDX_Text(pDX, IDC_SOUND3, tmpstr);
+  RetrieveResref(tmpstr,the_projectile.header.vvc);
+  DDX_Text(pDX, IDC_VVC, tmpstr);
   DDV_MaxChars(pDX, tmpstr,8);
-  StoreResref(tmpstr,the_projectile.header.wavc3);
+  StoreResref(tmpstr,the_projectile.header.vvc);
 
   tmpstr=get_spark_colour(the_projectile.header.spkcolour);
   DDX_Text(pDX, IDC_SPARKCOLOUR, tmpstr);
@@ -203,7 +203,6 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_PLAY1, OnPlay1)
 	ON_BN_CLICKED(IDC_PLAY2, OnPlay2)
-	ON_BN_CLICKED(IDC_PLAY3, OnPlay3)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
@@ -266,7 +265,7 @@ BEGIN_MESSAGE_MAP(CProjEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN0E, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SOUND1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SOUND2, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_SOUND3, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_VVC, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_SPARKCOLOUR, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM1, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM2, DefaultKillfocus)
@@ -617,14 +616,6 @@ void CProjEdit::OnPlay2()
   play_acm(tmpstr,false, false);
 }
 
-void CProjEdit::OnPlay3() 
-{
-  CString tmpstr;
-  
-  RetrieveResref(tmpstr,the_projectile.header.wavc3);
-  play_acm(tmpstr,false, false);
-}
-
 void CProjEdit::OnBrowse2() 
 {
   pickerdlg.m_restype=REF_WAV;
@@ -638,11 +629,11 @@ void CProjEdit::OnBrowse2()
 
 void CProjEdit::OnBrowse3() 
 {
-  pickerdlg.m_restype=REF_WAV;
-  RetrieveResref(pickerdlg.m_picked,the_projectile.header.wavc2);
+  pickerdlg.m_restype=REF_VVC;
+  RetrieveResref(pickerdlg.m_picked,the_projectile.header.vvc);
   if(pickerdlg.DoModal()==IDOK)
   {
-    StoreResref(pickerdlg.m_picked,the_projectile.header.wavc3);
+    StoreResref(pickerdlg.m_picked,the_projectile.header.vvc);
   }
 	UpdateData(UD_DISPLAY);	
 }

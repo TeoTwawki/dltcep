@@ -60,7 +60,6 @@ protected:
 	afx_msg void OnBrowse1();
 	afx_msg void OnPlay1();
 	afx_msg void OnPlay2();
-	afx_msg void OnPlay3();
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();

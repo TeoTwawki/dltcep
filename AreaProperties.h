@@ -854,7 +854,6 @@ public:
 protected:
   CToolTipCtrl m_tooltip;
 
-	afx_msg void DefaultKillfocus();
 	// Generated message map functions
 	//{{AFX_MSG(CAreaProj)
 	virtual BOOL OnInitDialog();
@@ -863,6 +862,9 @@ protected:
 	afx_msg void OnRemove();
 	afx_msg void OnBrowse();
 	afx_msg void OnAdd();
+	afx_msg void DefaultKillfocus();
+	afx_msg void OnAdd2();
+	afx_msg void OnRemove2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

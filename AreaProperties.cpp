@@ -7042,8 +7042,13 @@ BEGIN_MESSAGE_MAP(CAreaProj, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaProj)
 	ON_CBN_KILLFOCUS(IDC_PROJPICKER, OnKillfocusProjpicker)
 	ON_CBN_SELCHANGE(IDC_PROJPICKER, OnSelchangeProjpicker)
+	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
+	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_ADD2, OnAdd2)
+	ON_EN_KILLFOCUS(IDC_PROJECTILE, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_REMOVE2, OnRemove2)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -7060,9 +7065,8 @@ CAreaProj::~CAreaProj()
 
 static int trapboxids[]={
   //fields
-  IDC_BAM,IDC_PROJECTILE,IDC_POSX,IDC_POSY,IDC_UNKNOWN10,
-  IDC_UNKNOWN18,IDC_UNKNOWN1A,
-  IDC_EQUIPNUM, 
+  IDC_BAM,IDC_PROJECTILE,IDC_POSX,IDC_POSY, IDC_HEIGHT,
+  IDC_DELAY, IDC_EXPLOSION, IDC_EA,IDC_PARTY,  
   //buttons
   IDC_REMOVE, IDC_REMOVE2, IDC_ADD2, 0};
 
@@ -7093,13 +7097,15 @@ void CAreaProj::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_PROJECTILE, the_area.trapheaders[m_trapnum].proj);
     DDX_Text(pDX, IDC_POSX, the_area.trapheaders[m_trapnum].posx);
     DDX_Text(pDX, IDC_POSY, the_area.trapheaders[m_trapnum].posy);
+    DDX_Text(pDX, IDC_HEIGHT, the_area.trapheaders[m_trapnum].posz);
     RetrieveResref(tmpstr, the_area.trapheaders[m_trapnum].projectile);
     DDX_Text(pDX, IDC_BAM, tmpstr);
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr, the_area.trapheaders[m_trapnum].projectile);
-    DDX_Text(pDX, IDC_UNKNOWN10, the_area.trapheaders[m_trapnum].unknown10);
-    DDX_Text(pDX, IDC_UNKNOWN18, the_area.trapheaders[m_trapnum].unknown18);
-    DDX_Text(pDX, IDC_UNKNOWN1A, the_area.trapheaders[m_trapnum].unknown1a);
+    DDX_Text(pDX, IDC_DELAY, the_area.trapheaders[m_trapnum].delay);
+    DDX_Text(pDX, IDC_EXPLOSION, the_area.trapheaders[m_trapnum].explosions);
+    DDX_Text(pDX, IDC_EA, the_area.trapheaders[m_trapnum].ea);
+    DDX_Text(pDX, IDC_PARTY, the_area.trapheaders[m_trapnum].caster);
   }
 }
 
@@ -7143,8 +7149,78 @@ void CAreaProj::OnBrowse()
 
 void CAreaProj::OnAdd() 
 {
+  area_trap *newtraps;
+
+  if (the_area.trapcount>999)
+  {
+    MessageBox("Cannot add more traps.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  newtraps = new area_trap[++the_area.header.trapcnt];
+  if(!newtraps)
+  {
+    the_area.header.trapcnt--;
+    MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
+    return;
+  }
+
+  memcpy(newtraps, the_area.trapheaders, the_area.trapcount*sizeof(area_trap));
+  memset(newtraps+the_area.trapcount,0,sizeof(area_trap) );
+  
+  if(the_area.trapheaders)
+  {
+    delete [] the_area.trapheaders;
+  }
+  the_area.trapheaders=newtraps;
+  m_trapnum=the_area.trapcount; //last element
+  the_area.trapcount=the_area.header.trapcnt;
+
+  RefreshProj();
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaProj::OnRemove() 
+{
+  area_trap *newtraps;
+
+  if(m_trapnum<0 || !the_area.header.trapcnt) return;
+  
+  newtraps=new area_trap[--the_area.header.trapcnt];
+  if(!newtraps)
+  {
+    the_area.header.trapcnt++;
+    return;
+  }
+  memcpy(newtraps,the_area.trapheaders,m_trapnum*sizeof(area_trap) );
+  memcpy(newtraps+m_trapnum,the_area.trapheaders+m_trapnum+1,(the_area.header.trapcnt-m_trapnum)*sizeof(area_trap) );
+  if(the_area.trapheaders)
+  {
+    delete [] the_area.trapheaders;
+  }
+  the_area.trapheaders=newtraps;
+  the_area.trapcount=the_area.header.trapcnt;
+	if(m_trapnum>=the_area.trapcount) m_trapnum--;
+  RefreshProj();
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaProj::OnAdd2() 
+{
 	// TODO: Add your control notification handler code here
 	
+}
+
+void CAreaProj::OnRemove2() 
+{
+	// TODO: Add your control notification handler code here
+	
+}
+
+void CAreaProj::DefaultKillfocus() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
 }
 
 BOOL CAreaProj::PreTranslateMessage(MSG* pMsg) 
@@ -7204,4 +7280,3 @@ BEGIN_MESSAGE_MAP(CAreaPropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CAreaPropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-
