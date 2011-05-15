@@ -674,7 +674,9 @@
 #define IDC_COUNT                       1317
 #define IDC_COUNT2                      1318
 #define IDC_STORETYPE                   1319
+#define IDC_TILEX                       1319
 #define IDC_STORENAME                   1320
+#define IDC_TILEY                       1320
 #define IDC_BUYING                      1321
 #define IDC_STEALING                    1322
 #define IDC_SELLINGPERCENT              1323

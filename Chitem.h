@@ -542,7 +542,7 @@ extern CString DELETED_REFERENCE;
 #define PROJ_TRANSLUCENT 256      //half-transparent travel projectile
 #define PROJ_TINTED      512      //tinted by gradient (better than paletted animations)
 #define PROJ_ITERATION   1024     //create another projectile with projectile ID-1
-#define PROJ_TILE        2048     //place the travel bam all over the AOE
+#define PROJ_DEFSPELL    2048     //always apply default spell on caster
 #define PROJ_FALLING     4096     //the projectile will fall from above target (y=target.y, x=target-100)
 #define PROJ_INCOMING    8192     //the projectile will fall from above caster (y=caster.y, x=target-100)
 #define PROJ_LINE        16384    //solid line from source to target (ignore caster)
@@ -562,18 +562,19 @@ extern CString DELETED_REFERENCE;
 #define PROJ_DELAY       0x10000000//delay payload until initial animation finishes
 
 //extended area flags for gemrb
-#define APF_TINT      1    //use tint for spread animation
-#define APF_FILL      2    //fill entire area
-#define APF_SCATTER   4    //start scattered
-#define APF_VVCPAL    8    //use palette for central animation
-#define APF_SPREAD    16   //refill emptied slots
-#define APF_PALETTE   32   //use palette gradient for spread animation
-#define APF_BOTH      64   //halve projectile count and draw both animations
-#define APF_MORE      128  //double child projectile count
-#define APF_FAILSPELL 256  //apply spell on caster if no one was hit
-#define APF_MULTIPLE  512  //shoot multiple single projectiles (based on cone width)
-#define APF_COUNT_HD  0x400//count enemies' HD (only if affect one is set)
-#define APF_REVERSE   0x800//reverse targeting of enemy and ally (party only/enemy)
+#define APF_TINT      1     //use tint for spread animation
+#define APF_FILL      2     //fill entire area
+#define APF_SCATTER   4     //start scattered
+#define APF_VVCPAL    8     //use palette for central animation
+#define APF_SPREAD    16    //refill emptied slots
+#define APF_PALETTE   32    //use palette gradient for spread animation
+#define APF_BOTH      64    //halve projectile count and draw both animations
+#define APF_MORE      128   //double child projectile count
+#define APF_FAILSPELL 256   //apply spell on caster if no one was hit
+#define APF_MULTIPLE  512   //shoot multiple single projectiles (based on cone width)
+#define APF_COUNT_HD  0x400 //count enemies' HD (only if affect one is set)
+#define APF_REVERSE   0x800 //reverse targeting of enemy and ally (party only/enemy)
+#define APF_TILE      0x1000//place the spread animation all over the AOE (cone is honoured)
 
 #define TRANSPARENT_GREEN  0x00ff00
 

@@ -2164,29 +2164,29 @@ BEGIN
     CONTROL         "Sparks",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     188,15,38,10
     CONTROL         "Flying",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    188,26,34,10
-    LTEXT           "Spark colour",IDC_STATIC,141,36,41,8
+                    188,25,34,10
+    LTEXT           "Spark colour",IDC_STATIC,141,48,41,8
     CONTROL         "Ignore center",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,188,37,58,10
-    COMBOBOX        IDC_SPARKCOLOUR,141,49,100,194,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP,188,35,58,10
+    COMBOBOX        IDC_SPARKCOLOUR,141,58,100,194,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
-    EDITTEXT        IDC_UNKNOWN0E,161,66,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_UNKNOWN2A,213,66,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_X,154,97,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_Y,200,97,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_Z,246,97,28,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_SMOKETYPE,138,134,100,89,CBS_DROPDOWN | CBS_SORT | 
+    EDITTEXT        IDC_UNKNOWN0E,161,77,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UNKNOWN2A,213,77,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_X,154,108,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_Y,200,108,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_Z,246,108,28,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_SMOKETYPE,138,145,127,89,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_DELAY,174,151,28,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U11,138,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U12,157,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U13,176,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U14,195,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U15,214,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U16,233,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U17,252,187,16,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ATTR,249,20,40,14,ES_AUTOHSCROLL
-    COMBOBOX        IDC_AIM,293,20,110,67,CBS_DROPDOWN | WS_VSCROLL | 
+    EDITTEXT        IDC_DELAY,174,162,28,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U11,138,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U12,157,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U13,176,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U14,195,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U15,214,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U16,233,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_U17,252,198,16,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTR,261,20,40,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_AIM,309,20,94,67,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     CONTROL         "Coloured BAM",IDC_ATTR1,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,279,38,61,10
@@ -2196,18 +2196,18 @@ BEGIN
                     58,20,10
     CONTROL         "Dark projectile",IDC_ATTR4,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,279,68,61,10
-    CONTROL         "5",IDC_ATTR5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,279,
-                    78,20,10
+    CONTROL         "Use area height",IDC_ATTR5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,279,78,66,10
     CONTROL         "Shadow enabled",IDC_ATTR6,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,279,88,69,10
     CONTROL         "Light spot enabled",IDC_ATTR7,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,279,98,74,10
     CONTROL         "Fix transparency ?",IDC_ATTR8,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,279,108,73,10
-    CONTROL         "9",IDC_ATTR9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,364,
-                    38,20,10
-    CONTROL         "10",IDC_ATTR10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    364,48,24,10
+    CONTROL         "Brighten",IDC_ATTR9,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,364,38,42,10
+    CONTROL         "Brighten2",IDC_ATTR10,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,364,48,46,10
     CONTROL         "11",IDC_ATTR11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     364,58,24,10
     CONTROL         "12",IDC_ATTR12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
@@ -2226,39 +2226,39 @@ BEGIN
     EDITTEXT        IDC_FREQ2,366,157,28,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_BAM5,282,176,49,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_FREQ3,366,176,28,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Edit area extension",IDC_EXTENSION,135,213,141,14
+    PUSHBUTTON      "Edit area extension",IDC_EXTENSION,135,223,141,14
     PUSHBUTTON      "GemRB specific",IDC_UNKNOWN2C,335,202,68,14
     PUSHBUTTON      "Unknowns at 0x154",IDC_UNKNOWN154,335,223,68,14
-    GROUPBOX        "Sparks",IDC_STATIC,135,7,112,81,BS_FLAT
-    GROUPBOX        "Light spot",IDC_STATIC,135,83,141,39,BS_FLAT
+    GROUPBOX        "Sparks",IDC_STATIC,135,7,119,89,BS_FLAT
+    GROUPBOX        "Light spot",IDC_STATIC,135,91,141,42,BS_FLAT
     GROUPBOX        "Projectile trail ",IDC_STATIC,275,117,128,78,BS_FLAT
-    GROUPBOX        "Smoke",IDC_STATIC,135,117,141,90,BS_FLAT
+    GROUPBOX        "Smoke",IDC_STATIC,135,128,141,90,BS_FLAT
     LTEXT           "Projectile type",IDC_STATIC,7,7,45,8
     LTEXT           "Speed",IDC_STATIC,101,7,22,8
-    LTEXT           "0x0e",IDC_STATIC,141,69,16,8
+    LTEXT           "0x0e",IDC_STATIC,141,77,16,8
     LTEXT           "Sound resource 1",IDC_STATIC,7,35,57,8
     LTEXT           "Sound resource 2",IDC_STATIC,7,65,57,8
     LTEXT           "Projectile VVC",IDC_STATIC,7,95,46,8
-    LTEXT           "Attributes",IDC_STATIC,249,7,30,8
+    LTEXT           "Attributes",IDC_STATIC,261,7,30,8
     LTEXT           "Projectile BAM",IDC_STATIC,7,125,47,8
     LTEXT           "Shadow BAM",IDC_STATIC,7,155,44,8
     LTEXT           "Cycle",IDC_STATIC,101,125,18,8
     LTEXT           "Cycle",IDC_STATIC,101,155,18,8
-    LTEXT           "X",IDC_STATIC,141,100,8,8
-    LTEXT           "Y",IDC_STATIC,187,100,8,8
-    LTEXT           "Z",IDC_STATIC,233,100,8,8
+    LTEXT           "X",IDC_STATIC,141,111,8,8
+    LTEXT           "Y",IDC_STATIC,187,111,8,8
+    LTEXT           "Z",IDC_STATIC,233,111,8,8
     LTEXT           "Palette BMP",IDC_STATIC,7,185,40,8
-    LTEXT           "Puff delay",IDC_STATIC,138,154,32,8
-    LTEXT           "Direction (cycle change) ?",IDC_STATIC,293,7,84,8
+    LTEXT           "Puff delay",IDC_STATIC,138,165,32,8
+    LTEXT           "Direction (cycle change) ?",IDC_STATIC,309,7,84,8
     LTEXT           "Projectile colour gradients",IDC_STATIC,7,215,82,8
     LTEXT           "Trail bams",IDC_STATIC,282,128,33,8
     LTEXT           "Frequency",IDC_STATIC,366,128,34,8
     CONTROL         "",IDC_MPTRAVEL,"Static",SS_BITMAP | SS_NOTIFY,96,208,17,
                     15,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_MPSMOKE,"Static",SS_BITMAP | SS_NOTIFY,233,165,17,
+    CONTROL         "",IDC_MPSMOKE,"Static",SS_BITMAP | SS_NOTIFY,233,176,17,
                     15,WS_EX_DLGMODALFRAME
-    LTEXT           "Smoke colour gradients",IDC_STATIC,138,172,75,8
-    LTEXT           "Smoke animation",IDC_STATIC,183,124,55,8
+    LTEXT           "Smoke colour gradients",IDC_STATIC,138,183,75,8
+    LTEXT           "Smoke animation",IDC_STATIC,183,135,55,8
     CONTROL         "Looping",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,88,35,41,10
     PUSHBUTTON      "Browse",IDC_BROWSE7,335,138,28,14
@@ -2266,7 +2266,9 @@ BEGIN
     PUSHBUTTON      "Browse",IDC_BROWSE13,335,176,28,14
     CONTROL         "Looping",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,88,65,41,10
-    LTEXT           "0x2a",IDC_STATIC,192,68,16,8
+    LTEXT           "0x2a",IDC_STATIC,192,77,16,8
+    CONTROL         "Draw first",IDC_FLAG6,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,188,45,56,10
 END
 
 IDD_AREAENTRANCE DIALOG DISCARDABLE  0, 0, 480, 198
@@ -3444,9 +3446,9 @@ IDD_PROJEXT DIALOGEX 0, 0, 410, 191
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Area extension header"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
-    EDITTEXT        IDC_DURATION,142,72,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DURATION,142,72,55,14,ES_AUTOHSCROLL | ES_NUMBER
     PUSHBUTTON      "Back",IDOK,352,170,50,14
     CONTROL         "Projectile visible",IDC_ATTR1,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,13,34,66,10
@@ -3464,22 +3466,22 @@ BEGIN
                     WS_TABSTOP,13,94,79,10
     CONTROL         "Party only (with only enemies)",IDC_ATTR8,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,104,108,10
-    CONTROL         "Caster level * explosions",IDC_ATTR9,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,114,92,10
-    CONTROL         "Multiple set off",IDC_ATTR10,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,13,124,61,10
+    CONTROL         "Mage level * explosions",IDC_ATTR9,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,114,90,10
+    CONTROL         "Priest level * explosions",IDC_ATTR10,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,124,89,10
     CONTROL         "Use VVC",IDC_ATTR11,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,142,165,45,10
     CONTROL         "Cone shape",IDC_ATTR12,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,142,146,54,10
-    CONTROL         "13",IDC_ATTR13,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,
-                    134,24,10
-    CONTROL         "No explosion ?",IDC_ATTR14,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,13,144,63,10
-    CONTROL         "Delayed explosion ?",IDC_ATTR15,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,154,79,10
-    CONTROL         "Affect only one ?",IDC_ATTR16,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,13,164,69,10
+    CONTROL         "Pass walls",IDC_ATTR13,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,134,49,10
+    CONTROL         "Wait for frame 30",IDC_ATTR14,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,144,70,10
+    CONTROL         "Delayed explosion",IDC_ATTR15,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,154,73,10
+    CONTROL         "Affect only one",IDC_ATTR16,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,164,63,10
     EDITTEXT        IDC_ATTR,13,16,55,14,ES_AUTOHSCROLL
     LTEXT           "Attributes (16 bits)",IDC_STATIC,13,7,57,8
     EDITTEXT        IDC_UNKNOWN2,76,16,55,14,ES_AUTOHSCROLL
@@ -3503,7 +3505,7 @@ BEGIN
     COMBOBOX        IDC_FRAGMENT,142,100,92,138,CBS_DROPDOWN | 
                     CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Fragment graphics animation",IDC_STATIC,142,89,91,8
-    EDITTEXT        IDC_DELAY,142,44,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DELAY,142,44,55,14,ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           "Delay (between explosions)",IDC_STATIC,142,33,87,8
     LTEXT           "Secondary projectile (projectl.ids-1)",IDC_STATIC,249,
                     61,110,8
@@ -5432,8 +5434,8 @@ BEGIN
                     WS_TABSTOP,86,51,73,10
     CONTROL         "Create iteration",IDC_FLAG11,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,86,65,63,10
-    CONTROL         "Tiled area of effect",IDC_FLAG12,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,86,79,75,10
+    CONTROL         "Apply default spell",IDC_FLAG12,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,86,79,73,10
     CONTROL         "Falling path",IDC_FLAG13,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,86,93,52,10
     CONTROL         "Incoming path",IDC_FLAG14,"Button",BS_AUTOCHECKBOX | 
@@ -5531,14 +5533,19 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,37,105,10
     CONTROL         "Multiple directions (cone)",IDC_FLAG10,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,51,94,10
-    EDITTEXT        IDC_COUNT,7,195,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_COUNT,7,195,23,14,ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           "Target count (or HD)",IDC_STATIC,7,182,66,8
     LTEXT           "d",IDC_STATIC,32,198,8,8
-    EDITTEXT        IDC_COUNT2,42,195,23,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_COUNT2,42,195,23,14,ES_AUTOHSCROLL | ES_NUMBER
     CONTROL         "Use hit die instead of count",IDC_FLAG11,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,65,102,10
     CONTROL         "Reverse EA targeting",IDC_FLAG12,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,79,83,10
+    LTEXT           "Tile dimensions",IDC_STATIC,85,182,49,8
+    EDITTEXT        IDC_TILEX,85,195,23,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_TILEY,119,195,23,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Tiled area of effect graphics",IDC_FLAG13,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,125,93,104,10
 END
 
 

@@ -114,6 +114,7 @@ protected:
 	afx_msg void OnFlag4();
 	afx_msg void OnFileTbg();
 	afx_msg void OnFileTp2();
+	afx_msg void OnFlag6();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

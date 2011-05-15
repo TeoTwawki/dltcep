@@ -592,7 +592,9 @@ typedef struct {
   long gemrbflags;  //gemrb specific area flags 0x48
   short dicecount;
   short dicesides;
-  char unknown45[184];
+  short tilex;
+  short tiley;
+  char unknown45[180];
 } proj_extension;
 
 typedef struct

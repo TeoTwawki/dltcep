@@ -214,7 +214,8 @@ void CProjGemRB::OnFlag11()
 
 void CProjGemRB::OnFlag12() 
 {
-  the_projectile.header.extflags^=PROJ_TILE;
+  //unused bit
+  the_projectile.header.extflags^=PROJ_DEFSPELL;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -473,8 +474,10 @@ void CProjAreaGemRB::DoDataExchange(CDataExchange* pDX)
 
   DDX_Text(pDX, IDC_COUNT, the_projectile.extension.dicecount);
   DDX_Text(pDX, IDC_COUNT2, the_projectile.extension.dicesides);
-}
 
+  DDX_Text(pDX, IDC_TILEX, the_projectile.extension.tilex);
+  DDX_Text(pDX, IDC_TILEY, the_projectile.extension.tiley);
+}
 
 BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	//{{AFX_MSG_MAP(CProjAreaGemRB)
@@ -500,6 +503,9 @@ BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	ON_EN_KILLFOCUS(IDC_BAM2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_COUNT, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_COUNT2, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_TILEX, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_TILEY, OnKillfocus)
+	ON_BN_CLICKED(IDC_FLAG13, OnFlag13)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -572,10 +578,19 @@ void CProjAreaGemRB::OnFlag11()
 	UpdateData(UD_DISPLAY);
 }
 
-
 void CProjAreaGemRB::OnFlag12() 
 {
   the_projectile.extension.gemrbflags^=APF_REVERSE;
+	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag13() 
+{
+  the_projectile.extension.gemrbflags^=APF_TILE;
+  int flag = the_projectile.extension.gemrbflags&APF_TILE;
+
+  GetDlgItem(IDC_TILEX)->EnableWindow(flag);
+  GetDlgItem(IDC_TILEY)->EnableWindow(flag);
 	UpdateData(UD_DISPLAY);
 }
 
@@ -645,6 +660,11 @@ BOOL CProjAreaGemRB::OnInitDialog()
     
     m_tooltip.AddTool(GetDlgItem(IDOK), IDS_CANCEL);
   }
+  int flag = the_projectile.extension.gemrbflags&APF_TILE;
+
+  GetDlgItem(IDC_TILEX)->EnableWindow(flag);
+  GetDlgItem(IDC_TILEY)->EnableWindow(flag);
+
   UpdateData(UD_DISPLAY);
 	return TRUE;
 }
