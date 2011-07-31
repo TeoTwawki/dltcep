@@ -1846,7 +1846,7 @@ BEGIN
     LTEXT           "0x22",IDC_STATIC,330,57,16,8
     LTEXT           "0x1A",IDC_STATIC,279,57,17,8
     LTEXT           "0x24",IDC_STATIC,361,57,16,8
-    LTEXT           "0x1",IDC_STATIC,361,31,12,8
+    LTEXT           "Friendly",IDC_FRIENDLY,361,31,25,8
     PUSHBUTTON      "Next",IDC_NEXT,134,14,23,14
     PUSHBUTTON      "Prev.",IDC_PREV,162,14,23,14
 END

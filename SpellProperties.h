@@ -223,6 +223,7 @@ public:
 	CComboBox	m_loc_control;
 	CComboBox	m_exttype_control;
 	CString	m_headnum;
+	CString	m_friendly;
 	//}}AFX_DATA
   // real counters
 	int	m_extheadnum;

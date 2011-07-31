@@ -1054,6 +1054,11 @@ CSpellExtended::CSpellExtended() : CPropertyPage(CSpellExtended::IDD)
 	extheadnum = 0;
   m_exteffnum = 0;
   m_hbmu = 0;
+  if (pst_compatible_var()) {
+    m_friendly = "Friendly";
+  } else {
+    m_friendly = "0x01";
+  }
 }
 
 CSpellExtended::~CSpellExtended()
@@ -1189,6 +1194,7 @@ void CSpellExtended::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LOC, m_loc_control);
 	DDX_Control(pDX, IDC_EXTTYPE, m_exttype_control);
 	DDX_Text(pDX, IDC_HEADNUM, m_headnum);
+	DDX_Text(pDX, IDC_FRIENDLY, m_friendly);
 	//}}AFX_DATA_MAP
   if(the_spell.header.extheadcount && (extheadnum!=-1) )
   {
