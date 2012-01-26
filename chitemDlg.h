@@ -297,6 +297,7 @@ protected:
 	afx_msg void OnReadonly();
 	afx_msg void OnEditItem();
 	afx_msg void OnEditVvc();
+  afx_msg void OnEditWfx();
 	afx_msg void OnEditCreature();
 	afx_msg void OnEditEffect();
 	afx_msg void OnEditProjectile();

@@ -23,6 +23,7 @@
 #include "creature.h"
 #include "script.h"
 #include "VVC.h"
+#include "WFX.h"
 #include "dialog.h"
 #include "area.h"
 #include "bam.h"
@@ -176,7 +177,7 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define IT2H_2HANDED 2
 #define IT2H_NOTBG2  4
 
-#define NUM_ANIMTYPES 11
+#define NUM_ANIMTYPES 12
 
 #define NUM_ANIMIDX  37
 #define NUM_STYPE  6
@@ -752,6 +753,7 @@ extern Cspell the_spell;
 extern Ceffect the_effect;
 extern Ccreature the_creature;
 extern CVVC the_videocell;
+extern CWFX the_wfx;
 extern Cscript the_script;
 extern Cdialog the_dialog;
 extern Carea the_area;
@@ -1141,6 +1143,8 @@ int read_tis(CString key, Cmos *cb=NULL, int lazy=0);
 int read_dialog(CString key);
 int read_videocell(CString key);
 int write_videocell(CString key, CString filepath);
+int read_wfx(CString key);
+int write_wfx(CString key, CString filepath);
 int write_projectile(CString key, CString filepath);
 int read_mus(CString key);
 int read_worldmap(CString key);

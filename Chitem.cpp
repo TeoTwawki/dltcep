@@ -68,7 +68,7 @@ ID_EDIT_ANIMATION,ID_EDIT_SCRIPT,ID_EDIT_ANIMATION,ID_EDIT_CHUI,ID_EDIT_CREATURE
 ID_EDIT_DIALOG, ID_EDIT_EFFECT, ID_EDIT_GAMES,ID_EDIT_IDS,0,ID_EDIT_ITEM,//15
 ID_EDIT_GRAPHICS,ID_EDIT_MUSICLIST,0,ID_EDIT_ANIMATION,ID_EDIT_PROJECTILE,//20
 ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,//28
-0, ID_EDIT_WORLDMAP,//30
+ID_EDIT_WFX, ID_EDIT_WORLDMAP,//30
 };
 
 char BASED_CODE szFilterKey[] = "chitin.key|chitin.key|All files (*.*)|*.*||";
@@ -153,6 +153,7 @@ Cspell the_spell;
 Ceffect the_effect;
 Ccreature the_creature;
 CVVC the_videocell;
+CWFX the_wfx;
 Cscript the_script;
 Cdialog the_dialog;
 Carea the_area;
@@ -2233,6 +2234,7 @@ int getanimationidx(int animtype)
 unsigned short animtypes[NUM_ANIMTYPES][3]={
   {0,20,80}, {10,25,65}, {60,40,0},
   {0,35,65}, {0,0,100}, {10,70,20},
+  {65,35,0},
   {50,50,0}, {100,0,0}, {34,33,33},
   {0,0,0},  {0,0,0},
 };
@@ -2248,8 +2250,9 @@ int find_animtype(unsigned short *percents)
   return i;
 }
 
-CString animnames[NUM_ANIMTYPES]={"Dagger","Short Sword","Two-Handed Sword","Halberd",
-"Spear","Staff","Other Melee","Throwing dagger","Not weapon","Unused","Unknown"};
+CString animnames[NUM_ANIMTYPES]={"Dagger","Short Sword","Two-Handed Sword",
+"Halberd", "Spear", "Staff", "Heavy hammer", "Other Melee","Throwing dagger",
+"Not weapon","Unused","Unknown"};
 
 CString format_animtype(int animtype)
 {
@@ -2481,7 +2484,7 @@ CString get_location_type(int lftype)
 }
 
 CString target_types[NUM_TTYPE]={
-  "0-Invalid","1-Creature","2-Inventory/Crash", "3-Dead character","4-Area","5-Self","6-Unknown/Crash",
+  "0-Invalid","1-Creature","2-Inventory/Crash", "3-Creature (no range)","4-Area","5-Self","6-Unknown/Crash",
   "7-None",
 };
 
@@ -5006,6 +5009,60 @@ int write_videocell(CString key, CString filepath)
     if(!filepath.CompareNoCase(bgfolder+tmpath) )
     {
       UpdateIEResource(key,REF_VVC,tmpath,size);
+    }
+  }
+  return ret;
+}
+
+int read_wfx(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(wfxs.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) return -2;
+    wfxs.SetAt(key,fileloc);
+    ret=the_wfx.ReadWFXFromFile(fhandle, fileloc.size);
+    close(fhandle);
+  }
+  else return -1;
+  return ret;
+}
+
+int write_wfx(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".WFX";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_wfx.WriteWFXToFile(fhandle);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".WFX";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_WFX,tmpath,size);
     }
   }
   return ret;

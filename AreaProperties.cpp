@@ -3665,7 +3665,7 @@ void CAreaContainer::DoDataExchange(CDataExchange* pDX)
     {
       DDX_Text(pDX, IDC_USE1+i, the_area.itemheaders[itemnum].usages[i]);
     }
-    DDX_Text(pDX, IDC_UNKNOWN8, the_area.itemheaders[itemnum].unknown8);
+    DDX_Text(pDX, IDC_UNKNOWN8, the_area.itemheaders[itemnum].timer);
   }
 }
 #pragma warning(default:4706)   

@@ -158,7 +158,7 @@ protected:
 	int	m_count;
 	int	m_infinite;
 	int	m_flags;
-	short	m_unknown;
+	short	m_timer;
 	int		m_strref;
 	CString	m_trigger;
 	//}}AFX_DATA

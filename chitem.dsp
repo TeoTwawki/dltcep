@@ -504,6 +504,14 @@ SOURCE=.\WedTile.cpp
 
 SOURCE=.\WeiduLog.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\WFX.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\WFXEdit.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -939,6 +947,14 @@ SOURCE=.\WedTile.h
 # Begin Source File
 
 SOURCE=.\WeiduLog.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WFX.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WFXEdit.h
 # End Source File
 # Begin Source File
 

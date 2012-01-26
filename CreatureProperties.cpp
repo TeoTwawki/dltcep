@@ -2528,7 +2528,7 @@ void CCreatureItem::DoDataExchange(CDataExchange* pDX)
       DDX_Text(pDX, IDC_USE1+i, the_creature.items[m_idx].usages[i]);
     }
     DDX_Text(pDX, IDC_FLAGS, the_creature.items[m_idx].flags);
-    DDX_Text(pDX, IDC_UNKNOWN, the_creature.items[m_idx].unknown);
+    DDX_Text(pDX, IDC_UNKNOWN, the_creature.items[m_idx].timer);
     j=1;
     for(i=0;i<8;i++)
     {

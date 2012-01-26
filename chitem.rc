@@ -147,7 +147,7 @@ FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "",IDC_VERSION,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2002-2011 Avenger",IDC_STATIC,40,23,119,8
+    LTEXT           "Copyright (C) 2002-2012 Avenger",IDC_STATIC,40,23,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
     LTEXT           "Source: http://gemrb.sourceforge.net",IDC_STATIC,40,36,
                     119,8
@@ -692,7 +692,7 @@ IDD_VVCEDIT DIALOGEX 0, 0, 400, 239
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Edit Video Cell:"
 MENU IDR_VVC
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_BAM,7,18,63,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,76,18,28,14
@@ -972,7 +972,7 @@ BEGIN
     LTEXT           "Unlimited",IDC_STATIC,85,59,30,8
     LTEXT           "Charges",IDC_STATIC,117,59,27,8
     LTEXT           "Attr.",IDC_STATIC,178,59,14,8
-    LTEXT           "Unknown",IDC_STATIC,265,59,32,8
+    LTEXT           "Timer",IDC_STATIC,265,59,18,8
     LTEXT           "Select itemtype to add",IDC_STATIC,85,6,71,8
     LTEXT           "Itemname",IDC_STATIC,7,58,32,8
     LTEXT           "Item Trigger (PST)",IDC_STATIC,7,94,58,8
@@ -2126,7 +2126,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Edit Projectile:"
 MENU IDR_PROJECT
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Load Projectile",IDC_LOAD,7,245,52,14
     PUSHBUTTON      "Load external projectile",IDC_LOADEX,69,245,78,14
@@ -3077,7 +3077,7 @@ BEGIN
     LTEXT           "Itemname",IDC_STATIC,221,31,32,8
     LTEXT           "Amount/charges",IDC_STATIC,250,58,54,8
     LTEXT           "Flags",IDC_STATIC,221,58,18,8
-    LTEXT           "Unknown",IDC_STATIC,337,58,32,8
+    LTEXT           "Expiration",IDC_STATIC,337,58,32,8
     LTEXT           "/ 0",IDC_MAXITEM,290,19,23,8
     LTEXT           "Trapped",IDC_STATIC,7,82,28,8
     LTEXT           "Removal",IDC_STATIC,115,82,29,8
@@ -3446,7 +3446,7 @@ IDD_PROJEXT DIALOGEX 0, 0, 410, 191
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Area extension header"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_DURATION,142,72,55,14,ES_AUTOHSCROLL | ES_NUMBER
     PUSHBUTTON      "Back",IDOK,352,170,50,14
@@ -5548,6 +5548,40 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,125,93,104,10
 END
 
+IDD_WFXEDIT DIALOG DISCARDABLE  0, 0, 265, 163
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Wave Effect:"
+MENU IDR_WFX
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_FLAGS,7,23,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VOLUME,7,61,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FREQUENCY,8,99,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RADIUS,7,137,74,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Cutscene sound",IDC_FLAG1,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,18,67,10
+    CONTROL         "SR curve",IDC_FLAG2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,31,46,10
+    DEFPUSHBUTTON   "Load WFX",IDC_LOAD,194,7,64,14
+    PUSHBUTTON      "Load external WFX",IDC_LOADEX,194,29,64,14
+    PUSHBUTTON      "Save WFX As...",IDC_SAVEAS,194,73,64,14
+    PUSHBUTTON      "New WFX",IDC_NEW,194,95,64,14
+    PUSHBUTTON      "Check WFX",IDC_CHECK,194,117,64,14
+    PUSHBUTTON      "E&xit",IDCANCEL,194,139,64,14
+    LTEXT           "Flags",-1,7,7,18,8
+    LTEXT           "Curve radius",-1,7,121,40,8
+    LTEXT           "Random volume",-1,7,45,52,8
+    LTEXT           "Random frequency",-1,8,83,61,8
+    GROUPBOX        "Flags",-1,88,6,102,86,BS_FLAT
+    CONTROL         "Frequency variation",IDC_FLAG3,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,44,78,10
+    CONTROL         "Volume variation",IDC_FLAG4,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,93,57,68,10
+    CONTROL         "No EAX",IDC_FLAG5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    93,71,41,10
+    PUSHBUTTON      "Save",IDC_SAVE,194,51,64,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -6388,6 +6422,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 226
     END
+
+    IDD_WFXEDIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 258
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 156
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -6536,6 +6578,7 @@ BEGIN
         MENUITEM "&UI (CHU)",                   ID_EDIT_CHUI
         MENUITEM "Variables (VAR)",             ID_EDIT_VARIABLES
         MENUITEM "&Videocell (VVC)",            ID_EDIT_VVC
+        MENUITEM "Wave effect (WF&X)",          ID_EDIT_WFX
         MENUITEM "&Worldmap (WMP)",             ID_EDIT_WORLDMAP
     END
     POPUP "&Search"
@@ -7027,12 +7070,12 @@ IDR_VVC MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "&New VVC",                    ID_FILE_NEW
+        MENUITEM "&New WFX",                    ID_FILE_NEW
         MENUITEM SEPARATOR
-        MENUITEM "&Load VVC",                   ID_FILE_LOAD
-        MENUITEM "Load &external VVC",          ID_FILE_LOADEXTERNALSCRIPT
-        MENUITEM "&Save VVC",                   ID_FILE_SAVE
-        MENUITEM "Save VVC &As ...",            ID_FILE_SAVEAS
+        MENUITEM "&Load WFX",                   ID_FILE_LOAD
+        MENUITEM "Load &external WFX",          ID_FILE_LOADEXTERNALSCRIPT
+        MENUITEM "&Save WFX",                   ID_FILE_SAVE
+        MENUITEM "Save WFX &As ...",            ID_FILE_SAVEAS
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -7249,6 +7292,22 @@ BEGIN
         MENUITEM "&Explode chitin",             ID_TOOLS_EXPLODE
         MENUITEM "&Implode chitin",             ID_TOOLS_IMPLODE
     END
+END
+
+IDR_WFX MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New VVC",                    ID_FILE_NEW
+        MENUITEM SEPARATOR
+        MENUITEM "&Load VVC",                   ID_FILE_LOAD
+        MENUITEM "Load &external VVC",          ID_FILE_LOADEXTERNALSCRIPT
+        MENUITEM "&Save VVC",                   ID_FILE_SAVE
+        MENUITEM "Save VVC &As ...",            ID_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDCANCEL
+    END
+    MENUITEM "&Check",                      ID_CHECK
 END
 
 
@@ -7716,7 +7775,7 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_MOVIE               "movie"
-    IDS_WFX                 "wfx whatever is it"
+    IDS_WFX                 "wave effect"
     IDS_SRC                 "string resource"
     IDS_IAP                 "Infinity Addon Patch"
     IDS_CFBFOLDER           "Set the output folder of this operation."

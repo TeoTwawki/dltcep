@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.2d"
+#define PRG_VERSION "7.3"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -35,6 +35,7 @@
 #include "CreatureEdit.h"
 #include "ChuiEdit.h"
 #include "VVCEdit.h"
+#include "WFXEdit.h"
 #include "AreaEdit.h"
 #include "ScriptEdit.h"
 #include "DialogEdit.h"
@@ -153,6 +154,7 @@ ON_COMMAND(ID_FILE_EXTRACT, OnFileExtract)
 ON_COMMAND(ID_READONLY, OnReadonly)
 ON_BN_CLICKED(IDC_CHECKITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_VVC, OnEditVvc)
+ON_COMMAND(ID_EDIT_WFX, OnEditWfx)
 ON_BN_CLICKED(IDC_CHECKCRE, OnEditCreature)
 ON_BN_CLICKED(IDC_CHECKEFF, OnEditEffect)
 ON_COMMAND(ID_EDIT_PROJECTILE, OnEditProjectile)
@@ -3950,6 +3952,15 @@ void CChitemDlg::OnEditVvc()
   CVVCEdit dlg;
 
   dlg.NewVVC();
+  dlg.DoModal();
+  RefreshMenu(); //readonly might have changed
+}
+
+void CChitemDlg::OnEditWfx() 
+{
+  WFXEdit dlg;
+
+  dlg.NewWFX();
   dlg.DoModal();
   RefreshMenu(); //readonly might have changed
 }

@@ -245,6 +245,7 @@
 #define IDR_CHITIN                      221
 #define IDS_CLEANUP                     222
 #define IDD_TEXTVIEW                    222
+#define IDR_WFX                         222
 #define IDS_TRANSPARENT                 223
 #define IDD_CREATUREPST                 223
 #define IDS_FRAME2                      224
@@ -272,6 +273,7 @@
 #define IDS_OVERLAY                     235
 #define IDD_PROJAREAGEMRB               235
 #define IDS_VEF                         236
+#define IDD_WFXEDIT                     236
 #define IDS_INI                         237
 #define IDS_FEATURE                     238
 #define IDS_DESC                        239
@@ -1779,6 +1781,7 @@
 #define ID_EXPORT_WEIDU                 32871
 #define ID_EXPORT_TBG                   32872
 #define ID_IMPORT_WEIDU                 32873
+#define ID_EDIT_WFX                     32874
 #define ID_FILE_SAVEAS                  32876
 #define ID_FILE_LOAD                    32877
 #define ID_EDIT_2DA                     32878

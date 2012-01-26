@@ -510,7 +510,7 @@ typedef struct {
 
 typedef struct {
   char itemname[8];  //resref
-  short unknown08;
+  short timer;
   unsigned short usages[3];
   long flags;
   long count;        //count must be 1 for bags
@@ -519,7 +519,7 @@ typedef struct {
 
 typedef struct {
   char itemname[8];  //resref
-  short unknown08;
+  short timer;
   unsigned short usages[3];
   long flags;
   long count;        //count must be 1 for bags
@@ -1159,7 +1159,7 @@ typedef struct {
 
 typedef struct {
   char itemname[8];
-  short unknown;
+  short timer;
   short usages[3];
   long flags;
 } creature_item;
@@ -1240,6 +1240,18 @@ typedef struct
   char sound3[8];
   char unused[336];
 } vvc_header;
+
+typedef struct
+{
+  char filetype[4];       //'WFX '
+  char revision[4];       //'V1.0'
+  long srcurve;
+  long flags;
+  long frvar;
+  long volvar;
+  char unused[240];
+
+} wfx_header;
 
 // *.are
 
@@ -1479,7 +1491,7 @@ typedef struct {
 
 typedef struct {
   char itemname[8];
-  short unknown8;
+  short timer;
   short usages[3];
   long flags;
 } area_item;

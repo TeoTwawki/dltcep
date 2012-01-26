@@ -688,7 +688,7 @@ CStoreItems::CStoreItems() : CPropertyPage(CStoreItems::IDD)
 	m_count = 0;
 	m_infinite = 0;
 	m_flags = 0;
-	m_unknown = 0;
+	m_timer = 0;
 	m_strref = 0;
 	m_trigger = _T("");
 	//}}AFX_DATA_INIT
@@ -735,7 +735,7 @@ void CStoreItems::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_COUNT, m_count);
 	DDX_Text(pDX, IDC_UNLIMITED, m_infinite);
 	DDX_Text(pDX, IDC_FLAGS, m_flags);
-	DDX_Text(pDX, IDC_UNKNOWN, m_unknown);
+	DDX_Text(pDX, IDC_UNKNOWN, m_timer);
   for(i=0;i<3;i++)
   {
     DDX_Text(pDX, IDC_USE1+i,m_usages[i]);
@@ -1093,7 +1093,7 @@ void CStoreItems::DisplayEntry(int count)
   m_count=the_store.entries[count].count;
   m_flags=the_store.entries[count].flags;
   m_infinite=the_store.entries[count].infinite;
-  m_unknown=the_store.entries[count].unknown08;
+  m_timer=the_store.entries[count].timer;
   m_strref=the_store.entries[count].trigger;
   if(m_strref!=0) m_trigger=resolve_tlk_text(m_strref);
   memcpy(m_usages,the_store.entries[count].usages,sizeof(m_usages));
@@ -1106,7 +1106,7 @@ void CStoreItems::RefreshEntry(int count)
   the_store.entries[count].count=m_count;
   the_store.entries[count].flags=m_flags;
   the_store.entries[count].infinite=m_infinite;
-  the_store.entries[count].unknown08=m_unknown;
+  the_store.entries[count].timer=m_timer;
   the_store.entries[count].trigger=m_strref;
   memcpy(the_store.entries[count].usages,m_usages,sizeof(m_usages));
 }
