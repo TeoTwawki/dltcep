@@ -2,9 +2,12 @@ Dragonlance TC Editor Pro
 Unofficial game file editor/checker/browser for IE (Infinity Engine) games.
 Official game file editor for GemRB
 
-Current version: V7.2d
+Current version: V7.3
 
 Changes:
+
+V7.3
+- Added WFX editor
 
 V7.2d
 - GemRB specific spell and projectile fields

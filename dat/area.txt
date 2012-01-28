@@ -1,0 +1,133 @@
+Area Making in DLTCEP
+
+While editing or creating other filetypes in DLTCEP is pretty straightforward and similar to other tools, area editing is completely different. Here I describe how to create a brand new area using DLTCEP. 
+
+
+Starting a new area
+1. Install and Configure DLTCEP
+2. Start up the Area Editor
+//you are in the Area Editor now
+3. Click on the 'has songs' and 'resting interrupts' checkboxes. All engines contain these, though the fileformat allows an area without these.
+4. Click on Edit Wed
+//you are in the wed editor now
+5. Click on Set Overlay. You should have a .bmp at this point, but you can also use a .mos or .tis to create your area's first overlay, which contains the main area graphics.
+//you are in the tis editor now 
+6a. Click on load external tis, if you have a bitmap image which now you will convert to .tis.
+6b. If you reuse an existing tileset you can click on load tis, load the tileset and set its dimensions at Total Image Size. You don't have to touch the tis dimensions for additional overlays.
+7. To load a .bmp, select the .bmp filetype in the File Open dialog. Make sure you load area graphics .BMP, not just a lightmap :)
+8. You will see a progress bar while importing the .bmp. DLTCEP can employ two different color reduction algorithms which you can select in the edit setup menu. DLTCEP can import 8, 24, 32 bit uncompressed bitmaps.
+9. You can preview the result if you click on 'select frame'.
+10. You can click on Create Minimap here, if you want to make the minimap right now, but it isn't important.
+11. Click on Set Overlay to add the tileset to your game. Pick a name for the tileset, it is adviced that you use the same six letters name for the wed, are and tis files. If the image dimensions were not correct, DLTCEP will correct them.
+You will see something like: image width was padded to 64 pixels.
+//you are in the wed editor now
+12. Well, at this moment, DLTCEP can only handle the main overlay from the .wed file, so we leave the wed editor back to the area editor.
+//you are in the area editor now
+13. Ok, now you have worked quite a lot, better you save the results. By saving now, we will also set the .wed name.
+DLTCEP sets it to the same as the area name by default. If you want a different wed name, change it NOW, before saving.
+14. Click on Save Area As. And pick a six letter name. Something like AR1234.
+15. Now, the View Minimap button is enabled. Click on it. If you were too lazy and didn't create the minimap yet, DLTCEP will offer that it will create it for you now. If all was done well, you must see the minimap now.
+16. Now lets create the rest of the auxiliary bitmaps. Go to the Maps tab of the Area Editor.
+//you are on the maps tab now
+17. Click on Clear Map for all maps.
+18. If you click on Edit Map, you will see the original area graphics overlaid with numbers. These numbers represent the pixels of the auxiliary map. You can alter individual pixels, or draw an outline and floodfill it. The controls of this screen are:
+ a. combo box to select pixel values, you will draw this pixel value if you click on the image.
+ b. button to go back.
+ c. checkbox to show all or only the selected pixels. 
+ d. checkbox for show grid. 
+ e. floodfill selection. Make sure that the outline isn't broken before floodfilling. There is no Undo, yet!
+19. Well, lets assume you made your auxiliary maps. Admittedly it is not the most convenient process, also there could be bugs which might cause problems. Save your maps frequently, in case of problem reload DLTCEP and resume work. (This may be fixed later)
+20. Lets add an Actor. Go to the Actors tab.
+//you are on the actors tab now
+21. Click on Add Actor. This will create a blank entry.
+First select the creature by clicking on the browse button. Clicking on Refresh fields will set some fields with data found in the creature. Official game areas appear to contain these fields. If you alter them, they will override your creature's original data.
+22. Now click on Set Position. This will let you put the creature onto the map. If you already know the coordinates, you can simply fill the position fields. You can also set up a destination, the creature will move into that direction, or, you can simply click on 'stay in place' to make it stationary.
+23. Set up the direction field as well. 
+24. The only remaining important field is the Schedule. Click on the button, and set it up, it should be pretty easy. Click on All for a simple creature.
+25. Now lets set up an Info Point, click on Regions Tab.
+//you are on the regions tab now
+26. Add a blank region. And change Region Type to 'Info'. 
+27. At this moment vertex editing is done solely by hand. Lets build a single rectangle info point. Click on Add Vertex four times to create four nodes.
+28. Fill in the individual points as 10,10; 20,10;  20,20;  10,20;
+You can edit a vertex element by selecting it in the vertex selector combo box, then type in the altered values in the vertex elements fields, then click on Modify.
+29. If you did everything correctly, your bounding box data should have been updated.
+30. Select a proper cursor for the info point, most likely you will use the default.
+31. You can also edit the script field if you want to run a script when this region was clicked on, but for normal info points it is usually just some text.
+32. Now, lets edit the text. There is a text edit field in the bottom left corner. Type in the text you want to be displayed. DLTCEP will update dialog.tlk. Alternatively, just change the strref number, if the text already exists in dialog.tlk. Info points don't require any other fields to set up. Traps and travel regions use different fields.
+33. Lets go for a travel region. Click on Add Region, alter the region type to travel region. (You can simply type a 2 in the regiontype combo box).
+34. Data relevant for the travel region is gathered on the left side of the screen. Make sure you select an existing entrance of an existing area, otherwise crash will occur in the game. For your convenience, DLTCEP will list the valid entrance names once you set the destination area.
+35. The checkboxes for Party required/NPC can't pass should be trivial.
+36. I let you on your own with editing a trap trigger. You better examine existing and working examples, most likely you will b e able to duplicate them in DLTCEP as it displays all relevant (and irrelevant) fields. 
+37. Editing spawnpoints.
+//you are on the spawns tab now
+38. Click on add spawn to create a new entry. 
+39. One spawnpoint may hold 10 different creature resrefs. You can set these in the spawned creatures section. Click on Add to add a new entry, and use browse to select a creature. Alternatively you can just type in the resref.
+40. Set Position either manually or graphically. You must also set enabled to 1, unless you want to enable it from a script.
+41. Sadly the information isn't sufficient on spawnpoints, so the field labels might be confusing. Sorry, you are on your own here.
+42. Lets see entrances.
+//you are on the entrances tab now
+43. Entrances are basically an entrance name (you can edit the name in the combo box). A position and a facing direction.
+44. Containers are quite more complex.
+//you are on the containers tab now
+45. Lets add a simple container holding a single coin.
+46. Click on Add Container.
+47. Set position (the position where you must stand when opening the container), and the container type.
+48. Editing the vertices will be a nightmare, so we skip that now. Use IETME to set up vertices for now. For practice, see point #27/29 to add a region.
+49. Now click on Add Item, and type in MISC07 (the coins resref) into the item resref field. Also type an 1 into the first Amount/charges box. It is the second editbox in the row, the first editbox contains the inventory flags. The useful inventory flags are also accessible via the checkboxes in the bottom row of the item section.
+51. Containers could be locked, or disabled completely, this is controlled by the Locked field. There could also be a key, which is an item.
+52. Trapped containers might have a script, but actually this script isn't necessarily a trap.
+53. The script name is the name you can refer to this container by the ContainerEnable scripting action.
+54. Lets see an ambient now.
+//you are on the ambients tab now
+55. Use Add ambient, and set position (either by manually or graphically).
+56. There are 10 possible sound resources for each ambient source.
+57. Radius is the hearing distance from the center point, it has no meaning in case of a main ambient.
+58. To make the ambient working, always set the Enabled checkbox, you must also set the Schedule, the Radius and the Volume percent fields.
+
+
+Green Water Elimination
+1. Install and Configure DLTCEP
+2. Load the BG1 area (you must have .tis and .wed too)
+3. Go to the area editor
+4. Click on Edit Wed
+5. Click on Edit Tiles
+6. Click on Fix green water. Answering yes to remove dithering improves the area in bg2, but it will be quite plain in bg1.
+7. Leave the tileset editor, answer yes if it wants to save the tileset
+8. Leave the wed editor, save the area in the area editor
+9. Move the area (are/wed/tis/etc) to your bg2 environment and enjoy.
+
+
+Adding/modifying walls
+1. Go to the wed editor (load the area first).
+2. Press the add polygon button in the wallgroup section.
+3. Press the edit polygon button to edit the wall.
+4. The preview button will let you see the polygon. To add vertices it must be set.
+5. Press the insert button too.
+6. Now each time you click on a point in the graphical area, it will add a new vertex.
+7. To adjust a vertex manually, select it from the list. You can either change its value by supplying new values in the 2 editboxes beneath the listbox, or turning off the insert option then clicking on the graphical area.
+8. The move button will let you move the whole polygon. It will move the currently selected vertex to the point you selected on the graphical area.
+9. You can also turn the polygon around, or shift the baseline (marked with blue colour) left or right.
+10. The order button will move the baseline to the bottom, this is important for walls.
+11. You can edit the wall's flags on this screen too. Other polygons are editable similarly.
+
+Adding doors
+1. Prepare the closed door bitmap. If you have a complete closed-door area, then you can save the door part into bmp or tis by using the tileset extractor.
+2. Go to the wed editor (load the area first).
+3. Select the door and press 'Add tiles'.
+//You are in the door tile editor now
+4. Select the door tiles to be overlaid
+5. Press the appropriate 'Load door' button, depending on your filetype.
+6. Load the closed door file.
+
+Adding an overlaid surface (water, lava).
+1. Go to the wed editor (load the area first).
+2. Select the next empty overlay from the overlay browser.
+3. Push the 'Set Overlay' button.
+//You are in the TIS editor
+4. Load the tileset and press the set overlay button without altering the dimensions! If you loaded a BMP, make sure the first dimension is 1 and the second contains the frame number.
+//You are in the WED editor
+5. Create a new wall polygon over your surface as described in Adding walls section.
+6. Press the overlaid button, make sure the correct overlay was selected in the overlay section of the screen.
+7. If you want to check the results, push Edit Tiles in the overlay section. Make sure you selected the overlay and also checked the 'show whole' option. Otherwise you will see only the overlay's tile indices in the WED.
+
+For further help see the tutorial sections of various modding sites.

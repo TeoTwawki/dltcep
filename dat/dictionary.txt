@@ -1,0 +1,60 @@
+
+Dictionary
+
+CFB - casting feature block
+  These effects are applied on the caster before casting the spell, regardless of caster level.
+  In DLTC we use it to decrease the spell points by spell level. The CFB cannot use pre-target.
+
+IDS targeting (In BG2)
+  Creatures (npcs, pcs, monsters) all have object identifiers
+  These are: EA (enemy-ally), GENERAL, RACE, CLASS, SPECIFIC, GENDER, ALIGNMENT.
+  In many spell effects one can target a particular creature selected by one of these 7 identifiers.
+  For IDS targeting you must set  the IDS file in param #2 (EA=2,..., ALIGN=8)
+  And the particular IDS value in param #1.
+  You can also set level limits in the die rolls fields for all such effects.
+  Die rolls: max level, die size: min level.
+  In IWD2 this may be slightly different.
+
+IE fileformats
+  Well, you must know those :)
+  See IESDP.
+
+NON-IE fileformats
+  TBG - teambg format
+  It is essentially the original file plus the string references from dialog.tlk.
+  There are several variants of the TBG format: tbg1, tbg2, tbg3, tbg4 and tbgn.
+  See IESDP.
+  DLTCEP does not handle the obsoleted tbg1 and tbg2 formats and can export only 
+  tbg4.
+
+  IAP - teambg format
+  It is a bunch of normal and TBG files stuck together for easier distribution.
+  See IESDP.
+
+  TBGC - modified teambg format
+  This fileformat has been created to port creature soundsets.
+  It is almost the same as a tbg4 file, except the signature is altered to tbgc
+  and the raw file block contains only the original strrefs of the creature.
+  The filename is the same as the creature's original name.
+
+  CFB.BIN - own fileformat to store level based casting features
+  It is simply a raw binary effect data normally found in spells (and items).
+  Its size has be a multiplication of 48 bytes, because a spell effect is 48 bytes long.
+  Special data:
+   1. fill the resource field with ******** to replace it with the actual spell name.
+   2. fill the param # fields with ++++ to replace them with the spell level.
+   3. fill the param # fields with ---- to replace them with the negative spell level.
+  This simple feature was developed to keep track of spells via variables
+  (by decreasing spellpoints or the number of memorised spells etc).
+
+  PLY - own fileformat to store polygons
+  This is a simple fileformat to store polygons (.wed or .are). It consists of a 8 byte IE-like signature.
+  A vertex count (stored on on short). And (x,y) vertices stored on short pairs.
+
+  D - WeiDU dialog source format
+  It is a dialog dumped (decompiled) in (almost) human readable format. It resembles scripting code.
+  It contains text and journal entries which need to be inserted in dialog.tlk.
+  See WeiDU user's guide.
+
+  TIZ - tispack format
+  This is a compressed tileset. It must be decompressed before using in a game.
