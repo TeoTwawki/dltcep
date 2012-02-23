@@ -1144,6 +1144,28 @@ Known values for 'IDS File' are:
 6   Specific.ids
 7   Gender.ids
 8   Align.ids"
+178,1,"Spell Effect: THAC0 vs. Creature Type Modifier [178]","IDS Entry","IDS File","Alters the targetted creature(s) THAC0 against the creature type specified by the 'IDS Entry' field in the specified 'IDS File'.
+The actual modifier value is placed in the Parameter 3 field in an external effect.
+
+Known values for 'IDS File' are:
+2   EA.ids
+3   General.ids
+4   Race.ids
+5   Class.ids
+6  Specific.ids
+7  Gender.ids
+8   Align.ids"
+179,1,"Spell Effect: Damage vs. Creature Type Modifier [179]","Reference Value","Reference IDS","Alters the targetted creature(s) damage against the creature type specified by the 'IDS Entry' field in the specified 'IDS File'.
+The actual modifier value is placed in the Parameter 3 field in an external effect.
+
+Known values for 'IDS File' are:
+2   EA.ids
+3   General.ids
+4   Race.ids
+5   Class.ids
+6  Specific.ids
+7  Gender.ids
+8   Align.ids"
 180,1,"Item: Can't Use Item [180]","String Reference","Constant","
 *DON'T USE*
 The targeted creatures(s) cannot use the item specified by the resource key. The strref specified by the 'String Reference' field is displayed when an attempt to use the item is made.
@@ -1444,8 +1466,8 @@ Known values for 'Type' are:
 40  Animal Summoning I
 41  Animal Summoning II
 42  Animal Summoning III
-43  Slow Posion
-44  Neutralize Posion
+43  Slow Poison
+44  Neutralize Poison
 45  Call lightning
 46  Static Charge
 47  Remove Paralysis
@@ -1884,8 +1906,14 @@ Known values for 'Type' are:
 2   Percentage Modifier -> Skill = (Skill * 'Statistic Modifier' value) / 100
 
 'Statistic Modifier' can be positive or negative. This is a GemRB specific opcode."
-306,1,"Spell Effect: Damage Luck Modifier [306]","Damage Modifier","Irrelevant","Applies the 'Damage Modifier' value to the minimum damage caused by the targetted creature(s).
-This is the DAMAGELUCK (#145) stat in GemRB when simulating IWD2 feat 'Maximized Attacks'"
+306,1,"Spell Effect: Critical Hit Modifier [306]","Statistic Modifier","Type","Applies the modifier value specified by the 'Statistic Modifier' field in the style specified by the 'Type' field.
+
+Known values for 'Type' are:
+0   Cumulative Modifier -> Skill = Skill + 'Statistic Modifier' value
+1   Flat Value Modifier -> Skill = 'Statistic Modifier' value
+2   Percentage Modifier -> Skill = (Skill * 'Statistic Modifier' value) / 100
+
+This is the CRITICALHITBONUS (#146) stat in GemRB when simulating IWD2 feat 'Improved Criticals'"
 399,1,"Alter Animation [399]","Value and Modifier","Projectile Type","Modifies an area animation's Cycle and plays an area hit animation over it indexed by 'Projectile Type'.
 'Value' is the high word of the first parameter, 'Modifier' is a bitfield manipulation operation. This is a GemRB specific opcode.
 
