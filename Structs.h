@@ -204,10 +204,10 @@ typedef struct//0
   char bam[8];
   unsigned char cycle;
   unsigned char flags;
-  short unpressed;
-  short pressed;
-  short selected;
-  short disabled;
+  unsigned short unpressed;
+  unsigned short pressed;
+  unsigned short selected;
+  unsigned short disabled;
 } chui_button;
 
 typedef struct//1
@@ -1087,9 +1087,17 @@ typedef struct
   short internals[5];
   char scriptname[32];
   char scriptname2[32];
-  short unknown;
+  short unknown2ea;
   short savedx, savedy, savedir; //saved location
-  char unknown2f2[146];
+  char unknown2f2[15];
+  unsigned char translucency;
+  unsigned char fadespeed;
+  unsigned char specflags;
+  unsigned char visible;
+  char unknown305;
+  char unknown306;
+  unsigned char skillpoints;
+  char unknown308[124];
   unsigned char idsea;
   unsigned char idsgeneral;
   unsigned char idsrace;
@@ -1904,7 +1912,8 @@ typedef struct {
   char unknown;
   short quickitems[3];
   short quickslots[3];
-  char unknown00[144];
+  char quickinnates[9][8];
+  char quicksongs[9][8];
   long qslots[9];
   char name[32];
   long talkcount;

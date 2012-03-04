@@ -1230,6 +1230,7 @@
 #define IDC_SPELLNAME                   1869
 #define IDC_TRANSPARENT                 1870
 #define IDC_INVICON                     1871
+#define IDC_TRANSPARENT2                1871
 #define IDC_LEVELSLOT                   1872
 #define IDC_SPELLPICKER                 1873
 #define IDC_MEMORISED                   1874
@@ -1922,7 +1923,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33053
-#define _APS_NEXT_CONTROL_VALUE         2336
+#define _APS_NEXT_CONTROL_VALUE         2337
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

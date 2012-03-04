@@ -60,6 +60,10 @@ protected:
 	afx_msg void OnFlag2();
 	afx_msg void OnFlag3();
 	afx_msg void OnFlag4();
+	afx_msg void OnFlag5();
+	afx_msg void OnFlag6();
+	afx_msg void OnFlag7();
+	afx_msg void OnFlag8();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

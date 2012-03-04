@@ -74,7 +74,7 @@ void IWD2Creature::DoDataExchange(CDataExchange* pDX)
   CEdit *edit;
   CString tmpstr;
   int value;
-  int i;
+  int i,j;
 
 	CDialog::DoDataExchange(pDX);
  	//{{AFX_DATA_MAP(IWD2Creature)
@@ -87,10 +87,27 @@ void IWD2Creature::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 
   DDX_Text(pDX, IDC_UNKNOWN, the_creature.iwd2header.unknown264);
+  DDX_Text(pDX, IDC_TRANSPARENT, the_creature.iwd2header.translucency);
+  DDX_Text(pDX, IDC_TRANSPARENT2, the_creature.iwd2header.fadespeed);
+  DDX_Text(pDX, IDC_VISIBLE, the_creature.iwd2header.visible);
+  DDX_Text(pDX, IDC_PICK, the_creature.iwd2header.skillpoints);
+
+  j=1;
+  for(i=0;i<4;i++)
+  {
+    value = !!(the_creature.iwd2header.specflags&j);
+	  DDX_Check(pDX, IDC_FLAG5+i, value);
+    if (value) {
+      the_creature.iwd2header.specflags|=j;
+    } else {
+      the_creature.iwd2header.specflags&=~j;
+    }
+    j<<=1;
+  }
 
   for(i=0;i<4;i++)
   {
-    value = the_creature.iwd2header.scriptflags[i];
+    value = !!(the_creature.iwd2header.scriptflags[i]);
 	  DDX_Check(pDX, IDC_FLAG1+i, value);
     the_creature.iwd2header.scriptflags[i] = (char) value;
   }
@@ -183,6 +200,10 @@ BEGIN_MESSAGE_MAP(IWD2Creature, CDialog)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U4, DefaultKillfocus)
@@ -198,6 +219,12 @@ BEGIN_MESSAGE_MAP(IWD2Creature, CDialog)
 	ON_EN_KILLFOCUS(IDC_U12, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SUBRACE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TRANSPARENT, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_VISIBLE, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_PICK, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U17, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U16, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TRANSPARENT2, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -417,6 +444,26 @@ void IWD2Creature::OnFlag3()
 void IWD2Creature::OnFlag4() 
 {
 	the_creature.iwd2header.scriptflags[3]=!the_creature.iwd2header.scriptflags[3];
+}
+
+void IWD2Creature::OnFlag5() 
+{
+	the_creature.iwd2header.specflags^=1;
+}
+
+void IWD2Creature::OnFlag6() 
+{
+	the_creature.iwd2header.specflags^=2;
+}
+
+void IWD2Creature::OnFlag7() 
+{
+	the_creature.iwd2header.specflags^=4;
+}
+
+void IWD2Creature::OnFlag8() 
+{
+	the_creature.iwd2header.specflags^=8;
 }
 
 BOOL IWD2Creature::PreTranslateMessage(MSG* pMsg) 
