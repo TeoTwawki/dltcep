@@ -119,9 +119,13 @@ void CChuiEdit::DisplayControls(int type)
     }
   }
 }
+
+#define DDX_ushort(x, y) { char *poi; tmpstr.Format("%d",y); DDX_Text(pDX, x, tmpstr); tmp = strtoul(tmpstr,&poi,0); DDV_MinMaxInt(pDX, tmp, 0, 65535); y = (unsigned short) (tmp&0xffff); }
+
 void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
 {
   CString tmpstr;
+  int tmp;
 
   tmpstr=ChuiControlName(type);
   DDX_Text(pDX, IDC_EXTENSION, tmpstr);
@@ -138,10 +142,11 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     StoreResref(tmpstr,cc->bam);
     DDX_Text(pDX, IDC_CYCLE, cc->cycle);
     DDX_Text(pDX, IDC_BAM2, cc->flags);
-    DDX_Text(pDX, IDC_BAMFRAME1, cc->unpressed);
-    DDX_Text(pDX, IDC_BAMFRAME2, cc->pressed);
-    DDX_Text(pDX, IDC_BAMFRAME3, cc->selected);
-    DDX_Text(pDX, IDC_BAMFRAME4, cc->disabled);
+    
+    DDX_ushort(IDC_BAMFRAME1, cc->unpressed);
+    DDX_ushort(IDC_BAMFRAME2, cc->pressed);
+    DDX_ushort(IDC_BAMFRAME3, cc->selected);
+    DDX_ushort(IDC_BAMFRAME4, cc->disabled);
     for(i=0;i<9;i++)
     {
       k=!!(cc->flags&buttonbits[i]);

@@ -73,6 +73,7 @@ public:
   int animcount;
   int vertexcount;
   int variablecount;
+  int tileflagcount;
   int doorcount;
   int mapnotecount;
   int trapcount;
@@ -99,6 +100,7 @@ public:
   area_trap *trapheaders;
   creature_effect *effects;
   area_tile *tileheaders;
+  area_tileflag *tileflagheaders;
   char *explored;
   char **credatapointers;
 
@@ -417,6 +419,15 @@ public:
       tileheaders=NULL;
     }
     tilecount=0;
+  }
+  inline void KillTileFlags()
+  {
+    if(tileflagheaders)
+    {
+      delete[] tileflagheaders;
+      tileflagheaders=NULL;
+    }
+    tileflagcount=0;
   }
   inline void KillVertices()
   {

@@ -1052,9 +1052,9 @@ int CChitemDlg::check_extheader(int itemtype)
   
   for(i=0;i<the_item.header.extheadcount;i++)
   {
-    if(the_item.extheaders[i].unknown03)
+    if(the_item.extheaders[i].altdmgdicetype)
     {
-      log("Use location high byte flags set:%d",the_item.extheaders[i].unknown03);
+      log("Alt damage dice type set:%d",the_item.extheaders[i].altdmgdicetype);
       ret|=BAD_EXTHEAD;
     }
     atype=the_item.extheaders[i].attack_type;
@@ -5620,11 +5620,17 @@ int CChitemDlg::check_game()
       ret=BAD_RESREF;
     }
   }
-  if(check_area_reference(the_game.header.mainarea,1) )
+  if(check_area_reference(the_game.header.masterarea,0) )
   {
-    log("Invalid starting area: %-.8s",the_game.header.mainarea);
+    log("Invalid master area: %-.8s",the_game.header.masterarea);
     ret=BAD_RESREF;
   }
+  if(check_area_reference(the_game.header.currentarea,1) )
+  {
+    log("Invalid current area: %-.8s",the_game.header.currentarea);
+    ret=BAD_RESREF;
+  }
+
   for(i=0;i<9;i++) //alignment numbers
   {
     if(check_creature_reference(the_game.familiar.familiars[i],false)==-1)

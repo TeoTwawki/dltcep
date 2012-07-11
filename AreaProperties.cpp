@@ -116,11 +116,11 @@ void CAreaGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_SNOW, the_area.header.snow);
   DDX_Text(pDX, IDC_FOG, the_area.header.fog);
   DDX_Text(pDX, IDC_LIGHTNING, the_area.header.lightning);
-  DDX_Text(pDX, IDC_UNKNOWN52, the_area.header.unknown52);
+  DDX_Text(pDX, IDC_UNKNOWN52, the_area.header.windspeed);
 
   DDX_Text(pDX, IDC_UNKFLAG, the_area.header.unkflags);
 
-  DDX_Text(pDX, IDC_UNKNOWN90, the_area.header.unknown90);
+  DDX_Text(pDX, IDC_UNKNOWN90, the_area.header.tileflagoffset);
 
   cb=(CButton *) GetDlgItem(IDC_SONG);
   cb2=(CButton *) GetDlgItem(IDC_SONGS);
@@ -619,8 +619,8 @@ CAreaActor::~CAreaActor()
 }
 
 static int actorboxids[]={IDC_ACTORPICKER, IDC_CRERES, IDC_POSX, IDC_POSY,
-IDC_DESTX, IDC_DESTY, IDC_VISIBLE, IDC_U2C, IDC_FACE, IDC_ANIMATION,
-IDC_U36, IDC_U38,IDC_U3C,IDC_TALKNUM,IDC_DIALOG, IDC_OVERRIDE, IDC_CLASS,
+IDC_DESTX, IDC_DESTY, IDC_VISIBLE, IDC_U2C, IDC_FACE, IDC_ANIMATION, IDC_U2E, 
+IDC_U38, IDC_U3C, IDC_U3E, IDC_TALKNUM,IDC_DIALOG, IDC_OVERRIDE, IDC_CLASS,
 IDC_RACE, IDC_GENERAL, IDC_DEFAULT, IDC_SPECIFIC, IDC_AREA, IDC_SAME,
 IDC_SCHEDULE, IDC_CLEAR, IDC_FIELDS, IDC_BROWSE, IDC_COPY, IDC_PASTE, 
 IDC_REMOVE, IDC_BROWSE2,IDC_BROWSE3, IDC_BROWSE4,IDC_BROWSE5 ,IDC_BROWSE6,
@@ -665,16 +665,16 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_DESTY, the_area.actorheaders[m_actornum].desty);
     DDX_Text(pDX, IDC_VISIBLE, the_area.actorheaders[m_actornum].fields);
 
-    if(the_area.actorheaders[m_actornum].unknown2c<10)
+    if(the_area.actorheaders[m_actornum].type<10)
     {
-      tmpstr.Format("%d",the_area.actorheaders[m_actornum].unknown2c);
+      tmpstr.Format("%d",the_area.actorheaders[m_actornum].type);
     }
     else
     {
-      tmpstr.Format("0x%x",the_area.actorheaders[m_actornum].unknown2c);
+      tmpstr.Format("0x%x",the_area.actorheaders[m_actornum].type);
     }
     DDX_Text(pDX, IDC_U2C,tmpstr);
-    the_area.actorheaders[m_actornum].unknown2c=strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].type=strtonum(tmpstr);
 
     tmpstr.Format("0x%04x %s",the_area.actorheaders[m_actornum].animation,IDSToken("ANIMATE",the_area.actorheaders[m_actornum].animation, false) );
     DDX_Text(pDX, IDC_ANIMATION, tmpstr);
@@ -685,17 +685,21 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_FACE,tmpstr);
     the_area.actorheaders[m_actornum].face=(short) strtonum(tmpstr);
 
-    tmpstr.Format("%d",the_area.actorheaders[m_actornum].unknown36);
-    DDX_Text(pDX, IDC_U36,tmpstr);
-    the_area.actorheaders[m_actornum].unknown36=(short) strtonum(tmpstr);
+    tmpstr.Format("%d",the_area.actorheaders[m_actornum].firstchar);
+    DDX_Text(pDX, IDC_U2E,tmpstr);
+    the_area.actorheaders[m_actornum].firstchar=(short) strtonum(tmpstr);
 
-    tmpstr.Format("%d",the_area.actorheaders[m_actornum].unknown38);
+    tmpstr.Format("%d",the_area.actorheaders[m_actornum].expiration);
     DDX_Text(pDX, IDC_U38,tmpstr);
-    the_area.actorheaders[m_actornum].unknown38=strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].expiration=strtonum(tmpstr);
 
-    tmpstr.Format("%d",the_area.actorheaders[m_actornum].unknown3c);
+    tmpstr.Format("%d",the_area.actorheaders[m_actornum].huntingrange);
     DDX_Text(pDX, IDC_U3C,tmpstr);
-    the_area.actorheaders[m_actornum].unknown3c=strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].huntingrange=strtonum(tmpstr);
+
+    tmpstr.Format("%d",the_area.actorheaders[m_actornum].followrange);
+    DDX_Text(pDX, IDC_U3E,tmpstr);
+    the_area.actorheaders[m_actornum].followrange=strtonum(tmpstr);
 
     DDX_Text(pDX, IDC_TALKNUM,the_area.actorheaders[m_actornum].talknum);
 
@@ -862,6 +866,7 @@ BEGIN_MESSAGE_MAP(CAreaActor, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_U2C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U38, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U3C, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U3E, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_TALKNUM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DIALOG, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_OVERRIDE, DefaultKillfocus)
@@ -924,7 +929,7 @@ void CAreaActor::OnAdd()
   StoreName(tmpstr,newactors[the_area.actorcount].actorname);
   newactors[the_area.actorcount].fields=1; //use the creresref field
   newactors[the_area.actorcount].schedule=0xffffff;
-  newactors[the_area.actorcount].unknown38=-1;
+  newactors[the_area.actorcount].expiration=-1;
 
   the_area.actorheaders=newactors;
   the_area.credatapointers=newdatapointers;
@@ -1200,6 +1205,7 @@ void CAreaActor::OnEmbed()
   }
   the_area.m_changed=true;
   the_area.actorheaders[m_actornum].fields&=~1;
+  the_area.actorheaders[m_actornum].firstchar=tmpname[0];
   //reading creature into creature structure
   //moving creature structure into area data
   ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
@@ -2963,7 +2969,7 @@ CAreaAmbient::~CAreaAmbient()
 static int ambientboxids[]={IDC_AMBIENTPICKER,IDC_WAVRES, IDC_POSX,IDC_POSY,
 IDC_RADIUS,IDC_HEIGHT, IDC_VOLUME, IDC_AMBINUMPICKER,IDC_ADDWAV, IDC_DELWAV, IDC_PLAY,
 IDC_BROWSE, IDC_NUM, IDC_GAP, IDC_SOUNDNUM, IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,
-IDC_FLAG5,IDC_U28, IDC_U2C, IDC_FLAGS,IDC_U90, IDC_SCHEDULE, IDC_UNKNOWN,
+IDC_FLAG5, IDC_U26, IDC_U2C, IDC_FLAGS, IDC_U90, IDC_SCHEDULE, IDC_UNKNOWN,
 IDC_MAXWAV, IDC_SET,IDC_COPY, IDC_PASTE, IDC_REMOVE,
 0};
 
@@ -3015,14 +3021,14 @@ void CAreaAmbient::DoDataExchange(CDataExchange* pDX)
     tmpstr.Format("/ %d",the_area.ambientheaders[m_ambientnum].ambientnum);
     DDX_Text(pDX, IDC_MAXWAV, tmpstr);
     DDX_Text(pDX, IDC_RADIUS, the_area.ambientheaders[m_ambientnum].radius);
-    DDX_Text(pDX, IDC_HEIGHT, the_area.ambientheaders[m_ambientnum].height);
-    DDX_Text(pDX, IDC_U28, the_area.ambientheaders[m_ambientnum].unknown28);
-    DDX_Text(pDX, IDC_U2C, the_area.ambientheaders[m_ambientnum].unknown2c);
+    DDX_Text(pDX, IDC_HEIGHT, the_area.ambientheaders[m_ambientnum].pitchvariance);
+    DDX_Text(pDX, IDC_U26, the_area.ambientheaders[m_ambientnum].unknown26);
+    DDX_Text(pDX, IDC_U2C, the_area.ambientheaders[m_ambientnum].volumevariance);
     DDX_Text(pDX, IDC_VOLUME, the_area.ambientheaders[m_ambientnum].volume);
 
     DDX_Text(pDX, IDC_NUM, the_area.ambientheaders[m_ambientnum].ambientnum2);
-    DDX_Text(pDX, IDC_GAP, the_area.ambientheaders[m_ambientnum].silence);
-    DDX_Text(pDX, IDC_SOUNDNUM, the_area.ambientheaders[m_ambientnum].soundnum);
+    DDX_Text(pDX, IDC_GAP, the_area.ambientheaders[m_ambientnum].period);
+    DDX_Text(pDX, IDC_SOUNDNUM, the_area.ambientheaders[m_ambientnum].periodvariance);
 
     DDX_Text(pDX, IDC_FLAGS, the_area.ambientheaders[m_ambientnum].flags);
     DDX_Text(pDX, IDC_U90, the_area.ambientheaders[m_ambientnum].unknown90);
@@ -3153,7 +3159,7 @@ BEGIN_MESSAGE_MAP(CAreaAmbient, CPropertyPage)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
-	ON_EN_KILLFOCUS(IDC_U28, OnKillfocusU28)
+	ON_EN_KILLFOCUS(IDC_U26, OnKillfocusU28)
 	ON_EN_KILLFOCUS(IDC_U2C, OnKillfocusU2c)
 	ON_EN_KILLFOCUS(IDC_U90, OnKillfocusU90)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocusFlags)
@@ -6466,7 +6472,7 @@ void CAreaAnim::OnFit()
   CPoint point;
 
   if(SetupSelectPoint(0)) return;
-  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE|IW_MATCH, &the_mos);
+  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE|IW_MATCH|IW_SHOWALL, &the_mos);
   dlg.SetupAnimationPlacement(&the_anim,
     the_area.animheaders[m_animnum].posx,
     the_area.animheaders[m_animnum].posy,0);

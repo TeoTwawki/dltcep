@@ -67,14 +67,14 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 	{
     DDX_Text(pDX, IDC_REALTIME, the_game.header.realtime);
 		DDX_Text(pDX, IDC_REPUTATION, the_game.header.reputation);
-		RetrieveResref(tmpstr,the_game.header.mainarea);
+		RetrieveResref(tmpstr,the_game.header.currentarea);
 		DDX_Text(pDX, IDC_STARTAREA, tmpstr);
-		StoreResref(tmpstr,the_game.header.mainarea);
-    RetrieveResref(tmpstr,the_game.header.curarea);
+		StoreResref(tmpstr,the_game.header.currentarea);
+    RetrieveResref(tmpstr,the_game.header.masterarea);
 		DDX_Text(pDX, IDC_AREA, tmpstr);
-		StoreResref(tmpstr,the_game.header.curarea);
+		StoreResref(tmpstr,the_game.header.masterarea);
 		DDX_Text(pDX, IDC_SCREEN, the_game.header.controls);
-    DDX_Text(pDX, IDC_UNKNOWN48, the_game.header.unknown48);
+    DDX_Text(pDX, IDC_UNKNOWN48, the_game.header.currentlink);
     DDX_Text(pDX, IDC_UNKNOWN64, the_game.header.version);
 		i = the_game.header.formation;
 		DDX_Slider(pDX, IDC_SLIDER,i);
@@ -86,12 +86,12 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 		}
 	}
 
-  DDX_Text(pDX, IDC_UNKNOWN1C, the_game.header.weather1);
-  DDX_Text(pDX, IDC_WEATHER, the_game.header.weather2);
+  DDX_Text(pDX, IDC_UNKNOWN1C, the_game.header.areaviewed);
+  DDX_Text(pDX, IDC_WEATHER, the_game.header.weather);
 
-  tmp=the_game.header.weather2;
+  tmp=the_game.header.weather;
   j=1;
-  for(i=0;i<8;i++)
+  for(i=0;i<9;i++)
 	{
 		cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
 		if(cb) cb->SetCheck(!!(tmp&j) );
@@ -111,6 +111,7 @@ BEGIN_MESSAGE_MAP(CGameGeneral, CDialog)
 	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_EN_KILLFOCUS(IDC_GAMETIME, OnDefaultKillfocus)
@@ -166,49 +167,55 @@ void CGameGeneral::OnDefaultKillfocusX(NMHDR * /*header*/, LRESULT * /*result*/)
 
 void CGameGeneral::OnFlag1() 
 {
-	the_game.header.weather2^=1;
+	the_game.header.weather^=1;
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag2() 
 {
-	the_game.header.weather2^=2;	
+	the_game.header.weather^=2;	
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag3() 
 {
-	the_game.header.weather2^=4;	
+	the_game.header.weather^=4;	
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag4() 
 {
-	the_game.header.weather2^=8;
+	the_game.header.weather^=8;
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag5() 
 {
-	the_game.header.weather2^=0x10;	
+	the_game.header.weather^=0x10;	
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag6() 
 {
-	the_game.header.weather2^=0x20;	
+	the_game.header.weather^=0x20;	
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag7() 
 {
-	the_game.header.weather2^=0x40;	
+	the_game.header.weather^=0x40;	
 	UpdateData(UD_DISPLAY);
 }
 
 void CGameGeneral::OnFlag8() 
 {
-	the_game.header.weather2^=0x80;	
+	the_game.header.weather^=0x80;	
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameGeneral::OnFlag9() 
+{
+	the_game.header.weather^=0x100;	
 	UpdateData(UD_DISPLAY);
 }
 
@@ -217,10 +224,10 @@ void CGameGeneral::OnBrowse()
   CString tmpstr;
   
   pickerdlg.m_restype=REF_ARE;
-  RetrieveResref(pickerdlg.m_picked,the_game.header.mainarea);
+  RetrieveResref(pickerdlg.m_picked,the_game.header.currentarea);
   if(pickerdlg.DoModal()==IDOK)
   {
-    StoreResref(pickerdlg.m_picked,the_game.header.mainarea);
+    StoreResref(pickerdlg.m_picked,the_game.header.currentarea);
   }
 	UpdateData(UD_DISPLAY);
 }
@@ -231,10 +238,11 @@ void CGameGeneral::OnBrowse2()
   CString tmpstr;
   
   pickerdlg.m_restype=REF_ARE;
-  RetrieveResref(pickerdlg.m_picked,the_game.header.curarea);
+  RetrieveResref(pickerdlg.m_picked,the_game.header.masterarea);
   if(pickerdlg.DoModal()==IDOK)
   {
-    StoreResref(pickerdlg.m_picked,the_game.header.curarea);
+    StoreResref(pickerdlg.m_picked,the_game.header.masterarea);
   }
 	UpdateData(UD_DISPLAY);
 }
+

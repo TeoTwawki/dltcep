@@ -1960,13 +1960,13 @@ void StoreVariable(CString &dlgcontrol, char *itempoi, bool noupper)
   poi=dlgcontrol.GetBuffer(32);
   if(noupper)
   {
-    strncpy(itempoi,poi,32);
+    for(i=0;poi[i] && i<32;i++) itempoi[i]=poi[i];
   }
   else
   {
     for(i=0;poi[i] && i<32;i++) itempoi[i]=(char) toupper(poi[i]);
-    for(;i<32;i++) itempoi[i]=0;
   }
+  for(;i<32;i++) itempoi[i]=0;
   dlgcontrol.ReleaseBuffer();
 }
 
@@ -4100,7 +4100,7 @@ int handle_trigger(int opcode)
 //validity checkers
 int check_probability(int p1, int p2)
 {
-  return(p1>=p2 || p1>101 || p2>101);
+  return(p1>p2 || p1>101 || p2>101);
 }
 
 inline int check_align_half(int x) { return (x<1) || (x>3); }
@@ -6446,7 +6446,7 @@ void ConvertToV10Eff(const creature_effect *v20effect, feat_block *v10effect)
   v10effect->sides=v20effect->sides;
   v10effect->stype=v20effect->stype;
   v10effect->sbonus=v20effect->sbonus;
-  v10effect->unknown2c=v20effect->unknown2c;
+  v10effect->special=v20effect->special;
 }
 
 void ConvertToV20Eff(creature_effect *v20effect,const feat_block *v10effect)
@@ -6468,7 +6468,7 @@ void ConvertToV20Eff(creature_effect *v20effect,const feat_block *v10effect)
   v20effect->sides=v10effect->sides;
   v20effect->stype=v10effect->stype;
   v20effect->sbonus=v10effect->sbonus;
-  v20effect->unknown2c=v10effect->unknown2c;
+  v20effect->special=v10effect->special;
 }
 
 int CheckDestination(CString area, CString entrance)

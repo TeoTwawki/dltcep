@@ -56,6 +56,7 @@ protected:
 	afx_msg void OnCheck();
 	virtual void OnCancel();
 	afx_msg void OnSave();
+	afx_msg void OnSaveAs();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

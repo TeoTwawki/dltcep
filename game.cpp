@@ -158,7 +158,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   case 10: //this is totsc (maybe bg1 too)
     mysize=sizeof(gam_bg_npc);
     memcpy(&header,"GAMEV1.1",8);
-    header.weather1=1;
+    header.areaviewed=1;
     break;
   case 11://this is iwd1
     mysize=sizeof(gam_iwd_npc);
@@ -185,7 +185,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   }
   esize=((char *)&header.reputation-(char *)&header);
   memcpy(&pstheader,&header, esize);
-  memcpy(pstheader.curarea,header.curarea,8); //hack
+  memcpy(pstheader.curarea,header.masterarea,8); //hack
   if(revision==12)
   {
     fullsize=sizeof(gam_pst_header);
@@ -481,8 +481,8 @@ int Cgame::ReadGameFromFile(int fh, long ml)
       adjust_actpoint(0);
       fullsize=sizeof(pstheader);
       if(read(fhandle,&pstheader,fullsize) !=fullsize) return -2;
-      esize=sizeof(header)-(header.curarea-header.filetype);
-      memcpy(header.curarea,pstheader.curarea,esize);
+      esize=sizeof(header)-(header.masterarea-header.filetype);
+      memcpy(header.masterarea,pstheader.curarea,esize);
       revision=12;
       mysize=sizeof(gam_pst_npc);
     }

@@ -91,7 +91,7 @@ void CImageView::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CImageView, CDialog)
 	//{{AFX_MSG_MAP(CImageView)
-	ON_BN_CLICKED(IDC_BITMAP, OnBitmap)
+	ON_BN_CLICKED(IDC_BITMAP, OnBitmap)  
 	ON_WM_MOUSEMOVE()
 	ON_WM_VSCROLL()
 	ON_WM_HSCROLL()
@@ -499,6 +499,25 @@ void CImageView::DrawActors()
   m_bitmap.ReleaseDC(pDC);
 }
 
+void CImageView::DrawAnims()
+{
+  int i, fc;
+  CPoint point;
+  Cbam tmpbam;
+
+  for(i=0;i<the_area.animcount;i++)
+  {
+
+    area_anim *aa = the_area.animheaders+i;
+    read_bam(CString(aa->bam), &tmpbam, true);
+    point.x = aa->posx-m_clipx*m_mos->mosheader.dwBlockSize;
+    point.y = aa->posy-m_clipy*m_mos->mosheader.dwBlockSize;
+    fc=tmpbam.GetFrameIndex(aa->cyclenum,aa->framenum);
+    point-=tmpbam.GetFramePos(fc);
+    tmpbam.MakeBitmap(fc,GREY,*m_mos,BM_OVERLAY,point.x, point.y);
+  }
+}
+
 void CImageView::DrawIcons()
 {
   int i, fc;
@@ -774,8 +793,8 @@ CPoint CImageView::GetPoint(int frame)
     }
     break;
   case GP_BLOCK:
-    ret.x=m_confirmed.x/GR_WIDTH;
-    ret.y=m_confirmed.y/GR_HEIGHT;
+    ret.x=(m_confirmed.x-m_clipx*m_mos->mosheader.dwBlockSize%GR_WIDTH*2)/GR_WIDTH;
+    ret.y=(m_confirmed.y-m_clipy*m_mos->mosheader.dwBlockSize%GR_HEIGHT*2)/GR_HEIGHT;    
     break;
   case GP_TILE:
     ret.x=m_confirmed.x/m_mos->mosheader.dwBlockSize;
@@ -1199,9 +1218,13 @@ void CImageView::RefreshDialog()
   {
     if (m_showall)
     {
-      if (m_maptype==MT_BAM)
-      {
+      switch(m_maptype) {
+      case MT_BAM:
         if (m_map) DrawIcons();
+        break;
+      case MT_DEFAULT:
+        DrawAnims();
+        break;
       }
     }
 

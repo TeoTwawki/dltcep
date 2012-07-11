@@ -361,9 +361,9 @@ typedef struct
   char  usability[4];     //bits class/alignment/race
   char  animtype[2];      //animation type
   unsigned char minlevel; //minimum level
-  unsigned char unknown1;
+  unsigned char padding1;
   unsigned char minstr;   //minimum strength 
-  unsigned char unknown2; 
+  unsigned char padding2; 
   unsigned char minstrpl; //minimum strength 18 + x
   unsigned char kits1;    //bits
   unsigned char minint;   //
@@ -375,7 +375,7 @@ typedef struct
   unsigned char mincon;
   unsigned char weaprof;  //weapon proficiency type
   unsigned char mincha;   //
-  unsigned char unknown3;
+  unsigned char padding3;
   unsigned long price;     //item price
   short maxstack;          //maximum stack
   char  invicon[8];        //inventory icon
@@ -417,13 +417,15 @@ typedef struct
   unsigned char attack_type;
   unsigned char force_id;
   unsigned char location;
-  unsigned char unknown03;          //0x03
+  unsigned char altdmgdicetype;
   char useicon[8];
   unsigned char target_type;
   unsigned char target_num;
   unsigned short range;
-  unsigned short projectile;
-  unsigned short speed;
+  unsigned char projectile;
+  unsigned char altdmgdicecnt;
+  unsigned char speed;
+  unsigned char altdmgplus;
   short thaco;
   unsigned char damdice;
   unsigned char school;
@@ -464,7 +466,7 @@ typedef struct {
   long sides;
   long stype;
   long sbonus;
-  long unknown2c;
+  long special;
 } feat_block;
 
 typedef struct {
@@ -1191,7 +1193,7 @@ typedef struct {
   unsigned long sides;
   unsigned long stype;
   long sbonus;
-  long unknown2c;
+  long special;
   long school;
   long u3,u4,u5;
   long resist;  
@@ -1284,7 +1286,7 @@ typedef struct
   short snow;
   short fog;
   short lightning;
-  short unknown52; //weather ?
+  short windspeed;
   long actoroffset;
   short actorcnt;
   short infocnt;
@@ -1302,8 +1304,9 @@ typedef struct
   short ambicnt;
   long ambioffset;
   long variableoffset;
-  long variablecnt;
-  long unknown90;
+  short variablecnt;
+  short tileflagcnt;
+  long tileflagoffset;
   char scriptref[8];
   long exploredsize;
   long exploredoffset;
@@ -1393,12 +1396,15 @@ typedef struct {
   short destx;
   short desty;
   long fields; //used fields
-  long unknown2c;
+  short type;
+  char firstchar;
+  char unknown2f;
   long animation;//actor's animation type
   short face;
   short unknown36;
-  long unknown38; //time to appear ?
-  long unknown3c;
+  long expiration; //time to appear for (0x38)
+  short huntingrange;
+  short followrange;
   unsigned long schedule;
   long talknum;
   char dialog[8];
@@ -1508,16 +1514,15 @@ typedef struct {
   char ambiname[32];
   short posx, posy;
   short radius;
-  short height;
-  short unknown28;
-  short unknown2a;
-  short unknown2c;
+  short unknown26;
+  unsigned long pitchvariance;
+  short volumevariance;
   short volume;
   char ambients[10][8];
   short ambientnum;
   short ambientnum2; // ????
-  long silence;
-  long soundnum; // ??
+  long period;  //was interval
+  long periodvariance; // was sounds to use
   unsigned long schedule;
   long flags;
   long unknown90;
@@ -1624,6 +1629,10 @@ typedef struct {
   long secnum;
   char unused[48];
 } area_tile;
+
+typedef struct {
+  long unknown;
+} area_tileflag;
 
 typedef struct { //10 songrefs, day,night,battle, etc
   long songs[10];
@@ -1744,8 +1753,8 @@ typedef struct {
   short formation;
   short formations[5];
   long gold;
-  short weather1;
-  short weather2;
+  short areaviewed;
+  short weather;
   long pcoffset;
   long pccount;
   long unknown1offset;
@@ -1754,12 +1763,12 @@ typedef struct {
   long npccount;
   long variableoffset;
   long variablecount;
-  char mainarea[8];
-  long unknown48;
+  char currentarea[8];
+  long currentlink;    //set this to -1
   long journalcount;
   long journaloffset;
   long reputation;
-  char curarea[8];
+  char masterarea[8];
   long controls;
   long version;
   long familiaroffset;
@@ -1867,7 +1876,7 @@ typedef struct {
   long xpofmpv;   //xp of most powerful vanquished
   long absent;
   long joindate;
-  long unknown3;
+  long withparty;
   long killxp; //this chapter
   long killnum;
   long totalkillxp;

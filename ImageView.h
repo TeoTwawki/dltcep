@@ -107,6 +107,7 @@ protected:
   void FloodFill(CPoint point, unsigned char color);
   void DrawLine(CPoint source, CPoint destination, unsigned char color);
   void DrawActors();
+  void DrawAnims();
   void DrawIcons();
   void DrawPolyPolygon(CPtrList *polygons);
   void CenterPolygon(CPtrList *polygons, int idx);

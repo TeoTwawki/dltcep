@@ -1076,7 +1076,7 @@ int Read2daFromFile3(int fhandle, CStringMapArray &refs, int length, int columns
         }
       }
       else ret=read_string(fpoi, " ", tmpref,sizeof(tmpref));
-      if(ret!=1) break;
+      if(ret!=1 && ret!=2) break;
       tmpref[MAXIDSIZE-1]=0;
       cnt=strtonum(tmpref);
       refs[item].data[i]=cnt;

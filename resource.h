@@ -1695,6 +1695,7 @@
 #define IDC_HEIGHTMAP2                  2333
 #define IDC_LIGHTSPOT                   2334
 #define IDC_FRIENDLY                    2335
+#define IDC_U2E                         2337
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1923,7 +1924,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
 #define _APS_NEXT_COMMAND_VALUE         33053
-#define _APS_NEXT_CONTROL_VALUE         2337
+#define _APS_NEXT_CONTROL_VALUE         2338
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

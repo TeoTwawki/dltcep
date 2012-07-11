@@ -40,6 +40,7 @@ Carea::Carea()
   trapheaders=NULL;
   effects=NULL;
   tileheaders=NULL;
+  tileflagheaders=NULL;
   vertexheaders=NULL;
   explored=NULL;
   credatapointers=NULL;
@@ -72,6 +73,7 @@ Carea::Carea()
   mapnotecount=0;
   trapcount=0;
   tilecount=0;
+  tileflagcount=0;
   vertexcount=0;
   exploredsize=0;
 
@@ -115,6 +117,7 @@ void Carea::new_area()
   KillTraps();
   KillEffects();
   KillTiles();
+  KillTileFlags();
   KillVertices();
   KillVertexList();
   KillWedVertexList();
@@ -2208,6 +2211,20 @@ int Carea::ReadAreaFromFile(int fh, long ml)
   }
   fullsizea+=esize;
 
+  if(tileflagcount!=header.tileflagcnt)
+  {
+    KillVariables();
+    tileflagheaders=new area_tileflag[header.tileflagcnt];
+    if(!tileflagheaders) return -3;
+    tileflagcount=header.tileflagcnt;
+  }
+  esize=header.tileflagcnt*sizeof(area_tileflag);
+  if(read(fhandlea,tileflagheaders,esize )!=esize )
+  {
+    return -2;
+  }
+  fullsizea+=esize;
+
   //explored
   if(header.exploredsize)
   {
@@ -2268,6 +2285,28 @@ int Carea::ReadAreaFromFile(int fh, long ml)
   }
   esize=header.tilecnt*sizeof(area_tile);
   if(read(fhandlea,tileheaders,esize )!=esize )
+  {
+    return -2;
+  }
+  fullsizea+=esize;
+
+  //tile flags objects
+  if(header.tileflagcnt)
+  {
+    flg=adjust_actpointa(header.tileflagoffset);
+    if(flg<0) return flg;
+    if(flg) ret|=flg;
+  }
+  
+  if(tileflagcount!=header.tileflagcnt)
+  {
+    KillTileFlags();
+    tileflagheaders=new area_tileflag[header.tileflagcnt];
+    if(!tileflagheaders) return -3;
+    tileflagcount=header.tileflagcnt;
+  }
+  esize=header.tileflagcnt*sizeof(area_tileflag);
+  if(read(fhandlea,tileflagheaders,esize )!=esize )
   {
     return -2;
   }

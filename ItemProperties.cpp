@@ -196,12 +196,12 @@ void CItemGeneral::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, the_item.header.minwis, 0, 255);
 	DDX_Text(pDX, IDC_MINLEVEL, the_item.header.minlevel);
 	DDV_MinMaxInt(pDX, the_item.header.minlevel, 0, 255);
-	DDX_Text(pDX, IDC_X25, the_item.header.unknown1);
-	DDV_MinMaxInt(pDX, the_item.header.unknown1, 0, 255);
-	DDX_Text(pDX, IDC_X27, the_item.header.unknown2);
-	DDV_MinMaxInt(pDX, the_item.header.unknown2, 0, 255);
-	DDX_Text(pDX, IDC_X33, the_item.header.unknown3);
-	DDV_MinMaxInt(pDX, the_item.header.unknown3, 0, 255);
+	DDX_Text(pDX, IDC_X25, the_item.header.padding1);
+	DDV_MinMaxInt(pDX, the_item.header.padding1, 0, 255);
+	DDX_Text(pDX, IDC_X27, the_item.header.padding2);
+	DDV_MinMaxInt(pDX, the_item.header.padding2, 0, 255);
+	DDX_Text(pDX, IDC_X33, the_item.header.padding3);
+	DDV_MinMaxInt(pDX, the_item.header.padding3, 0, 255);
 	DDX_Text(pDX, IDC_STACK, the_item.header.maxstack);
 
   tmpstr=colortitle(the_item.pstheader.colour);
@@ -2215,12 +2215,14 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
       j<<=1;
     }
 
-    DDX_Text(pDX, IDC_UNKNOWN1, the_item.extheaders[extheadnum].unknown03);
-
     DDX_Text(pDX, IDC_THAC0, the_item.extheaders[extheadnum].thaco);
     DDX_Text(pDX, IDC_ROLL, the_item.extheaders[extheadnum].dammult);
     DDX_Text(pDX, IDC_DIE, the_item.extheaders[extheadnum].damdice);
     DDX_Text(pDX, IDC_ADD, the_item.extheaders[extheadnum].damplus);
+
+    DDX_Text(pDX, IDC_ROLL2, the_item.extheaders[extheadnum].altdmgdicecnt);
+    DDX_Text(pDX, IDC_DIE2, the_item.extheaders[extheadnum].altdmgdicetype);
+    DDX_Text(pDX, IDC_ADD2, the_item.extheaders[extheadnum].altdmgplus);
 
     tmpstr=format_schooltype(the_item.extheaders[extheadnum].school);
     DDX_Text(pDX, IDC_SCHOOL, tmpstr);
@@ -2291,19 +2293,22 @@ void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
     the_item.extheaders[extheadnum].target_type=(unsigned char) strtonum(tmpstr);
     
     DDX_Text(pDX, IDC_PROJFRAME, tmpstr);
-    the_item.extheaders[extheadnum].projectile=(short) strtonum(tmpstr);
+    the_item.extheaders[extheadnum].projectile=(unsigned char) strtonum(tmpstr);
 
   	DDX_Text(pDX, IDC_RANGE,(short &) the_item.extheaders[extheadnum].range);
   	DDX_Text(pDX, IDC_SPEED,(short &) the_item.extheaders[extheadnum].speed);
   	DDX_Text(pDX, IDC_IDENTIFY, tmpstr);
     the_item.extheaders[extheadnum].force_id=(unsigned char) strtonum(tmpstr);
 
-    DDX_Text(pDX, IDC_UNKNOWN1, the_item.extheaders[extheadnum].unknown03);
 
   	DDX_Text(pDX, IDC_THAC0,the_item.extheaders[extheadnum].thaco);
     DDX_Text(pDX, IDC_ROLL, the_item.extheaders[extheadnum].dammult);
     DDX_Text(pDX, IDC_DIE, the_item.extheaders[extheadnum].damdice);
     DDX_Text(pDX, IDC_ADD,the_item.extheaders[extheadnum].damplus);
+
+    DDX_Text(pDX, IDC_ROLL2, the_item.extheaders[extheadnum].altdmgdicecnt);
+    DDX_Text(pDX, IDC_DIE2, the_item.extheaders[extheadnum].altdmgdicetype);
+    DDX_Text(pDX, IDC_ADD2, the_item.extheaders[extheadnum].altdmgplus);
 
     DDX_Text(pDX, IDC_SCHOOL, tmpstr);
     the_item.extheaders[extheadnum].school=(unsigned char) strtonum(tmpstr);
@@ -2566,9 +2571,9 @@ static int extids[]={
   //attribute controls
   IDC_EXTUSEICON, IDC_USEICON,
   IDC_EXTHEADNUM, IDC_EXTTYPE, IDC_LOC, IDC_TARGETNUM, IDC_TARGET,
-  IDC_PROJFRAME, IDC_RANGE, IDC_SPEED, IDC_IDENTIFY, IDC_UNKNOWN1,
-  IDC_THAC0, IDC_ROLL, IDC_DIE, IDC_ADD, IDC_SCHOOL, IDC_SECTYPE,
-  IDC_DAMAGETYPE, IDC_BOW, IDC_XBOW, IDC_MISC,
+  IDC_PROJFRAME, IDC_RANGE, IDC_SPEED, IDC_IDENTIFY, IDC_THAC0, 
+  IDC_ROLL, IDC_DIE, IDC_ADD, IDC_ROLL2, IDC_DIE2, IDC_ADD2,
+  IDC_SCHOOL, IDC_SECTYPE, IDC_DAMAGETYPE, IDC_BOW, IDC_XBOW, IDC_MISC,
   IDC_ANIM1, IDC_ANIM2, IDC_ANIM3, IDC_CHARGES, IDC_PERDAY, 
   IDC_FLAGS, IDC_STRBONUS, IDC_BREAKABLE, IDC_HOSTILE, IDC_RECHARGES, 
   IDC_FLAG1, IDC_FLAG2, IDC_PROJID,  IDC_ID, IDC_NOID, IDC_MELEE, 

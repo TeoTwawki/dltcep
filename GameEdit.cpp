@@ -446,7 +446,7 @@ void CGameEdit::NewGame()
 
   memset(&the_game.header,0,sizeof(gam_header) );
   memset(&the_game.pstheader,0,sizeof(gam_pst_header) );
-  the_game.header.unknown48=-1;
+  the_game.header.currentlink=-1;
   the_game.header.unknown1count=100;
 	//formations (except pst)
 	the_game.header.reputation=100;
