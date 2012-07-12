@@ -1427,11 +1427,11 @@ typedef struct {
   short p1x, p1y, p2x, p2y;
   short vertexcount;
   long vertindx;
-  long unknown30;
+  long triggervalue;
   long cursortype;
   char destref[8]; //area resref
   char destname[32]; //destination name in destination area
-  long infoflags;
+  unsigned long infoflags;
   long strref;
   short trapdetect;
   short trapremove;
@@ -1551,7 +1551,8 @@ typedef struct {
   short countblockopen;
   short countblockclose;
   long firstblockclose;
-  long unknown54; //short,short
+  short hp;  
+  short ac;
   char openres[8];
   char closeres[8];
   long cursortype;
@@ -1568,8 +1569,8 @@ typedef struct {
   short locp2x, locp2y;   //open location 2
   long strref;            //check this for missing strings STRREF!!!
   char regionlink[32];
-  long nameref;           //this is unsure
-  char dialogref[8];      //also unsure
+  long nameref;           //this is a GemRB extension
+  char dialogref[8];      //this is a GemRB extension
 } area_door;
 
 typedef struct {
@@ -1579,8 +1580,7 @@ typedef struct {
   char bam[8];
   short cyclenum;
   short framenum;
-  short flags;
-  short unknown36;
+  unsigned long flags;
   short height;
   short transparency;
   short current; //current frame?

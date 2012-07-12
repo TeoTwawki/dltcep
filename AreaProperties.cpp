@@ -671,10 +671,10 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     }
     else
     {
-      tmpstr.Format("0x%x",the_area.actorheaders[m_actornum].type);
+      tmpstr.Format("0x%04x",the_area.actorheaders[m_actornum].type);
     }
     DDX_Text(pDX, IDC_U2C,tmpstr);
-    the_area.actorheaders[m_actornum].type=strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].type=(short) strtonum(tmpstr);
 
     tmpstr.Format("0x%04x %s",the_area.actorheaders[m_actornum].animation,IDSToken("ANIMATE",the_area.actorheaders[m_actornum].animation, false) );
     DDX_Text(pDX, IDC_ANIMATION, tmpstr);
@@ -687,7 +687,7 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
 
     tmpstr.Format("%d",the_area.actorheaders[m_actornum].firstchar);
     DDX_Text(pDX, IDC_U2E,tmpstr);
-    the_area.actorheaders[m_actornum].firstchar=(short) strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].firstchar=(char) strtonum(tmpstr);
 
     tmpstr.Format("%d",the_area.actorheaders[m_actornum].expiration);
     DDX_Text(pDX, IDC_U38,tmpstr);
@@ -695,11 +695,11 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
 
     tmpstr.Format("%d",the_area.actorheaders[m_actornum].huntingrange);
     DDX_Text(pDX, IDC_U3C,tmpstr);
-    the_area.actorheaders[m_actornum].huntingrange=strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].huntingrange=(short) strtonum(tmpstr);
 
     tmpstr.Format("%d",the_area.actorheaders[m_actornum].followrange);
     DDX_Text(pDX, IDC_U3E,tmpstr);
-    the_area.actorheaders[m_actornum].followrange=strtonum(tmpstr);
+    the_area.actorheaders[m_actornum].followrange=(short) strtonum(tmpstr);
 
     DDX_Text(pDX, IDC_TALKNUM,the_area.actorheaders[m_actornum].talknum);
 
@@ -1408,7 +1408,7 @@ static int triggerboxids[]={IDC_TRIGGERPICKER, IDC_REGIONTYPE, IDC_POS1X, IDC_PO
 IDC_POS2X, IDC_POS2Y, IDC_RECALCBOX, IDC_EDITPOLYGON, IDC_CURSORIDX,
 IDC_DESTAREA, IDC_PARTY, IDC_ENTRANCENAME, IDC_TPOSX, IDC_TPOSY,
 IDC_KEY, IDC_DETECT, IDC_REMOVAL, IDC_SCRIPT, IDC_TRAPPED, IDC_DETECTED,
-IDC_DIALOG, IDC_UNKNOWN30, IDC_POS1X2, IDC_POS1Y2, IDC_STRING,
+IDC_DIALOG, IDC_VALUE, IDC_POS1X2, IDC_POS1Y2, IDC_STRING,
 IDC_FLAGS, IDC_TUNDET, IDC_TRESET, IDC_PARTY, IDC_TDETECT,
 IDC_TUNK1, IDC_TUNK2, IDC_TNPC, IDC_TUNK3, IDC_TDEACTIVATED, IDC_NONPC,
 IDC_TOVERRIDE, IDC_TDOOR, IDC_TUNK4,IDC_TUNK5,IDC_TUNK6,IDC_TUNK7,
@@ -1468,7 +1468,7 @@ void CAreaTrigger::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_POS2X, the_area.triggerheaders[m_triggernum].p2x);
     DDX_Text(pDX, IDC_POS2Y, the_area.triggerheaders[m_triggernum].p2y);
 
-    DDX_Text(pDX, IDC_UNKNOWN30, the_area.triggerheaders[m_triggernum].unknown30);
+    DDX_Text(pDX, IDC_VALUE, the_area.triggerheaders[m_triggernum].triggervalue);
     DDX_Text(pDX, IDC_CURSORIDX, the_area.triggerheaders[m_triggernum].cursortype);
     
     fc=the_bam.GetFrameIndex(the_area.triggerheaders[m_triggernum].cursortype,0);
@@ -1485,7 +1485,7 @@ void CAreaTrigger::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr, 32);
     StoreName(tmpstr, the_area.triggerheaders[m_triggernum].destname);
 
-    tmpstr.Format("%d", the_area.triggerheaders[m_triggernum].infoflags);
+    tmpstr.Format("0x%08x", the_area.triggerheaders[m_triggernum].infoflags);
     DDX_Text(pDX, IDC_FLAGS, tmpstr);
     the_area.triggerheaders[m_triggernum].infoflags=strtonum(tmpstr);
     j=1;
@@ -1598,6 +1598,7 @@ BOOL CAreaTrigger::OnInitDialog()
     m_tooltip.SetTipBkColor(RGB(240,224,160));
 
     m_tooltip.AddTool(GetDlgItem(IDC_TRIGGERPICKER), IDS_LABEL);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAGS), IDS_FLAGS);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -1644,7 +1645,7 @@ BEGIN_MESSAGE_MAP(CAreaTrigger, CPropertyPage)
 	ON_BN_CLICKED(IDC_STRING, OnString)
 	ON_BN_CLICKED(IDC_SET2, OnSet2)
 	ON_BN_CLICKED(IDC_BROWSE5, OnBrowse5)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_VALUE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2X, DefaultKillfocus)
@@ -1989,19 +1990,19 @@ void CAreaTrigger::OnTdetect()
 	UpdateData(UD_DISPLAY);
 }
 
-void CAreaTrigger::OnTunk1() 
+void CAreaTrigger::OnTunk1() //Monster activated
 {
 	the_area.triggerheaders[m_triggernum].infoflags^=16;
 	UpdateData(UD_DISPLAY);
 }
 
-void CAreaTrigger::OnTunk2() 
+void CAreaTrigger::OnTunk2() //Tutorial
 {
 	the_area.triggerheaders[m_triggernum].infoflags^=32;
 	UpdateData(UD_DISPLAY);
 }
 
-void CAreaTrigger::OnTnpc() 
+void CAreaTrigger::OnTnpc()  //All creatures
 {
 	the_area.triggerheaders[m_triggernum].infoflags^=64;
 	UpdateData(UD_DISPLAY);
@@ -2018,6 +2019,7 @@ void CAreaTrigger::OnTdeactivated()
 	the_area.triggerheaders[m_triggernum].infoflags^=256;
 	UpdateData(UD_DISPLAY);
 }
+
 void CAreaTrigger::OnNonpc() 
 {
 	the_area.triggerheaders[m_triggernum].infoflags^=512;
@@ -3125,6 +3127,15 @@ BOOL CAreaAmbient::OnInitDialog()
     m_tooltip.SetTipBkColor(RGB(240,224,160));
 
     m_tooltip.AddTool(GetDlgItem(IDC_AMBIENTPICKER), IDS_LABEL);
+    m_tooltip.AddTool(GetDlgItem(IDC_POSX), IDS_XPOS2);
+    m_tooltip.AddTool(GetDlgItem(IDC_POSY), IDS_YPOS2);
+    m_tooltip.AddTool(GetDlgItem(IDC_RADIUS), IDS_DISTANCE);
+    m_tooltip.AddTool(GetDlgItem(IDC_HEIGHT), IDS_PITCH);
+    m_tooltip.AddTool(GetDlgItem(IDC_U2C), IDS_VOLUMEVAR);
+    m_tooltip.AddTool(GetDlgItem(IDC_VOLUME), IDS_VOLUME);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAGS), IDS_FLAGS);
+    m_tooltip.AddTool(GetDlgItem(IDC_GAP), IDS_PERIOD);
+    m_tooltip.AddTool(GetDlgItem(IDC_SOUNDNUM), IDS_PERIODVAR);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -5006,9 +5017,9 @@ IDC_FLAG9,IDC_FLAG10,IDC_FLAG11,IDC_FLAG12,
 IDC_POS1X,IDC_POS1Y,IDC_POS2X,IDC_POS2Y, IDC_POS1X2,IDC_POS1Y2,IDC_POS2X2,IDC_POS2Y2,
 IDC_RECALCBOX,IDC_EDITPOLYGON, IDC_EDITBLOCK,IDC_SELECTION,
 IDC_OPEN,IDC_SOUND1,IDC_SOUND2, IDC_AREA, IDC_CURSORIDX, IDC_CURSOR, IDC_TPOSX, IDC_TPOSY,
-IDC_DETECT,IDC_REMOVAL,IDC_U54, IDC_TRAPPED,IDC_DETECTED,IDC_KEY, IDC_SCRIPT,IDC_DIALOG,
+IDC_DETECT,IDC_REMOVAL, IDC_TRAPPED,IDC_DETECTED,IDC_KEY, IDC_SCRIPT,IDC_DIALOG,
 IDC_LOCKED,IDC_DIFF,IDC_STRREF, IDC_INFOSTR, IDC_BROWSE,IDC_BROWSE2,IDC_BROWSE3, 
-IDC_BROWSE4,IDC_BROWSE5, IDC_PLAY,IDC_PLAYSOUND, IDC_UNKNOWN, 
+IDC_BROWSE4,IDC_BROWSE5, IDC_PLAY,IDC_PLAYSOUND, IDC_UNKNOWN, IDC_AC, IDC_MAXHP,
 IDC_REMOVE, IDC_COPY, IDC_PASTE,
 0};
 
@@ -5064,7 +5075,8 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_DETECTED, the_area.doorheaders[m_doornum].trapdetflags);
     DDX_Text(pDX, IDC_LOCKED, the_area.doorheaders[m_doornum].locked);
     DDX_Text(pDX, IDC_DIFF, the_area.doorheaders[m_doornum].lockremoval);
-    DDX_Text(pDX, IDC_U54, the_area.doorheaders[m_doornum].unknown54);
+    DDX_Text(pDX, IDC_AC, the_area.doorheaders[m_doornum].ac);
+    DDX_Text(pDX, IDC_MAXHP, the_area.doorheaders[m_doornum].hp);
 
     RetrieveResref(tmpstr, the_area.doorheaders[m_doornum].key);
     DDX_Text(pDX, IDC_KEY, tmpstr);
@@ -5151,6 +5163,11 @@ BOOL CAreaDoor::OnInitDialog()
     m_tooltip.SetTipBkColor(RGB(240,224,160));
 
     m_tooltip.AddTool(GetDlgItem(IDC_DOORPICKER), IDS_LABEL);
+
+    m_tooltip.AddTool(GetDlgItem(IDC_DOORID), IDS_DOORID);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAGS), IDS_FLAGS);
+    m_tooltip.AddTool(GetDlgItem(IDC_AREA), IDS_DOORREGION);
+
     CWnd *cw = GetDlgItem(IDC_FLAG1);
     if (pst_compatible_var()) {
       m_tooltip.AddTool(cw, IDS_DOORCLOSED);
@@ -5169,6 +5186,8 @@ BOOL CAreaDoor::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG10), IDS_DOORTRANS);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG11), IDS_DOORKEY);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG12), IDS_DOORSLIDE);
+
+    m_tooltip.AddTool(GetDlgItem(IDC_DIALOG), IDS_GEMRB);
   }
   UpdateData(UD_DISPLAY);
   return TRUE;
@@ -5957,12 +5976,12 @@ CAreaAnim::~CAreaAnim()
 }
 
 static int animboxids[]={IDC_ANIMPICKER, IDC_POSX, IDC_POSY, IDC_BAM,
-IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_U36, IDC_U38, IDC_TRANSPARENT, IDC_U3C,
-IDC_CHANCE, IDC_SKIPEXT, IDC_BMP, IDC_FLAG1, IDC_FLAG2, IDC_FLAG3,
-IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8, IDC_FLAG9,
-IDC_FLAG10, IDC_FLAG11, IDC_FLAG12, IDC_FLAG13, IDC_FLAG14, IDC_FLAG15,
-IDC_FLAG16, IDC_BAMFRAME, IDC_PLAY, IDC_SCHEDULE, IDC_REMOVE, IDC_COPY,
-IDC_PASTE, IDC_BROWSE, IDC_BROWSE2, IDC_FIT,
+IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_HEIGHT, IDC_U48, IDC_TRANSPARENT,
+IDC_U3C, IDC_CHANCE, IDC_SKIPEXT, IDC_BMP, IDC_FLAG1, IDC_FLAG2, 
+IDC_FLAG3, IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8,
+IDC_FLAG9, IDC_FLAG10, IDC_FLAG11, IDC_FLAG12, IDC_FLAG13, IDC_FLAG14,
+IDC_FLAG15, IDC_FLAG16, IDC_BAMFRAME, IDC_PLAY, IDC_SCHEDULE, IDC_REMOVE,
+IDC_COPY, IDC_PASTE, IDC_BROWSE, IDC_BROWSE2, IDC_FIT,
 0};
 void CAreaAnim::DoDataExchange(CDataExchange* pDX)
 {
@@ -6019,9 +6038,11 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
       }
     }
 
-    DDX_Text(pDX, IDC_FLAGS, the_area.animheaders[m_animnum].flags);
-    DDX_Text(pDX, IDC_U36,the_area.animheaders[m_animnum].unknown36);
-    DDX_Text(pDX, IDC_U38,the_area.animheaders[m_animnum].height);
+    tmpstr.Format("0x%08x", the_area.animheaders[m_animnum].flags);
+    DDX_Text(pDX, IDC_FLAGS, tmpstr);
+    the_area.animheaders[m_animnum].flags = strtonum(tmpstr);
+    DDX_Text(pDX, IDC_U48,the_area.animheaders[m_animnum].unknown48);
+    DDX_Text(pDX, IDC_HEIGHT,the_area.animheaders[m_animnum].height);
 		DDX_Text(pDX, IDC_TRANSPARENT,the_area.animheaders[m_animnum].transparency);
 		DDX_Text(pDX, IDC_U3C,the_area.animheaders[m_animnum].current);
     DDX_Text(pDX, IDC_CHANCE,the_area.animheaders[m_animnum].progress);
@@ -6151,8 +6172,8 @@ BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U36, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_U38, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_HEIGHT, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U48, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U3C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BMP, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_TRANSPARENT, DefaultKillfocus)

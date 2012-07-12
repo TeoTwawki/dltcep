@@ -2588,7 +2588,7 @@ bool CChitemDlg::match_area()
   bool found;
   search_data tmpdata;
 
-#if 0
+//#if 0
 #if _DEBUG
 
   int i;
@@ -2597,12 +2597,15 @@ bool CChitemDlg::match_area()
   {
     if(the_area.doorheaders[i].flags&32)
     {
-      log("%d Using mystery flag",i,the_area.doorheaders[i].doorname);
+      //log("Door %d (%s) has uncloseable flag",i,the_area.doorheaders[i].doorname);
+    }
+    if(the_area.doorheaders[i].dialogref[0]) {
+      log("Door %d (%s) has dialog resref (%s)",i,the_area.doorheaders[i].doorname, the_area.doorheaders[i].dialogref);
     }
   }
 
 #endif
-#endif
+//#endif
   memset(&tmpdata,0,sizeof(tmpdata) );
   found=true;
 
