@@ -1943,8 +1943,8 @@ BEGIN
     LTEXT           "Wedfile",IDC_STATIC,7,7,25,8
     GROUPBOX        "BG1 Area fields",IDC_STATIC,8,32,136,159,BS_FLAT
     LTEXT           "North",IDC_STATIC,11,45,18,8
-    LTEXT           "West",IDC_STATIC,11,135,18,8
-    LTEXT           "East",IDC_STATIC,11,75,15,8
+    LTEXT           "East",IDC_STATIC,11,135,15,8
+    LTEXT           "West",IDC_STATIC,11,75,18,8
     LTEXT           "South",IDC_STATIC,11,105,20,8
     GROUPBOX        "Weather",IDC_STATIC,143,32,69,159,BS_FLAT
     LTEXT           "Rain",IDC_STATIC,150,42,16,8
@@ -3098,8 +3098,8 @@ BEGIN
     LTEXT           "Open fail text (reference && text)",IDC_STATIC,7,165,98,
                     8
     LTEXT           "0x80",IDC_STATIC,157,108,16,8
-    LTEXT           "0x56",IDC_STATIC,157,82,16,8
-    LTEXT           "Scripting name ?",IDC_STATIC,7,134,54,8
+    LTEXT           "Trigger range",IDC_STATIC,157,82,43,8
+    LTEXT           "Owner name",IDC_STATIC,7,134,41,8
     GROUPBOX        "Vertices",IDC_STATIC,218,111,155,57,BS_FLAT
 END
 
@@ -4281,11 +4281,10 @@ BEGIN
 END
 
 IDD_PANICBUTTON DIALOGEX 0, 0, 119, 31
-STYLE DS_SYSMODAL | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | 
-    WS_CAPTION
-EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_TOOLWINDOW
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Press Button To Abort Process"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     PUSHBUTTON      "Stop",IDCANCEL,7,7,105,17
 END

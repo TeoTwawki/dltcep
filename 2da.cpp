@@ -1338,14 +1338,6 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
       goto endofquest;
     }
 
-    //comment out if not needed
-    /*
-    if (name.Compare("inline")==0)
-    {
-      nop();
-    }
-    */
-
     objectcnt=0;
     pointcnt=0;
     intcnt=0;
@@ -2579,6 +2571,9 @@ void C2da::new_2da()
 C2da::C2da()
 {
   data=new CPtrList;
+  collabels = NULL;
+  copycol = NULL;
+  copyrow = NULL;
 }
 
 C2da::~C2da()

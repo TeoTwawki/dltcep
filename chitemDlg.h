@@ -190,7 +190,7 @@ protected:
   int check_creature_pst();
   int check_creature_spells();
   int check_creature_features();
-  int check_feature(long feature, int par1, int par2);
+  int check_feature(long feature, int par1, int par2, const char *resource);
   int check_item_effectblock();
   int check_spell_effectblock();
   int check_counters(unsigned long flags);
@@ -226,6 +226,8 @@ protected:
   int check_kits_bg2(bool tob);
   int check_kits();
   int check_statdesc();
+  int check_spelldesc();
+  int check_spawngroups();
   int check_songlist();
   int check_avatar();
   int check_ani_code_mirror(CString prefix);

@@ -1274,12 +1274,12 @@ typedef struct
   unsigned long areaflags; //can save, dream, etc
   char northref[8];
   long northflags;
-  char westref[8];
-  long westflags;
-  char southref[8];
-  long southflags;
   char eastref[8];
   long eastflags;
+  char southref[8];
+  long southflags;
+  char westref[8];
+  long westflags;
   unsigned char areatype; //forest, extended night, etc
   unsigned char unkflags;
   short rain;
@@ -1494,8 +1494,8 @@ typedef struct {
   char trapscript[8];
   long firstvertex;
   short vertexcount;
-  short unknown56;
-  char trapname[32];
+  short triggerrange;
+  char ownername[32];
   char keyitem[8];
   short unknown80;
   short unknown82;

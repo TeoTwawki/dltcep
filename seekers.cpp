@@ -190,42 +190,6 @@ int check_reference(long reference, int loretoid)
   return 0;
 }
 
-int CChitemDlg::check_feature(long feature, int par1, int par2)
-{
-  int ret;
-  if(chkflg&NOFEATCHK) return 0;
-  if(feature>=NUM_FEATS) return 1;
-  switch(feature)
-  {
-  case F_COLOR: case F_COLORRGB: case F_COLORGLOW:
-    if((par2&0xffc0) || ((par2&15)>=7) )
-    {
-      //iwd has a special case: 255=whole body
-      if(has_xpvar() && ((par2&255)==255) ) break;
-      log("Color location is invalid: %d",par2&0xffff);
-      return 1;
-    }
-    break;
-  case F_NAME:
-  case F_DISPLAYSTRING: case F_CANTUSEITEM: case F_NODISPLAYSTR:
-    ret=check_reference(par1);
-    switch(ret)
-    {
-    case 1: log("Invalid TLK reference: %d",par1); break;
-    case 2: log("Deleted TLK reference: %d",par1); break;
-    }
-    return ret;
-  case F_DEATH:case F_HOLDCREATURE: case F_USEEFFFILE:
-    ret=check_ids_targeting(par1, par2);
-    if(ret)
-    {
-      log("Invalid IDS targeting (%d,%d)",par1,par2);
-    }
-    return ret;
-  }
-  return 0;
-}
-
 int check_itemref(const char *poi, int rndtres)
 {
   CString tmpref;
@@ -338,11 +302,15 @@ int check_area_reference(const char *poi, int flg)
   loc_entry dummy;
 
   ret=0;
+  RetrieveResref(tmpref,poi);
   if(flg)
   {
-    RetrieveResref(tmpref,poi);
+    if (flg==2) {
+      if (!poi[0]) return 0;
+      if (!masterareas.Find(tmpref)) return -2;
+    }
     if(areas.Lookup(tmpref, dummy) ) return 0; //area exists
-    return -1; //area doesn't exist
+    return -1; //area doesn't exist, but it should
   }
   if(poi[0]) return 1; //area set without use
   return 0;
@@ -878,10 +846,12 @@ int CChitemDlg::check_item_effectblock()
       what.Format("Extended header #%d/%d",ext,1+fbc-oldfbc); //this must be more precise
     }
     if(check_feature(the_item.featblocks[fbc].feature,
-      the_item.featblocks[fbc].par1.parl,the_item.featblocks[fbc].par2.parl) )
+      the_item.featblocks[fbc].par1.parl,the_item.featblocks[fbc].par2.parl, 
+      the_item.featblocks[fbc].vvc) )
     {
       ret|=BAD_EXTHEAD;
       log("Invalid effect (%s) in %s",get_opcode_text(the_item.featblocks[fbc].feature),what);
+      return -1;
     }
     if(check_probability(the_item.featblocks[fbc].prob1,the_item.featblocks[fbc].prob2))
     {
@@ -970,10 +940,12 @@ int CChitemDlg::check_spell_effectblock()
       what.Format("Extended header #%d/%d",ext,1+fbc-oldfbc); //this must be more precise
     }
     if(check_feature(the_spell.featblocks[fbc].feature,
-      the_spell.featblocks[fbc].par1.parl,the_spell.featblocks[fbc].par2.parl) )
+      the_spell.featblocks[fbc].par1.parl,the_spell.featblocks[fbc].par2.parl,
+      the_spell.featblocks[fbc].vvc) )
     {
       ret|=BAD_EXTHEAD;
-      log("Invalid effect (%s) in %s",get_opcode_text(the_spell.featblocks[fbc].feature),what);
+      log("Invalid effect (%s) in %s",get_opcode_text(the_spell.featblocks[fbc].feature),what);      
+      return -1;
     }
     if(check_probability(the_spell.featblocks[fbc].prob1,the_spell.featblocks[fbc].prob2))
     {
@@ -3475,7 +3447,7 @@ int CChitemDlg::check_creature_spells()
   }
   if(memory>the_creature.header.memcnt)
   {
-    log("Invalid spell memorisation count.");
+    log("Invalid spell memorisation count. (counted %d vs. stated %d)", memory, the_creature.header.memcnt);
     return -1;
   }
   return 0;
@@ -3492,12 +3464,14 @@ int CChitemDlg::check_creature_features()
     if(the_creature.header.effbyte)
     {
       feat=the_creature.effects[i].feature;
-      ret=check_feature(feat,the_creature.effects[i].par1.parl,the_creature.effects[i].par2.parl);
+      ret=check_feature(feat,the_creature.effects[i].par1.parl,the_creature.effects[i].par2.parl,
+        the_creature.effects[i].resource);
     }
     else
     {
       feat=the_creature.oldeffects[i].feature;
-      ret=check_feature(feat,the_creature.oldeffects[i].par1.parl,the_creature.oldeffects[i].par2.parl);
+      ret=check_feature(feat,the_creature.oldeffects[i].par1.parl,the_creature.oldeffects[i].par2.parl,
+        the_creature.oldeffects[i].vvc);
     }
     if(ret) log("Embedded effect (%s) #%d",get_opcode_text(feat), i);
     gret|=ret;
@@ -3894,7 +3868,6 @@ int CChitemDlg::check_spell()
     log("simplified duration");
   }
   */
-  return 0;
 #endif
   ret=0;
   switch(check_reference(the_spell.header.spellname) )
@@ -3935,13 +3908,9 @@ int CChitemDlg::check_effect()
   int ret;
   
   ret=0;
-  if(check_feature(the_effect.header.feature, the_effect.header.par1.parl, the_effect.header.par2.parl) )
-  {
-    ret|=BAD_EXTHEAD;
-    log("Feature number is invalid.");
-  }
   if(check_feature(the_effect.header.feature,
-    the_effect.header.par1.parl,the_effect.header.par2.parl) )
+    the_effect.header.par1.parl,the_effect.header.par2.parl,
+    the_effect.header.resource) )
   {
     ret|=BAD_EXTHEAD;
     log("Invalid effect (%s)",get_opcode_text(the_effect.header.feature));
@@ -3969,6 +3938,7 @@ int CChitemDlg::check_effect()
       log("No duration set.");
     }
   }
+
   return ret;
 }
 
@@ -4256,6 +4226,8 @@ int CChitemDlg::check_area_anim()
   return ret;
 }
 
+#define CONT_PILE  4
+
 int CChitemDlg::check_area_container()
 {
   int i;
@@ -4287,31 +4259,43 @@ int CChitemDlg::check_area_container()
       b1y=the_area.containerheaders[i].p1y;
       b2x=the_area.containerheaders[i].p2x;
       b2y=the_area.containerheaders[i].p2y;
-      if((b1x>=b2x) || (b1y>=b2y))
+      if (the_area.containerheaders[i].type==CONT_PILE)
       {
-        ret|=BAD_VERTEX;
-        log("Container #%d (%-.32s [%d.%d]) has invalid bounding box, possibly damaged polygon.",
+        if (b1x!=0xffffffff && b1y!=0xffffffff)
+        {
+          ret|=BAD_VERTEX;
+          log("Container #%d (%-.32s [%d.%d]) is a pile with bounding box.",
           i+1,contname,px,py);
+        }
       }
-      if((b1x+800<b2x) || (b1y+600<b2y))
+      else
       {
-        ret|=BAD_VERTEX;
-        log("Container #%d (%-.32s [%d.%d]) has too large bounding box, possibly damaged polygon.",
-          i+1,contname,px,py);
-      }
-      b1x=(b1x+b2x)/2;
-      b1y=(b1y+b2y)/2;
-      if((px+800<b1x) || (py+600<b1y))
-      {
-        ret|=BAD_VERTEX;
-        log("Container #%d (%-.32s [%d.%d]) has its opening location too far away.",
-          i+1,contname,px,py);
-      }
-      if(the_area.containerheaders[i].unknown56)
-      {
-        ret|=BAD_VERTEX;
-        log("Container vertex count has high word set in container #%d (%-.32s [%d.%d])",
-          i+1,contname,px,py);
+        if((b1x>=b2x) || (b1y>=b2y))
+        {
+          ret|=BAD_VERTEX;
+          log("Container #%d (%-.32s [%d.%d]) has invalid bounding box, possibly damaged polygon.",
+            i+1,contname,px,py);
+        }
+        if((b1x+800<b2x) || (b1y+600<b2y))
+        {
+          ret|=BAD_VERTEX;
+          log("Container #%d (%-.32s [%d.%d]) has too large bounding box, possibly damaged polygon.",
+            i+1,contname,px,py);
+        }
+        b1x=(b1x+b2x)/2;
+        b1y=(b1y+b2y)/2;
+        if((px+800<b1x) || (py+600<b1y))
+        {
+          ret|=BAD_VERTEX;
+          log("Container #%d (%-.32s [%d.%d]) has its opening location too far away.",
+            i+1,contname,px,py);
+        }
+        if(the_area.containerheaders[i].triggerrange)
+        {
+          ret|=BAD_VERTEX;
+          log("Container #%d has trigger range (%-.32s [%d.%d])",
+            i+1,contname,px,py);
+        }
       }
     }
     first=the_area.containerheaders[i].firstitem;
@@ -4793,7 +4777,7 @@ int CChitemDlg::check_area_trigger()
     if(ttype&AR_TRAVEL)
     {
       RetrieveResref(destination,the_area.triggerheaders[i].destref);
-      if(check_area_reference(the_area.triggerheaders[i].destref,true) )
+      if(check_area_reference(the_area.triggerheaders[i].destref,1) )
       {
         ret|=BAD_RESREF;
         log("Invalid destination area '%s' (causes crash) in active region #%d (%-.32s [%d.%d])",
@@ -4989,22 +4973,38 @@ int CChitemDlg::check_area()
   if(check_area_reference(the_area.header.northref,flg&&the_area.header.northflags))
   {
     ret|=BAD_ATTR;
-    log("Problem with north area reference");
+    if (bg1_compatible_area()) {
+      log("Problem with north area reference");
+    } else {
+      log("Unused north area reference");
+    }
   }
   if(check_area_reference(the_area.header.eastref,flg&&the_area.header.eastflags))
   {
     ret|=BAD_ATTR;
-    log("Problem with east area reference");
+    if (bg1_compatible_area()) {
+      log("Problem with east area reference");
+    } else {
+      log("Unused east area reference");
+    }
   }
   if(check_area_reference(the_area.header.southref,flg&&the_area.header.southflags))
   {
     ret|=BAD_ATTR;
-    log("Problem with south area reference");
+    if (bg1_compatible_area()) {
+      log("Problem with south area reference");
+    } else {
+      log("Unused south area reference");
+    }
   }
   if(check_area_reference(the_area.header.westref,flg&&the_area.header.westflags))
   {
     ret|=BAD_ATTR;
-    log("Problem with west area reference");
+    if (bg1_compatible_area()) {
+      log("Problem with west area reference");
+    } else {
+      log("Unused west area reference");
+    }
   }
   if(the_area.header.lastsaved)
   {
@@ -5623,7 +5623,7 @@ int CChitemDlg::check_game()
       ret=BAD_RESREF;
     }
   }
-  if(check_area_reference(the_game.header.masterarea,0) )
+  if(check_area_reference(the_game.header.masterarea,2) )
   {
     log("Invalid master area: %-.8s",the_game.header.masterarea);
     ret=BAD_RESREF;
@@ -6097,10 +6097,10 @@ int CChitemDlg::check_ascii_strref(CString value, CString row)
   switch(check_reference(strtonum(value)) )
   {
   case 1:
-    log("Invalid TLK reference %s in %s", value, row);
+    log("Invalid TLK reference %s in row %s", value, row);
     return 1;
   case 2:
-    log("Deleted TLK reference %s in %s", value, row);
+    log("Deleted TLK reference %s in row %s", value, row);
     return 2;
   }
   return 0;
@@ -6398,6 +6398,7 @@ int CChitemDlg::check_statdesc()
   CString index, value;
   int expected;
 
+  if (chkflg&NOREFCHK) return 0;
   changeitemname("STATDESC");
   darefs.Lookup("STATDESC", tmploc);
   Read2daColumn(tmploc,indices,0, false);
@@ -6428,6 +6429,82 @@ int CChitemDlg::check_statdesc()
     expected++;
     check_ascii_strref(value,index);
   }
+  return ret;
+}
+
+int CChitemDlg::check_spelldesc() 
+{
+  int ret;
+  POSITION pos, pos2;
+  loc_entry tmploc;
+  CStringList indices;
+  CStringList strrefs;
+  CString index, value;
+
+  changeitemname("SPELDESC");
+  darefs.Lookup("SPELDESC", tmploc);
+  Read2daColumn(tmploc,indices,0, false);
+  Read2daColumn(tmploc,strrefs,1, false);
+  pos=indices.GetHeadPosition();
+  pos2=strrefs.GetHeadPosition();
+  if(!pos)
+  {
+    log("No speldesc.2da found.");
+    return 2;
+  }
+  if(indices.GetCount()!=strrefs.GetCount())
+  {
+    log("File is crippled");
+    return 2;
+  }
+  ret=0;
+  while(pos && pos2)
+  {
+    value=strrefs.GetNext(pos2);
+    index=indices.GetNext(pos);
+    if(check_spell_reference(index))
+    {
+      log("Index %s is not an existing spell.", index);
+    }
+    check_ascii_strref(value,index);
+  }
+  return ret;
+}
+
+int CChitemDlg::check_spawngroups() 
+{
+  int ret;
+  int i,j;
+  POSITION pos, pos2;
+  loc_entry tmploc;
+  C2da da2da;
+  CString tmpstr;
+  CString *row;
+
+  if (chkflg&NOCRECHK) return 0;
+  changeitemname("SPAWNGRP");
+  read_2da("SPAWNGRP", da2da);
+  int rows = the_2da.rows;
+  int cols = the_2da.cols;
+  if (!rows || !cols) return 0;
+
+  pos=the_2da.data->GetHeadPosition();
+  row = (CString *) da2da.data->GetNext(pos);
+  for (i=1;i<rows; i++)
+  {
+    row = (CString *) da2da.data->GetNext(pos);
+    for (j=1;j<cols; j++)
+    {
+      if (row[j][0]=='*') continue;
+      tmpstr = CString(row[j]);
+      tmpstr.MakeLower();
+      if (!creatures.Lookup(tmpstr, tmploc))
+      {
+        log("Invalid spawngroup entry (no such cre resref): %s in row %s, column %s", row[j], row[0], the_2da.collabels[j]);
+      }
+    }
+  }
+
   return ret;
 }
 
@@ -7043,3 +7120,67 @@ int CChitemDlg::check_avatar()
   
   return ret;
 }
+
+int CChitemDlg::check_feature(long feature, int par1, int par2, const char *resource)
+{
+  int ret;
+  int restype;
+
+  if(chkflg&NOFEATCHK) return 0;
+  if(feature>=NUM_FEATS)
+  {
+    log("Effect opcode is larger than allowed, this will crash for sure!");
+    return 1;
+  }
+  switch(feature)
+  {
+  case F_COLOR: case F_COLORRGB: case F_COLORGLOW:
+    if((par2&0xffc0) || ((par2&15)>=7) )
+    {
+      //iwd has a special case: 255=whole body
+      if(has_xpvar() && ((par2&255)==255) ) break;
+      log("Color location is invalid: %d",par2&0xffff);
+      return 1;
+    }
+    break;
+  case F_NAME:
+  case F_DISPLAYSTRING: case F_CANTUSEITEM: case F_NODISPLAYSTR:
+    ret=check_reference(par1);
+    switch(ret)
+    {
+    case 1: log("Invalid TLK reference: %d",par1); break;
+    case 2: log("Deleted TLK reference: %d",par1); break;
+    }
+    return ret;
+  case F_DEATH:case F_HOLDCREATURE: case F_USEEFFFILE:
+    ret=check_ids_targeting(par1, par2);
+    if(ret)
+    {
+      log("Invalid IDS targeting (%d,%d)",par1,par2);
+    }
+    return ret;
+  }
+
+  restype=feature_resource(feature);
+  switch(restype) {
+  case REF_ITM:
+    ret = check_itemref(resource, true);
+    break;
+  case REF_SPL:
+    ret = check_spell_reference(resource);
+    break;
+  case REF_CRE:
+    ret = check_creature_reference(resource, true);
+    break;
+  case REF_VVC:
+    ret = check_vvc_reference(resource, true);
+    break;
+  default:
+    ret = 0;
+  }
+  if (ret) {
+    log("Missing resource: %s", resource);
+  }
+  return ret;
+}
+

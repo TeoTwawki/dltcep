@@ -138,7 +138,7 @@ void C2DAEdit::OnLoad()
 	res=pickerdlg.DoModal();
 	if(res==IDOK)
 	{
-		res=read_2da(pickerdlg.m_picked);
+		res=read_2da(pickerdlg.m_picked, the_2da);
     switch(res)
     {
     case 1:

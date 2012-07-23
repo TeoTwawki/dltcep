@@ -36,8 +36,8 @@ int CChitemDlg::check_integers(const int *bytes, int storeflags, int opcode, int
       log("Deleted string reference: %d for %s",bytes[0], tmp);
       break;
     case 3:
-      ret|=BAD_STRREF;
-      log("Titleless journal string reference: %d for %s",bytes[0], tmp);
+        ret|=BAD_STRREF;
+        log("Titleless journal string reference: %d for %s",bytes[0], tmp);
       break;
     }
   }
@@ -219,6 +219,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     if(member_array(sf, scanned_types)==-1) return 0;
   }
   tmp=resolve_scriptelement(opcode, trigger, block);
+  
   switch(sf)
   {
   case NO_CHECK:
@@ -472,6 +473,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
       varname.SetAt(i,"LOCALS"[i]);
     }
   }
+
   switch(trigger&0xff)
   {
   case SCANNING:
@@ -572,6 +574,7 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         }
         else
         {
+          varname2=tpoi->var2;
           ret=store_variable(tpoi->var1, checkflags, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
           gret|=ret;
           ret=store_variable(tpoi->var2, checkflags>>8, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
@@ -765,7 +768,8 @@ int CChitemDlg::check_dialog(int check_or_scan)
   action action;
   int num_or, strref;
   loc_entry tmploc;
-  
+  bool warn = (chkflg&WARNINGS)==0;
+
   gret=0;
   if(check_or_scan!=SCANNING)
   {
@@ -851,7 +855,7 @@ int CChitemDlg::check_dialog(int check_or_scan)
       }
       else if(j)
       {
-        if(!(num_or&HAS_ACTION) )
+        if(!(num_or&HAS_ACTION) && warn)
         {
           log("Transition #%d has action index (%d), but no flags.",i,j);
           gret=TRANSSTATE|i;
@@ -909,8 +913,11 @@ int CChitemDlg::check_dialog(int check_or_scan)
           log("Deleted journal string in transition #%d (reference: %d).",i, strref);
           break;
         case 3:
-          gret=TRANSSTATE|i;
-          log("Titleless journal string in transition #%d (reference: %d).",i, strref);
+          //if this isn't a quest journal entry, don't complain about missing title
+          if ((num_or&(HAS_QUEST|HAS_SOLVED))!=0) {
+            gret=TRANSSTATE|i;
+            log("Titleless journal string in transition #%d (reference: %d).",i, strref);
+          }
           break;
         }
       }

@@ -56,6 +56,7 @@ class panicbutton : public CDialog
 public:
 	panicbutton(CWnd* pParent = NULL);   // standard constructor
   bool waitsound;
+  bool abort;
 
 // Dialog Data
 	//{{AFX_DATA(panicbutton)
@@ -77,6 +78,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(panicbutton)
 	afx_msg void OnTimer(UINT nIDEvent);
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

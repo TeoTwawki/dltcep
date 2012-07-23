@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.4"
+#define PRG_VERSION "7.4a"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -304,7 +304,7 @@ void CChitemDlg::start_panic()
   m_panicbutton=new panicbutton;
   if(m_panicbutton)
   {
-    m_panicbutton->Create(IDD_PANICBUTTON,0);
+    m_panicbutton->Create(IDD_PANICBUTTON,this);
   }  
 }
 
@@ -591,6 +591,9 @@ int CChitemDlg::scan_2da()
     delete value;
   }
   idsmaps.RemoveAll();
+
+  darefs.Lookup("MASTAREA", tmploc);
+  Read2da(tmploc, masterareas);
 
   if(has_xpvar()) //iwd and iwd2
   {
@@ -2139,7 +2142,7 @@ int CChitemDlg::process_bams(bool check_or_search)
   log("Checking bams...");
   pos=icons.GetStartPosition();
   start_panic();
-  while(pos && m_panicbutton)
+  while(pos && m_panicbutton && !m_panicbutton->abort)
   {
     ret=-1;
     icons.GetNextAssoc(pos,key,fileloc); //cannot skip original bams, there are too many
@@ -2456,6 +2459,8 @@ void CChitemDlg::OnCheck2da()
     return;
   }
   ret=check_statdesc();
+  ret|=check_spelldesc();
+  ret|=check_spawngroups();
   ret|=check_songlist();
   ret|=check_kits();
   //more checks

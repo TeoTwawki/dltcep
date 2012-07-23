@@ -248,6 +248,9 @@ void CWedEdit::RefreshWed()
         count=the_area.weddoorheaders[m_doornum].countpolygonclose;
         first=the_area.weddoorheaders[m_doornum].offsetpolygonclose;
       }
+      if (!the_area.doorpolygonheaders) {
+        count = 0;
+      }
       for(i=0;i<count;i++)
       {
         tmpstr.Format("%d #%d 0x%x", i+1, the_area.doorpolygonheaders[i+first].countvertex,

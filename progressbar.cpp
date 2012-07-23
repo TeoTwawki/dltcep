@@ -78,6 +78,7 @@ panicbutton::panicbutton(CWnd* pParent /*=NULL*/)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
   waitsound=true;
+  abort=false;
 }
 
 void panicbutton::DoDataExchange(CDataExchange* pDX)
@@ -107,4 +108,12 @@ void panicbutton::OnTimer(UINT nIDEvent)
     OnOK();
   }
 	CDialog::OnTimer(nIDEvent);
+}
+
+void panicbutton::OnCancel() 
+{
+	// TODO: Add extra cleanup here
+	CDialog::OnCancel();
+  DestroyWindow();
+  abort = true;
 }

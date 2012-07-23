@@ -36,6 +36,7 @@
 #include "ItemPicker.h"
 #include "ColorPicker.h"
 
+class C2da;
 //
 #define MAXBUFFSIZE 4096
 #define MAXIDSIZE   512
@@ -721,6 +722,7 @@ extern CStringMapArray tooltipnumbers;
 extern CStringMapArray store_spell_desc;
 extern CStringMapInt dial_references;
 extern CStringList exclude_item;
+extern CStringList masterareas;
 extern CStringList xplist;
 extern CStringList pro_references;
 extern CStringList pro_titles;
@@ -1152,7 +1154,7 @@ int read_effect(CString key);
 int write_effect(CString key, CString filepath);
 int read_game(CString key);
 int write_game(CString key, CString filepath);
-int read_2da(CString key);
+int read_2da(CString key, C2da &da2da);
 int write_2da(CString key, CString filepath);
 int read_ids(CString key);
 int play_acm(CString key, bool acm_or_wavc, int justload);

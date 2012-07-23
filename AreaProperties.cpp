@@ -3639,12 +3639,12 @@ void CAreaContainer::DoDataExchange(CDataExchange* pDX)
     DDV_MaxChars(pDX, tmpstr,8);
     StoreResref(tmpstr,the_area.containerheaders[m_containernum].trapscript);
 
-    RetrieveVariable(tmpstr,the_area.containerheaders[m_containernum].trapname);
+    RetrieveVariable(tmpstr,the_area.containerheaders[m_containernum].ownername);
     DDX_Text(pDX, IDC_SCRIPTNAME, tmpstr);
     DDV_MaxChars(pDX, tmpstr,32);
-    StoreName(tmpstr,the_area.containerheaders[m_containernum].trapname);
+    StoreName(tmpstr,the_area.containerheaders[m_containernum].ownername);
 
-    DDX_Text(pDX, IDC_UNKNOWN56, the_area.containerheaders[m_containernum].unknown56);
+    DDX_Text(pDX, IDC_UNKNOWN56, the_area.containerheaders[m_containernum].triggerrange);
     DDX_Text(pDX, IDC_UNKNOWN80, the_area.containerheaders[m_containernum].unknown80);
 
     DDX_Text(pDX, IDC_POS1X, the_area.containerheaders[m_containernum].p1x);

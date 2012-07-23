@@ -172,6 +172,7 @@ long creature_strrefs[SND_SLOT_COUNT];
 //2da, ids
 CStringMapInt dial_references;
 CStringList exclude_item;
+CStringList masterareas;
 CStringList xplist;
 CStringList pro_references;
 CStringList pro_titles;
@@ -3777,7 +3778,7 @@ int tob_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   VA,   OO,   D0,  D0,   D0,   OO,   OO,   OO,   OO, 
+    IO,   VO,   OO,   D0,  D0,   D0,   OO,   OO,   OO,   OO, 
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -3907,7 +3908,7 @@ int iwd2_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   VA,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
+    IO,   VO,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -4037,7 +4038,7 @@ int pst_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   VA,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
+    IO,   VO,   OO,   D0,   D0,   D0,   OO,   OO,   OO,   OO,  
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -5068,7 +5069,7 @@ int write_wfx(CString key, CString filepath)
   return ret;
 }
 
-int read_2da(CString key)
+int read_2da(CString key, C2da &da2da)
 {
   loc_entry fileloc;
   int ret;
@@ -5080,7 +5081,7 @@ int read_2da(CString key)
     fhandle=locate_file(fileloc, 0);
     if(fhandle<1) return -2;
     darefs.SetAt(key,fileloc);
-    ret=the_2da.Read2DAFromFile(fhandle, fileloc.size);
+    ret=da2da.Read2DAFromFile(fhandle, fileloc.size);
     close(fhandle);
   }
   else return -1;

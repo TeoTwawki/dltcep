@@ -259,7 +259,7 @@ BOOL CItemPicker::OnInitDialog()
   {
   case REF_ARE:
     the_2da.new_2da();
-    read_2da("MAPNAME");
+    read_2da("MAPNAME",the_2da);
     //falling through
   case REF_BMP:
   case REF_BAM:
