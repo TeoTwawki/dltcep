@@ -76,11 +76,13 @@ ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_COMMAND(ID_REPAIRWED, OnRepairwed)
 	ON_COMMAND(ID_REPAIRWED2, OnRepairwed2)
 	ON_COMMAND(ID_TOOLS_LOOKUPSTRREF, OnToolsLookupstrref)
+	ON_COMMAND(ID_TOOLS_CREATEMINIMAP, OnToolsCreateminimap)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
+	ON_COMMAND(ID_TOOLS_CONVERTNIGHT, OnToolsConvertnight)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -110,7 +112,11 @@ void CAreaEdit::OnLoad()
       MessageBox("Area loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
-    case 0:case 1:
+    case 0:
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 1:
+      MessageBox("Area will be reordered to official standard.","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
     default:
@@ -128,7 +134,6 @@ static char BASED_CODE szFilter[] = "Area files (*.are)|*.are|All files (*.*)|*.
 
 void CAreaEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -137,6 +142,7 @@ void CAreaEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "are", makeitemname(".are",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -204,7 +210,7 @@ void CAreaEdit::OnSaveas()
 
 void CAreaEdit::SaveArea(int save) 
 {
-  CString filepath, tmpath;
+  CString tmpath;
   CString newname;
   CString tmpstr;
   int res;
@@ -224,6 +230,7 @@ void CAreaEdit::SaveArea(int save)
     goto gotname;
   }
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -322,7 +329,8 @@ void CAreaEdit::OnCheck()
 {
   int ret;
 
-	ret=((CChitemDlg *) AfxGetMainWnd())->check_area();
+  //don't check wed swapping
+	ret=((CChitemDlg *) AfxGetMainWnd())->check_area(0);
   if(ret)
   {
     MessageBox(lasterrormsg,"Area editor",MB_ICONEXCLAMATION|MB_OK);
@@ -515,6 +523,21 @@ void CAreaEdit::OnToolsMirrorareavertically()
   UpdateData(UD_DISPLAY);
 }
 
+void CAreaEdit::OnToolsCreateminimap() 
+{
+  CString tmpstr;
+
+  RetrieveResref(tmpstr, the_area.header.wed);
+  read_tis(tmpstr,&the_mos,true); //this is loaded into the common mos file
+  the_mos.mosheader.wColumn=the_area.overlayheaders[0].width;
+  the_mos.mosheader.wRow=the_area.overlayheaders[0].height;
+  SetupSelectPoint(0);
+  CreateMinimap(GetSafeHwnd());
+  the_mos.m_changed=true;
+  UpdateData(UD_DISPLAY);
+}
+
+
 void CAreaEdit::OnRepairwed() 
 {
 	CWedEdit dlg;
@@ -549,6 +572,29 @@ void CAreaEdit::OnToolsLookupstrref()
 	CStrRefDlg dlg;
 	
   dlg.DoModal();
+  m_pModelessPropSheet->RefreshDialog();
+  UpdateData(UD_DISPLAY);
+}
+
+void CAreaEdit::OnToolsConvertnight() 
+{
+  CString tmpstr;
+
+  if(GetWed(false)==-99) return;
+  if(SetupSelectPoint(0)) return; //make sure tileset is loaded
+  RetrieveResref(tmpstr, the_area.overlayheaders[0].tis);
+  if (tmpstr.Right(1)!="N" && tmpstr.GetLength()<8)
+  {
+    tmpstr+="N";
+  }
+  else return;
+  StoreResref(tmpstr, the_area.overlayheaders[0].tis);
+  the_area.header.areatype|=EXTENDED_NIGHT;
+	the_mos.ApplyPaletteRGB(200,100,100,256);
+  the_mos.m_name=tmpstr+".tis";
+  the_area.m_night=true;
+  the_area.wedchanged=true;
+  the_area.wedavailable=true;
   m_pModelessPropSheet->RefreshDialog();
   UpdateData(UD_DISPLAY);
 }

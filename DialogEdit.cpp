@@ -48,6 +48,12 @@ CDialogEdit::CDialogEdit(CWnd* pParent /*=NULL*/)
 	m_dialog = _T("");
 	m_value = 0;
 	//}}AFX_DATA_INIT
+  viewonly=false;
+}
+
+void CDialogEdit::SetViewOnly()
+{
+  viewonly=true;
 }
 
 void CDialogEdit::NewDialog()
@@ -245,7 +251,7 @@ int CDialogEdit::AddTransBranch(HTREEITEM ht, int firsttransition, int transitio
       the_dialog.dlgtrans[transitionidx].flags|=LEAF_NODE;
       memset(the_dialog.dlgtrans[transitionidx].nextdlg,0,8);
       stateidx=0;
-      tmpstr.Format("State index for transition %d is out of range, clearing it.",transitionidx);
+      tmpstr.Format("State index of %s for transition %d is out of range, clearing it.",itemname, transitionidx);
       MessageBox(tmpstr,"Dialog editor",MB_OK);
       continue;
     }
@@ -279,6 +285,12 @@ int CDialogEdit::AddTransBranch(HTREEITEM ht, int firsttransition, int transitio
   return 0;
 }
 
+void CDialogEdit::UpdateWindowTitle(int stateidx)
+{
+  CString tmpstr = the_dialog.GetPartName(stateidx);
+  SetWindowText("View dialog: "+tmpstr);
+}
+
 void CDialogEdit::RefreshDialog(int stateidx, int expandselection)
 {
   CString tmpstr, text;
@@ -297,7 +309,10 @@ void CDialogEdit::RefreshDialog(int stateidx, int expandselection)
     m_freeze_control.EnableWindow(true);
     m_version_control.SetCheck(true);
   }
-  SetWindowText("Edit dialog: "+itemname);
+  if (!viewonly)
+  {
+    SetWindowText("Edit dialog: "+itemname);
+  }
   if(stateidx==-1)
   {
     return;
@@ -389,6 +404,7 @@ void CDialogEdit::RefreshDialog(int stateidx, int expandselection)
 BOOL CDialogEdit::OnInitDialog() 
 {
   CString tmpstr, tmpstr1, tmpstr2;
+  CWnd *ctrl;
 
   the_ids.new_ids();
   m_idsname="";
@@ -411,7 +427,9 @@ BOOL CDialogEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_LOADEX), tmpstr);
     tmpstr1.LoadString(IDS_SAVE);
     tmpstr.Format(tmpstr1, tmpstr2);
-    m_tooltip.AddTool(GetDlgItem(IDC_SAVEAS), tmpstr);
+    ctrl = GetDlgItem(IDC_SAVEAS);
+    m_tooltip.AddTool(ctrl, tmpstr);
+    ctrl->EnableWindow(!viewonly);
     tmpstr1.LoadString(IDS_NEW);
     tmpstr.Format(tmpstr1, tmpstr2);
     m_tooltip.AddTool(GetDlgItem(IDC_NEW), tmpstr);
@@ -708,13 +726,14 @@ void CDialogEdit::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
   CheckTriggerOrAction(false);
       //not all flags have been discerned yet
-  switch(m_value&(HAS_QUEST|HAS_SOLVED) )
+  switch(m_value&(HAS_QUEST|HAS_SOLVED|REMOVE_QUEST) )
   {
   case 0: m_jourtype_control.SetCurSel(0); break;
   case HAS_QUEST:m_jourtype_control.SetCurSel(1); break;
   case HAS_SOLVED:m_jourtype_control.SetCurSel(2); break;
     //this will be updated as soon as i find more flags
   default:m_jourtype_control.SetCurSel(3); break;
+  case REMOVE_QUEST: m_jourtype_control.SetCurSel(4); break;
   }
   tmp=the_dialog.header.flags;
   DDX_Text(pDX, IDC_FLAGS, the_dialog.header.flags);
@@ -784,10 +803,7 @@ BEGIN_MESSAGE_MAP(CDialogEdit, CDialog)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
 	//}}AFX_MSG_MAP
-//	ON_WM_SIZE()
-//ON_WM_SIZING()
 ON_WM_SIZE()
-//ON_WM_SIZING()
 ON_WM_GETMINMAXINFO()
 ON_EN_CHANGE(IDC_TEXT, OnEnChangeText)
 END_MESSAGE_MAP()
@@ -805,15 +821,16 @@ void CDialogEdit::OnLoad()
 	if(res==IDOK)
 	{
 		res=read_dialog(pickerdlg.m_picked);
+    if (viewonly && res>=0) res = the_dialog.AddExternals();
     switch(res)
     {
     case -1:
       MessageBox("Dialog loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
       break;
     case 1:
-      if(old_version_dlg())
+      if(!old_version_dlg())
       {
-        MessageBox("Old dialog version (freeze flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
+        MessageBox("Old dialog version (response flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
       }
     case 0:
       break;
@@ -841,6 +858,7 @@ void CDialogEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -853,8 +871,10 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     itemname=m_getfiledlg.GetFileTitle(); //itemname moved here because the loader relies on it
     itemname.MakeUpper();
-    res=the_dialog.ReadDialogFromFile(fhandle,-1);
+    res=the_dialog.ReadDialogFromFile(fhandle,-1, itemname);
     close(fhandle);
+    if (viewonly && res>=0) res = the_dialog.AddExternals();
+
     lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
@@ -862,9 +882,9 @@ restart:
       MessageBox("Dialog loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
       break;
     case 1:
-      if(old_version_dlg())
+      if(!old_version_dlg())
       {
-        MessageBox("Old dialog version (freeze flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);
+        MessageBox("Old dialog version (response flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);
       }
     case 0:
       break;
@@ -887,10 +907,11 @@ void CDialogEdit::OnNew()
   UpdateData(UD_DISPLAY);
 }
 
-int CDialogEdit::SaveDialog(CString filepath, CString newname)
+int CDialogEdit::SaveDialog(CString filename, CString newname)
 {
   CString tmpstr;
   int fhandle;
+  int size;
   int res;
 
   if(newname.GetLength()>8 || newname.GetLength()<1 || newname.Find(" ",0)!=-1)
@@ -899,12 +920,12 @@ int CDialogEdit::SaveDialog(CString filepath, CString newname)
     MessageBox(tmpstr,"Warning",MB_ICONEXCLAMATION|MB_OK);
     return -99;
   }
-  if(newname!=itemname && file_exists(filepath) )
+  if(newname!=itemname && file_exists(filename) )
   {
     res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
     if(res==IDNO) return -99;
   }
-  fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  fhandle=open(filename, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(fhandle<1)
   {
     MessageBox("Can't write file!","Error",MB_ICONEXCLAMATION|MB_OK);
@@ -913,12 +934,18 @@ int CDialogEdit::SaveDialog(CString filepath, CString newname)
   //WritedialogToFile needs itemname to resolve self-references !!!
   itemname=newname;
   res=the_dialog.WriteDialogToFile(fhandle, 0);
+  size=filelength(fhandle);
   close(fhandle);
-  lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+  lastopenedoverride=filename.Left(filename.ReverseFind('\\'));
   switch(res)
   {
   case 0:
-    theApp.AddToRecentFileList(filepath);
+    tmpstr = bgfolder+"override\\"+itemname+".DLG";
+    if(!filename.CompareNoCase(tmpstr) )
+    {
+      UpdateIEResource(itemname,REF_DLG,tmpstr,size);
+    }
+    theApp.AddToRecentFileList(filename);
     break; //saved successfully
   case -2:
     MessageBox("Error while writing file!","Error",MB_ICONEXCLAMATION|MB_OK);
@@ -934,16 +961,20 @@ int CDialogEdit::SaveDialog(CString filepath, CString newname)
 
 void CDialogEdit::OnSave() 
 {
+  if(readonly || viewonly)
+  {
+    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
 	SaveDialog(makeitemname(".dlg",0),itemname);  
 }
 
 void CDialogEdit::OnSaveas() 
 {
-  CString filepath;
   CString newname;
   int res;
 
-  if(readonly)
+  if(readonly || viewonly)
   {
     MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
@@ -952,6 +983,7 @@ void CDialogEdit::OnSaveas()
   CMyFileDialog m_getfiledlg(FALSE, "dlg", makeitemname(".dlg",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -1221,17 +1253,21 @@ void CDialogEdit::RefreshMenu()
 
   DisplayText();
   enable4=enable3=enable2=enable=MF_GRAYED;
+  key = 0;
   if(m_currentselection)
   {
     switch(m_dialogtree.GetItemData(m_currentselection)&FLAGMASK)
     {
     case LINKTO:
+      m_transstates.Lookup(m_dialogtree.GetParentItem(m_currentselection), key);
+      key=the_dialog.dlgtrans[key].stateindex;
       enable=MF_ENABLED;
       enable2=MF_ENABLED;
       break;
     case EXTERNAL:
       if(m_treestates.Lookup(m_currentselection,key) )
       {
+        m_treestates.Lookup(m_dialogtree.GetParentItem(m_currentselection), key);
         enable3=MF_ENABLED;
       }
       else
@@ -1254,6 +1290,7 @@ void CDialogEdit::RefreshMenu()
       }
       else if(m_transstates.Lookup(m_currentselection,key) )
       {
+        m_treestates.Lookup(m_dialogtree.GetParentItem(m_currentselection), key);
         enable2=MF_ENABLED;
       }
       enable3=MF_ENABLED;
@@ -1266,6 +1303,10 @@ void CDialogEdit::RefreshMenu()
   popupmenu->EnableMenuItem(ID_CONVERT,enable2);
   popupmenu->EnableMenuItem(ID_SWAPNODES,enable3);
   popupmenu->EnableMenuItem(ID_INCREASEWEIGHT,enable4);
+  if (viewonly)
+  {
+    UpdateWindowTitle(key);
+  }
 }
 
 void CDialogEdit::OnRefresh() 
@@ -1312,6 +1353,10 @@ void CDialogEdit::OnFollowlink()
     RetrieveResref(dialogref,the_dialog.dlgtrans[key].nextdlg);
     if(dialogref!=SELF_REFERENCE)
     {
+      if (viewonly) {
+        MessageBox("Something is bugged. This link should have been resolved.","Dialog editor",MB_ICONERROR|MB_OK);
+        return;
+      }
       if(MessageBox("Do you want to skip to the other dialog?","Dialog editor",MB_YESNO)!=IDYES) return;
       if(the_dialog.changed && (MessageBox("This dialog wasn't saved, do you want to abandon it?","Dialog editor",MB_YESNO)!=IDYES))
       {
@@ -1327,7 +1372,7 @@ void CDialogEdit::OnFollowlink()
       case 1:
         if(!pst_compatible_var() && !has_xpvar())
         {          
-          MessageBox("Old dialog version (freeze flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
+          MessageBox("Old dialog version (response flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
         }
       case 0:
         break;
@@ -1400,6 +1445,8 @@ void CDialogEdit::OnKillfocusJourtype()
   case 3: //user
     flag|=HAS_QUEST|HAS_SOLVED;
     break;
+  case 4:
+    flag|=REMOVE_QUEST;
   }
   the_dialog.dlgtrans[key].flags=flag;
   DisplayText();
@@ -2746,17 +2793,6 @@ void CDialogEdit::OnIncreaseweight()
   }  	
 }
 
-int findtrigger(int sttrigger)
-{
-  int i;
-
-  for(i=0;i<the_dialog.statecount;i++)
-  {
-    if(sttrigger==the_dialog.dlgstates[i].stindex) return i;
-  }
-  return -1;
-}
-
 void CDialogEdit::OnToolsorder() 
 {
   int i,j;
@@ -2766,11 +2802,11 @@ void CDialogEdit::OnToolsorder()
   changed=0;
 	for(i=0;i<the_dialog.sttriggercount-1;i++)
   {
-    trigger1=findtrigger(i);
+    trigger1=the_dialog.findtrigger(i);
     if(trigger1<0) abort();
     for(j=i+1;j<the_dialog.sttriggercount;j++)
     {
-      trigger2=findtrigger(j);
+      trigger2=the_dialog.findtrigger(j);
       if(trigger2<0) abort();
       if(trigger1>trigger2)
       {
@@ -2901,7 +2937,7 @@ void CDialogEdit::OnExportWeidu()
       MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
     return;
   }
-  syscommand=AssembleWeiduCommandLine(itemname+".dlg", weidudecompiled); //export
+  syscommand=AssembleWeiduCommandLine(itemname+".dlg", weidudecompiled, true); //export
 	ret=RunWeidu(syscommand);
 }
 
@@ -2975,7 +3011,7 @@ restart:
     }
     chdir(bgfolder);
     //this one writes back the tlk file so the import will be consistent
-    syscommand=AssembleWeiduCommandLine(filepath,"override");
+    syscommand=AssembleWeiduCommandLine(filepath, "override", false); //import
     close(fhandle); //close file before calling weidu
   	res=RunWeidu(syscommand);
 
@@ -2988,7 +3024,7 @@ restart:
       MessageBox("Cannot open file!","Error",MB_OK);
       goto restart;
     }
-    res=the_dialog.ReadDialogFromFile(fhandle,-1);
+    res=the_dialog.ReadDialogFromFile(fhandle, -1, itemname);
     close(fhandle);
     switch(res)
     {
@@ -2998,7 +3034,7 @@ restart:
     case 1:
       if(!pst_compatible_var() && !has_xpvar())
       {
-        MessageBox("Old dialog version (freeze flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
+        MessageBox("Old dialog version (response flags were unavailable)","Warning",MB_ICONEXCLAMATION|MB_OK);     
       }
     case 0:
       break;

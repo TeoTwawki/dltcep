@@ -48,8 +48,9 @@ void CKeyEdit::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CKeyEdit, CDialog)
 	//{{AFX_MSG_MAP(CKeyEdit)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, OnItemchangedFilelist)
+  ON_NOTIFY(NM_CUSTOMDRAW, IDC_FILELIST, OnCustomdrawFilelist)  
 	ON_LBN_SELCHANGE(IDC_BIFLIST, OnSelchangeBiflist)
-	ON_NOTIFY(NM_CLICK, IDC_FILELIST, OnClickFilelist)
 	ON_BN_CLICKED(IDC_DELETEALL, OnDeleteall)
 	ON_BN_CLICKED(IDC_REMOVEBIF, OnRemovebif)
 	ON_BN_CLICKED(IDC_MARK, OnMark)
@@ -67,7 +68,6 @@ BEGIN_MESSAGE_MAP(CKeyEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_IMPLODE, OnToolsImplode)
 	ON_COMMAND(ID_CHECK, OnCheck)
 	//}}AFX_MSG_MAP
-  ON_NOTIFY(NM_CUSTOMDRAW, IDC_FILELIST, OnCustomdrawFilelist)  
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -131,17 +131,7 @@ void CKeyEdit::OnSelchangeBiflist()
   }
 	RefreshDialog();
 }
-/*
-void CKeyEdit::OnSelchangeFilelist() 
-{
-  POSITION pos;
-  int idx;
 
-  pos=m_filelist_control.GetFirstSelectedItemPosition();
-  idx=m_filelist_control.GetNextSelectedItem(pos);
-  m_filepos.Format("%d/%d (0x%0x)",m_filelist_control.GetItemCount(),idx,m_filelist_control.GetItemData(idx) );
-}
-*/
 int CKeyEdit::GetCurSel()
 {
   POSITION pos;
@@ -279,7 +269,6 @@ void CKeyEdit::RefreshDialog()
   refresh_list(1); //list deleted entries
   if(tmppos<0) tmppos=0;
   m_filelist_control.SetSelectionMark(tmppos);
-//  m_filelist_control.SetCurSel(tmppos);
   if(m_bifindex==0xffff) m_bifpos.Format("-/%d",key_headerinfo.numbif);
   else m_bifpos.Format("%d/%d",m_bifindex,key_headerinfo.numbif);
   UpdateData(UD_DISPLAY);
@@ -331,6 +320,16 @@ BOOL CKeyEdit::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
+CString GetBifPath(int numbif)
+{
+  CString path = bgfolder+bifs[numbif].bifname;
+  if (!file_exists(path) && language.GetLength())
+  {
+    path = bgfolder+"lang/"+language+"/"+bifs[numbif].bifname;
+  }
+  return path;
+}
+
 int CKeyEdit::WriteChitin(int fhandle)
 {
   CString tmpstr;
@@ -361,7 +360,7 @@ int CKeyEdit::WriteChitin(int fhandle)
   bifnamesize=0;
   for(numbif=0;numbif<key_headerinfo.numbif;numbif++)
   {
-    bifentry[numbif].biflen=file_length(bgfolder+bifs[numbif].bifname);
+    bifentry[numbif].biflen=file_length(GetBifPath(numbif));
     if(bifentry[numbif].biflen==-1)
     {
       tmpstr.Format("%s bif doesn't exist, do you want to continue?", bifs[numbif].bifname);
@@ -744,20 +743,40 @@ void CKeyEdit::OnOK()
 	CDialog::OnOK();
 }
 
-void CKeyEdit::OnClickFilelist(NMHDR* /*pNMHDR*/, LRESULT* pResult) 
+void CKeyEdit::RefreshEntryInfo()
 {
   POSITION pos;
   int idx;
 
-  *pResult = 0;
   pos=m_filelist_control.GetFirstSelectedItemPosition();
   if(pos)
   {
     idx=m_filelist_control.GetNextSelectedItem(pos);
-    m_filepos.Format("%d/%d (0x%0x)",idx,m_filelist_control.GetItemCount(),m_filelist_control.GetItemData(idx) );
-    UpdateData(UD_DISPLAY);
+    m_filepos.Format("%d/%d (0x%0x)",idx+1,m_filelist_control.GetItemCount(),m_filelist_control.GetItemData(idx) );
   }
+  else
+  {
+    m_filepos.Empty();
+  }
+  UpdateData(UD_DISPLAY);
 }
+
+void CKeyEdit::OnItemchangedFilelist(NMHDR* /*pNMHDR*/, LRESULT* pResult) 
+{
+	//NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
+	// TODO: Add your control notification handler code here
+	
+	*pResult = 0;
+  RefreshEntryInfo();
+}
+
+#if 0
+void CKeyEdit::OnClickFilelist(NMHDR* /*pNMHDR*/, LRESULT* pResult) 
+{
+  *pResult = 0;
+  RefreshEntryInfo();
+}
+#endif
 
 void CKeyEdit::OnDeleteall() 
 {

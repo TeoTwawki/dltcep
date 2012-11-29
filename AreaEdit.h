@@ -18,6 +18,7 @@ class CAreaEdit : public CDialog
 public:
 	CAreaEdit(CWnd* pParent = NULL);   // standard constructor
   void NewArea();
+  void GenerateMinimap(CString tmpstr);
 
 // Dialog Data
 	//{{AFX_DATA(CAreaEdit)
@@ -37,6 +38,7 @@ public:
 protected:
 	CAreaPropertySheet* m_pModelessPropSheet;
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void SaveArea(int save);
 	// Generated message map functions
@@ -55,6 +57,8 @@ protected:
 	afx_msg void OnRepairwed2();
 	afx_msg void OnToolsLookupstrref();
 	virtual void OnCancel();
+	afx_msg void OnToolsCreateminimap();
+	afx_msg void OnToolsConvertnight();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

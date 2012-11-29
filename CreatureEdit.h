@@ -40,6 +40,7 @@ public:
 protected:
 	CCreaturePropertySheet* m_pModelessPropSheet;
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void SaveCreature(int save);
 	// Generated message map functions
@@ -57,6 +58,7 @@ protected:
 	afx_msg void OnImportsoundset();
 	afx_msg void OnToolsIdsbrowser();
 	virtual void OnCancel();
+	afx_msg void OnFileLoadchar();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

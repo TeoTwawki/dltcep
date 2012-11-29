@@ -4020,25 +4020,8 @@ void CCreatureEffect::OnPaste()
 
 void CCreatureEffect::OnV10() 
 {
-  feat_block *neweffects;
-  int i;
-
-  if(the_creature.header.effbyte)
+  if (the_creature.convert_to_v10())
   {
-    neweffects=new feat_block[the_creature.effectcount];
-    if(!neweffects)
-    {
-      MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
-      return;
-    }
-    for(i=0;i<the_creature.effectcount;i++)
-    {
-      ConvertToV10Eff(the_creature.effects+i, neweffects+i);
-    }
-    delete [] the_creature.effects;
-    the_creature.effects=NULL;
-    the_creature.oldeffects=neweffects;
-    the_creature.header.effbyte=0;	
     RefreshEffect();
     UpdateData(UD_DISPLAY);
   }
@@ -4046,25 +4029,8 @@ void CCreatureEffect::OnV10()
 
 void CCreatureEffect::OnV20() 
 {
-  creature_effect *neweffects;
-  int i;
-
-  if(!the_creature.header.effbyte)
+  if (the_creature.convert_to_v20())
   {
-    neweffects=new creature_effect[the_creature.effectcount];
-    if(!neweffects)
-    {
-      MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
-      return;
-    }
-    for(i=0;i<the_creature.effectcount;i++)
-    {
-      ConvertToV20Eff(neweffects+i,the_creature.oldeffects+i);
-    }
-    delete [] the_creature.oldeffects;
-    the_creature.effects=NULL;
-    the_creature.effects=neweffects;
-    the_creature.header.effbyte=1;	
     RefreshEffect();
     UpdateData(UD_DISPLAY);
   }

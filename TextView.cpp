@@ -49,7 +49,7 @@ BOOL CTextView::OnInitDialog()
     int len;
     char *poi;
 
-    fhandle=open(m_file,O_RDONLY|O_TEXT);
+    fhandle=open(m_file,O_RDONLY|O_BINARY);
     m_file.Empty();
     if(fhandle>0)
     {
@@ -58,6 +58,7 @@ BOOL CTextView::OnInitDialog()
       read(fhandle, poi, len);
       close(fhandle);
       m_text.ReleaseBuffer(-1);
+      m_text.Replace("\r\n","\n");
     }
     else
     {
@@ -66,6 +67,7 @@ BOOL CTextView::OnInitDialog()
     }
   }
   
+  m_text_control.SetOptions(ECOOP_OR, ECO_SAVESEL); //prevent auto highlight crap
 	m_text_control.SetWindowText(m_text);
 	
 	return TRUE;

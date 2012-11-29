@@ -9,24 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-struct INF_MOS_HEADER
-{
-	char		chSignature[4]; //MOS
-	char		chVersion[4];
-	WORD		wWidth;
-	WORD		wHeight;
-	WORD		wColumn;
-	WORD		wRow;
-	DWORD		dwBlockSize;
-	DWORD		dwPaletteOffset;
-};
-
-struct INF_MOSC_HEADER
-{
-	char		chSignature[4]; //MOSC
-	char		chVersion[4];
-  DWORD   nExpandSize;
-};
+#include "structs.h"
 
 class INF_MOS_FRAMEDATA
 {
@@ -35,7 +18,6 @@ public:
   BYTE *pFrameData;
   int nFrameSize;
   DWORD nWidth, nHeight;
-  int nKilla, nKillb, nTreshold;
 
   INF_MOS_FRAMEDATA()
   {
@@ -55,6 +37,7 @@ public:
   }
 
   void OrderPalette();
+  void AlterPalette(int r, int g, int b, int strength);
   void ReorderPixels();
   void MarkPixels();
   void MovePixels(BYTE chFrom, BYTE chTo);
@@ -90,6 +73,7 @@ public:
   INF_MOS_HEADER mosheader;
   tis_header tisheader;
   BOOL m_bCompressed;
+  BOOL m_pvr;
   DWORD *m_pOffsets;
   int m_overlay;
   int m_overlaytile;
@@ -106,7 +90,9 @@ public:
   int ResolveFrameNumber(int framenumber);
   void new_mos();
   void DropUnusedPalette();
-  int RetrieveTisFrameCount(int fhandle, int maxlen);
+  void ApplyPaletteRGBTile(int nFrameWanted, int r, int g, int b, int strength);
+  void ApplyPaletteRGB(int r, int g, int b, int strength);
+  int RetrieveTisFrameCount(int fhandle, loc_entry *fl);
   int GetFrameCount();
   CPoint GetFrameSize(DWORD nFrame);
   unsigned char *GetFrameBuffer(DWORD nFrame);
@@ -120,10 +106,11 @@ public:
   int WriteMosToBmpFile(int fhandle, int clipx=0, int clipy=0,int maxclipx=-1, int maxclipy=-1);
   int WriteTisToBmpFile(int fhandle, int clipx=0, int clipy=0,int maxclipx=-1, int maxclipy=-1);
   int WriteMosToFile(int fhandle);
+  //int WritePvrToFile(int fhandle, int clipx=0, int clipy=0, int maxclipx=-1, int maxclipy=-1);
   int WriteTisToFile(int fhandle, int clipx=0, int clipy=0, int maxclipx=-1, int maxclipy=-1);
   int ReadMosFromFile(int fhandle, int maxlen);
-  int ReadTisFromFile(int fhandle, int maxlen, int header);
-  void SetTisParameters(int size);
+  int ReadTisFromFile(int fhandle, loc_entry *fl, bool header, bool preview);
+  void SetTisParameters(loc_entry *fl, int size);
   int TisToMos(DWORD x, DWORD y);
   int Allocate(DWORD x, DWORD y);
   int GetImageWidth(int clipx, int maxclipx);

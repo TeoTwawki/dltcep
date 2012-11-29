@@ -26,11 +26,13 @@ Cdialog::Cdialog()
   sttriggers=NULL;
   trtriggers=NULL;
   actions=NULL;
+  extlinks=NULL;
   statecount=0;
   transcount=0;
   sttriggercount=0;
   trtriggercount=0;
   actioncount=0;
+  extlinkcnt=0;
 }
 
 Cdialog::~Cdialog()
@@ -45,6 +47,7 @@ void Cdialog::new_dialog()
   KillStateTriggers();
   KillTransTriggers();
   KillActions();
+  KillExternalLinks();
 }
 
 int Cdialog::WriteDialogToFile(int fh, int calculate)
@@ -208,6 +211,285 @@ int Cdialog::adjust_actpoint(long offset)
   return 1;
 }
 
+CString Cdialog::GetPartName(int stateindex)
+{
+  CString ret = itemname;
+  int i;
+
+  for(i=0;i<extlinkcnt;i++)
+  {
+    if (stateindex<extlinks[i].firststate) return ret;
+    RetrieveResref(ret, extlinks[i].dlgname);
+  }
+  return ret;
+}
+
+int Cdialog::AddExternals()
+{
+  loc_entry fileloc;
+  CString key;
+  Cdialog ext;
+  dlg_trans extlink;
+  int fhandle;
+  int ret;
+
+  while(GetExternalLink(extlink))
+  {
+    Cdialog ext;
+    
+    RetrieveResref(key, extlink.nextdlg);
+    if(dialogs.Lookup(key,fileloc))
+    {
+      fhandle=locate_file(fileloc, 0);
+      if(fhandle<1)
+      {
+        MessageBox(0,"Invalid file:"+key,"Error", MB_ICONSTOP|MB_OK);
+        return -2;
+      }
+      ret = ext.ReadDialogFromFile(fhandle, fileloc.size, key);
+      close(fhandle);
+      if (ret<0)
+      {
+        MessageBox(0,"Invalid file:"+key,"Error", MB_ICONSTOP|MB_OK);
+        return ret;
+      }
+      ret = MergeDialog(ext, key);
+      if (ret)
+      {
+        MessageBox(0,"Invalid file:"+key,"Error", MB_ICONSTOP|MB_OK);
+        return ret;
+      }
+    }
+  }
+  return 0;
+}
+
+int Cdialog::ResolveLinks(dlg_extlink *baselinks, int baselinkcount, CString basename)
+{
+  CString tmpstr, loaded;
+  int i, j;
+
+  int firststate = baselinks[baselinkcount].firststate;
+  int firsttrans = baselinks[baselinkcount].firsttrans;
+  int firststtrigger = baselinks[baselinkcount].firststtrigger;
+  int firsttrtrigger = baselinks[baselinkcount].firsttrtrigger;
+  int firstaction = baselinks[baselinkcount].firstaction;
+
+  for(i=0;i<header.numstates;i++)
+  {
+    if (dlgstates[i].stindex>=0)
+    {
+      dlgstates[i].stindex+=firststtrigger;
+    }
+    dlgstates[i].trindex+=firsttrans;
+  }
+  for(i=0;i<header.numtrans;i++)
+  {
+    if (dlgtrans[i].actionindex>=0)
+    {
+      dlgtrans[i].actionindex += firstaction;
+    }
+    if (dlgtrans[i].trtrindex>=0)
+    {
+      dlgtrans[i].trtrindex += firsttrtrigger;
+    }
+    if (dlgtrans[i].nextdlg[0]=='*')
+    {
+      if (dlgtrans[i].stateindex>=statecount)
+      {
+        //probably already checked
+        return -2;
+      }
+      dlgtrans[i].stateindex += firststate;
+    }
+    else
+    {
+      RetrieveResref(tmpstr, dlgtrans[i].nextdlg);
+      if (tmpstr==basename)
+      {
+        StoreResref(SELF_REFERENCE,dlgtrans[i].nextdlg);
+        if(dlgtrans[i].stateindex>=baselinks[0].firststate)
+        {
+          return -2;
+        }
+        //state is matching because this is the base dialog
+      }
+      else
+      {
+        //resolve already loaded links
+        for(j=0;j<baselinkcount;j++)
+        {
+          RetrieveResref(loaded, baselinks[j].dlgname);
+          if(tmpstr == loaded)
+          {
+            StoreResref(SELF_REFERENCE,dlgtrans[i].nextdlg);
+            if (dlgtrans[i].stateindex>=baselinks[j].numstates)
+            {
+              return -2;
+            }
+            dlgtrans[i].stateindex += baselinks[j].firststate;
+            break;
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+int Cdialog::MergeDialog(Cdialog &add, CString key)
+{
+  CString tmpstr;
+  int ret;
+  int i;
+
+  dlg_extlink *newextlink = new dlg_extlink[extlinkcnt+1];
+  if (!newextlink) return -3;
+  dlg_state *newstates = new dlg_state[statecount+add.statecount];
+  if (!newstates)
+  {
+    delete [] newextlink;
+    return -3;
+  }
+  dlg_trans *newtrans = new dlg_trans[transcount+add.transcount];
+  if (!newtrans)
+  {
+    delete [] newextlink;
+    delete [] newstates;
+    return -3;
+  }
+  CString *newtrtriggers = new CString[trtriggercount+add.trtriggercount];
+  if (!newtrtriggers)
+  {
+    delete [] newextlink;
+    delete [] newstates;
+    delete [] newtrans;
+    return -3;
+  }
+  CString *newsttriggers = new CString[sttriggercount+add.sttriggercount];
+  if (!newsttriggers)
+  {
+    delete [] newextlink;
+    delete [] newstates;
+    delete [] newtrans;
+    delete [] newtrtriggers;
+    return -3;
+  }
+  CString *newactions = new CString[actioncount+add.actioncount];
+  if (!newactions)
+  {
+    delete [] newextlink;
+    delete [] newstates;
+    delete [] newtrans;
+    delete [] newtrtriggers;
+    delete [] newsttriggers;
+    return -3;
+  }
+
+  memcpy(newextlink, extlinks, extlinkcnt*sizeof(dlg_extlink));
+  StoreResref(key, newextlink[extlinkcnt].dlgname);
+  newextlink[extlinkcnt].firststate = header.numstates;
+  newextlink[extlinkcnt].firsttrans = header.numtrans;
+  newextlink[extlinkcnt].firststtrigger = header.numsttrigger;
+  newextlink[extlinkcnt].firsttrtrigger = header.numtrtrigger;
+  newextlink[extlinkcnt].firstaction = header.numaction;
+  newextlink[extlinkcnt].numstates = add.header.numstates;
+  newextlink[extlinkcnt].numtrans = add.header.numtrans;
+  newextlink[extlinkcnt].numsttrigger = add.header.numsttrigger;
+  newextlink[extlinkcnt].numtrtrigger = add.header.numtrtrigger;
+  newextlink[extlinkcnt].numaction = add.header.numaction;
+  delete[] extlinks;
+  extlinks = newextlink;
+  //don't increase extlinkcnt, because the last one points to the currently added dialog
+  ret = add.ResolveLinks(extlinks, extlinkcnt, itemname);
+  extlinkcnt++;
+
+  //
+  memcpy(newstates, dlgstates, statecount*sizeof(dlg_state));
+  memcpy(newstates+statecount, add.dlgstates, add.statecount*sizeof(dlg_state));
+  delete [] dlgstates;
+  dlgstates = newstates;
+
+  //
+  memcpy(newtrans, dlgtrans, transcount*sizeof(dlg_trans));
+  //resolve references to the merged dialog
+  for(i=0;i<transcount;i++)
+  {
+    RetrieveResref(tmpstr,newtrans[i].nextdlg);
+    if(tmpstr==key)
+    {
+      newtrans[i].stateindex+=statecount;
+      StoreResref(SELF_REFERENCE,newtrans[i].nextdlg);
+    }
+  }
+  memcpy(newtrans+transcount, add.dlgtrans, add.transcount*sizeof(dlg_trans));
+  delete [] dlgtrans;
+  dlgtrans = newtrans;
+  //
+  for(i=0;i<trtriggercount;i++)
+  {
+    newtrtriggers[i]=trtriggers[i];
+  }
+  //memcpy(newtrtriggers, trtriggers, trtriggercount*sizeof(CString *));
+  for(i=0;i<add.trtriggercount;i++)
+  {
+    newtrtriggers[trtriggercount+i]=add.trtriggers[i];
+  }
+  //memcpy(newtrtriggers+trtriggercount, add.trtriggers, add.trtriggercount*sizeof(CString *));
+  delete [] trtriggers;
+  trtriggers = newtrtriggers;
+  //
+  for(i=0;i<sttriggercount;i++)
+  {
+    newsttriggers[i]=sttriggers[i];
+  }
+  //memcpy(newsttriggers, sttriggers, sttriggercount*sizeof(CString *));
+  for(i=0;i<add.sttriggercount;i++)
+  {
+    newsttriggers[sttriggercount+i]=add.sttriggers[i];
+  }
+  //memcpy(newsttriggers+sttriggercount, add.sttriggers, add.sttriggercount*sizeof(CString *));
+  delete [] sttriggers;
+  sttriggers = newsttriggers;
+  //
+  for(i=0;i<actioncount;i++)
+  {
+    newactions[i]=actions[i];
+  }
+  //memcpy(newactions, actions, actioncount*sizeof(CString *));
+  for(i=0;i<add.actioncount;i++)
+  {
+    newactions[actioncount+i]=add.actions[i];
+  }
+  //memcpy(newactions+actioncount, add.actions, add.actioncount*sizeof(CString *));
+  delete [] actions;
+  actions = newactions;
+  //
+  statecount = header.numstates+=add.header.numstates;
+  transcount = header.numtrans+=add.header.numtrans;
+  sttriggercount = header.numsttrigger+=add.header.numsttrigger;
+  trtriggercount = header.numtrtrigger+=add.header.numtrtrigger;
+  actioncount = header.numaction+=add.header.numaction;
+  return ret;
+}
+
+bool Cdialog::GetExternalLink(dlg_trans &extlink)
+{
+  CString tmp;
+  int i;
+
+  for(i=0;i<transcount;i++)
+  {
+    //self reference
+    if(dlgtrans[i].nextdlg[0] && dlgtrans[i].nextdlg[0]!='*')
+    {
+      memcpy(&extlink, dlgtrans+i, sizeof(dlg_trans));
+      return true;
+    }
+  }
+  return false;
+}
+
 int Cdialog::CheckExternalLink(int fh, int stateidx)
 {
   dlg_header tmpheader;
@@ -219,7 +501,7 @@ int Cdialog::CheckExternalLink(int fh, int stateidx)
   return tmpheader.numstates<=stateidx;
 }
 
-int Cdialog::ReadDialogFromFile(int fh, long ml)
+int Cdialog::ReadDialogFromFile(int fh, long ml, CString self)
 {
   CString tmpstr;
   long fullsize;
@@ -230,6 +512,7 @@ int Cdialog::ReadDialogFromFile(int fh, long ml)
   long oldpos;
   int ret, gret;
 
+  KillExternalLinks();
   changed=0;
   fhandle=fh; //for safe string reads
   if(ml==-1) maxlen=filelength(fhandle);
@@ -295,7 +578,7 @@ int Cdialog::ReadDialogFromFile(int fh, long ml)
   for(i=0;i<transcount;i++)
   {
     RetrieveResref(tmpstr,dlgtrans[i].nextdlg);
-    if(tmpstr==itemname) StoreResref(SELF_REFERENCE,dlgtrans[i].nextdlg);
+    if(tmpstr==self) StoreResref(SELF_REFERENCE,dlgtrans[i].nextdlg);
   }
   fullsize+=sizeof(dlg_trans)*transcount;
   
@@ -405,4 +688,15 @@ int Cdialog::ReadDialogFromFile(int fh, long ml)
     return -1;
   }
   return gret;
+}
+
+int Cdialog::findtrigger(int sttrigger)
+{
+  int i;
+
+  for(i=0;i<statecount;i++)
+  {
+    if(sttrigger==dlgstates[i].stindex) return i;
+  }
+  return -1;
 }

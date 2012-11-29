@@ -23,6 +23,7 @@ public:
 		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
   BOOL m_graphics;
+  BOOL m_pvr;
   CString m_tisname;
   DWORD m_posx, m_posy;
   DWORD m_minx, m_miny;
@@ -66,6 +67,7 @@ protected:
 	afx_msg void OnClearall();
 	afx_msg void OnLoad();
 	afx_msg void OnPreview();
+	afx_msg void OnVersion();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

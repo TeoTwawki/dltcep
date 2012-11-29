@@ -36,6 +36,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CSRCEdit)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual void PostNcDestroy();
@@ -43,6 +45,9 @@ public:
 
 // Implementation
 protected:
+  CToolTipCtrl m_tooltip;
+  CString filepath;
+
   void RefreshControl();
   void SaveSrc(int save);
 

@@ -78,6 +78,7 @@ protected:
   void ChangeOverlay(int flag);
   void InsertTiles(Cmos &tmpmos, int firsttile, int door);
   void LoadTileSetAt(int firsttile, int flags);
+  int FindDoorByTile(int tile);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedTile)
@@ -98,6 +99,9 @@ protected:
 	afx_msg void OnPreview();
 	afx_msg void OnDrop();
 	afx_msg void OnLoad3();
+	afx_msg void OnAddFrame();
+	afx_msg void OnRemoveFrame();
+	afx_msg void OnConv();
 	//}}AFX_MSG
   void CWedTile::OnTile();
 	DECLARE_MESSAGE_MAP()

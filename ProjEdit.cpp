@@ -349,7 +349,6 @@ static char BASED_CODE szFilter[] = "Projectiles (*.pro)|*.pro|All files (*.*)|*
 
 void CProjEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -358,6 +357,7 @@ void CProjEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "pro", makeitemname(".pro",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -406,7 +406,6 @@ void CProjEdit::OnSave()
 
 void CProjEdit::SaveProj(int save)
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -427,6 +426,7 @@ void CProjEdit::SaveProj(int save)
   }    
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -1361,13 +1361,6 @@ void CProjExt::OnUnknown()
   dlg.DoModal();
 }
 
-BOOL CProjExt::PreTranslateMessage(MSG* pMsg) 
-{
-  m_tooltip.RelayEvent(pMsg);
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
-
 void CProjEdit::OnFileTbg() 
 {
   ExportTBG(this, REF_PRO, 0);
@@ -1378,3 +1371,8 @@ void CProjEdit::OnFileTp2()
   ExportTBG(this, REF_PRO, 1);
 }
 
+BOOL CProjExt::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
+}

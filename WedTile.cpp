@@ -45,6 +45,7 @@ void CWedTile::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_OPEN, m_open);
 	DDX_Check(pDX, IDC_OVERLAY, m_setoverlay);
 	//}}AFX_DATA_MAP
+  GetDlgItem(IDC_REMOVE)->EnableWindow(m_tilenum>=0);
   if(m_tilenum>=0)
   {
     if(m_pdooridx)
@@ -71,11 +72,21 @@ void CWedTile::DoDataExchange(CDataExchange* pDX)
     {
       the_area.wedchanged=true;
     }
-    tmp=m_ptileheader[tilenum].flags;
-    DDX_Text(pDX, IDC_FLAGS, m_ptileheader[tilenum].flags);
-    DDX_Text(pDX, IDC_UNKNOWN, m_ptileheader[tilenum].unknown);
-
-    if(tmp!=m_ptileheader[tilenum].flags)
+    tmp=m_ptileheader[tilenum].overlayflags;
+    DDX_Text(pDX, IDC_FLAGS, m_ptileheader[tilenum].overlayflags);
+    if(tmp!=m_ptileheader[tilenum].overlayflags)
+    {
+      the_area.wedchanged=true;
+    }
+    tmp=m_ptileheader[tilenum].animspeed;
+    DDX_Text(pDX, IDC_SPEED, m_ptileheader[tilenum].animspeed);
+    if(tmp!=m_ptileheader[tilenum].animspeed)
+    {
+      the_area.wedchanged=true;
+    }
+    tmp=m_ptileheader[tilenum].wedflags;
+    DDX_Text(pDX, IDC_UNKNOWN, m_ptileheader[tilenum].wedflags);
+    if(tmp!=m_ptileheader[tilenum].wedflags)
     {
       the_area.wedchanged=true;
     }
@@ -96,13 +107,16 @@ BEGIN_MESSAGE_MAP(CWedTile, CDialog)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOAD2, OnLoad2)
-	ON_BN_CLICKED(IDC_LOAD3, OnLoad3)
 	ON_BN_CLICKED(IDC_OPEN, OnOpen)
 	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
 	ON_BN_CLICKED(IDC_DROP, OnDrop)
+	ON_BN_CLICKED(IDC_LOAD3, OnLoad3)
+	ON_BN_CLICKED(IDC_ADD, OnAddFrame)
+	ON_BN_CLICKED(IDC_REMOVE2, OnRemoveFrame)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN, DefaultKillfocus)
 	ON_LBN_DBLCLK(IDC_BLOCKPICKER, OnRemove)
+	ON_BN_CLICKED(IDC_CONV, OnConv)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, OnTile)
 END_MESSAGE_MAP()
@@ -137,6 +151,10 @@ void CWedTile::RefreshTile()
     cw->SetWindowText("Set door (bmp)");
     cw=GetDlgItem(IDC_LOAD3);
     cw->ShowWindow(true);
+    cw=GetDlgItem(IDC_ADD);
+    cw->ShowWindow(false);
+    cw=GetDlgItem(IDC_REMOVE2);
+    cw->ShowWindow(false);
   }
 
   if(!m_tilepicker) return;
@@ -168,7 +186,7 @@ void CWedTile::RefreshTile()
   if(the_mos.MosChanged()) tmpstr+=" *";
   SetWindowText(tmpstr);  
   m_tilenum=m_tilepicker.GetCurSel();
-  if(m_tilenum<0) m_tilenum=0;
+  if(m_tilenum<0 && (m_tilepicker.GetCount()==0) ) m_tilenum=0;
   m_tilepicker.ResetContent();
   if(m_pdooridx)
   {
@@ -194,11 +212,11 @@ void CWedTile::RefreshTile()
     }
     if(wtm->alternate==-1)
     {
-      tmpstr.Format("[%d.%d] %d - %d",i,j,wtm->firsttileprimary, wtm->flags);
+      tmpstr.Format("[%d.%d] %d - %d",i,j,wtm->firsttileprimary, wtm->overlayflags);
     }
     else
     {
-      tmpstr.Format("[%d.%d] %d (%d) - %d",i,j,wtm->firsttileprimary, wtm->alternate, wtm->flags);
+      tmpstr.Format("[%d.%d] %d (%d) - %d",i,j,wtm->firsttileprimary, wtm->alternate, wtm->overlayflags);
     }
     m_tilepicker.AddString(tmpstr);
   }
@@ -238,6 +256,7 @@ void CWedTile::RefreshDialog()
   CButton *cb;
   int tilenum;
 
+  if (!m_preview) return;
   cb = (CButton *) GetDlgItem(IDC_OPEN);
   if(m_open) cb->SetWindowText("Draw open");
   else cb->SetWindowText("Draw closed");
@@ -311,7 +330,25 @@ BOOL CWedTile::OnInitDialog()
 
 void CWedTile::OnSelchangeBlockpicker() 
 {
+  CPoint cp;
+  int tile;
+
   m_tilenum=m_tilepicker.GetCurSel();
+  if (m_tilenum>=0)
+  {
+    if (m_pdooridx)
+    {
+      tile = m_pdooridx[m_tilenum];
+    }
+    else
+    {
+      tile = m_tilenum;
+    }
+    
+    cp.y = tile/m_tilecountx;
+    cp.x = tile%m_tilecountx;
+    m_preview.SetPoint(cp, GP_TILE);
+  }
   RefreshFields();
   UpdateData(UD_DISPLAY);
 }
@@ -330,12 +367,36 @@ void CWedTile::DefaultKillfocus()
   UpdateData(UD_DISPLAY);
 }
 
+int CWedTile::FindDoorByTile(int tile)
+{
+  DWORD i;
+  int doornum, olddoornum;
+
+  olddoornum = m_doornum;
+  for(doornum = 0;doornum<the_area.weddoorcount;doornum++)
+  {
+    SetDoor(doornum);
+    for(i=0;i<m_maxtile;i++)
+    {
+      if(m_pdooridx[i]==tile)
+      {
+        RetrieveResref(m_tisname,the_area.weddoorheaders[doornum].doorid);
+        return i;
+      }
+    }
+  }
+  SetDoor(olddoornum);
+  return -1;
+}
+
 void CWedTile::OnTile() 
 {
   CPoint cp;
   int tile;
   DWORD i;
+  BOOL refresh;
 
+  refresh = m_setoverlay;
   cp=m_preview.GetPoint(GP_TILE);
   tile=cp.y*m_tilecountx+cp.x;
   if(m_pdooridx)
@@ -347,7 +408,15 @@ void CWedTile::OnTile()
     }
     if(i==m_maxtile)
     {
-      tile=-1;
+      if (MessageBox("That is not a current door tile, do you want to jump to it?","Tile editor",MB_YESNO)==IDYES)
+      {
+        tile = FindDoorByTile(tile);
+        refresh = true;
+      }
+      else
+      {
+        tile=-1;
+      }
     }
     else
     {
@@ -355,16 +424,14 @@ void CWedTile::OnTile()
     }
   }
   m_tilenum=m_tilepicker.SetCurSel(tile);
-  if(m_setoverlay) RefreshTile();
-  else RefreshDialog();
+  if(refresh) RefreshTile();
+  else RefreshFields();
+  //else RefreshDialog();
   UpdateData(UD_DISPLAY);
 }
 
 void CWedTile::OnOverlay() 
 {
-//  CImageView dlg;
-//  CPoint cp;
-
   UpdateData(UD_RETRIEVE);
   if(m_pdooridx) //add door tiles
   {
@@ -390,7 +457,7 @@ void CWedTile::OnDrop()
   {
     if(m_ptileheader[i].alternate==-1)
     {
-      m_ptileheader[i].flags=0;
+      m_ptileheader[i].overlayflags=0;
       the_area.wedchanged=true;
     }
   }
@@ -405,7 +472,7 @@ void CWedTile::OnFixalter()
   i=m_maxtile;
   while(i--)
   {
-    if(m_ptileheader[i].flags && (m_ptileheader[i].alternate==-1) )
+    if(m_ptileheader[i].overlayflags && (m_ptileheader[i].alternate==-1) )
     {
       m_ptileheader[i].alternate=m_ptileidx[m_ptileheader[i].firsttileprimary];
       the_area.wedchanged=true;
@@ -470,6 +537,10 @@ void CWedTile::OnRemove()
   short *newtiles;
   int tile, tilenum;
 
+  if (m_tilenum<0)
+  {
+    return;
+  }
   the_area.wedchanged=true;
   if(m_pdooridx)
   {
@@ -539,7 +610,7 @@ void CWedTile::OnGreenwater()
   while(i--)
   {
     ((CChitemDlg *) AfxGetMainWnd())->set_progress(i); 
-    if(m_ptileheader[i].flags && (m_ptileheader[i].alternate==-1) )
+    if(m_ptileheader[i].overlayflags && (m_ptileheader[i].alternate==-1) )
     {
       idx = m_ptileidx[m_ptileheader[i].firsttileprimary];
       ret=the_mos.SaturateTransparency(idx, true, deepen);
@@ -564,6 +635,109 @@ void CWedTile::OnSave()
 void CWedTile::OnKillfocusFirst() 
 {
   m_firstindex=m_indexpicker.GetCurSel();
+  RefreshTile();
+	UpdateData(UD_DISPLAY);	
+}
+
+void CWedTile::OnAddFrame() 
+{
+  short *newoverlaytileindices;
+  int pos;
+  DWORD i;
+
+  m_firstindex=m_indexpicker.GetCurSel();
+  m_tilenum=m_tilepicker.GetCurSel();
+
+  if (m_tilenum==-1) return;
+  if (m_firstindex==-1) return;
+
+  newoverlaytileindices = new short[the_area.overlaytileidxcount+1];
+  if (!newoverlaytileindices) return;
+  
+  pos = m_firstindex+m_ptileheader[m_tilenum].firsttileprimary;
+  memcpy(newoverlaytileindices, the_area.overlaytileindices, (pos+1)*sizeof(short) );
+  memcpy(newoverlaytileindices+pos+1, the_area.overlaytileindices+pos, (the_area.overlaytileidxcount-pos) * sizeof(short) );
+  the_area.overlaytileidxcount++;
+
+  delete [] the_area.overlaytileindices;
+  the_area.overlaytileindices = newoverlaytileindices;
+  m_ptileidx = the_area.overlaytileindices;
+
+  m_ptileheader[m_tilenum].counttileprimary++;
+  for (i=0;i<m_maxtile;i++)
+  {
+    if (m_ptileheader[i].firsttileprimary>pos)
+    {
+      m_ptileheader[i].firsttileprimary++;
+    }
+  }
+  SetupSelectPoint(0);
+  RefreshTile();
+	UpdateData(UD_DISPLAY);	
+}
+
+void CWedTile::OnRemoveFrame() 
+{
+  short *newoverlaytileindices;
+  int pos;
+  DWORD i;
+
+  m_firstindex=m_indexpicker.GetCurSel();
+  m_tilenum=m_tilepicker.GetCurSel();
+	
+  if (m_tilenum==-1) return;
+  if (m_firstindex==-1) return;
+  if (m_ptileheader[m_tilenum].counttileprimary<2) return; //can't remove the first tile
+
+  newoverlaytileindices = new short[the_area.overlaytileidxcount-1];
+  if (!newoverlaytileindices) return;
+  
+  pos = m_firstindex+m_ptileheader[m_tilenum].firsttileprimary;
+  memcpy(newoverlaytileindices, the_area.overlaytileindices, pos*sizeof(short) );
+  memcpy(newoverlaytileindices+pos, the_area.overlaytileindices+pos+1, (the_area.overlaytileidxcount-pos-1) * sizeof(short) );
+  the_area.overlaytileidxcount--;
+
+  delete [] the_area.overlaytileindices;
+  the_area.overlaytileindices = newoverlaytileindices;
+  m_ptileidx = the_area.overlaytileindices;
+
+  m_ptileheader[m_tilenum].counttileprimary--;
+  for (i=0;i<m_maxtile;i++)
+  {
+    if (m_ptileheader[i].firsttileprimary>pos)
+    {
+      m_ptileheader[i].firsttileprimary--;
+    }
+  }
+  SetupSelectPoint(0);
+  RefreshTile();
+	UpdateData(UD_DISPLAY);	
+}
+
+
+void CWedTile::OnConv() 
+{
+  int pos;
+
+  m_firstindex=m_indexpicker.GetCurSel();
+  m_tilenum=m_tilepicker.GetCurSel();
+	
+  if (m_tilenum==-1) return;
+  if (m_firstindex==-1) return;
+
+  if (m_pdooridx)
+  {
+    m_tilenum=m_pdooridx[m_tilenum];
+
+  }
+  pos = m_firstindex+m_ptileheader[m_tilenum].alternate;
+  if (m_open || (pos==-1))
+  {
+    pos = m_ptileidx[m_firstindex+m_ptileheader[m_tilenum].firsttileprimary];
+  }
+
+  the_mos.ApplyPaletteRGBTile(pos, 200, 100, 100, 256);
+  SetupSelectPoint(0);
   RefreshTile();
 	UpdateData(UD_DISPLAY);	
 }
@@ -627,7 +801,7 @@ restart:
     }
     else
     {
-      res=tmpmos.ReadTisFromFile(fhandle,-1,true);
+      res=tmpmos.ReadTisFromFile(fhandle, NULL, true, false);
     }
     close(fhandle);
     lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));

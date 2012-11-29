@@ -50,6 +50,7 @@ public:
 protected:
 	CSpellPropertySheet* m_pModelessPropSheet;
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void SaveSpell(int save);
 	// Generated message map functions

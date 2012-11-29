@@ -103,11 +103,48 @@ BEGIN_MESSAGE_MAP(CCreatureEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
+	ON_COMMAND(ID_FILE_LOADCHAR, OnFileLoadchar)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CCreatureEdit message handlers
+
+
+
+void CCreatureEdit::OnFileLoadchar() 
+{
+	int res;
+	
+  pickerdlg.m_restype=REF_CHR;
+  pickerdlg.m_picked=itemname;
+	res=pickerdlg.DoModal();
+	if(res==IDOK)
+	{
+		res=read_character(pickerdlg.m_picked);
+    switch(res)
+    {
+    case -3:
+      MessageBox("Not enough memory","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 1: case 2:
+      MessageBox("Character will be reordered (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 0:
+  		itemname=pickerdlg.m_picked;
+      break;
+    default:
+      MessageBox("Cannot read character!","Error",MB_ICONSTOP|MB_OK);
+      NewCreature();
+      break;
+    }
+    SetWindowText("Edit character: "+itemname);
+    m_pModelessPropSheet->RefreshDialog();
+    UpdateData(UD_DISPLAY);
+	}
+}
 
 void CCreatureEdit::OnLoad() 
 {
@@ -148,7 +185,6 @@ static char BASED_CODE szFilter[] = "Creature files (*.cre)|*.cre|"
 
 void CCreatureEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -157,6 +193,7 @@ void CCreatureEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "cre", makeitemname(".cre",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -238,7 +275,6 @@ void CCreatureEdit::OnSaveas()
 
 void CCreatureEdit::SaveCreature(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int chrorcre;
@@ -260,6 +296,7 @@ void CCreatureEdit::SaveCreature(int save)
     goto gotname;
   }    
 restart:
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   chrorcre=0;
   if( m_getfiledlg.DoModal() == IDOK )
   {

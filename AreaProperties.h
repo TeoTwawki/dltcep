@@ -417,6 +417,7 @@ protected:
 	afx_msg void OnKillfocusFlags();
 	afx_msg void OnSet();
 	afx_msg void OnFlag5();
+	afx_msg void OnSelection();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -664,6 +665,10 @@ protected:
 	afx_msg void OnSet2();
 	afx_msg void OnSet3();
 	afx_msg void OnSelection();
+	afx_msg void OnFlag13();
+	afx_msg void OnFlag14();
+	afx_msg void OnFlag15();
+	afx_msg void OnFlag16();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -758,7 +763,8 @@ class CAreaMap : public CPropertyPage
 public:
 	CAreaMap();   // standard constructor
 	~CAreaMap();  
-  void RefreshMap();   
+  bool CanHaveNightMap();
+  void RefreshMap(bool init);   
 
 // Dialog Data
 	//{{AFX_DATA(CAreaMap)

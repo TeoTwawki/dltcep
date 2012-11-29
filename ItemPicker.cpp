@@ -373,6 +373,7 @@ void CItemPicker::OnSelchangePick()
     if(x>0) key=key.Left(x);
   }
   idx=determinetype(m_restype);
+  if (!idx) return;
   resources[idx]->Lookup(key,fileloc);
   Preview(key,fileloc,m_restype);	
 }

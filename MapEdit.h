@@ -48,6 +48,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void RefreshDialog();
   void SaveMap(int save);

@@ -51,13 +51,15 @@ public:
 
   int check_videocell();
   int check_store();
+  int check_applyspell();
   int check_spell();
   int check_item();
   int check_effect();
   int check_chui();
   int check_creature();
   int check_projectile(); //checking a projectile (contains check_pro_num too)
-  int check_area();
+  int check_area(int swap_weds);
+  int check_ids();
   int check_game();
   int check_map();
   int check_bam();
@@ -118,11 +120,12 @@ protected:
   int AddAcm(CString key, loc_entry &fileloc, int dont);
   int CollectAcms();
   int rescan_only_storeitems();
+  bool SkipOriginal(CString bifname);
   int process_items(bool check_or_search);
   int process_stores(bool check_or_search);
-  int process_spells(bool check_or_search);
+  int process_spells(int check_or_search, CStringList *list); //three states
   int process_pros(bool check_or_search);
-  int process_effects(bool check_or_search);
+  int process_effects(int check_or_search, CStringList *list); //three states
   int process_creatures(int check_or_search);
   int process_chuis(int check_or_search);
   int process_videocells(bool check_or_search);
@@ -171,6 +174,8 @@ protected:
   int check_section(CString section);
   void check_spawn_section(CString section, CString referenced);
   int check_point_string(CString point);
+  int check_ambient_overlap(int exclude, CString name, int x, int y, int radius);
+  int check_trigger_overlap(CString name);
   int check_area_actors();
   int check_area_trigger();
   int check_area_spawn();
@@ -185,7 +190,7 @@ protected:
   int check_area_mapnote();
   int check_area_song();
   int check_area_interrupt();
-  int check_wed();
+  int check_wed(int swap_weds);
   int check_weaponslots();
   int check_creature_pst();
   int check_creature_spells();
@@ -222,14 +227,27 @@ protected:
   int check_pro_num(int pronum); //checking a projectile number (in itm)
   int check_ascii_strref(CString value, CString row);
   int CompareLabels(CStringList &first, CStringList &second, CString firstname, CString secondname);
+  int check_clab(CString table, int features);
   int check_kits_iwd2();
   int check_kits_bg2(bool tob);
   int check_kits();
+  int check_tooltip();
   int check_statdesc();
   int check_spelldesc();
+  int check_moviedesc();
+  int check_scriptdesc();
+  int check_itemexcl();
+  int check_itemanim();
+  int check_itemdial();
+  int check_summons();
+  int check_familiar();
+  int check_select_spell();
+  int check_anisounds();
+  int check_treasure();
   int check_spawngroups();
   int check_songlist();
   int check_avatar();
+  int check_anisound(CString key);
   int check_ani_code_mirror(CString prefix);
   int check_ani_code_mirror_2(CString prefix);
   int check_ani_one_file(CString prefix);
@@ -264,6 +282,7 @@ protected:
   void DecompressAcm2(bool wavc_or_acm);
   void CheckPrefix(CString key, int value);
   void which_transition(int idx);
+  int OnAvatars(bool anisound);
 	// Generated message map functions
 	//{{AFX_MSG(CChitemDlg)
 	virtual BOOL OnInitDialog();
@@ -368,10 +387,17 @@ protected:
 	afx_msg void OnCheckAvatar2da();
 	afx_msg void OnCheckSpawnini();
 	afx_msg void OnSearchBmp();
+	afx_msg void OnViewDialogTree();
+	afx_msg void OnToolsLoadalldialogs();
+	afx_msg void OnBg1fx();
+	afx_msg void OnPvrPack();
+	afx_msg void OnPvrUnpack();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();
-	DECLARE_MESSAGE_MAP()
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+  DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}

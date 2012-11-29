@@ -48,6 +48,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
   int tis_or_mos;
   CImageView m_preview;
 
@@ -79,6 +80,7 @@ protected:
 	afx_msg void OnMinimap();
 	afx_msg void OnLoadBmp();
 	afx_msg void OnToolsGuessdimensions();
+	afx_msg void OnToolsConvertnight();
 	//}}AFX_MSG
   afx_msg void OnTile();
 	DECLARE_MESSAGE_MAP()

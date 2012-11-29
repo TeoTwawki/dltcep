@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.4a"
+#define PRG_VERSION "7.5a"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -219,8 +219,14 @@ ON_COMMAND(ID_SKIMSAV, OnSkimsav)
 ON_COMMAND(ID_EXTRACTION_RECOMPRESSSAV, OnRecompresssav)
 ON_COMMAND(ID_USEDIALOGF, OnUsedialogf)
 ON_COMMAND(ID_TOOLS_DECOMPILE, OnToolsDecompile)
-	ON_COMMAND(ID_CHECK_AVATAR2DA, OnCheckAvatar2da)
-	ON_COMMAND(ID_CHECK_SPAWNINI, OnCheckSpawnini)
+ON_COMMAND(ID_CHECK_AVATAR2DA, OnCheckAvatar2da)
+ON_COMMAND(ID_CHECK_SPAWNINI, OnCheckSpawnini)
+ON_COMMAND(ID_SEARCH_BMP, OnSearchBmp)
+ON_COMMAND(ID_TOOLS_VIEWDIALOGTREE, OnViewDialogTree)
+ON_COMMAND(ID_TOOLS_LOADALLDIALOGS, OnToolsLoadalldialogs)
+ON_COMMAND(ID_BG1FX, OnBg1fx)
+ON_COMMAND(ID_CONVERSIONS_PVRCOMPRESSTILESETSPVRZ, OnPvrPack)
+ON_COMMAND(ID_CONVERSIONS_PVRUNPACKTILESETS, OnPvrUnpack)
 ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
 ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
@@ -245,18 +251,13 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
-	ON_COMMAND(ID_SEARCH_BMP, OnSearchBmp)
 	//}}AFX_MSG_MAP
+ON_WM_SIZE()
+ON_WM_GETMINMAXINFO()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CChitemDlg message handlers
-BOOL CChitemDlg::PreTranslateMessage(MSG* pMsg)
-{
-  m_tooltip.RelayEvent(pMsg);
-  return CDialog::PreTranslateMessage(pMsg);
-}
-
 static const int logmenu[]={ID_LOGGING_NONE, ID_LOGGING_SCREEN, ID_LOGGING_FILE,0};
 
 void CChitemDlg::start_progress(int max, CString title)
@@ -351,21 +352,27 @@ BOOL CChitemDlg::OnInitDialog()
   effects.InitHashTable(MEDIUM_PRIME); //.eff12
   vvcs.InitHashTable(SMALL_PRIME); //.vvc13
   areas.InitHashTable(MEDIUM_PRIME);//.are14
-  chuis.InitHashTable(SMALL_PRIME); //.chu15
-  mos.InitHashTable(MEDIUM_PRIME); //.mos16
-  weds.InitHashTable(MEDIUM_PRIME); //.wed17
-  tis.InitHashTable(MEDIUM_PRIME); //.tis18
-  sounds.InitHashTable(LARGE_PRIME); //.wav19
-  games.InitHashTable(SMALL_PRIME); //.gam20
-  wmaps.InitHashTable(SMALL_PRIME); //.wmp21
-  musics.InitHashTable(SMALL_PRIME); //.acm22
-  musiclists.InitHashTable(SMALL_PRIME); //.mus23
-  movies.InitHashTable(SMALL_PRIME); //.mve24
-  wfxs.InitHashTable(SMALL_PRIME); //.wfx25
-  strings.InitHashTable(SMALL_PRIME); //.src26
-  paperdolls.InitHashTable(SMALL_PRIME); //.plt27
-  vefs.InitHashTable(SMALL_PRIME); //.vef28
-  inis.InitHashTable(SMALL_PRIME); //.ini29
+  chars.InitHashTable(SMALL_PRIME); //.chr15
+  chuis.InitHashTable(SMALL_PRIME); //.chu16
+  mos.InitHashTable(MEDIUM_PRIME); //.mos17
+  weds.InitHashTable(MEDIUM_PRIME); //.wed18
+  tis.InitHashTable(MEDIUM_PRIME); //.tis19
+  sounds.InitHashTable(LARGE_PRIME); //.wav20
+  games.InitHashTable(SMALL_PRIME); //.gam21
+  wmaps.InitHashTable(SMALL_PRIME); //.wmp22
+  musics.InitHashTable(SMALL_PRIME); //.acm23
+  musiclists.InitHashTable(SMALL_PRIME); //.mus24
+  movies.InitHashTable(SMALL_PRIME); //.mve25
+  wfxs.InitHashTable(SMALL_PRIME); //.wfx26
+  strings.InitHashTable(SMALL_PRIME); //.src27
+  paperdolls.InitHashTable(SMALL_PRIME); //.plt28
+  vefs.InitHashTable(SMALL_PRIME); //.vef29
+  inis.InitHashTable(SMALL_PRIME); //.ini30
+  fonts.InitHashTable(SMALL_PRIME); //.fnt31
+  sqls.InitHashTable(SMALL_PRIME); //.sql32
+  guis.InitHashTable(SMALL_PRIME); //.gui33
+  wbms.InitHashTable(SMALL_PRIME); //.wbm34
+  pvrzs.InitHashTable(LARGE_PRIME); //.pvrz35
 
   storeitems.InitHashTable(SMALL_PRIME); //container .itm
   rnditems.InitHashTable(SMALL_PRIME);   //random .itm
@@ -658,7 +665,8 @@ int CChitemDlg::scan_2da()
   }
   else
   {
-		if(bg1_compatible_area())
+    //bgee is tob specific, so we'll look for songlist
+		if(bg1_compatible_area() && !tob_specific())
 		{
 			//this file will come with the install
 			int fhandle = open(theApp.m_defpath+"\\bg1music.2da", O_BINARY|O_RDONLY);
@@ -685,47 +693,31 @@ int CChitemDlg::scan_2da()
   }
     
   
-  if(!pst_compatible_var() && !bg1_compatible_area())
+  int newtype = !pst_compatible_var() && !bg1_compatible_area();
+
+  darefs.Lookup("MSECTYPE",tmploc);
+  val=Read2da(tmploc,sectype_names);
+  if(val<0)
   {
-    darefs.Lookup("MSECTYPE",tmploc);
-    val=Read2da(tmploc,sectype_names);
-    if(val<0)
-    {
-      idrefs.Lookup("SECTYPE",tmploc);
-      val=ReadIds(tmploc,sectype_names,0, true);
-    }
-    if(val<0)
-    {
-      MessageBox("sectype.2da not found, spells may be buggy.","Warning",MB_ICONEXCLAMATION|MB_OK);
-    }
-    darefs.Lookup("MSCHOOL",tmploc);
-    val=Read2da(tmploc,school_names);
-    if(val<0)
-    {
-      idrefs.Lookup("SCHOOL",tmploc);
-      val=ReadIds(tmploc,school_names,0, true);
-    }
-    if(val<0)
-    {
-      MessageBox("mschool.2da not found, spells may be buggy.","Warning",MB_ICONEXCLAMATION|MB_OK);
-    }
-    
-//
-    val=get_idsfile("KIT",true);
-    if(val<0)
-    {
-      kitfile="MAGESPEC";
-      val=get_idsfile("MAGESPEC", true);
-    }
-    else
-    {
-      kitfile="KIT";
-    }
-    if(val<0)
-    {
-      MessageBox("kit.ids or magespec.ids not found, spell school exclusion is not available.","Warning",MB_ICONEXCLAMATION|MB_OK);
-    }      
+    idrefs.Lookup("SECTYPE",tmploc);
+    val=ReadIds(tmploc,sectype_names,0, true);
   }
+  if((val<0) && newtype)
+  {
+    MessageBox("sectype.2da not found, spells may be buggy.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  }
+  darefs.Lookup("MSCHOOL",tmploc);
+  val=Read2da(tmploc,school_names);
+  if(val<0)
+  {
+    idrefs.Lookup("SCHOOL",tmploc);
+    val=ReadIds(tmploc,school_names,0, true);
+  }
+  if((val<0) && newtype)
+  {
+    MessageBox("mschool.2da not found, spells may be buggy.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  }
+    
   idrefs.Lookup("SNDSLOT",tmploc);
   val=ReadIds2(tmploc, snd_slots, SND_SLOT_COUNT);
   if(val<0)
@@ -863,7 +855,7 @@ int CChitemDlg::scan_2da()
 
   if(!has_xpvar() && !pst_compatible_var())
   {  //these are present in all bioware but not in blackisle
-    if(!bg1_compatible_area())
+    if(!bg1_compatible_area() || tob_specific())
     { //these are in the bg2 branch only
       idrefs.Lookup("PROJECTL",tmploc);
       val=ReadIds(tmploc, pro_references,2, true);
@@ -954,7 +946,10 @@ int CChitemDlg::scan_dialog(bool refresh, int which)
   long actpos;
   int maxref;
   int i;
+  int misplace;
+  bool bgee_fix;
 
+  bgee_fix = false;
   //don't reload the .tlk if it didn't change
   actpos=file_date(GetTlkFileName(which));
   if(refresh && (actpos==global_date[which])) return 0;
@@ -984,6 +979,7 @@ int CChitemDlg::scan_dialog(bool refresh, int which)
     return -1;
   }
   maxref=tlk_headerinfo[which].entrynum;
+  start_progress(maxref,"Freeing memory...");
   if(tlk_entries[which])
   {
     delete [] tlk_entries[which];
@@ -1015,16 +1011,33 @@ int CChitemDlg::scan_dialog(bool refresh, int which)
       log("Cannot read reference #%d (.tlk is corrupted)",i);
       maxref=0; //bail out gracefully
       global_changed[which]=false;
+      break;
     }
     actpos=tell(fhandle2);
     if(actpos!=tlk_headerinfo[which].start+reference.offset)
     {
       if(reference.length)
       {
-        log("Incorrect reference #%d (.tlk file is corrupted)",i);
-        reference.offset=actpos-tlk_headerinfo[which].start;
-        global_changed[which]=false;
-        maxref=0;
+        misplace = tlk_headerinfo[which].start+reference.offset-actpos;
+        log("Incorrect reference #%d (.tlk file is corrupted) - misplacement: %d",i, misplace);
+        if (bgee_fix)
+        {
+          lseek(fhandle2, tlk_headerinfo[which].start+reference.offset, SEEK_SET);          
+        }
+        else
+        {
+          if(MessageBox("The .tlk file appears to be corrupted, shall I try to fix it?","Warning",MB_ICONQUESTION|MB_YESNO)==IDYES )
+          {
+            bgee_fix = true;
+            global_changed[which]=true;
+          }
+          else
+          {
+            reference.offset=actpos-tlk_headerinfo[which].start;
+            global_changed[which]=false;
+            maxref=0;
+          }
+        }
       }
     }
     if(reference.length<0)
@@ -1032,6 +1045,7 @@ int CChitemDlg::scan_dialog(bool refresh, int which)
       log("Incorrect reference length of %d for #%d (.tlk file is corrupted)",reference.length,i);
       global_changed[which]=false;
       maxref=0;
+      break;
     }
     poi=text.GetBuffer(reference.length+1);
     read(fhandle2,poi,reference.length);
@@ -1087,6 +1101,7 @@ int CChitemDlg::scan_chitin()
   key_entry resentry;
   keybif_entry bifentry;
   loc_entry fileloc;
+  CString bifname;
   CString chfilename;
   CString ref, ext;
   int fhandle;
@@ -1197,9 +1212,17 @@ int CChitemDlg::scan_chitin()
     bifidx=(long) (resentry.residx>>20);    //highest 12 bits
     locidx=(long) (resentry.residx&0xfffff); //lowest 20 bits
     type=determinetype(resentry.restype);
+    if (bifidx>key_headerinfo.numbif)
+    {
+      bifname.Format("(invalid bif index) %d", bifidx);
+    }
+    else
+    {
+      bifname = bifs[bifidx].bifname;
+    }
     if(!type)
     {
-      log("Unknown resource: %s/%0x",ref,resentry.restype);
+      log("Unknown resource: %s/%0x in %s",ref, resentry.restype, bifname);
       continue;
     }
     ext=objexts[type];
@@ -1207,7 +1230,7 @@ int CChitemDlg::scan_chitin()
     if(duplo && resources[type]->Lookup(ref,fileloc) )
     {
       duplicates[type]->AddList(ref,fileloc); //old duplicated entries
-      log("Duplicate %s in chitin.key: %s%s (%s  %s)",chfilename,ref,ext,fileloc.bifname,bifs[bifidx].bifname);
+      log("Duplicate %s in chitin.key: %s%s (%s  %s)",chfilename,ref,ext,fileloc.bifname,bifname);
     }
     if(bifidx>=key_headerinfo.numbif)
     {
@@ -1232,7 +1255,7 @@ int CChitemDlg::scan_chitin()
     resources[type]->SetAt(ref,fileloc);
   }
   close(fhandle);
-  for(i=1;i<NUM_OBJTYPE;i++)
+  for(i=1;i<=NUM_OBJTYPE;i++)
   {
     chfilename.LoadString(idstrings[i]);
     log("Found %d %s(s) in chitin.key.",resources[i]->GetCount(), chfilename);
@@ -1242,8 +1265,17 @@ int CChitemDlg::scan_chitin()
 
 void CChitemDlg::scan_override()
 {
+  CString path;
+
+  mkdir(bgfolder+"override\\");
   if(gather_override("override\\")) OnCancel();
   if(gather_override("music\\",true)) OnCancel();
+  if(gather_override("movies\\",true)) OnCancel();
+  if (language.GetLength())
+  {
+    path.Format("lang\\%s\\movies\\", language);
+    if (gather_override(path, true)) OnCancel();
+  }
 }
 
 //
@@ -1312,7 +1344,7 @@ int CChitemDlg::gather_override(CString folder, int where)
   }
   else
   {
-    for(type=1;type<NUM_OBJTYPE;type++)
+    for(type=1;type<=NUM_OBJTYPE;type++)
     {
       if(ovrnum[type])
       {
@@ -1471,6 +1503,22 @@ int CChitemDlg::rescan_only_storeitems()
   return ret;
 }
 
+bool CChitemDlg::SkipOriginal(CString bifname)
+{
+  CString tmpstr;
+
+  if(!(chkflg&SKIPSOA)) //skipping SoA items
+  {
+    tmpstr = bifname.Left(5);
+    tmpstr.Replace("\\","/");
+    if(tmpstr=="data/")
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 int CChitemDlg::process_pros(bool check_or_search)
 {
   int gret, ret;
@@ -1489,13 +1537,7 @@ int CChitemDlg::process_pros(bool check_or_search)
   {
     ret=-1;
     projects.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_projectile(fileloc);
@@ -1513,15 +1555,19 @@ int CChitemDlg::process_pros(bool check_or_search)
   return gret;
 }
 
-int CChitemDlg::process_spells(bool check_or_search)
+int CChitemDlg::process_spells(int check_or_search, CStringList *list)
 {
   int gret, ret;
   POSITION pos;
   CString key;
   loc_entry fileloc;
-  
-  m_event.Empty();
-  UpdateData(UD_DISPLAY);
+  CString tmpstr;
+
+  if (check_or_search!=SCANNING)
+  {
+    m_event.Empty();
+    UpdateData(UD_DISPLAY);
+  }
   gret=0;
   
   log("Checking spells...");
@@ -1531,21 +1577,31 @@ int CChitemDlg::process_spells(bool check_or_search)
   {
     ret=-1;
     spells.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if ((check_or_search!=SCANNING) && SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_spell(fileloc);
     if(ret) gret=1;
     if(ret>=0)
     {
-      if(check_or_search) ret=match_spell();
-      else ret=check_spell();
+      switch(check_or_search)
+      {
+      case MATCHING: ret=match_spell(); break;
+      case CHECKING: ret=check_spell(); break;
+      case SCANNING:
+        if (list && match_spell() && searchdata.foundres[0])
+        {
+          tmpstr = CString(searchdata.foundres,8);
+          tmpstr.MakeUpper();
+          if (!list->Find(tmpstr) )
+          {
+            list->AddHead(tmpstr);
+          }
+        }
+        break;
+      default:
+        ret=1;
+      }
     }
     newitem=FALSE;
     if(ret) gret=1;
@@ -1573,13 +1629,7 @@ int CChitemDlg::process_chuis(int check_or_search)
   {
     ret=-1;
     chuis.GetNextAssoc(pos,key,fileloc);
-    if((check_or_search!=SCANNING) && !(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if ((check_or_search!=SCANNING) && SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_chui(fileloc);
@@ -1623,13 +1673,7 @@ int CChitemDlg::process_creatures(int check_or_search)
   {
     ret=-1;
     creatures.GetNextAssoc(pos,key,fileloc);
-    if((check_or_search!=SCANNING) && !(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if ((check_or_search!=SCANNING) && SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_creature(fileloc);
@@ -1652,15 +1696,18 @@ int CChitemDlg::process_creatures(int check_or_search)
   return gret;
 }
 
-int CChitemDlg::process_effects(bool check_or_search)
+int CChitemDlg::process_effects(int check_or_search, CStringList *list)
 {
   int gret, ret;
   POSITION pos;
-  CString key;
+  CString key, tmpstr;
   loc_entry fileloc;
   
-  m_event.Empty();
-  UpdateData(UD_DISPLAY);
+  if(check_or_search!=SCANNING)
+  {
+    m_event.Empty();
+    UpdateData(UD_DISPLAY);
+  }
   gret=0;
   
   log("Checking effects...");
@@ -1670,21 +1717,31 @@ int CChitemDlg::process_effects(bool check_or_search)
   {
     ret=-1;
     effects.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if ((check_or_search!=SCANNING) && SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_effect(fileloc);
     if(ret) gret=1;
     if(ret>=0)
     {
-      if(check_or_search) ret=match_effect();
-      else ret=check_effect();
+      switch(check_or_search)
+      {
+      case MATCHING: ret=match_effect(); break;
+      case CHECKING: ret=check_effect(); break;
+      case SCANNING:
+        if (list && match_effect() && the_effect.header.resource[0])
+        {
+          tmpstr = CString(the_effect.header.resource,8);
+          tmpstr.MakeUpper();
+          if (!list->Find(tmpstr) )
+          {
+            list->AddHead(tmpstr);
+          }
+        }
+        break;
+      default:
+        ret=1;
+      }
     }
     newitem=FALSE;
     if(ret) gret=1;
@@ -1712,13 +1769,7 @@ int CChitemDlg::process_videocells(bool check_or_search)
   {
     ret=-1;
     vvcs.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_videocell(fileloc);
@@ -1781,13 +1832,7 @@ int CChitemDlg::process_scripts(int check_or_search)
     set_progress(++count);
     
     scripts.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if ((check_or_search!=SCANNING) && SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_script(fileloc);
@@ -1846,13 +1891,7 @@ int CChitemDlg::process_stores(bool check_or_search)
       ret=-1;
       set_progress(++count);
       scripts.GetNextAssoc(pos,key,fileloc);
-      if(!(chkflg&SKIPSOA)) //skipping SoA items
-      {
-        if(fileloc.bifname.Left(5)=="data\\")
-        {
-          continue;
-        }
-      }
+      if (SkipOriginal(fileloc.bifname)) continue;
       
       changeitemname(key);
       //checking items requires rereading scripts, but finding doesn't
@@ -1875,13 +1914,7 @@ int CChitemDlg::process_stores(bool check_or_search)
   {
     ret=-1;
     stores.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_store(fileloc);
@@ -1926,6 +1959,7 @@ int CChitemDlg::process_stores(bool check_or_search)
   return gret;
 }
 
+
 //search : true
 //check : false
 int CChitemDlg::process_items(bool check_or_search)
@@ -1948,13 +1982,7 @@ int CChitemDlg::process_items(bool check_or_search)
   {
     ret=-1;
     items.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     if(rnditems.Lookup(key,dummy) ) continue; //this is a random item
 
     changeitemname(key);
@@ -1991,13 +2019,7 @@ int CChitemDlg::process_tables()
   {
     ret=-1;
     darefs.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_table(fileloc);
@@ -2033,13 +2055,7 @@ int CChitemDlg::process_areas(bool check_or_search)
   {
     ret=-1;
     areas.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_area(fileloc);
@@ -2047,7 +2063,7 @@ int CChitemDlg::process_areas(bool check_or_search)
     if(ret>=0)
     {
       if(check_or_search) ret=match_area();
-      else ret=check_area();      
+      else ret=check_area(1);      
     }
     newitem=FALSE;
     if(ret) gret=1;
@@ -2098,13 +2114,7 @@ int CChitemDlg::process_dialogs(int check_or_search)
     ret=-1;
     set_progress(++count);
     dialogs.GetNextAssoc(pos,key,fileloc);
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if ((check_or_search!=SCANNING) && SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_dialog(fileloc);
@@ -2146,13 +2156,7 @@ int CChitemDlg::process_bams(bool check_or_search)
   {
     ret=-1;
     icons.GetNextAssoc(pos,key,fileloc); //cannot skip original bams, there are too many
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_bam(fileloc,check_or_search);
@@ -2190,13 +2194,7 @@ int CChitemDlg::process_games()
   {
     ret=-1;
     games.GetNextAssoc(pos,key,fileloc); //cannot skip original bams, there are too many
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_game(fileloc);
@@ -2231,13 +2229,7 @@ int CChitemDlg::process_spawninis()
   {
     ret=-1;
     inis.GetNextAssoc(pos,key,fileloc); //cannot skip original bams, there are too many
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
 
     changeitemname(key);
     //this is not an area ini
@@ -2280,13 +2272,7 @@ int CChitemDlg::process_maps()
   {
     ret=-1;
     wmaps.GetNextAssoc(pos,key,fileloc); //cannot skip original bams, there are too many
-    if(!(chkflg&SKIPSOA)) //skipping SoA items
-    {
-      if(fileloc.bifname.Left(5)=="data\\")
-      {
-        continue;
-      }
-    }
+    if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
     ret=read_next_map(fileloc);
@@ -2334,7 +2320,7 @@ void CChitemDlg::OnCheckSpell()
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-  if(process_spells(CHECKING))
+  if(process_spells(CHECKING, NULL))
   {
     switch(logtype)
     {
@@ -2380,7 +2366,7 @@ void CChitemDlg::OnCheckUi()
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-  if(process_chuis(false)) //check
+  if(process_chuis(CHECKING))
   {
     switch(logtype)
     {
@@ -2460,9 +2446,26 @@ void CChitemDlg::OnCheck2da()
   }
   ret=check_statdesc();
   ret|=check_spelldesc();
+  ret|=check_moviedesc();
+  ret|=check_scriptdesc();
+  ret|=check_itemexcl();
+  ret|=check_itemanim();
+  ret|=check_itemdial();
   ret|=check_spawngroups();
   ret|=check_songlist();
-  ret|=check_kits();
+  if (!(chkflg & NOATTRCH))
+  {
+    ret|=check_kits();
+  }
+  ret|=check_tooltip();
+  ret|=check_summons();
+  ret|=check_familiar();
+  ret|=check_select_spell();
+  ret|=check_treasure();
+  if (!(chkflg&NOANIMCHK))
+  {
+    ret|=check_anisounds();
+  }
   //more checks
 
   newitem=FALSE;
@@ -2615,7 +2618,7 @@ void CChitemDlg::OnCheckEffect()
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-  if(process_effects(CHECKING))
+  if(process_effects(CHECKING, NULL))
   {
     switch(logtype)
     {
@@ -2797,21 +2800,26 @@ void CChitemDlg::OnRescan5()
 void CChitemDlg::OnCompat() 
 {
   Ccompat comdialog;
-  int oldopt;
+  int oldopt, oldwinsize;
   CString oldsetup;
   CString oldfolder;
   CString olddesc;
+  CString oldlang;
   
   oldopt=optflg;
+  oldwinsize=winsize;
   oldsetup=setupname;
   oldfolder=bgfolder;
   olddesc=descpath;
+  oldlang=language;
   if(comdialog.DoModal()==IDCANCEL)
   {
     optflg=oldopt;
+    winsize=oldwinsize;
     setupname=oldsetup;
     bgfolder=oldfolder;
     descpath=olddesc;
+    language=oldlang;
     theApp.read_game_preferences();
   }
   else
@@ -2867,7 +2875,11 @@ void CChitemDlg::RefreshMenu()
 
     pMenu->CheckMenuItem(ID_READONLY, MF_SET(readonly));
 
-    pMenu->CheckMenuItem(ID_USEDIALOGF, MF_SET(choosedialog));
+    pMenu->EnableMenuItem(ID_USEDIALOGF, whichdialog?MF_ENABLED:MF_GRAYED);
+    if (whichdialog)
+    {
+      pMenu->CheckMenuItem(ID_USEDIALOGF, MF_SET(choosedialog));
+    }
     
     for(i=0;logmenu[i];i++)
     {
@@ -2987,11 +2999,12 @@ void CChitemDlg::OnFinditem()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0xc080007f;
+  dlg.mask=0xc08000ff;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find items";
   dlg.mtype_title="Match item type";
+  dlg.item_title="Match animation";
   ret=dlg.DoModal();
   if(ret==IDOK)
   {
@@ -3016,7 +3029,7 @@ void CChitemDlg::OnFindspell()
   {
     searchflags=dlg.flags;
     searchdata=dlg.searchdata;
-    process_spells(MATCHING); //perform matches
+    process_spells(MATCHING, NULL); //perform matches
   }
 }
 
@@ -3035,7 +3048,7 @@ void CChitemDlg::OnFindeff()
   {
     searchflags=dlg.flags;
     searchdata=dlg.searchdata;
-    process_effects(MATCHING); //perform matches
+    process_effects(MATCHING, NULL); //perform matches
   }
 }
 
@@ -3102,7 +3115,7 @@ void CChitemDlg::OnFindScript()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0x40007c;
+  dlg.mask=0xc0007c;
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find scripts";
@@ -3270,7 +3283,7 @@ restart:
       filepath=m_getfiledlg.GetNextPathName(pos);
       
       //this one writes back the tlk file so the import will be consistent
-      syscommand=AssembleWeiduCommandLine(filepath,"override");
+      syscommand=AssembleWeiduCommandLine(filepath,"override", false); //import
       res=my_system(syscommand);
       if(res) break;
     }
@@ -3407,7 +3420,7 @@ leave:
     while(filelist.GetCount() && hasweidu)
     {
       filepath=filelist.RemoveHead();
-      syscommand=AssembleWeiduCommandLine(filepath,"override");
+      syscommand=AssembleWeiduCommandLine(filepath,"override", false); //import
       res=my_system(syscommand);
       if(res)
       {
@@ -3465,6 +3478,7 @@ void CChitemDlg::OnToolsDecompile()
     return;
   }
 
+  changeitemname("");
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   CMyFileDialog m_getfiledlg(TRUE, "dlg", makeitemname(".dlg",0), res, szFilterDlg );
   m_getfiledlg.m_ofn.lpstrTitle="Which dialogs to decompile?";
@@ -3506,7 +3520,7 @@ void CChitemDlg::OnToolsDecompile()
 	  else
       changeitemname(filepath);
 
-    tmpstr=AssembleWeiduCommandLine(itemname+".dlg", weidudecompiled); //export
+    tmpstr=AssembleWeiduCommandLine(itemname+".dlg", weidudecompiled, true); //export
     res=my_system(tmpstr);
     if(res)
     {
@@ -3515,6 +3529,94 @@ void CChitemDlg::OnToolsDecompile()
     }
   }
   //no need to rescan dialog.tlk, we decompiled stuff!
+}
+
+void CChitemDlg::OnPvrUnpack() 
+{
+  POSITION pos;
+  CString tmpstr;
+  CString filepath;
+  int idx;
+  int res;
+  folderbrowse_t fb;
+
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  changeitemname("");
+  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CMyFileDialog m_getfiledlg(TRUE, "pvrz", makeitemname(".pvrz",0), res, ImageFilter(0x7) );
+  m_getfiledlg.m_ofn.lpstrTitle="Which surfaces to decompress?";
+
+  if( m_getfiledlg.DoModal() != IDOK ) return;
+  pos=m_getfiledlg.GetStartPosition();
+  
+  if(!pos)
+  {
+    return;
+  }
+  fb.initial=bgfolder+"override";
+  fb.title="Select output folder for the decompressed surfaces";
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+
+  while(pos)
+  {
+    filepath=m_getfiledlg.GetNextPathName(pos);
+    idx = filepath.ReverseFind('.');
+    if (idx >= 0)
+		  changeitemname(filepath.Left(idx));
+	  else
+      changeitemname(filepath);
+
+    perform_pvrz2pvr(filepath,fb.initial);
+  }
+}
+
+void CChitemDlg::OnPvrPack() 
+{
+  POSITION pos;
+  CString tmpstr;
+  CString filepath;
+  int idx;
+  int res;
+  folderbrowse_t fb;
+
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  changeitemname("");
+  res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CMyFileDialog m_getfiledlg(TRUE, "pvr", makeitemname(".pvr",0), res, ImageFilter(0x8) );
+  m_getfiledlg.m_ofn.lpstrTitle="Which surfaces to compress?";
+
+  if( m_getfiledlg.DoModal() != IDOK ) return;
+  pos=m_getfiledlg.GetStartPosition();
+  
+  if(!pos)
+  {
+    return;
+  }
+  fb.initial=bgfolder+"override";
+  fb.title="Select output folder for the compressed surfaces";
+  if(BrowseForFolder(&fb,m_hWnd)!=IDOK) return;
+
+  while(pos)
+  {
+    filepath=m_getfiledlg.GetNextPathName(pos);
+    idx = filepath.ReverseFind('.');
+    if (idx >= 0)
+		  changeitemname(filepath.Left(idx));
+	  else
+      changeitemname(filepath);
+
+    perform_pvr2pvrz(filepath,fb.initial);
+  }
 }
 
 void CChitemDlg::OnTispack() 
@@ -3531,6 +3633,8 @@ void CChitemDlg::OnTispack()
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
+
+  changeitemname("");
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   CMyFileDialog m_getfiledlg(TRUE, "tis", makeitemname(".tis",0), res, ImageFilter(0x2) );
   m_getfiledlg.m_ofn.lpstrTitle="Which tilesets to compress?";
@@ -3583,7 +3687,7 @@ void CChitemDlg::Compressbif(bool cbf_or_bifc)
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-
+  
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   CMyFileDialog m_getfiledlg(TRUE, "bif", bgfolder+"*.bif", res, szFilterBif);
   tmpstr.Format("Select bifs for compression into %s format",cbf_or_bifc?"CBF":"BIFC");
@@ -3881,6 +3985,34 @@ void CChitemDlg::OnClearcfbfromspells()
   dlg.DoModal();
 }
 
+
+void CChitemDlg::OnBg1fx() 
+{
+  POSITION pos;
+  CString key, tmpstr;
+  loc_entry fileloc;
+  int ret, cnt;
+
+	if (MessageBox("Do you really want to convert all creature effects from BG1 to BG2?", "DLTCEP", MB_ICONQUESTION|MB_YESNO)!=IDYES)
+  {
+    return;
+  }
+  cnt = 0;
+	pos=creatures.GetStartPosition();
+  while(pos)
+  {
+    creatures.GetNextAssoc(pos, key, fileloc);
+    ret = read_next_creature(fileloc);
+    if (ret<0) continue; //don't touch these
+    if(the_creature.revision!=10) continue; //not bg1 or bg2 creature doesn't need to be converted
+    if (!the_creature.convert_to_v20()) continue;
+    write_creature(key, "");
+    cnt++;
+  }
+  tmpstr.Format("Converted %d creatures.", cnt);
+  MessageBox(tmpstr,"DLTCEP", MB_OK);
+}
+
 void CChitemDlg::OnScanjournal() 
 {
   POSITION pos;
@@ -3918,9 +4050,17 @@ void CChitemDlg::OnScanvariables()
   while(pos)
   {
     variables.GetNextAssoc(pos, key, count);
-    if(count<=1)
+    //if((count<=1) && !(key.Left(20)==CString("GLOBALsprite_is_dead")))
+    if((count<=1) && !(key.Left(20)==CString("GLOBALSPRITE_IS_DEAD")))
     {
-      log("Variable %s is referenced only %d times.", key, count);
+      if (count)
+      {
+        log("Variable %s is referenced only once.", key);
+      }
+      else
+      {
+        log("Variable %s is not used at all.", key);
+      }
     }
   }
   if(MessageBox("Do you want to save the variables?","Variables",MB_ICONQUESTION|MB_YESNO)==IDYES)
@@ -4044,6 +4184,62 @@ void CChitemDlg::OnEditScript()
 
   dlg.NewScript();
   dlg.DoModal();
+  RefreshMenu();
+}
+
+void CChitemDlg::OnViewDialogTree() 
+{
+  CDialogEdit dlg;
+
+  dlg.NewDialog();
+  dlg.SetViewOnly();
+  dlg.DoModal();
+  the_dialog.new_dialog();
+  RefreshMenu();
+}
+
+
+void CChitemDlg::OnToolsLoadalldialogs() 
+{
+  CDialogEdit dlg;
+  POSITION pos;
+  CString key;
+  loc_entry value;
+  Cdialog ext;
+  int fhandle;
+  int ret;
+
+  dlg.NewDialog();
+  dlg.SetViewOnly();
+  pos = dialogs.GetStartPosition();
+  ret = 0;
+  while(pos) {
+    dialogs.GetNextAssoc(pos, key, value);
+    fhandle=locate_file(value, 0);
+    if(fhandle<1)
+    {
+      MessageBox("Not existent dialog:"+key,"Error", MB_ICONSTOP|MB_OK);
+      continue;
+    }
+    ret = ext.ReadDialogFromFile(fhandle, value.size, key);
+    close(fhandle);
+    if (ret<0)
+    {
+      MessageBox("Invalid dialog file:"+key,"Error", MB_ICONSTOP|MB_OK);
+      continue;
+    }
+    ret = the_dialog.MergeDialog(ext, key);
+    if (ret)
+    {
+      MessageBox("File contains invalid links:"+key,"Error", MB_ICONSTOP|MB_OK);
+      break;
+    }
+  }
+  if (!ret)
+  {
+    dlg.DoModal();
+  }
+  the_dialog.new_dialog();
   RefreshMenu();
 }
 
@@ -4646,25 +4842,14 @@ int CChitemDlg::read_next_store(loc_entry fileloc)
       else count=the_store.entries[i].count;
       if(!count)
       {
-        log("The stock is 0 for %s.",key);
         continue;
       }
       if(!items.Lookup(key, dummy) )
       {
-        log("Store has invalid item %s.",key);
         continue;
       }
       if(storeitems.Lookup(key, tmp) )
       {
-        if(count!=1)
-        {
-          log("The stock is not exactly 1 for a container (%s).",key);
-        }
-        if(!tmp.IsEmpty())
-        {
-          log("The item %s was already stocked at %s",key,tmp);
-          ret|=1;
-        }
         storeitems[key]=itemname+".sto";
       }
     }
@@ -4710,7 +4895,7 @@ int CChitemDlg::read_next_dialog(loc_entry fileloc)
   
   fhandle=locate_file(fileloc, 0);
   if(fhandle<1) return -2;
-  ret=the_dialog.ReadDialogFromFile(fhandle, fileloc.size);
+  ret=the_dialog.ReadDialogFromFile(fhandle, fileloc.size, itemname);
   close(fhandle);
   switch(ret)
   {
@@ -5083,28 +5268,42 @@ int Space(CString prefix, int &mt)
   return -1;
 }
 
+void CChitemDlg::OnAvatars() 
+{
+  OnAvatars(false);
+}
 //this function tries to build avatars.2da, but it depends on a rather unreliable file
 //called anisnd.ids. It is by no means correct. For example MSLM instead of MSLI
-void CChitemDlg::OnAvatars() 
+int CChitemDlg::OnAvatars(bool anisound) 
 {
   loc_entry tmploc;
   CStringMapInt animations;
   POSITION pos;
   CString key;
   int value;
+  int ret;
 
+  ret = 0;
   idrefs.Lookup("ANISND",tmploc);
 	if(ReadIds4(tmploc,animations))
   {
     MessageBox("Anisnd not found, sorry...");
-    return;
+    return -1;
   }
   pos=animations.GetStartPosition();
   while(pos)
   {
     animations.GetNextAssoc(pos,key,value);
-    CheckPrefix(key,value);
+    if (anisound)
+    {
+      ret |= check_anisound(key.Left(4));
+    }
+    else
+    {
+      CheckPrefix(key,value);
+    }
   }
+  return ret;
 }
 
 void CChitemDlg::CheckPrefix(CString key, int value)
@@ -5183,3 +5382,35 @@ void CChitemDlg::OnHelpReadme()
   dlg.m_file="readme.txt";
   dlg.DoModal();
 }
+
+void CChitemDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+	CDialog::OnGetMinMaxInfo(lpMMI);
+	lpMMI->ptMinTrackSize.x=500;
+	lpMMI->ptMaxTrackSize.x=600;
+	lpMMI->ptMinTrackSize.y=500;
+	lpMMI->ptMaxTrackSize.y=500;
+}
+
+void CChitemDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialog::OnSize(nType, cx, cy);
+
+	CRect rect;
+	CWnd *cntrl;
+
+	cntrl = GetDlgItem(IDC_EVENT);
+	if(cntrl && IsWindow(cntrl->m_hWnd))
+	{
+		cntrl->GetWindowRect(rect);
+		ScreenToClient(rect);
+		cntrl->SetWindowPos(NULL,0,0,cx-32,rect.Height(),SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE);
+	}
+}
+
+BOOL CChitemDlg::PreTranslateMessage(MSG* pMsg)
+{
+  m_tooltip.RelayEvent(pMsg);
+  return CDialog::PreTranslateMessage(pMsg);
+}
+

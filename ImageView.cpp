@@ -16,6 +16,15 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CImageView dialog
 
+#define MAX_COLOR 4
+
+static unsigned long circle_colors[MAX_COLOR]={
+  RGB(255,255,255),
+  RGB(255,255,0),
+  RGB(255,0,255),
+  RGB(0,255,255),
+};
+
 CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CImageView)
@@ -32,14 +41,6 @@ CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pPare
   m_frame=0;
   m_map=NULL;
   m_palette=NULL;
-  if(editflg&LARGEWINDOW)
-  {
-    m_maxextentx=m_maxextenty=8;//maximum number of tiles fitting on screen
-  }
-  else
-  {
-    m_maxextentx=m_maxextenty=10;
-  }
   m_maxclipx=m_maxclipy=1;
   m_sourcepoint=0;
   m_mos=NULL;
@@ -51,6 +52,8 @@ CImageView::CImageView(CWnd* pParent /*=NULL*/) : CDialog(CImageView::IDD, pPare
   m_gridcolor2=color2;
   m_gridcolor3=color3;
   m_maptype=MT_DEFAULT;
+  m_maxextentx=0;
+  m_maxextenty=0;
 }
 
 void CImageView::DoDataExchange(CDataExchange* pDX)
@@ -113,6 +116,7 @@ END_MESSAGE_MAP()
 void CImageView::PutPixel(CPoint point, unsigned char color)
 {
   int w,pos;
+  LPBYTE tmp = (LPBYTE) m_map;
 
   if(m_maptype==MT_EXPLORED)
   {
@@ -130,16 +134,17 @@ void CImageView::PutPixel(CPoint point, unsigned char color)
   
   if((m_max==1) && !m_fill )
   {
-    m_map[pos]=!m_map[pos];
+    tmp[pos]=!tmp[pos];
     return;
   }
-  m_map[pos]=(unsigned char) color;
+  tmp[pos]=(unsigned char) color;
 }
 
 //intentionally int, so we can return -1 when coordinates are out of map
 int CImageView::GetPixel(CPoint point)
 {
   int w,h;
+  LPBYTE tmp = (LPBYTE) m_map;
 
   if(m_maptype==MT_EXPLORED)
   {
@@ -159,7 +164,7 @@ int CImageView::GetPixel(CPoint point)
   if(point.x<0 || point.y<0) return -1;
   if(point.x>=w) return -1;
   if(point.y>=h) return -1;
-  return m_map[point.x+point.y*w];
+  return tmp[point.x+point.y*w];
 }
 
 void CImageView::InitView(int flags, Cmos *my_mos)
@@ -196,7 +201,7 @@ void CImageView::SetOverlay(bool type)
 
 unsigned long boolean_palette[2]={0,1};
 
-void CImageView::SetMapType(int maptype, LPBYTE map)
+void CImageView::SetMapType(int maptype, LPVOID map)
 {
   m_maptype=maptype;
   m_map=map;
@@ -299,12 +304,13 @@ POSITION CImageView::GetPolygonAt(CPtrList *polygons, int idx)
 {
   switch(m_maptype)
   {
+  case MT_AMBIENT:
+    return NULL;
   case MT_WALLPOLYLIST:
+  case MT_REGION:
     return polygons->FindIndex(idx);
   case MT_DOORPOLYLIST: case MT_BLOCK:
     return polygons->FindIndex(idx+the_area.wallpolygoncount);
-  case MT_REGION:
-    return polygons->FindIndex(idx);
   case MT_CONTAINER:
     return polygons->FindIndex(idx+the_area.triggercount);
   case MT_DOOR:
@@ -325,6 +331,8 @@ int CImageView::GetCountPolygon()
 {
   switch(m_maptype)
   {
+  case MT_AMBIENT:
+    return the_area.ambientcount;
   case MT_WALLPOLYLIST:
     return the_area.wallpolygoncount;
   case MT_DOORPOLYLIST: case MT_BLOCK:
@@ -416,9 +424,16 @@ int CImageView::GetPolygonSize(int idx)
   return 0;
 }
 
-inline int CImageView::IsPointInPolygon(area_vertex *wedvertex, int idx, CPoint point)
-{  
-  return PointInPolygon(wedvertex, GetPolygonSize(idx), point);
+inline int CImageView::IsPointInPolygon(void *wedvertex, int idx, CPoint point)
+{
+  if (m_maptype==MT_AMBIENT)
+  {
+    return PointInCircle((area_ambient *) wedvertex+idx, point);
+  }
+  else
+  {
+    return PointInPolygon((area_vertex *) wedvertex, GetPolygonSize(idx), point);
+  }
 }
 
 int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
@@ -438,7 +453,7 @@ int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
   pos=GetPolygonAt(polygons, m_value);
   for(idx=m_value;idx<max;idx++)
   {
-    if(IsPointInPolygon((area_vertex *) polygons->GetNext(pos), idx, point) )
+    if(IsPointInPolygon(polygons->GetNext(pos), idx, point) )
     {
       return idx;
     }
@@ -451,7 +466,7 @@ int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
   pos=GetPolygonAt(polygons, 0);
   for(idx=0;idx<m_value;idx++)
   {
-    if(IsPointInPolygon((area_vertex *) polygons->GetNext(pos), idx, point) )
+    if(IsPointInPolygon(polygons->GetNext(pos), idx, point) )
     {
       return idx;
     }
@@ -459,6 +474,33 @@ int CImageView::FindPolygon(CPtrList *polygons, CPoint point)
     {
       polygons->GetNext(pos);
       polygons->GetNext(pos);
+    }
+  }
+  return -1;
+}
+
+int CImageView::FindAmbient(area_ambient *ambients, CPoint point)
+{
+  int idx, max;
+
+  if (m_maptype!=MT_AMBIENT) return -1;
+  if (m_max<0) return -1;
+  max=the_area.ambientcount;
+  m_value++;
+  if (m_value>=max) m_value=0;
+
+  for(idx=m_value;idx<max;idx++)
+  {
+    if(IsPointInPolygon(ambients, idx, point) )
+    {
+      return idx;
+    }
+  }  
+  for(idx=0;idx<m_value;idx++)
+  {
+    if(IsPointInPolygon(ambients, idx, point) )
+    {
+      return idx;
     }
   }
   return -1;
@@ -507,7 +549,6 @@ void CImageView::DrawAnims()
 
   for(i=0;i<the_area.animcount;i++)
   {
-
     area_anim *aa = the_area.animheaders+i;
     read_bam(CString(aa->bam), &tmpbam, true);
     point.x = aa->posx-m_clipx*m_mos->mosheader.dwBlockSize;
@@ -515,6 +556,16 @@ void CImageView::DrawAnims()
     fc=tmpbam.GetFrameIndex(aa->cyclenum,aa->framenum);
     point-=tmpbam.GetFramePos(fc);
     tmpbam.MakeBitmap(fc,GREY,*m_mos,BM_OVERLAY,point.x, point.y);
+  }
+}
+
+void CImageView::DrawAmbients()
+{
+  int i;
+
+  for(i=0;i<the_area.ambientcount;i++)
+  {
+    DrawCircle(the_area.ambientheaders[i].posx, the_area.ambientheaders[i].posy, the_area.ambientheaders[i].radius, i%MAX_COLOR);
   }
 }
 
@@ -572,6 +623,34 @@ endofquest:
       polygons->GetNext(pos);
     }
   }
+}
+
+void CImageView::DrawCircle(int x, int y, int radius, int colorindex)
+{
+  CDC *pDC = m_bitmap.GetDC();
+  if(!pDC) return;
+	CDC dcBmp;
+  dcBmp.CreateCompatibleDC(pDC);
+  CBitmap *cbtmp=dcBmp.SelectObject(CBitmap::FromHandle(m_bitmap.GetBitmap()));
+  //setting a green color
+  dcBmp.SetBkMode(TRANSPARENT);
+  dcBmp.SetTextColor( circle_colors[colorindex] );
+  CPen pen1(PS_DOT,1,m_gridcolor3 ); //blue  
+  CPen *cpentmp=dcBmp.SelectObject(&pen1);
+  CBrush b;
+  b.CreateHatchBrush(colorindex,circle_colors[colorindex]);
+  CBrush *cbrushtmp=dcBmp.SelectObject(&b);
+  x-=m_clipx*m_mos->mosheader.dwBlockSize;
+  y-=m_clipy*m_mos->mosheader.dwBlockSize;
+
+  dcBmp.Ellipse(x-radius,y-radius,x+radius, y+radius);
+  //close
+  //restore original settings (this will prevent some leaks)
+  dcBmp.SelectObject(cbtmp);
+  dcBmp.SelectObject(cpentmp);
+  dcBmp.SelectObject(cbrushtmp);
+  m_bitmap.Invalidate(false);
+  m_bitmap.ReleaseDC(pDC);
 }
 
 void CImageView::DrawLines(POINTS *polygon, unsigned int count, CString title, int fill, int actv)
@@ -692,6 +771,7 @@ void CImageView::DrawGrid()
 
   CRect cr;
   CString tmpstr;
+  LPBYTE tmp = (LPBYTE) m_map;
   m_bitmap.GetClientRect(cr);
   
   if(m_showgrid)
@@ -724,11 +804,11 @@ void CImageView::DrawGrid()
       }
       for(i=sx;i<cr.Width();i+=xs)
       {
-        if(m_showall || (m_map[p]==m_value) )
+        if(m_showall || (tmp[p]==m_value) )
         {
           if (m_text) {
-            if(m_max==255) tmpstr.Format("%02x",m_map[p]);
-            else tmpstr.Format("%d",m_map[p]);
+            if(m_max==255) tmpstr.Format("%02x",tmp[p]);
+            else tmpstr.Format("%d",tmp[p]);
             int tx=i+(xs-10)/2;
             if(tx<0) tx=0;
             int ty=j+(ys-12)/2;
@@ -736,7 +816,7 @@ void CImageView::DrawGrid()
             dcBmp.TextOut(tx,ty,tmpstr);
           } else {
             CRect r;
-            COLORREF c = m_palette[m_map[p]];
+            COLORREF c = m_palette[tmp[p]];
             
             CBrush b((c&0xff)<<16 | (c&0xff0000)>>16 | c&0xff00 );
             r.left=i+xs/3;
@@ -770,6 +850,35 @@ void CImageView::DrawGrid()
   dcBmp.SelectObject(cpentmp);
   m_bitmap.Invalidate(false);
   m_bitmap.ReleaseDC(pDC);
+}
+
+//this was not completely implemented
+void CImageView::SetPoint(CPoint &point, int frame)
+{
+  m_confirmed = point;
+  switch(frame)
+  {
+  case GP_EXPLORED:
+    if (pst_compatible_var())
+    {
+      m_confirmed.x*=32;
+      m_confirmed.y*=32;
+    }
+    else
+    {
+      //not sure
+      m_confirmed.x*=32;
+      m_confirmed.y*=32;
+    }
+    break;
+  case GP_BLOCK:
+    //whatever
+    break;
+  case GP_TILE:
+    m_confirmed.x*=m_mos->mosheader.dwBlockSize;
+    m_confirmed.y*=m_mos->mosheader.dwBlockSize;
+    break;
+  }
 }
 
 //returns a point (frame=0) or the tile (frame=1) clicked on
@@ -948,6 +1057,15 @@ BOOL CImageView::OnInitDialog()
   CString tmpstr;
   int i;
 
+  if(editflg&LARGEWINDOW)
+  {
+    m_maxextentx=m_maxextenty=8;//maximum number of tiles fitting on screen
+  }
+  else
+  {
+    m_maxextentx=m_maxextenty=winsize;
+  }
+
   if(!m_mos)
   {
     m_mos=&the_mos; 
@@ -1089,7 +1207,7 @@ void CImageView::OnBitmap()
     //and we don't really need to set m_map anymore
     point=GetPoint(GP_TILE);
     pos=point.y*m_mos->mosheader.wColumn+point.x;
-    ((wed_tilemap *) m_map)[pos].flags^=m_mos->m_overlay;
+    ((wed_tilemap *) m_map)[pos].overlayflags^=m_mos->m_overlay;
     the_area.wedchanged=true;
     m_sourcepoint=GetPoint(GP_TILE); //again???
     if(GetParent())
@@ -1115,11 +1233,26 @@ void CImageView::OnBitmap()
     int pos;
 
     point=GetPoint(GP_POINT);
-    pos=FindPolygon((CPtrList *) m_map, point);
+    if (m_maptype==MT_AMBIENT)
+    {
+      pos=FindAmbient((area_ambient *) m_map, point);
+    }
+    else
+    {
+      pos=FindPolygon((CPtrList *) m_map, point);
+    }
     if(pos!=-1)
     {
       m_value=pos;
-      CenterPolygon((CPtrList *) m_map, pos);
+      if (m_maptype==MT_AMBIENT)
+      {
+        m_clipx = ((area_ambient *) m_map)[pos].posx/m_mos->mosheader.dwBlockSize-TMPX;
+        m_clipy = ((area_ambient *) m_map)[pos].posy/m_mos->mosheader.dwBlockSize-TMPY;
+      }
+      else
+      {
+        CenterPolygon((CPtrList *) m_map, pos);
+      }
       RedrawContent(); //refreshes scrollbars
     }
     return;
@@ -1139,7 +1272,7 @@ void CImageView::OnBitmap()
     }
     if(m_fill)
     {
-      the_area.WriteMap("TMP",m_map,m_palette,m_max+1);
+      the_area.WriteMap("TMP",(LPBYTE) m_map,m_palette,m_max+1);
       FloodFill(point, (unsigned char) m_value);
       m_fill=FALSE;
     }
@@ -1248,23 +1381,25 @@ void CImageView::RefreshDialog()
   }
   MakeBitmapExternal(m_mos->GetDIB(),m_mos->m_pixelwidth,m_mos->m_pixelheight,m_bm);
   m_bitmap.SetBitmap(m_bm);
-  if( (m_maptype==MT_DEFAULT) && m_showall)
+  if (m_showall)
   {
-    DrawActors();
+    switch(m_maptype)
+    {
+    case MT_DEFAULT:
+      DrawActors();
+      break;
+    case MT_AMBIENT:
+      DrawAmbients();
+      break;
+    case MT_DOORPOLYLIST: case MT_WALLPOLYLIST:
+      if(m_enablebutton&IW_SETVERTEX) DrawPolyPolygon(&the_area.wedvertexheaderlist);
+      break;
+    default:
+      if(m_enablebutton&IW_SETVERTEX) DrawPolyPolygon(&the_area.vertexheaderlist);
+    }
   }
   if(m_enablebutton&IW_SETVERTEX)
-  {
-    if(m_showall)
-    {
-      if(m_maptype==MT_DOORPOLYLIST || m_maptype==MT_WALLPOLYLIST)
-      {
-        DrawPolyPolygon(&the_area.wedvertexheaderlist);
-      }
-      else
-      {
-        DrawPolyPolygon(&the_area.vertexheaderlist);
-      }
-    }
+  {  
     point=GetPoint(GP_POINT);
     tmpstr.Format("Select point... (%d,%d)",point.x,point.y);
     SetWindowText(tmpstr);
@@ -1283,9 +1418,21 @@ void CImageView::RefreshDialog()
   else if(m_enablebutton&IW_GETPOLYGON)
   {
     point=GetPoint(GP_POINT);
-    tmpstr.Format("Select polygon... (%d,%d)",point.x,point.y);
-    SetWindowText(tmpstr);
-    DrawPolyPolygon((CPtrList *) m_map);
+    if (m_maptype==MT_AMBIENT)
+    {
+      tmpstr.Format("Select ambient  (%.32s)",the_area.ambientheaders[m_value].ambiname);
+      SetWindowText(tmpstr);
+      if (!m_showall)
+      {      
+        DrawCircle(the_area.ambientheaders[m_value].posx, the_area.ambientheaders[m_value].posy, the_area.ambientheaders[m_value].radius, m_value%MAX_COLOR);
+      }
+    }
+    else
+    {
+      tmpstr.Format("Select polygon... (%d,%d)",point.x,point.y);
+      SetWindowText(tmpstr);
+      DrawPolyPolygon((CPtrList *) m_map);
+    }
   }
 
   if(m_enablebutton&IW_SHOWGRID)

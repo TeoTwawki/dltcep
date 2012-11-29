@@ -50,6 +50,7 @@ public:
 protected:
 	CItemPropertySheet* m_pModelessPropSheet;
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void SaveItem(int save);
 	// Generated message map functions

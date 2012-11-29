@@ -65,9 +65,18 @@ void Ccreature::SetupCharacter(int fullsize)
   switch(revision)
   {
   case 10: //bg1, bg2/tob or soa
-    if(bg1_compatible_area()) memcpy(chrheader.filetype,"CHR V1.0",8); //bg1
-    if(tob_specific()) memcpy(chrheader.filetype,"CHR V2.1",8); //tob
-    else memcpy(chrheader.filetype,"CHR V2.0",8);    //soa
+    if(bg1_compatible_area() && !tob_specific())
+    {
+      memcpy(chrheader.filetype,"CHR V1.0",8); //bg1
+    }    
+    if(tob_specific() && !bg1_compatible_area()) 
+    {
+      memcpy(chrheader.filetype,"CHR V2.1",8); //tob
+    }
+    else
+    {
+      memcpy(chrheader.filetype,"CHR V2.0",8);    //soa and bgee
+    }
     chrheader.creoffset=sizeof(chrheader);
     break;
   case 11: case 12: case 90: //pst, iwd
@@ -148,7 +157,7 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
     fullsize+=header.memcnt*sizeof(creature_memory);
   }
   header.effectoffs=fullsize;
-  //item
+  //effects
   if(header.effbyte)
   {
     fullsize+=header.effectcnt*sizeof(creature_effect);
@@ -308,6 +317,60 @@ int Ccreature::WriteCreatureToFile(int fhandle, int calculate)
   }
   m_changed=false;
   return 0;
+}
+
+bool Ccreature::convert_to_v10()
+{
+  feat_block *neweffects;
+  int i;
+
+  if(header.effbyte)
+  {
+    neweffects=new feat_block[effectcount];
+    if(!neweffects)
+    {
+      MessageBox(0,"Not enough memory.","Error",MB_ICONSTOP|MB_OK);
+      return false;
+    }
+    for(i=0;i<effectcount;i++)
+    {
+      ConvertToV10Eff(effects+i, neweffects+i);
+    }
+    delete [] oldeffects;
+    delete [] effects;
+    effects=NULL;
+    oldeffects=neweffects;
+    header.effbyte=0;	
+    return true;
+  }
+  return false;
+}
+
+bool Ccreature::convert_to_v20()
+{
+  creature_effect *neweffects;
+  int i;
+
+  if(!header.effbyte)
+  {
+    neweffects=new creature_effect[effectcount];
+    if(!neweffects)
+    {
+      MessageBox(0,"Not enough memory.","Error",MB_ICONSTOP|MB_OK);
+      return false;
+    }
+    for(i=0;i<effectcount;i++)
+    {
+      ConvertToV20Eff(neweffects+i,oldeffects+i);
+    }
+    delete [] oldeffects;
+    delete [] effects;
+    oldeffects=NULL;
+    effects=neweffects;
+    header.effbyte=1;	
+    return true;
+  }
+  return false;
 }
 
 long Ccreature::RetrieveNameRef(int fh)

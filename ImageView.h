@@ -36,13 +36,14 @@ class CImageView : public CDialog
 public:
 	CImageView(CWnd* pParent = NULL);   // standard constructor
   void InitView(int flags, Cmos *my_mos=NULL); //sets the viewer to the current mos dimensions
-  void SetMapType(int maptype, LPBYTE map);
+  void SetMapType(int maptype, LPVOID map);
   void SetOverlay(bool type);
   void RedrawContent();
   void RefreshDialog();
   void SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int frame);
   void DrawGrid();
   CPoint GetPoint(int frame);
+  void SetPoint(CPoint &point, int frame);
 
 // Dialog Data
 	//{{AFX_DATA(CImageView)
@@ -79,7 +80,7 @@ public:
   int m_maxextentx, m_maxextenty;
   Cbam *m_animbam;
   int m_frame;
-  LPBYTE m_map;
+  LPVOID m_map;
   area_vertex *m_polygon;
   COLORREF *m_palette;
   HBITMAP m_bm;  //accessed from chui editor
@@ -109,6 +110,7 @@ protected:
   void DrawActors();
   void DrawAnims();
   void DrawIcons();
+  void DrawAmbients();
   void DrawPolyPolygon(CPtrList *polygons);
   void CenterPolygon(CPtrList *polygons, int idx);
   POSITION GetPolygonAt(CPtrList *polygons, int idx);
@@ -116,8 +118,10 @@ protected:
   CString GetPolygonText(int idx);
   short *GetPolygonBox(int idx);
   int GetPolygonSize(int idx);
-  inline int IsPointInPolygon(area_vertex *wedvertex, int idx, CPoint point);
+  inline int IsPointInPolygon(void *wedvertex, int idx, CPoint point);
   int FindPolygon(CPtrList *polygons, CPoint point);
+  int FindAmbient(area_ambient *ambients, CPoint point);
+  void DrawCircle(int x, int y, int radius, int colorindex);
   void DrawLines(POINTS *polygon, unsigned int count, CString title, int fill, int actv);
   void DrawMap(); //light, height, search maps
 	// Generated message map functions

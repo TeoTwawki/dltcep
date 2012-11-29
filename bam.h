@@ -157,7 +157,7 @@ public:
   int ImplodeBamData();
   bool CanCompress();
   int WriteBmpToFile(int fhandle, int frame);
-  int WritePltToFile(int fhandle);
+  int WritePltToFile(int fhandle, int frame);
   int WriteBamToFile(int fhandle);
   int ReadBmpFromFile(int fhandle, int ml);
   int ReadPltFromFile(int fhandle, int ml);
@@ -196,6 +196,7 @@ public:
   int ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex = 0);
   int AddFrameToCycle(int nCycle, int nCyclePos, int nFrameWanted, int nRepeat); //cycle, cyclepos, framewanted, repeat
   int RemoveFrameFromCycle(int nCycle, int nCyclePos, int nRepeat);
+  int CheckFrameSizes();
   int DropUnusedFrame(int bDropIt);
   int InsertCycle(int nCycleWanted);
   int ReplaceCycle(int nCycleWanted, short *pNewLookup, int nLen);

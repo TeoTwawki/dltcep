@@ -31,6 +31,8 @@ public:
   long actioncount;
   CString *actions;
   int changed;
+  int extlinkcnt;
+  dlg_extlink *extlinks;
 
 	Cdialog();
 	virtual ~Cdialog();
@@ -45,9 +47,15 @@ public:
     return tell(fhandle)-startpoint;
   }
   void new_dialog();
+  CString GetPartName(int stateindex);
+  int AddExternals();
+  int ResolveLinks(dlg_extlink *baselinks, int baselinkcount, CString basename);
+  int MergeDialog(Cdialog &add, CString key);
+  bool GetExternalLink(dlg_trans &extlink);
   int CheckExternalLink(int fh, int stateidx); //checks if stateidx state exists in dialog
-  int ReadDialogFromFile(int fh, long ml);
+  int ReadDialogFromFile(int fh, long ml, CString self);
   int WriteDialogToFile(int fh, int calculate);
+  int findtrigger(int trnumber);
   inline void KillStates()
   {
     if(dlgstates)
@@ -91,6 +99,15 @@ public:
       delete[] actions;
       actions=NULL;
       actioncount=0;
+    }
+  }
+  inline void KillExternalLinks()
+  {
+    if(extlinks)
+    {
+      delete[] extlinks;
+      extlinks=NULL;
+      extlinkcnt=0;
     }
   }
 };

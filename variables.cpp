@@ -71,6 +71,7 @@ int add_death_variable(char *varname)
   {
     varmax=18;
     format="GLOBALsprite_is_dead%.18s";
+    format="GLOBALSPRITE_IS_DEAD%.18s";
   }
   if(varname[varmax] && (strlen(varname)>varmax)) return -1;
   tmp=varname;
@@ -159,7 +160,7 @@ void save_variables(HWND parent, CStringMapInt &vars)
     area=key.Left(6);
     var=key.Mid(6);
     if(pst_compatible_var()) flg=area=="GLOBAL";
-    else flg=(var.Left(14)!="sprite_is_dead" && area=="GLOBAL");
+    else flg=(var.Left(14)!="SPRITE_IS_DEAD" && area=="GLOBAL");
     if(flg)
     {
       memset(line,0,sizeof(line));
@@ -176,7 +177,8 @@ void save_variables(HWND parent, CStringMapInt &vars)
     area=key.Left(6);
     var=key.Mid(6);
     if(pst_compatible_var()) flg=area=="KAPUTZ";
-    else flg=(var.Left(14)=="sprite_is_dead" && area=="GLOBAL");
+    //else flg=(var.Left(14)=="sprite_is_dead" && area=="GLOBAL");
+    else flg=(var.Left(14)=="SPRITE_IS_DEAD" && area=="GLOBAL");
     if(flg)
     {
       memset(line,0,sizeof(line));
@@ -202,7 +204,7 @@ void save_variables(HWND parent, CStringMapInt &vars)
   close(fhandle);
 }
 
-static int scanned_types[]={ADD_DEAD,ADD_DEAD2,ADD_GLOBAL, ADD_LOCAL, ADD_VAR, ADD_VAR2, ADD_VAR3,
+static int scanned_types[]={ADD_DEAD, ADD_DEAD2, ADD_GLOBAL, ADD_LOCAL, ADD_VAR, ADD_VAR2, ADD_VAR3, CHECK_SCOPE,
 -1};
 
 int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int trigger, int block)
@@ -266,6 +268,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
   case CHECK_MOVIE:
     if(chkflg&NORESCHK) return 0;
     if(movies.Lookup(varname, dummyloc) ) return 0;
+    if(wbms.Lookup(varname, dummyloc) ) return 0;
     log("Missing movie: '%s' (%s)", varname, tmp);
     return 1;
   case CHECK_SOUND2:
@@ -359,6 +362,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     return 1;
   case CHECK_DLG2:
     if(varname.IsEmpty()) return 0; // may be empty
+    if(varname=="NONE") return 0;
     //fallthrough
   case CHECK_DLG:
     if(chkflg&NODLGCHK) return 0;
@@ -380,7 +384,8 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     }
     else
     {
-      varname="GLOBALsprite_is_dead"+varname;
+//      varname="GLOBALsprite_is_dead"+varname;
+      varname="GLOBALSPRITE_IS_DEAD"+varname;
     }
     break;
   case CHECK_SCOPE:    
@@ -431,7 +436,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
   case ADD_VAR:
     break;
   case ADD_VAR2: //merge variables 
-    if(varname[6]==':')
+    if((varname.GetLength()>6) && (varname[6]==':'))
     {
       varname.Delete(6); //removing .
       break; //break for variable
@@ -540,7 +545,7 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         opcode=tpoi->opcode&0x1fff;
         if(check_or_scan==CHECKING)
         {
-          if((opcode>MAX_ACTION) || !trigger_defs[opcode].GetLength())
+          if((opcode>MAX_TRIGGER) || !trigger_defs[opcode].GetLength())
           {
             gret=-1;
             log("Invalid trigger: %d (%04x) in block #%d trigger #%d",tpoi->opcode, tpoi->opcode,bcnt+1,tcnt+1);
@@ -555,6 +560,11 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
               log("Bad OR count in block #%d trigger #%d",bcnt+1,tcnt+1);
             }
             num_or=tpoi->bytes[0];
+            if (num_or<2 && check_or_scan!=SCANNING)
+            {
+              gret=-1;
+              log("Incorrect or redundant Or() in block #%d trigger #%d", bcnt+1, tcnt+1);
+            }
           }
           else if(num_or) num_or--;
         }
@@ -677,6 +687,7 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
         }
         else
         {
+          varname2=apoi->var2;
           ret=store_variable(apoi->var1, checkflags, apoi->opcode, ACTION|check_or_scan, bcnt);
           gret|=ret;
           ret=store_variable(apoi->var2, checkflags>>8, apoi->opcode, ACTION|check_or_scan, bcnt);
@@ -719,12 +730,20 @@ int CChitemDlg::check_or_scan_trigger(const trigger *tpoi, int checkflags, int c
   }
   else
   {
+    varname2=tpoi->var2;
     ret=store_variable(tpoi->var1, checkflags, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
     gret|=ret;
     ret=store_variable(tpoi->var2, checkflags>>8, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
     gret|=ret;
   }
   if(check_or_scan==SCANNING) return gret;
+
+  //don't store this if just scanning, these are checked, but never SET, so they must be invalid if used alone
+  if (tpoi->trobj.var[0])
+  {
+    store_variable(tpoi->trobj.var, ADD_DEAD, 0, OBJECT|TRIGGER|check_or_scan, bcnt);
+  }
+
   ret=check_integers(&tpoi->bytes[0], checkflags, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
   gret|=ret;
   return gret;
@@ -733,6 +752,7 @@ int CChitemDlg::check_or_scan_trigger(const trigger *tpoi, int checkflags, int c
 int CChitemDlg::check_or_scan_action(const action *apoi, int checkflags, int check_or_scan, int bcnt)
 {
   CString area;
+  int i;
   int ret, gret;
   
   gret=0;
@@ -745,12 +765,21 @@ int CChitemDlg::check_or_scan_action(const action *apoi, int checkflags, int che
   }
   else
   {
+    varname2=apoi->var2;
     ret=store_variable(apoi->var1, checkflags, apoi->opcode, ACTION|check_or_scan, bcnt);
     gret|=ret;
     ret=store_variable(apoi->var2, checkflags>>8, apoi->opcode, ACTION|check_or_scan, bcnt);
     gret|=ret;
   }
+
+  //don't store these if just scanning, it is checked, but never SET, so it must be invalid if used alone
+  for(i=0;i<3;i++)
+  {
+    if (check_or_scan==SCANNING && !i) continue; //the override variable is never written, so it shouldn't be stored here
+    store_variable(apoi->obj[i].var, ADD_DEAD, i, OBJECT|ACTION|check_or_scan, bcnt);
+  }
   if(check_or_scan==SCANNING) return gret;
+
   ret=check_integers(&apoi->bytes[0], checkflags, apoi->opcode, ACTION|check_or_scan, bcnt);
   gret|=ret;
   return gret;
@@ -767,7 +796,9 @@ int CChitemDlg::check_dialog(int check_or_scan)
   trigger trigger;
   action action;
   int num_or, strref;
+  int first, last;
   loc_entry tmploc;
+  bool got_continue;
   bool warn = (chkflg&WARNINGS)==0;
 
   gret=0;
@@ -778,13 +809,13 @@ int CChitemDlg::check_dialog(int check_or_scan)
       //checking state headers
       for(i=0;i<the_dialog.statecount;i++)
       {
-        switch(check_reference(the_dialog.dlgstates[i].actorstr,0))
+        switch(check_reference(the_dialog.dlgstates[i].actorstr,1,1,0))
         {
         case 1:
           gret=TREESTATE|i;
           log("Actor has invalid text in state #%d",i);
           break;
-        case 2:
+        case 2: case 5:
           gret=TREESTATE|i;
           log("Actor has no included text in state #%d",i);
         }
@@ -794,12 +825,31 @@ int CChitemDlg::check_dialog(int check_or_scan)
         {        
           log("No transitions in state #%d",i);
           gret=TREESTATE|i;
+          continue;
         }
         num_or=the_dialog.dlgstates[i].trnumber+the_dialog.dlgstates[i].trindex;
         if(num_or<1 || num_or>the_dialog.transcount)
         {
           log("Invalid last index of transitions (%d) in state #%d",num_or,i);
           gret=TREESTATE|i;
+          continue;
+        }
+
+        got_continue = false;
+        first = the_dialog.dlgstates[i].trindex;
+        last = first + the_dialog.dlgstates[i].trnumber;
+        
+        for (j=first;j<last;j++)
+        {
+          num_or=the_dialog.dlgtrans[j].flags;
+          if(!(num_or&HAS_TEXT))
+          {
+            if ((j!=first) && got_continue && !(num_or&HAS_TRIGGER) ) {
+              log("Unconditional continue in state #%d overlaps a previous continue!", i);
+              gret=TREESTATE|i;
+            }
+            got_continue = true;
+          }
         }
       }
     }
@@ -836,7 +886,7 @@ int CChitemDlg::check_dialog(int check_or_scan)
       }
       else if(j)
       {
-        if(!(num_or&HAS_TRIGGER) )
+        if(!(num_or&HAS_TRIGGER) && warn)
         {
           log("Transition #%d has trigger index (%d), but no flags.",i,j);
           gret=TRANSSTATE|i;
@@ -902,7 +952,7 @@ int CChitemDlg::check_dialog(int check_or_scan)
           }
         }
         
-        switch(check_reference(strref,2) )
+        switch(check_reference(strref,2,10,0) )
         {
         case 1:
           gret=TRANSSTATE|i;
@@ -988,6 +1038,10 @@ int CChitemDlg::check_dialog(int check_or_scan)
             {
               if(num_or) ret=-42;
               num_or=trigger.bytes[0];
+              if (num_or<2 && check_or_scan!=SCANNING)
+              {
+                ret=-47;
+              }
             }
             else if(num_or) num_or--;
           }
@@ -1036,6 +1090,10 @@ int CChitemDlg::check_dialog(int check_or_scan)
           {
             if(num_or) ret=-42;
             num_or=trigger.bytes[0];
+            if (num_or<2 && check_or_scan!=SCANNING)
+            {
+              ret=-47;
+            }
           }
           else if(num_or) num_or--;
         }
@@ -1344,7 +1402,8 @@ void Cvariable::OnVType3()
   CString varname;
 
   if(pst_compatible_var()) m_prefix="KAPUTZ";
-  else m_prefix="GLOBALsprite_is_dead";
+  else m_prefix="GLOBALSPRITE_IS_DEAD";
+  //else m_prefix="GLOBALsprite_is_dead";
   m_varpicker="";
   m_value=0;
   m_area_control.EnableWindow(false);

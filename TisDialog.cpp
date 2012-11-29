@@ -25,7 +25,8 @@ CTisDialog::CTisDialog(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CTisDialog)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
-  m_graphics=false;
+  m_graphics = false;
+  m_pvr = false;
 //  m_overlaynum=0;
   m_tileheaders=NULL;
   m_tileindices=NULL;
@@ -94,6 +95,7 @@ BEGIN_MESSAGE_MAP(CTisDialog, CDialog)
 	ON_BN_CLICKED(IDC_CLEARALL, OnClearall)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_PREVIEW, OnPreview)
+	ON_BN_CLICKED(IDC_VERSION, OnVersion)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, RefreshDialog)
 END_MESSAGE_MAP()
@@ -229,7 +231,19 @@ restart:
       MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
-    if(how) res=the_mos.WriteTisToFile(fhandle,m_minx,m_miny,m_maxx,m_maxy);
+    if(how)
+    {
+      if (m_pvr)
+      {
+        //res=the_mos.WritePvrToFile(fhandle,m_minx,m_miny,m_maxx,m_maxy);
+        MessageBox("Operation not supported!","Error",MB_ICONSTOP|MB_OK);
+        goto restart;
+      }
+      else
+      {
+        res=the_mos.WriteTisToFile(fhandle,m_minx,m_miny,m_maxx,m_maxy);
+      }
+    }
     else res=the_mos.WriteTisToBmpFile(fhandle,m_minx,m_miny,m_maxx,m_maxy);
     close(fhandle);
     switch(res)
@@ -408,6 +422,12 @@ void CTisDialog::OnLoad()
 void CTisDialog::OnPreview() 
 {
   m_graphics=!m_graphics;
+  RefreshDialog();
+}
+
+void CTisDialog::OnVersion() 
+{
+	m_pvr = !m_pvr;
   RefreshDialog();
 }
 

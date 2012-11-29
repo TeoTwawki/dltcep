@@ -134,10 +134,11 @@ public:
     return wedchanged;
   }
   bool WedAvailable() { return wedavailable; }
+  void ConvertNightMap(int r, int g, int b, int strength);
   void MirrorMap(unsigned char *poi);
   void RecalcBox(int pos, wed_polygon *header, area_vertex *vertices);
   //int VertexOrder(area_vertex *wedvertex, int count);
-  int ConvertOffsetToIndex(int polyoffset);
+  int ConvertOffsetToIndex(int polyoffset, int &dpc);
 //  int ConsolidateVertices();
 //  int ConsolidateDoortiles();
 

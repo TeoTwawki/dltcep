@@ -41,6 +41,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
   CFindReplaceDialog *m_searchdlg;
   int m_infind;
   

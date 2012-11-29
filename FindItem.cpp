@@ -1,6 +1,5 @@
 // FindItem.cpp : implementation file
 //
-
 #include "stdafx.h"
 #include "chitem.h"
 #include "FindItem.h"
@@ -27,6 +26,7 @@ void CFindItem::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CFindItem)
+	DDX_Control(pDX, IDC_MITEM, m_item_control);
 	DDX_Control(pDX, IDC_MPROJ, m_proj_control);
 	DDX_Control(pDX, IDC_CHANGE, m_change_control);
 	DDX_Control(pDX, IDC_MTYPE, m_mtype_control);
@@ -34,7 +34,7 @@ void CFindItem::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_RESOURCE, m_resource);
 	DDV_MaxChars(pDX, m_resource, 8);
 	DDX_Text(pDX, IDC_ITEMNAME, m_itemname);
-	DDV_MaxChars(pDX, m_itemname, 8);
+  DDV_MaxChars(pDX, m_itemname, item_title.GetLength()?2:8);
 	DDX_Text(pDX, IDC_VARIABLE, m_variable);
 	DDV_MaxChars(pDX, m_variable, 32);
 	DDX_Text(pDX, IDC_NEWRESOURCE, m_newres);
@@ -268,6 +268,11 @@ BOOL CFindItem::OnInitDialog()
   {
     m_proj_control.SetWindowText(proj_title);
   }
+  if (item_title.GetLength())
+  {
+    m_item_control.SetWindowText(item_title);
+  }
+
 
   //well this is a weird piece of code,
   //i don't even want to talk about it

@@ -565,7 +565,6 @@ static char BASED_CODE szFilter[] = "Chui files (*.chu)|*.chu|All files (*.*)|*.
 
 void CChuiEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -574,6 +573,7 @@ void CChuiEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "chu", makeitemname(".chu",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -630,10 +630,8 @@ void CChuiEdit::OnSaveas()
 
 void CChuiEdit::SaveChui(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
-  int chrorcre;
   int res;
 
   if(readonly)
@@ -651,7 +649,7 @@ void CChuiEdit::SaveChui(int save)
     goto gotname;
   }    
 restart:
-  chrorcre=0;
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();

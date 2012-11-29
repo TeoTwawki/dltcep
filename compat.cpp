@@ -25,8 +25,8 @@ bool tob_specific()
 
 bool old_version_dlg()
 {
-  if(optflg&COM_DLG) return false;
-  return true;
+  if(optflg&COM_DLG) return true;
+  return false;
 }
 
 //pst compatible var.var structure
@@ -450,7 +450,9 @@ void Ccompat::OnAdd()
     gp.checkopt=chkflg;
     gp.editopt=editflg;
     gp.gameopt=optflg;
+    gp.lang=language;
     gp.descpath=descpath;
+    gp.winsize=winsize;
     allgameprops.SetAt(m_setupname,gp);
     Refresh();
   }	

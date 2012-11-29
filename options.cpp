@@ -308,7 +308,6 @@ CEditOpt::CEditOpt(CWnd* pParent /*=NULL*/)
 	: CDialog(CEditOpt::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CEditOpt)
-		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 }
 
@@ -316,7 +315,8 @@ void CEditOpt::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CEditOpt)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	DDX_Text(pDX, IDC_WIDTH, winsize);
+	DDV_MinMaxInt(pDX, winsize, 10, 32);
 	//}}AFX_DATA_MAP
 }
 
@@ -333,17 +333,56 @@ void CEditOpt::Refresh()
     if(checkbox) checkbox->SetCheck(!(editflg&j));
     j<<=1;
   }
+  GetDlgItem(IDC_WIDTH)->EnableWindow(!(editflg&LARGEWINDOW));
 }
 
 BOOL CEditOpt::OnInitDialog() 
 {
-	CDialog::OnInitDialog();	
+  CString tmpstr;
+
+	CDialog::OnInitDialog();
 	Refresh();	
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
+    m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
+    m_tooltip.AddTool(GetDlgItem(IDC_WIDTH), IDS_WINSIZE);
+    m_tooltip.AddTool(GetDlgItem(IDC_TLKCHANGE), IDS_TLKCHANGE);
+    m_tooltip.AddTool(GetDlgItem(IDC_2DACHANGE), IDS_2DACHANGE);
+    m_tooltip.AddTool(GetDlgItem(IDC_RESOLVE), IDS_RESOLVE);
+    m_tooltip.AddTool(GetDlgItem(IDC_RECYCLE), IDS_RECYCLE);
+    m_tooltip.AddTool(GetDlgItem(IDC_INDENT), IDS_INDENT);
+    m_tooltip.AddTool(GetDlgItem(IDC_REMBAF), IDS_REMBAF);
+    m_tooltip.AddTool(GetDlgItem(IDC_SELECTION), IDS_SELECTION);
+    m_tooltip.AddTool(GetDlgItem(IDC_CWDBAF), IDS_LASTOPENED);
+    m_tooltip.AddTool(GetDlgItem(IDC_DECOMPRESS), IDS_DECOMPRESS);
+    m_tooltip.AddTool(GetDlgItem(IDC_DATAFOLDER), IDS_DATAFOLDER);
+    m_tooltip.AddTool(GetDlgItem(IDC_NOCHECK), IDS_NOCHECK);
+    tmpstr.LoadString(IDS_FORCESTEREO);
+    m_tooltip.AddTool(GetDlgItem(IDC_STEREO), tmpstr);
+    m_tooltip.AddTool(GetDlgItem(IDC_SORTEFFECT), IDS_SORTEFF);
+    m_tooltip.AddTool(GetDlgItem(IDC_EFFNUMBER), IDS_NUMEFF);
+    m_tooltip.AddTool(GetDlgItem(IDC_EATSPACE), IDS_EATSPACE);
+    m_tooltip.AddTool(GetDlgItem(IDC_WEIDUSTR), IDS_WEIDUSTRING);
+    m_tooltip.AddTool(GetDlgItem(IDC_IDUSTR), IDS_IDUSTRING);
+    m_tooltip.AddTool(GetDlgItem(IDC_PREVIEW), IDS_PREVIEW);
+    m_tooltip.AddTool(GetDlgItem(IDC_OCTREE), IDS_OCTREE);
+    m_tooltip.AddTool(GetDlgItem(IDC_DITHER), IDS_DITHER);
+    m_tooltip.AddTool(GetDlgItem(IDC_W98), IDS_W98);
+    m_tooltip.AddTool(GetDlgItem(IDC_WEIDU), IDS_RESLOC);
+    m_tooltip.AddTool(GetDlgItem(IDC_ZIP), IDS_ZIP);
+    m_tooltip.AddTool(GetDlgItem(IDC_WINDOWPICKER), IDS_LARGEWINDOW);
+    m_tooltip.AddTool(GetDlgItem(IDC_CENTER), IDS_VERTCENTER);
+    m_tooltip.AddTool(GetDlgItem(IDC_OVERRIDE), IDS_IGNOREOVER);
+    m_tooltip.AddTool(GetDlgItem(IDC_SIZECHECK), IDS_CHECKSIZE);
+    m_tooltip.AddTool(GetDlgItem(IDC_CD), IDS_CD);
+    m_tooltip.AddTool(GetDlgItem(IDC_INTDECOMP), IDS_INTDECOMP);
+    m_tooltip.AddTool(GetDlgItem(IDC_INTCOMP), IDS_INTCOMP);
+    tmpstr.LoadString(IDS_SHADOW);
+    m_tooltip.AddTool(GetDlgItem(IDC_SHADOW), tmpstr);
+    m_tooltip.AddTool(GetDlgItem(IDC_FORCENEW), IDS_FORCENEW);
   }
 	return TRUE;
 }
@@ -384,6 +423,7 @@ BEGIN_MESSAGE_MAP(CEditOpt, CDialog)
 	ON_BN_CLICKED(IDC_INTCOMP, OnIntcomp)
 	ON_BN_CLICKED(IDC_FORCENEW, OnForcenew)
 	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
+	ON_EN_KILLFOCUS(IDC_WIDTH, OnKillfocusWidth)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -520,6 +560,7 @@ void CEditOpt::OnZip()
 void CEditOpt::OnLargeWindow() 
 {
 	editflg^=LARGEWINDOW;
+  Refresh();
 }
 
 void CEditOpt::OnCenter() 
@@ -562,6 +603,12 @@ void CEditOpt::OnShadow()
   editflg^=KEEPSHADOW;
 }
 
+void CEditOpt::OnKillfocusWidth() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
 BOOL CEditOpt::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
@@ -587,12 +634,14 @@ void CWeiDUOpt::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CWeiDUOpt)
+	DDX_Control(pDX, IDC_LANGUAGE, m_language_control);
 	DDX_Control(pDX, IDC_OPENFILE, m_openfile);
 	DDX_Text(pDX, IDC_COMMAND, m_command);
 	//}}AFX_DATA_MAP
   DDX_Text(pDX, IDC_FILENAME, weidupath);
   DDX_Text(pDX, IDC_PARAM, weiduextra);
   DDX_Text(pDX, IDC_DECOMPILED, weidudecompiled);
+  DDX_Text(pDX, IDC_LANGUAGE, language);
   j=1;
   for(i=0;i<5;i++)
   {
@@ -607,14 +656,16 @@ void CWeiDUOpt::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CWeiDUOpt, CDialog)
 	//{{AFX_MSG_MAP(CWeiDUOpt)
 	ON_EN_KILLFOCUS(IDC_PARAM, OnKillfocusParam)
-	ON_BN_CLICKED(IDC_OPENFILE, OnOpenfile)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
 	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
 	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
-	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_OPENFILE, OnOpenfile)
 	ON_BN_CLICKED(IDC_LOG, OnLog)
 	ON_EN_KILLFOCUS(IDC_DECOMPILED, OnKillfocusDecompiled)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_EN_KILLFOCUS(IDC_LANGUAGE, OnKillfocusLanguage)
+	ON_CBN_KILLFOCUS(IDC_LANGUAGE, OnKillfocusLanguage)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -623,8 +674,8 @@ END_MESSAGE_MAP()
 
 void CWeiDUOpt::Refresh()
 {
-  m_command="Export: "+AssembleWeiduCommandLine("dialog",weidudecompiled)+
-  "\r\nImport: "+AssembleWeiduCommandLine("weidu\\dialog.d","override");
+  m_command="Export: "+AssembleWeiduCommandLine("dialog",weidudecompiled, true)+
+  "\r\nImport: "+AssembleWeiduCommandLine("weidu\\dialog.d","override", false);
   UpdateData(UD_DISPLAY);
 }
 
@@ -637,7 +688,7 @@ void CWeiDUOpt::OnKillfocusParam()
 void CWeiDUOpt::OnKillfocusDecompiled() 
 {
 	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
+	Refresh();
 }
 
 static char BASED_CODE szFilter[] = "weidu.exe|weidu.exe|All files (*.*)|*.*||";
@@ -670,11 +721,21 @@ restart:
   Refresh();
 }
 
+void CWeiDUOpt::FillPath(CComboBox &box)
+{
+  CString path;
+
+  box.ResetContent();
+  path = bgfolder+"/lang/*";
+  box.Dir(DDL_DIRECTORY, path);
+}
+
 BOOL CWeiDUOpt::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
 	
   m_openfile.SetBitmap(theApp.m_bbmp);
+  FillPath(m_language_control);
   Refresh();
   //tooltips
   {
@@ -719,6 +780,15 @@ void CWeiDUOpt::OnLog()
 {
 	weiduflg^=WEI_LOGGING;
   Refresh();
+}
+
+void CWeiDUOpt::OnKillfocusLanguage() 
+{
+  UpdateData(UD_RETRIEVE);
+  language.Remove('[');
+  language.Remove('.');
+  language.Remove(']');
+	Refresh();
 }
 
 BOOL CWeiDUOpt::PreTranslateMessage(MSG* pMsg) 

@@ -21,6 +21,7 @@
 #include "spell.h"
 #include "effect.h"
 #include "creature.h"
+#include "pvr.h"
 #include "script.h"
 #include "VVC.h"
 #include "WFX.h"
@@ -72,6 +73,7 @@ extern UINT WM_FINDREPLACE;
 #define MT_BAM         11
 #define MT_EXPLORED    12
 #define MT_HEIGHT8     13
+#define MT_AMBIENT     14
 
 //getpoint units (for ImageView)
 #define GP_POINT     0
@@ -180,7 +182,7 @@ extern int itvs2h[NUM_ITEMTYPE];
 
 #define NUM_ANIMTYPES 12
 
-#define NUM_ANIMIDX  37
+#define NUM_ANIMIDX  50
 #define NUM_STYPE  6
 #define NUM_STYPE2 4
 
@@ -259,19 +261,26 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define REF_STO   0x03f6  //22
 #define REF_WMP   0x03f7  //23 
 #define REF_EFF   0x03f8  //24
-#define REF_VVC   0x03fb  //25
-#define REF_VEF   0x03fc  //26
-#define REF_PRO   0x03fd  //27
-#define REF_INI   0x0802  //28
-#define REF_SRC   0x0803  //29
-#define NUM_OBJTYPE 29
+#define REF_BS    0x03f9
+#define REF_CHR   0x03fa  //25
+#define REF_VVC   0x03fb  //26
+#define REF_VEF   0x03fc  //27
+#define REF_PRO   0x03fd  //28
+#define REF_INI   0x0802  //29
+#define REF_SRC   0x0803  //30
+#define REF_FNT   0x400  //31
+#define REF_WBM   0x401  //32
+#define REF_GUI   0x402  //33
+#define REF_SQL   0x403  //34
+#define REF_PVRZ  0x404  //35
+#define NUM_OBJTYPE 35
 
 #define NUM_FVALUE 3
 extern CString proj_facing_desc[NUM_FVALUE];
 
 #define NUM_SPKCOL 13
 
-#define NUM_ARFLAGS 4
+#define NUM_ARFLAGS 5
 //area types
 #define AR_NORMAL
 #define AR_NOSAVE
@@ -349,6 +358,7 @@ extern CString ammo_types[NUM_AMTYPE];
 #define TIMING_DELAYED  4
 #define TIMING_DEL2     5
 #define TIMING_DUR2     6
+#define TIMING_PERMDEATH 9
 
 #define NUM_ETTYPE  14
 //effect target types
@@ -667,6 +677,7 @@ extern CStringMapLocEntry items;
 extern CStringMapLocEntry icons;
 extern CStringMapLocEntry bitmaps;
 extern CStringMapLocEntry creatures;
+extern CStringMapLocEntry chars;
 extern CStringMapLocEntry spells;
 extern CStringMapLocEntry stores;
 extern CStringMapLocEntry darefs;
@@ -691,11 +702,15 @@ extern CStringMapLocEntry wfxs;
 extern CStringMapLocEntry strings;
 extern CStringMapLocEntry paperdolls;
 extern CStringMapLocEntry vefs;
+extern CStringMapLocEntry wbms;
+extern CStringMapLocEntry fonts;
 extern CStringMapLocEntry inis;
+extern CStringMapLocEntry guis;
+extern CStringMapLocEntry sqls;
+extern CStringMapLocEntry pvrzs;
 
 extern CStringMapLocEntry *resources[NUM_OBJTYPE+1];
 extern CStringListLocEntry *duplicates[NUM_OBJTYPE+1];
-//extern CMap<CString, LPCSTR, int, int&> variables;
 extern CStringMapInt variables;
 extern CIntMapString journals;
 
@@ -706,6 +721,7 @@ extern CString descpath;
 extern CString weidupath;
 extern CString weiduextra;
 extern CString weidudecompiled;
+extern CString language;
 extern int logtype;
 extern int tooltips;
 extern int do_progress;
@@ -716,6 +732,7 @@ extern unsigned long chkflg;
 extern unsigned long editflg;
 extern unsigned long optflg;
 extern unsigned long weiduflg;
+extern unsigned long winsize;
 extern COLORREF color1, color2, color3;
 
 extern CStringMapArray tooltipnumbers;
@@ -754,6 +771,7 @@ extern Cproj the_projectile;
 extern Cspell the_spell;
 extern Ceffect the_effect;
 extern Ccreature the_creature;
+extern Cpvr the_pvr;
 extern CVVC the_videocell;
 extern CWFX the_wfx;
 extern Cscript the_script;
@@ -840,7 +858,6 @@ extern CStringMapInt ini_entry;
 
 #define NUM_IDS  7
 extern char *idstype[NUM_IDS];
-extern CString kitfile;
 
 extern CColorPicker colordlg;
 extern CItemPicker pickerdlg;
@@ -1053,6 +1070,7 @@ int ChiSquare(BYTE *a,BYTE *b);
 #define CE_EMPTY_TOP_LEVEL          -44
 #define CE_INVALID_SPELL_LIST       -45
 #define CE_INVALID_SPELL_NUMBER     -46
+#define CE_INCORRECT_OR             -47
 #define CE_BAD_IF                   -100
 #define CE_BAD_RESPONSE             -110
 #define CE_BAD_THEN                 -120
@@ -1086,7 +1104,8 @@ CString makeitemname(CString ext, int remember);
 CString ImageFilter(int mostisbmp);
 int GetScanLineLength(int width, int bytes);
 int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes);
-CString AssembleWeiduCommandLine(CString filename, CString outpath);
+int CreatePltHeader(int fhandle, DWORD width, DWORD height, DWORD bytes);
+CString AssembleWeiduCommandLine(CString filename, CString outpath, bool inout);
 unsigned long getfreememory();
 afx_msg void DefaultKillFocus();
 int CompressBIFC(CString infilename);
@@ -1099,10 +1118,12 @@ int CanMove(CPoint &point, area_vertex *wedvertex, int count);
 void RecalcBox(int count, int idx, POINTS &min, POINTS &max);
 int PolygonInBox(area_vertex *wedvertex, int count, CRect rect);
 int CheckIntervallum(int value, int first, int count);
+int PointInCircle(area_ambient *ad, CPoint point);
 int PointInPolygon(area_vertex *wedvertex, int count, CPoint point);
 int ReadPolygon(int fhandle, area_vertex **polygon, short *countvertex);
 int WritePolygon(int fhandle, area_vertex **polygon, short *countvertex);
 int VertexOrder(area_vertex *wedvertex, int count);
+CString reduce_tlk_text(CString str);
 
 //readers & writers (they handle the lookup tables)
 void UpdateIEResource(CString key, int restype, CString filepath, int size);
@@ -1111,7 +1132,7 @@ int write_wed(CString key, CString filepath);
 int write_tis(CString key, CString filepath);
 int read_item(CString key);
 int write_item(CString key, CString filepath);
-int read_spell(CString key);
+int read_spell(CString key, Cspell *myspell);
 int write_spell(CString key, CString filepath);
 int read_store(CString key);
 int write_store(CString key, CString filepath);
@@ -1126,7 +1147,9 @@ int write_chui(CString key, CString filepath);
 int read_map(CString key);
 int write_map(CString key, CString filepath);
 int read_src(CString key);
+int read_character(CString key);
 int read_creature(CString key);
+int read_pvrz(CString key, Cpvr *cb, int lazy=0);
 int write_creature(CString key, CString filepath);
 int write_character(CString key, CString filepath);
 //pick 5 values from the gradient list
@@ -1142,6 +1165,7 @@ int write_bam(CString key, CString filepath, Cbam *cb);
 int write_bmp(CString key, CString filepath, Cbam *cb, int frame);
 int read_mos(CString key, Cmos *cb=NULL, int lazy=0);
 int read_tis(CString key, Cmos *cb=NULL, int lazy=0);
+int read_tis_preview(CString key, Cmos *cb, int lazy=0);
 int read_dialog(CString key);
 int read_videocell(CString key);
 int write_videocell(CString key, CString filepath);
@@ -1159,7 +1183,7 @@ int write_2da(CString key, CString filepath);
 int read_ids(CString key);
 int play_acm(CString key, bool acm_or_wavc, int justload);
 int write_wav(CString key, void *memory, long samples_written, int wav_or_acm);
-int check_reference(long reference, int loretoid=0);
+int check_reference(long reference, int loretoid = 0, int min = 0, int max = 0);
 
 /// tlk handler
 void synchronise();

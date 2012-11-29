@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <mmsystem.h>
 #include "chitem.h"
+#include "chitemDlg.h"
 #include "2da.h"
 #include "2DAEdit.h"
 #include "StrRefDlg.h"
@@ -161,7 +162,6 @@ static char BASED_CODE szFilter[] = "2DA files (*.2da)|*.2da|All files (*.*)|*.*
 
 void C2DAEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -170,6 +170,7 @@ void C2DAEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "2da", makeitemname(".2da",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -215,7 +216,6 @@ void C2DAEdit::OnSaveas()
 
 void C2DAEdit::SaveTable(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -236,6 +236,7 @@ void C2DAEdit::SaveTable(int save)
   }
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -970,6 +971,7 @@ BEGIN_MESSAGE_MAP(CIDSEdit, CDialog)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_FOUR, OnFour)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_COMMAND(ID_EDIT_FINDID, OnEditFindid)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
@@ -978,7 +980,7 @@ BEGIN_MESSAGE_MAP(CIDSEdit, CDialog)
 	ON_COMMAND(ID_REMOVE, OnRemove)
 	ON_COMMAND(ID_ORDER, OnOrder)
 	ON_COMMAND(ID_ADD, OnRow)
-	ON_COMMAND(ID_EDIT_FINDID, OnEditFindid)
+	ON_COMMAND(ID_CHECK, OnCheck)
 	//}}AFX_MSG_MAP
   ON_EN_KILLFOCUS(IDC_EDITLINK,OnKillfocusEditlink)
   ON_NOTIFY(NM_CUSTOMDRAW, IDC_IDS, OnCustomdrawMyList)
@@ -1398,6 +1400,17 @@ void CIDSEdit::OnFour()
   UpdateData(UD_RETRIEVE);
   m_four=!m_four;
 	RefreshDialog();
+}
+
+void CIDSEdit::OnCheck() 
+{
+  int ret;
+
+	ret=((CChitemDlg *) AfxGetMainWnd())->check_ids();
+  if(ret)
+  {
+    MessageBox(lasterrormsg,"Area editor",MB_ICONEXCLAMATION|MB_OK);
+  }
 }
 
 void CIDSEdit::OnOrder() 

@@ -599,15 +599,15 @@ static char BASED_CODE szFilter[] = "Game files (*.gam)|*.gam|All files (*.*)|*.
 
 void CGameEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;
-  CMyFileDialog m_getfiledlg(TRUE, "gam", makeitemname(".gam",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, "gam", makeitemname(".gam",5), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -622,7 +622,7 @@ restart:
     itemname.MakeUpper();
     res=the_game.ReadGameFromFile(fhandle,-1);
     close(fhandle);
-    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+    lastopenedsave=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case -1:
@@ -660,7 +660,6 @@ void CGameEdit::OnSave()
 
 void CGameEdit::SaveGame(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -671,7 +670,7 @@ void CGameEdit::SaveGame(int save)
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CMyFileDialog m_getfiledlg(FALSE, "gam", makeitemname(".gam",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(FALSE, "gam", makeitemname(".gam",5), res, szFilter);
 
   if(save)
   {
@@ -679,7 +678,8 @@ void CGameEdit::SaveGame(int save)
     filepath=makeitemname(".gam",0);
     goto gotname;
   }
-restart:  
+restart:
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -705,7 +705,7 @@ gotname:
     }
     
     res = write_game(newname, filepath);
-    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+    lastopenedsave=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:

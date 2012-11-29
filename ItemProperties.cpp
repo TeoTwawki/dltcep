@@ -513,7 +513,11 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
       if(bmd!=tmpstr)
       {
         bmd=tmpstr;
-        if(!read_bam(tmpstr))
+        if(read_bmp(tmpstr, &the_bam, false) && read_bam(tmpstr))
+        {
+          for(fc=0;fc<4;fc++) m_descicon[fc].SetBitmap(0);
+        }
+        else
         {
           fc=4;        
           while(fc--)
@@ -523,11 +527,7 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
             the_bam.MakeBitmap(fc,RGB(240,224,160),hbmd[fc],BM_RESIZE,1,1);
             m_descicon[fc].SetBitmap(hbmd[fc]);
           }
-        }
-        else
-        {
-          for(fc=0;fc<4;fc++) m_descicon[fc].SetBitmap(0);
-        }
+        }       
       }
     }
     else
@@ -973,10 +973,12 @@ void CItemIcons::OnDcenter()
     play_acm(tmpstr,false,false);
     return;
   }
-  if(read_bam(tmpstr))
-  {
-    MessageBox("Cannot read bam.","Item editor",MB_OK);
-    return;
+  if(!read_bmp(tmpstr, &the_bam, false)) {
+    if(read_bam(tmpstr))
+    {
+      MessageBox("Cannot read bam.","Item editor",MB_OK);
+      return;
+    }
   }
   frames=the_bam.GetFrameCount();
   switch(frames)

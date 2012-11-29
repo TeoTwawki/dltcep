@@ -44,8 +44,8 @@ void CSpellEdit::NewSpell()
   memset(&the_spell.header,0,sizeof(spell_header));
   the_spell.header.extheadoffs=sizeof(spell_header);  
   the_spell.header.featureoffs=sizeof(spell_header);
-  the_spell.header.unknown0c=the_spell.header.unknown54=9999999;
-  the_spell.header.unknown38=1;
+  the_spell.header.idname=the_spell.header.iddesc=9999999;
+  the_spell.header.stack=1;
   the_spell.m_changed=false;
   if(iwd2_structures())
   {
@@ -90,11 +90,15 @@ void CSpellEdit::OnLoad()
 	res=pickerdlg.DoModal();
 	if(res==IDOK)
 	{
-		res=read_spell(pickerdlg.m_picked);
+		res=read_spell(pickerdlg.m_picked, NULL);
     switch(res)
     {
-    case -3:
-      MessageBox("Spell loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    case -4:
+      MessageBox("Spell loaded with serious errors (no extensions).","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 1:
+      MessageBox("Spell size problems fixed.","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
     case 0:
@@ -115,7 +119,6 @@ static char BASED_CODE szFilter[] = "Spell files (*.spl)|*.spl|All files (*.*)|*
 
 void CSpellEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -124,6 +127,7 @@ void CSpellEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "spl", makeitemname(".spl",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -144,7 +148,7 @@ restart:
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
-    case -3:
+    case 1:
       MessageBox("Spell loaded with errors (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
@@ -184,7 +188,6 @@ void CSpellEdit::OnSaveas()
 
 void CSpellEdit::SaveSpell(int save)
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -205,6 +208,7 @@ void CSpellEdit::SaveSpell(int save)
   }    
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();

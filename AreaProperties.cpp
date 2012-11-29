@@ -511,6 +511,7 @@ int CAreaGeneral::CantMakeMinimap(CString tmpstr)
   read_tis(tmpstr,&the_mos,true); //this is loaded into the common mos file
   the_mos.mosheader.wColumn=the_area.overlayheaders[0].width;
   the_mos.mosheader.wRow=the_area.overlayheaders[0].height;
+  SetupSelectPoint(0);
   CreateMinimap(GetSafeHwnd());
   return false; //we made the minimap now
 }
@@ -522,6 +523,7 @@ void CAreaGeneral::OnView()
   CString tmpstr;
 
   RetrieveResref(tmpstr, the_area.header.wed);
+  if(the_area.m_night) tmpstr+="N";
 retry:
   if(read_mos(tmpstr,&my_mos,true)<0)
   {
@@ -655,7 +657,8 @@ void CAreaActor::DoDataExchange(CDataExchange* pDX)
     cb=GetDlgItem(IDC_EDIT);
     cb->EnableWindow(!!the_area.actorheaders[m_actornum].creoffset);
     cb=GetDlgItem(IDC_EMBED);
-    cb->EnableWindow(!the_area.actorheaders[m_actornum].creoffset);
+    cb->SetWindowText(the_area.actorheaders[m_actornum].creoffset?"Unload it":"Embed it");
+    cb->EnableWindow(true);
     tmpstr.Format("%d. %-.32s",m_actornum+1,the_area.actorheaders[m_actornum].actorname);
     DDX_Text(pDX, IDC_ACTORPICKER, tmpstr);    
 
@@ -1197,21 +1200,34 @@ void CAreaActor::OnEmbed()
 {
   CString tmpname;
 
-	if(the_area.credatapointers[m_actornum]) return; //already embedded
-  RetrieveResref(tmpname,the_area.actorheaders[m_actornum].creresref);
-  if(read_creature(tmpname)<0)
+	if(the_area.credatapointers[m_actornum])
   {
-    return;
+    the_area.actorheaders[m_actornum].creresref[0]=the_area.actorheaders[m_actornum].firstchar;
+    the_area.actorheaders[m_actornum].firstchar=0;
+    the_area.actorheaders[m_actornum].creoffset=0;
+    the_area.actorheaders[m_actornum].cresize=0;
+    the_area.actorheaders[m_actornum].fields|=1;
+    the_area.m_changed=true;
+    delete [] the_area.credatapointers[m_actornum];
+    the_area.credatapointers[m_actornum]=NULL;
   }
-  the_area.m_changed=true;
-  the_area.actorheaders[m_actornum].fields&=~1;
-  the_area.actorheaders[m_actornum].firstchar=tmpname[0];
-  //reading creature into creature structure
-  //moving creature structure into area data
-  ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
-  the_area.actorheaders[m_actornum].creoffset=0xcdcdcdcd; //some fake nonzero value
-  tmpname.SetAt(0,'*');
-  StoreResref(tmpname,the_area.actorheaders[m_actornum].creresref);
+  else
+  {
+    RetrieveResref(tmpname,the_area.actorheaders[m_actornum].creresref);
+    if(read_creature(tmpname)<0)
+    {
+      return;
+    }
+    the_area.m_changed=true;
+    the_area.actorheaders[m_actornum].fields&=~1;
+    the_area.actorheaders[m_actornum].firstchar=tmpname[0];
+    //reading creature into creature structure
+    //moving creature structure into area data
+    ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
+    the_area.actorheaders[m_actornum].creoffset=0xcdcdcdcd; //some fake nonzero value
+    tmpname.SetAt(0,'*');
+    StoreResref(tmpname,the_area.actorheaders[m_actornum].creresref);
+  }
   RefreshActor();
 	UpdateData(UD_DISPLAY);	
 }
@@ -2972,7 +2988,7 @@ static int ambientboxids[]={IDC_AMBIENTPICKER,IDC_WAVRES, IDC_POSX,IDC_POSY,
 IDC_RADIUS,IDC_HEIGHT, IDC_VOLUME, IDC_AMBINUMPICKER,IDC_ADDWAV, IDC_DELWAV, IDC_PLAY,
 IDC_BROWSE, IDC_NUM, IDC_GAP, IDC_SOUNDNUM, IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,
 IDC_FLAG5, IDC_U26, IDC_U2C, IDC_FLAGS, IDC_U90, IDC_SCHEDULE, IDC_UNKNOWN,
-IDC_MAXWAV, IDC_SET,IDC_COPY, IDC_PASTE, IDC_REMOVE,
+IDC_MAXWAV, IDC_SET,IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_SELECTION,
 0};
 
 #pragma warning(disable:4706)   
@@ -3176,6 +3192,7 @@ BEGIN_MESSAGE_MAP(CAreaAmbient, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnKillfocusFlags)
 	ON_BN_CLICKED(IDC_SET, OnSet)
 	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3336,13 +3353,36 @@ void CAreaAmbient::OnPaste()
 	UpdateData(UD_DISPLAY);
 }
 
+void CAreaAmbient::OnSelection() 
+{
+  CImageView dlg;
+  CPoint point;
+
+  if(SetupSelectPoint(0)) return;
+  dlg.SetMapType(MT_AMBIENT, the_area.ambientheaders);
+  dlg.m_max=the_area.ambientcount;
+  dlg.m_value=m_ambientnum;
+  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_GETPOLYGON|IW_SHOWALL, &the_mos);
+  dlg.SetupAnimationPlacement(&the_bam, the_area.ambientheaders[m_ambientnum].posx,
+    the_area.ambientheaders[m_ambientnum].posy, 0);
+   //the cursors are loaded in 'the_bam' now
+  if(dlg.DoModal()==IDOK)
+  {
+    m_ambientnum = dlg.m_value;
+  }
+  RefreshAmbient();
+  UpdateData(UD_DISPLAY);
+}
+
 void CAreaAmbient::OnSet() 
 {
   CImageView dlg;
   CPoint point;
 
   if(SetupSelectPoint(0)) return;
-  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
+  dlg.SetMapType(MT_AMBIENT, the_area.ambientheaders);
+  dlg.m_value=m_ambientnum;
+  dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE|IW_SHOWALL, &the_mos);
    //the cursors are loaded in 'the_bam' now
   dlg.SetupAnimationPlacement(&the_bam, the_area.ambientheaders[m_ambientnum].posx,
     the_area.ambientheaders[m_ambientnum].posy, 0);
@@ -5013,7 +5053,7 @@ void CAreaDoor::RefreshDoor()
 
 static int doorboxids[]={IDC_DOORPICKER, IDC_DOORID, IDC_FLAGS, IDC_SET,
 IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,IDC_FLAG5,IDC_FLAG6,IDC_FLAG7,IDC_FLAG8,
-IDC_FLAG9,IDC_FLAG10,IDC_FLAG11,IDC_FLAG12,
+IDC_FLAG9,IDC_FLAG10,IDC_FLAG11,IDC_FLAG12,IDC_FLAG13,IDC_FLAG14,IDC_FLAG15,IDC_FLAG16,
 IDC_POS1X,IDC_POS1Y,IDC_POS2X,IDC_POS2Y, IDC_POS1X2,IDC_POS1Y2,IDC_POS2X2,IDC_POS2Y2,
 IDC_RECALCBOX,IDC_EDITPOLYGON, IDC_EDITBLOCK,IDC_SELECTION,
 IDC_OPEN,IDC_SOUND1,IDC_SOUND2, IDC_AREA, IDC_CURSORIDX, IDC_CURSOR, IDC_TPOSX, IDC_TPOSY,
@@ -5023,7 +5063,7 @@ IDC_BROWSE4,IDC_BROWSE5, IDC_PLAY,IDC_PLAYSOUND, IDC_UNKNOWN, IDC_AC, IDC_MAXHP,
 IDC_REMOVE, IDC_COPY, IDC_PASTE,
 0};
 
-#define DOORFLAGNUM  12
+#define DOORFLAGNUM  16
 
 #pragma warning(disable:4706)   
 void CAreaDoor::DoDataExchange(CDataExchange* pDX)
@@ -5233,6 +5273,9 @@ BEGIN_MESSAGE_MAP(CAreaDoor, CPropertyPage)
 	ON_BN_CLICKED(IDC_SET2, OnSet2)
 	ON_BN_CLICKED(IDC_SET3, OnSet3)
 	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
+	ON_BN_CLICKED(IDC_FLAG13, OnFlag13)
+	ON_BN_CLICKED(IDC_FLAG14, OnFlag14)
+	ON_BN_CLICKED(IDC_FLAG15, OnFlag15)
 	ON_EN_KILLFOCUS(IDC_DOORID, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_U54, DefaultKillfocus)
@@ -5259,6 +5302,7 @@ BEGIN_MESSAGE_MAP(CAreaDoor, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_POS2X2, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2Y2, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_AREA, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -5415,6 +5459,30 @@ void CAreaDoor::OnFlag11()
 void CAreaDoor::OnFlag12() 
 {
 	the_area.doorheaders[m_doornum].flags^=0x800;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaDoor::OnFlag13() 
+{
+	the_area.doorheaders[m_doornum].flags^=0x1000;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaDoor::OnFlag14() 
+{
+	the_area.doorheaders[m_doornum].flags^=0x2000;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaDoor::OnFlag15() 
+{
+	the_area.doorheaders[m_doornum].flags^=0x4000;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaDoor::OnFlag16() 
+{
+	the_area.doorheaders[m_doornum].flags^=0x8000;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6536,18 +6604,35 @@ CAreaMap::~CAreaMap()
   if(hbmap) DeleteObject(hbmap); 
 }
 
-void CAreaMap::RefreshMap()
+static mapboxids[]={IDC_SPECIAL, IDC_EDIT, IDC_UNDO, IDC_PALETTE};
+
+bool CAreaMap::CanHaveNightMap()
 {
+  if (!the_map) return false;
+  return !iwd2_structures() && the_area.WedAvailable()&&(the_area.header.areatype&EXTENDED_NIGHT);
+}
+
+void CAreaMap::RefreshMap(bool init)
+{
+  int i;
   CWnd *cw;
 
   if(!IsWindow(m_hWnd)) return;
   cw=GetDlgItem(IDC_NIGHTMAP);
   if(IsWindow(cw->m_hWnd))
   {
-    cw->EnableWindow(!iwd2_structures() && the_area.WedAvailable()&&(the_area.header.areatype&EXTENDED_NIGHT) );
+    cw->EnableWindow(CanHaveNightMap());
   }
-  if(the_area.m_smallpalette) m_maptype=0;
-  else m_maptype=4;
+  if (init)
+  {
+    if(the_area.m_smallpalette) m_maptype=0;
+    else m_maptype=4;
+  }
+  for(i=0;mapboxids[i];i++)
+  {
+    cw=GetDlgItem(mapboxids[i]);
+    cw->EnableWindow(!!the_map);
+  }
 }
 
 BOOL CAreaMap::OnInitDialog() 
@@ -6555,7 +6640,7 @@ BOOL CAreaMap::OnInitDialog()
   CRect tmprect;
 
 	CPropertyPage::OnInitDialog();
-	RefreshMap();
+	RefreshMap(true);
   GetDlgItem(IDC_MAP)->GetWindowRect(tmprect);
   m_oladjust=tmprect.TopLeft();
   ScreenToClient(&m_oladjust);
@@ -6615,16 +6700,14 @@ void CAreaMap::DoDataExchange(CDataExchange* pDX)
     the_area.m_night=false;
     the_map=the_area.lightmap;
     the_palette=the_area.lmpal;
-    //not finished
-    m_special_control.SetWindowText("Generate lightmap");
-    m_special_control.EnableWindow(false);
+    m_special_control.SetWindowText("Generate nightmap");
+    m_special_control.EnableWindow(true);
     break;
   case 2:
     the_area.m_night=true;
     the_map=the_area.lightmap;
     the_palette=the_area.lmpal;
-    //not finished
-    m_special_control.SetWindowText("Generate nightmap");
+    m_special_control.SetWindowText("");
     m_special_control.EnableWindow(false);
     break;
   case 3:
@@ -6759,6 +6842,7 @@ void CAreaMap::OnClear()
   int maptype = maptypes[m_maptype];
   if(maptype==MT_HEIGHT8) maptype=MT_HEIGHT;
   the_area.changedmap[maptype]=TRUE;
+  RefreshMap(false);
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6774,6 +6858,7 @@ void CAreaMap::OnSet()
   int maptype = maptypes[m_maptype];
   if(maptype==MT_HEIGHT8) maptype=MT_HEIGHT;
   the_area.changedmap[maptype]=TRUE;
+  RefreshMap(false);
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6956,11 +7041,24 @@ void CAreaMap::AddTravelRegions()
 
 void CAreaMap::OnSpecial() 
 {
+  int maptype;
+
+  maptype = maptypes[m_maptype];
   if(!the_map) Allocatemap(true);
-	switch(maptypes[m_maptype])
+	switch(maptype)
   {
   case MT_LIGHT:
-    //generate lightmap
+    if (m_maptype==1)
+    {
+      //generate night lightmap
+      the_area.header.areatype|=EXTENDED_NIGHT;
+      if(GetLightMap(true)) return;
+      the_area.ConvertNightMap(200,100,100,256);
+      m_maptype=2;
+      maptype=maptypes[m_maptype];
+      the_area.changedmap[maptype]=TRUE;
+      RefreshMap(false);
+    }
     break;
   case MT_HEIGHT:
     break;
@@ -7297,7 +7395,7 @@ void CAreaPropertySheet::RefreshDialog()
   m_PageDoor.RefreshDoor();
   m_PageVariable.RefreshVariable();
   m_PageAnim.RefreshAnim();
-  m_PageMap.RefreshMap();
+  m_PageMap.RefreshMap(true);
   m_PageProj.RefreshProj();
   page=GetActivePage();
   page->UpdateData(UD_DISPLAY);

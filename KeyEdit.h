@@ -56,13 +56,14 @@ protected:
   void cleanup();
   void get_bifs(CString folder);
   void write_chitin(int fhandle);
+  void RefreshEntryInfo();
 	// Generated message map functions
 	//{{AFX_MSG(CKeyEdit)
 	afx_msg void OnSelchangeBiflist();
 	afx_msg void OnSelchangeFilelist();
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-	afx_msg void OnClickFilelist(NMHDR* pNMHDR, LRESULT* pResult);
+	//afx_msg void OnClickFilelist(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDeleteall();
 	afx_msg void OnRemovebif();
 	afx_msg void OnMark();
@@ -79,6 +80,7 @@ protected:
 	afx_msg void OnToolsExplode();
 	afx_msg void OnToolsImplode();
 	afx_msg void OnCheck();
+	afx_msg void OnItemchangedFilelist(NMHDR* pNMHDR, LRESULT* pResult);
 	//}}AFX_MSG
   afx_msg void OnCustomdrawFilelist ( NMHDR* pNMHDR, LRESULT* pResult );  
 	DECLARE_MESSAGE_MAP()

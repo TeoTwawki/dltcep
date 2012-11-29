@@ -876,20 +876,20 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
         {
         case FLG_MVAR:
           memcpy(finddata.variable,trigger->var1+6,32);
-          finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
+              finddata.param1=bcnt;
               return 1;
             }
           }
           memcpy(finddata.variable,trigger->var2+6,32);
-          finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
+              finddata.param1=bcnt;
               return 1;
             }
           }
@@ -898,11 +898,11 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           if(strlen(trigger->var1)<=8)
           {
             memcpy(finddata.resource,trigger->var1,8);
-            finddata.param1=bcnt;
             if(searchdata.resource[0])
             {
               if(!strnicmp(finddata.resource,searchdata.resource,8))
               {
+                finddata.param2=bcnt;
                 return 1;
               }
             }
@@ -911,11 +911,11 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           if(strlen(trigger->var2)<=8)
           {
             memcpy(finddata.resource,trigger->var2,8);
-            finddata.param1=bcnt;
             if(searchdata.resource[0])
             {
               if(!strnicmp(finddata.resource,searchdata.resource,8))
               {
+                finddata.param2=bcnt;
                 return 1;
               }
             }
@@ -925,11 +925,11 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           {
             CString tmpstr = format_spell_id(trigger->bytes[0]);
             memcpy(finddata.resource,tmpstr,8);
-            finddata.param1=bcnt;
             if(searchdata.resource[0])
             {
               if(!strnicmp(finddata.resource,searchdata.resource,8))
               {
+                finddata.param2=bcnt;
                 return 1;
               }
             }
@@ -942,6 +942,7 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           {
             finddata.itemtype=(short) item;
             finddata.itemtype2=(short) bcnt;
+            finddata.param1=bcnt;
             return 1;
           }
           break;
@@ -960,20 +961,20 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
         {
         case FLG_MVAR:
           memcpy(finddata.variable,action->var1+6,32);
-          finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
+              finddata.param1=bcnt;
               return 1;
             }
           }
           memcpy(finddata.variable,action->var2+6,32);
-          finddata.param1=bcnt;
           if(searchdata.variable[0])
           {
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
+              finddata.param1=bcnt;
               return 1;
             }
           }
@@ -982,11 +983,11 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           if(strlen(action->var1)<=8)
           {
             memcpy(finddata.resource,action->var1,8);
-            finddata.param1=bcnt;
             if(searchdata.resource[0])
             {
               if(!strnicmp(finddata.resource,searchdata.resource,8))
               {
+                finddata.param2=bcnt;
                 return 1;
               }
             }
@@ -995,11 +996,11 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           if(strlen(action->var2)<=8)
           {
             memcpy(finddata.resource,action->var2,8);
-            finddata.param1=bcnt;
             if(searchdata.resource[0])
             {
               if(!strnicmp(finddata.resource,searchdata.resource,8))
               {
+                finddata.param2=bcnt;
                 return 1;
               }
             }
@@ -1009,11 +1010,11 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
           {
             CString tmpstr = format_spell_id(action->bytes[0]);
             memcpy(finddata.resource,tmpstr,8);
-            finddata.param1=bcnt;
             if(searchdata.resource[0])
             {
               if(!strnicmp(finddata.resource,searchdata.resource,8))
               {
+                finddata.param2=bcnt;
                 return 1;
               }
             }
@@ -1026,6 +1027,16 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
             finddata.feature=(short) item;
             finddata.feature2=(short) bcnt;
             return 1;
+          }
+          break;
+        case FLG_MSTRREF:
+          if((handle_action(action->opcode)&CHECK_STRREF))
+          {
+            if (action->bytes[0]==searchdata.strref)
+            {
+              finddata.param2=bcnt;
+              return 1;
+            }
           }
           break;
         }

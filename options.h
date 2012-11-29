@@ -163,7 +163,6 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CEditOpt)
 	enum { IDD = IDD_EDIT };
-		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
 
 // Overrides
@@ -217,6 +216,7 @@ protected:
 	afx_msg void OnIntcomp();
 	afx_msg void OnForcenew();
 	afx_msg void OnShadow();
+	afx_msg void OnKillfocusWidth();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -238,6 +238,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CWeiDUOpt)
 	enum { IDD = IDD_WEIDU };
+	CComboBox	m_language_control;
 	CButton	m_openfile;
 	CString	m_command;
 	//}}AFX_DATA
@@ -256,6 +257,7 @@ public:
 protected:
   CToolTipCtrl m_tooltip;
 
+  void FillPath(CComboBox &box);
   void Refresh();
 
 	// Generated message map functions
@@ -270,6 +272,7 @@ protected:
 	afx_msg void OnLog();
 	afx_msg void OnKillfocusDecompiled();
 	afx_msg void OnFlag5();
+	afx_msg void OnKillfocusLanguage();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

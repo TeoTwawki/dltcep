@@ -67,6 +67,8 @@ protected:
 	afx_msg void OnChecksound();
 	afx_msg void OnChecktag();
 	afx_msg void OnToolsSynchronisetlks();
+	afx_msg void OnCheckSpecialstrings();
+	afx_msg void OnSearchWeirdcharacter();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

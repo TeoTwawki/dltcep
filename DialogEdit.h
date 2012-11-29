@@ -114,9 +114,11 @@ public:
   int m_activesection;
   leaf_data m_treestates;  //the state ID's of the dialog tree
   leaf_data m_transstates; //the transitions (PC responses)
+  bool viewonly;
 
 protected:
    CToolTipCtrl m_tooltip;
+   CString filepath;
    CSearchNode m_searchdlg;
    char *m_treeflags;
    char *m_transflags;
@@ -134,6 +136,7 @@ protected:
 // Implementation
 protected:
   int SaveDialog(CString filepath, CString newname);
+  void UpdateWindowTitle(int stateidx);
   void RefreshDialog(int stateidx, int expandselection=0);
   int AddTransBranch(HTREEITEM ht, int transitionidx, int transitioncount, int level);
   void DisplayText();
@@ -206,9 +209,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-//	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 	afx_msg void OnEnChangeText();
+  void SetViewOnly();
 };
 
 //{{AFX_INSERT_LOCATION}}

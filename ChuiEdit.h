@@ -39,6 +39,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   //refreshes control type specific edit controls
   void DisplayControls(int type);

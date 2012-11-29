@@ -36,6 +36,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void RefreshDialog();
   void SaveWFX(int save);

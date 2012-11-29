@@ -166,6 +166,12 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
 
     DDX_Text(pDX, IDC_BOOKICON, tmpstr);
     StoreResref(tmpstr, the_spell.header.icon);
+
+    DDX_Text(pDX, IDC_UNKNOWN58, tmpstr);
+    StoreResref(tmpstr, the_spell.header.descicon);
+
+    DDX_Text(pDX, IDC_UNKNOWN44, tmpstr);
+    StoreResref(tmpstr, the_spell.header.groundicon);
   }
   else  //display
   {
@@ -186,15 +192,22 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX,IDC_SECTYPE, tmpstr);
    
     tmpstr.Format("0x%04x-Unused",the_spell.header.school1);
-    value=1;
-    for(bit=0;exclusion[bit];bit++)
+    if ((the_spell.header.school1&0x7fc0)==0x7fc0)
     {
-      if(the_spell.header.school1&value)
+      tmpstr.Format("0x%04x-Wildmagic",the_spell.header.school1);
+    }
+    else
+    {
+      value=1;
+      for(bit=0;exclusion[bit];bit++)
       {
-        tmpstr.Format("0x%04x-Exclude %s",the_spell.header.school1,exclusion[bit] );
-        break;
+        if(the_spell.header.school1&value)
+        {
+          tmpstr.Format("0x%04x-Exclude %s",the_spell.header.school1,exclusion[bit] );
+          break;
+        }
+        value<<=1;
       }
-      value<<=1;
     }
     
     DDX_Text(pDX, IDC_EXCLUDE, tmpstr);
@@ -214,6 +227,14 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
     RetrieveResref(tmpstr,the_spell.header.wavc);
     DDX_Text(pDX,IDC_WAV,tmpstr);
   	DDV_MaxChars(pDX, tmpstr, 8);
+
+    RetrieveResref(tmpstr, the_spell.header.descicon);
+    DDX_Text(pDX, IDC_UNKNOWN58, tmpstr);
+    DDV_MaxChars(pDX, tmpstr, 8);
+
+    RetrieveResref(tmpstr, the_spell.header.groundicon);
+    DDX_Text(pDX, IDC_UNKNOWN44, tmpstr);
+    DDV_MaxChars(pDX, tmpstr, 8);
 
     RetrieveResref(tmpstr, the_spell.header.icon);
     DDX_Text(pDX, IDC_BOOKICON, tmpstr);
@@ -257,20 +278,17 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
   }
   for(id=0;id<2;id++) GetDlgItem(IDC_U1+id)->EnableWindow(value);
 //unknowns
-  DDX_Text(pDX, IDC_UNKNOWN0C, the_spell.header.unknown0c);
+  DDX_Text(pDX, IDC_UNKNOWN0C, the_spell.header.idname);
   DDX_Text(pDX, IDC_UNKNOWN23, the_spell.header.unknown24);
   DDX_Text(pDX, IDC_UNKNOWN28, the_spell.header.unknown28);
   DDX_Text(pDX, IDC_UNKNOWN2C, the_spell.header.unknown2c);
-  DDX_Text(pDX, IDC_UNKNOWN30, the_spell.header.unknown30);
-  DDX_Text(pDX, IDC_UNKNOWN38, the_spell.header.unknown38);
-  DDX_Text(pDX, IDC_UNKNOWN42, the_spell.header.unknown42);
-  DDX_Text(pDX, IDC_UNKNOWN44, the_spell.header.unknown44);
-  DDX_Text(pDX, IDC_UNKNOWN48, the_spell.header.unknown48);
-  DDX_Text(pDX, IDC_UNKNOWN4C, the_spell.header.unknown4c);
-  DDX_Text(pDX, IDC_UNKNOWN54, the_spell.header.unknown54);
-  DDX_Text(pDX, IDC_UNKNOWN58, the_spell.header.unknown58);
-  DDX_Text(pDX, IDC_UNKNOWN5C, the_spell.header.unknown5c);
-  DDX_Text(pDX, IDC_UNKNOWN60, the_spell.header.unknown60);
+  DDX_Text(pDX, IDC_UNKNOWN30, the_spell.header.mincon);
+  DDX_Text(pDX, IDC_UNKNOWN32, the_spell.header.minchr);
+  DDX_Text(pDX, IDC_UNKNOWN38, the_spell.header.stack);
+  DDX_Text(pDX, IDC_UNKNOWN42, the_spell.header.lore);
+  DDX_Text(pDX, IDC_UNKNOWN4C, the_spell.header.weight);
+  DDX_Text(pDX, IDC_UNKNOWN54, the_spell.header.iddesc);
+  DDX_Text(pDX, IDC_UNKNOWN60, the_spell.header.attributes);
   if(memcmp(&tmpheader,&the_spell.header,sizeof(spell_header) ))
   {
     the_spell.m_changed=true;
@@ -331,6 +349,7 @@ BOOL CSpellGeneral::OnInitDialog()
     cb->AddString(tmpstr);
     num<<=1;
   }
+  cb->AddString("0x7fc0-Wildmagic");
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -370,25 +389,23 @@ void CSpellGeneral::RefreshGeneral()
 
 BEGIN_MESSAGE_MAP(CSpellGeneral, CPropertyPage)
 	//{{AFX_MSG_MAP(CSpellGeneral)
-	ON_EN_KILLFOCUS(IDC_WAV, OnKillfocusWav)
-	ON_CBN_KILLFOCUS(IDC_SPELLTYPEPICKER, OnKillfocusSpelltype)
-	ON_EN_KILLFOCUS(IDC_LEVEL, OnKillfocusLevel)
-	ON_CBN_KILLFOCUS(IDC_SCHOOL, OnKillfocusSchool)
-	ON_CBN_KILLFOCUS(IDC_SECTYPE, OnKillfocusSectype)
-	ON_CBN_KILLFOCUS(IDC_SELECTION, OnKillfocusSelection)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN0C, OnKillfocusUnknown0c)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN23, OnKillfocusUnknown23)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN28, OnKillfocusUnknown28)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN2C, OnKillfocusUnknown2c)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN30, OnKillfocusUnknown30)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN38, OnKillfocusUnknown38)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN44, OnKillfocusUnknown44)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN48, OnKillfocusUnknown48)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN4C, OnKillfocusUnknown4c)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN54, OnKillfocusUnknown54)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN58, OnKillfocusUnknown58)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN5C, OnKillfocusUnknown5c)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN60, OnKillfocusUnknown60)
+	ON_EN_KILLFOCUS(IDC_WAV, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_SPELLTYPEPICKER, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_LEVEL, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_SCHOOL, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_SECTYPE, OnDefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_SELECTION, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN0C, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN23, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN28, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN2C, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN30, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN38, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN44, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN4C, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN54, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN58, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN60, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_ATTR1, OnAttr1)
 	ON_BN_CLICKED(IDC_ATTR2, OnAttr2)
 	ON_BN_CLICKED(IDC_ATTR3, OnAttr3)
@@ -397,38 +414,21 @@ BEGIN_MESSAGE_MAP(CSpellGeneral, CPropertyPage)
 	ON_BN_CLICKED(IDC_ATTR6, OnAttr6)
 	ON_BN_CLICKED(IDC_ATTR7, OnAttr7)
 	ON_BN_CLICKED(IDC_ATTR8, OnAttr8)
-	ON_CBN_KILLFOCUS(IDC_EXCLUDE, OnKillfocusExclude)
-	ON_EN_KILLFOCUS(IDC_BOOKICON, OnKillfocusBookicon)
-	ON_EN_KILLFOCUS(IDC_BYTE1, OnKillfocusByte1)
-	ON_EN_KILLFOCUS(IDC_BYTE34, OnKillfocusByte34)
+	ON_CBN_KILLFOCUS(IDC_EXCLUDE, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_BOOKICON, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_BYTE1, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_BYTE34, OnDefaultKillfocus)
 	ON_BN_CLICKED(IDC_V1, OnV1)
 	ON_BN_CLICKED(IDC_V20, OnV20)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_INVICON1, OnInvicon1)
 	ON_BN_CLICKED(IDC_PLAYSOUND, OnPlaysound)
-	ON_CBN_KILLFOCUS(IDC_PRIESTTYPE, OnKillfocusPriesttype)
-	ON_EN_KILLFOCUS(IDC_U1, OnKillfocusU1)
-	ON_EN_KILLFOCUS(IDC_U2, OnKillfocusU2)
+	ON_CBN_KILLFOCUS(IDC_PRIESTTYPE, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U1, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_U2, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN32, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-
-void CSpellGeneral::OnKillfocusSpelltype() 
-{
-	UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusPriesttype() 
-{
-	UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusWav() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
 
 void CSpellGeneral::OnPlaysound() 
 {
@@ -449,140 +449,7 @@ void CSpellGeneral::OnBrowse()
 	UpdateData(UD_DISPLAY);	
 }
 
-void CSpellGeneral::OnKillfocusLevel() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusSchool() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusSectype() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusExclude() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusSelection() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusBookicon() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-
-void CSpellGeneral::OnKillfocusU1() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusU2() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusByte1() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusByte34() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown0c() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown23() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown28() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown2c() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown30() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown38() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown44() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown48() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown4c() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown54() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown58() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown5c() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
-void CSpellGeneral::OnKillfocusUnknown60() 
+void CSpellGeneral::OnDefaultKillfocus() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
@@ -679,12 +546,18 @@ CSpellDescription::~CSpellDescription()
 
 void CSpellDescription::DoDataExchange(CDataExchange* pDX)
 {
+  CString tmpstr;
+
 	CPropertyPage::DoDataExchange(pDX);
 
-	DDX_Text(pDX, IDC_LONGREF, the_spell.header.spellname);
+  tmpstr.Format("%d", the_spell.header.spellname);
+	DDX_Text(pDX, IDC_LONGREF, tmpstr);
+  the_spell.header.spellname = strtonum(tmpstr);
 	DDV_MinMaxLong(pDX, the_spell.header.spellname, -1, 1000000);
 
-	DDX_Text(pDX, IDC_LONGDESCREF, the_spell.header.desc);
+  tmpstr.Format("%d", the_spell.header.desc);
+	DDX_Text(pDX, IDC_LONGDESCREF, tmpstr);
+  the_spell.header.desc = strtonum(tmpstr);
 	DDV_MinMaxLong(pDX, the_spell.header.desc, -1, 1000000);
 	//{{AFX_DATA_MAP(CSpellDescription)
 	DDX_Text(pDX, IDC_LONGDESC, m_longdesc);
@@ -2091,6 +1964,15 @@ BOOL CSpellDescription::PreTranslateMessage(MSG* pMsg)
 BOOL CSpellExtended::PreTranslateMessage(MSG* pMsg) 
 {
 	m_tooltip.RelayEvent(pMsg);
+  if (pMsg->message==256 && pMsg->wParam==13)
+  {
+    nop();
+  }
+
+  if (pMsg->message!=15 && pMsg->message!=160 && pMsg->message!=280 && pMsg->message!=512)
+  {
+    nop();
+  }
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
@@ -2117,3 +1999,4 @@ BOOL CSpellTool::PreTranslateMessage(MSG* pMsg)
 	m_tooltip.RelayEvent(pMsg);	
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
+

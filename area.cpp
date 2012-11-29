@@ -139,7 +139,10 @@ void Carea::new_area()
   wedchanged=true;
   wedavailable=true;
   changedmap[0]=changedmap[1]=changedmap[2]=true;
+  //this could be dangerous
   the_mos.FreeOverlay(); //clearing up the associated tileset
+  m_width=256;
+  m_height=256;
 }
 
 int Carea::adjust_actpointa(long offset)
@@ -455,7 +458,7 @@ int Carea::ExplodeDoorTiles()
 
 int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize)
 {
-  CString filepath, tmpath;
+  CString filepath, tmpath, key;
   unsigned char *buffer=NULL;
   int fhandle;
   int fullsize;
@@ -463,8 +466,14 @@ int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, in
   int scanline, width, height, x;
   int ret;
 
-  filepath=bgfolder+"override\\"+header.wed+suffix+".BMP";
-  tmpath=bgfolder+"override\\"+header.wed+suffix+".TMP";
+  RetrieveResref(key, header.wed, 0);
+  if (key.GetLength()>6)
+  {    
+    return -4;
+  }
+  key+=suffix;
+  filepath=bgfolder+"override\\"+key+".BMP";
+  tmpath=bgfolder+"override\\"+key+".TMP";
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(fhandle<1)
   {
@@ -520,11 +529,13 @@ int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, in
   }
 endofquest:
   if(buffer) delete [] buffer;
+  fullsize = filelength(fhandle);
   close(fhandle);
   if(!ret)
   {
     unlink(filepath);
     rename(tmpath,filepath);
+    UpdateIEResource(key,REF_BMP,filepath,fullsize);
   }
   return ret;
 }
@@ -545,12 +556,13 @@ int Carea::WriteWedToFile(int fh)
     {
       if(m_smallpalette)
       {
-        WriteMap("HT",heightmap,htpal,16);
+        ret = WriteMap("HT",heightmap,htpal,16);
       }
       else
       {
-        WriteMap("HT",heightmap,ht8pal,256);
+        ret = WriteMap("HT",heightmap,ht8pal,256);
       }
+      if (ret<0) return ret;
       changedmap[0]=false;
     }
   }
@@ -560,12 +572,13 @@ int Carea::WriteWedToFile(int fh)
     {
       if(m_night)
       {
-        WriteMap("LN",lightmap,lmpal,256);
+        ret = WriteMap("LN",lightmap,lmpal,256);
       }
       else
       {
-        WriteMap("LM",lightmap,lmpal,256);
+        ret = WriteMap("LM",lightmap,lmpal,256);
       }
+      if (ret<0) return ret;
       changedmap[1]=false;
     }
   }
@@ -573,7 +586,8 @@ int Carea::WriteWedToFile(int fh)
   {
     if(changedmap[2])
     {
-      WriteMap("SR",searchmap,srpal,16);
+      ret = WriteMap("SR",searchmap,srpal,16);
+      if (ret<0) return ret;
       changedmap[2]=false;
     }
   }
@@ -679,7 +693,7 @@ int Carea::WriteWedToFile(int fh)
     goto endofquest;
   }
   //converting back to indices
-  ret=ConvertOffsetToIndex(secheader.polygonoffset+secheader.wallpolycnt*sizeof(wed_polygon));
+  ret=ConvertOffsetToIndex(secheader.polygonoffset+secheader.wallpolycnt*sizeof(wed_polygon), dpc);
   if(ret<0)
   {
     goto endofquest;
@@ -1264,6 +1278,21 @@ int Carea::FillDestination(int fh, long ml, CComboBox *cb)
   return 0;
 }
 
+void Carea::ConvertNightMap(int r, int g, int b, int strength)
+{
+  int i;
+  BYTE *pClr;
+
+  for(i=0;i<256;i++)
+  {
+    pClr = (BYTE *) (lmpal+i);
+    pClr[0] = (pClr[0]*r)>>8;
+    pClr[1] = (pClr[1]*g)>>8;
+    pClr[2] = (pClr[2]*b)>>8;
+    pClr[3] = (pClr[3]*strength)>>8;
+  }
+}
+
 void Carea::MirrorMap(unsigned char *poi)
 {
   int maxx,maxy;
@@ -1432,28 +1461,29 @@ int Carea::RecalcBoundingBoxes()
   return 0;
 }
 
-int Carea::ConvertOffsetToIndex(int polyoffset)
+int Carea::ConvertOffsetToIndex(int polyoffset, int &dpc)
 {
+  int ret;
   int i;
-  int dpc;
 
   dpc=0;
+  ret=0;
   for(i=0;i<weddoorcount;i++)
   {
     weddoorheaders[i].offsetpolygonopen=(weddoorheaders[i].offsetpolygonopen-polyoffset)/sizeof(wed_polygon);
     if(weddoorheaders[i].offsetpolygonopen!=dpc)
     {
-      return -1;
+      ret = 1;
     }
     dpc+=weddoorheaders[i].countpolygonopen;
     weddoorheaders[i].offsetpolygonclose=(weddoorheaders[i].offsetpolygonclose-polyoffset)/sizeof(wed_polygon);
     if(weddoorheaders[i].offsetpolygonclose!=dpc)
     {
-      return -1;
+      ret = 1;
     }
     dpc+=weddoorheaders[i].countpolygonclose;
   }
-  return dpc;
+  return ret;
 }
 
 int Carea::getotc(int overlay)
@@ -1655,8 +1685,8 @@ int Carea::ReadWedFromFile(int fh, long ml)
   fullsizew+=esize;
   //precalculating the number of door tile indices, doorpolygonheaders
   
-  dpc=ConvertOffsetToIndex(secheader.polygonoffset+secheader.wallpolycnt*sizeof(wed_polygon));
-  if(dpc<0) return dpc;
+  ret|=ConvertOffsetToIndex(secheader.polygonoffset+secheader.wallpolycnt*sizeof(wed_polygon), dpc);
+  if(ret<0) return -1;
 
   dtc=0;
   for(i=0;i<weddoorcount;i++)

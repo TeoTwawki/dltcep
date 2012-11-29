@@ -276,7 +276,7 @@ int CScriptEdit::compile(CString filepath)
 
   if(editflg&INTERNALCOMPILER)
   {
-    syscommand=AssembleWeiduCommandLine(filepath,outpath); //import (compile)
+    syscommand=AssembleWeiduCommandLine(filepath,outpath, false); //import (compile)
     res=RunWeidu(syscommand);
     ((CChitemDlg *) AfxGetMainWnd())->rescan_dialog(true);
     ((CChitemDlg *) AfxGetMainWnd())->scan_override();
@@ -356,7 +356,7 @@ int CScriptEdit::decompile(CString &filepath, CString tmpname)
 
   if(editflg&INTERNALDECOMP)
   {
-    syscommand=AssembleWeiduCommandLine(filepath,weidudecompiled); //export
+    syscommand=AssembleWeiduCommandLine(filepath,weidudecompiled, true); //export
     res=RunWeidu(syscommand);
   }
   else
@@ -450,7 +450,6 @@ static char BASED_CODE szFilterb[] = "Script Source files (*.baf)|*.baf|Script f
 void CScriptEdit::OnLoadex() 
 {
   char BASED_CODE *szFilter;
-  CString filepath;
   CString m_text;
   int fhandle;
   int res;
@@ -551,7 +550,6 @@ void CScriptEdit::OnSaveasGeneral(int type)
   char BASED_CODE *szFilter;
   CString tmpstr;
   CString newname;
-  CString filepath;
   int fhandle;
   int res;
 

@@ -24,6 +24,8 @@ static char THIS_FILE[] = __FILE__;
 
 static char BASED_CODE szFilter[] = "Animation files (*.bam)|*.bam|All files (*.*)|*.*||";
 static char BASED_CODE szFilter2[] = "Bitmap files (*.bmp)|*.bmp|Paperdoll files (*.plt)|*.plt|All files (*.*)|*.*||";
+static char BASED_CODE szFilter3[] = "Animation files (*.bam)|*.bam|Bitmap files (*.bmp)|*.bmp|All files (*.*)|*.*||";
+
 
 CString GetNumberTag(CString fullname, int &startnumber, int &digits)
 {
@@ -633,7 +635,6 @@ void CBamEdit::OnFileMergeexternalbam()
 
 void CBamEdit::LoadBamEx(Cbam *resource)
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -642,6 +643,7 @@ void CBamEdit::LoadBamEx(Cbam *resource)
   CMyFileDialog m_getfiledlg(TRUE, "bam", makeitemname(".bam",0), res, szFilter);
   
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -694,7 +696,6 @@ int CBamEdit::WriteAllFrames(CString newname, Cbam &my_bam)
 
 void CBamEdit::Savebam(Cbam &my_bam, int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -721,6 +722,7 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
   }    
   
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   bmpsave=false;
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -1009,7 +1011,7 @@ void CBamEdit::Loadpalette(bool force_or_import)
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CMyFileDialog m_getfiledlg(TRUE, NULL, makeitemname(".bam",0), res, szFilter);
+  CMyFileDialog m_getfiledlg(TRUE, NULL, makeitemname(".bam",0), res, szFilter3);
   
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -1022,7 +1024,14 @@ restart:
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
-    res=palette.ReadBamFromFile(fhandle,-1,0);
+    if(filepath.Right(4)==".bmp")
+    {
+      res=palette.ReadBmpFromFile(fhandle,-1);
+    }
+    else
+    {
+      res=palette.ReadBamFromFile(fhandle,-1,0);
+    }
     close(fhandle);
     if(force_or_import) the_bam.ForcePalette(palette.m_palette);
     else

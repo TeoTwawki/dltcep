@@ -172,6 +172,7 @@ int Citem::ReadItemFromFile(int fh, long ml)
   int fullsize;
   int fbc;
   int i;
+  int ret;
 
   m_changed=false;
   if(fh<1) return -1;
@@ -220,18 +221,15 @@ int Citem::ReadItemFromFile(int fh, long ml)
     pstheader.nameref=header.unidref;
     StoreResref(itemname,pstheader.dialog); 
   }
+  ret = 0;
   if(header.extheadoffs!=fullsize )
   {
     //this is a small hack to fix some tutu screwups
-    if (header.featureoffs!=fullsize)
+    if ((header.featureoffs==fullsize) && !header.extheadcount)
     {
-      return -2;
+      header.extheadoffs=fullsize;
     }
-    if (header.extheadcount!=0)
-    {
-      return -2;
-    }
-    header.extheadoffs=fullsize;
+    ret = 1;
   }
   if(header.extheadcount!=extheadcount)
   {
@@ -245,22 +243,22 @@ int Citem::ReadItemFromFile(int fh, long ml)
   {
     if(header.featureoffs!=(int) (header.extheadoffs+extheadcount*sizeof(ext_header)) )
     {
-      return 2; //unusual order of blocks
+      ret = 2;
     }
     if(header.featblkoffs)
     {
-      return 2; //unusual order of feature blocks
+      ret = 2;
     }
   }
   else
   { //item isn't seriously crippled
     if(header.featureoffs!=(int) (header.extheadoffs+extheadcount*sizeof(ext_header)) )
     {
-      return 1; //unusual order of blocks
+      ret = 1;
     }
     if(header.featblkoffs)
     {
-      return 1; //unusual order of feature blocks
+      ret = 1;
     }
   }
   for(i=0;i<extheadcount;i++)
@@ -279,6 +277,11 @@ int Citem::ReadItemFromFile(int fh, long ml)
     if(!featblocks) return -3;
     featblkcount=fbc;
   }
+  if (fullsize<header.featblkoffs)
+  {
+    lseek(fhandle, header.featblkoffs-fullsize, SEEK_CUR);
+    ret = 1;
+  }
   for(i=0;i<featblkcount;i++)
   {
     if(read(fhandle, &featblocks[i], sizeof(feat_block) )!=sizeof(feat_block) )
@@ -289,7 +292,7 @@ int Citem::ReadItemFromFile(int fh, long ml)
   }
   if(maxlen!=fullsize)
   {
-    return 1; //incorrect length
+    ret = 1; //incorrect length
   }
-  return 0;
+  return ret;
 }

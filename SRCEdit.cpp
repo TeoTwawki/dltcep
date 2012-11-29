@@ -134,9 +134,35 @@ void CSRCEdit::RefreshControl()
 
 BOOL CSRCEdit::OnInitDialog() 
 {
+  CString tmpstr, tmpstr1, tmpstr2;
+
 	CDialog::OnInitDialog();
 	RefreshControl();
   m_spincontrol.SetBuddy(&m_buddycontrol);
+  //tooltips
+  {
+    m_tooltip.Create(this,TTS_NOPREFIX);
+    m_tooltip.SetMaxTipWidth(200);
+    m_tooltip.SetTipBkColor(RGB(240,224,160));
+    
+    m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
+    tmpstr1.LoadString(IDS_LOAD);
+    tmpstr2.LoadString(IDS_SRC);
+    tmpstr.Format(tmpstr1, tmpstr2);
+    m_tooltip.AddTool(GetDlgItem(IDC_LOAD), tmpstr);
+    tmpstr1.LoadString(IDS_LOADEX);
+    tmpstr.Format(tmpstr1, tmpstr2);
+    m_tooltip.AddTool(GetDlgItem(IDC_LOADEX), tmpstr);
+    tmpstr1.LoadString(IDS_SAVE);
+    tmpstr.Format(tmpstr1, tmpstr2);
+    m_tooltip.AddTool(GetDlgItem(IDC_SAVEAS), tmpstr);
+    tmpstr1.LoadString(IDS_NEW);
+    tmpstr.Format(tmpstr1, tmpstr2);
+    m_tooltip.AddTool(GetDlgItem(IDC_NEW), tmpstr);
+    tmpstr1.LoadString(IDS_CHECK);
+    tmpstr.Format(tmpstr1, tmpstr2);
+    m_tooltip.AddTool(GetDlgItem(IDC_CHECK), tmpstr);
+  }	
 
 	return TRUE;  
 }
@@ -235,7 +261,6 @@ static char BASED_CODE szFilter[] = "String resource files (*.src)|*.src|All fil
 
 void CSRCEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -244,6 +269,7 @@ void CSRCEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "src", makeitemname(".src",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -296,7 +322,6 @@ void CSRCEdit::OnSaveas()
 
 void CSRCEdit::SaveSrc(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int fhandle;
@@ -317,6 +342,7 @@ void CSRCEdit::SaveSrc(int save)
     goto gotname;
   }    
 restart:
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -379,7 +405,7 @@ void CSRCEdit::OnCheck()
 
 	for(i=0;i<the_src.m_cnt;i++)
   {
-    ret=check_reference(the_src.m_slots[i],1);
+    ret=check_reference(the_src.m_slots[i],1,1,0);
     if(!ret) continue;
     switch(ret)
     {
@@ -485,4 +511,10 @@ void CSRCEdit::PostNcDestroy()
 	if(the_src.m_slots) delete [] the_src.m_slots;
   the_src.m_slots=NULL;
 	CDialog::PostNcDestroy();
+}
+
+BOOL CSRCEdit::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

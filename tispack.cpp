@@ -43,10 +43,8 @@ unsigned char progname[] = "tispack";
 #define DESTBUFSIZE 8192
 
 /* arg defaults */
-int printascii = 0;
 int silent = 0;
 int quality = 75;
-int blur = 0;
 
 //stores data in big endian order (wonder why)
 inline void store_data(unsigned char *tmp, unsigned int data)
@@ -276,14 +274,9 @@ int tispack(int infile, int outfile) {
       methodbuf = destbuf2;
       ++mctr2;
     }
-    
-    if (silent < 1) {
-      printf("%d bytes (%.1f%c) using method %c\n", methodlen, methodlen / 51.2 + 0.5, '%', methodbuf[3]);
-    }
-    
+        
     /* write the tile */
     if (writetile(outfile, methodbuf, methodlen) < 0) {
-      printf("Writing of tile %d failed!\n", tile);
       return(1);
     }
     
@@ -302,7 +295,6 @@ int readtisheader(int infile) {
   unsigned char h[24];
   
   if (read(infile, &h, 24) != 24) {
-    printf("Couldn't read TIS header\n");
     return(-1);
   }
   if (strncmp((char *) h, "TIS V1  ", 8) == 0) {
@@ -330,7 +322,6 @@ int writetizheader(int outfile, int numtiles) {
   h[7] = 0x00;
   
   if (write(outfile, h, 8) != 8) {
-    printf("TIZ header write failed!\n");
     return(-1);
   } else {
     return(8);
@@ -354,6 +345,7 @@ int perform_tis2tiz(CString infname, CString outpath)
   
   size = filelength(infile);
   if (size == 0) {
+    close(infile);
     return -1;
   }
   
@@ -399,3 +391,155 @@ int perform_tis2tiz(CString infname, CString outpath)
   return(status);
 }
 
+int pvrunpack(int infile, int outfile, unsigned long insize, unsigned long outsize)
+{
+  unsigned char *indata;
+  unsigned char *outdata;
+
+  indata = (unsigned char *) malloc(insize);
+  if (!indata) return -1;
+  outdata = (unsigned char *) calloc(outsize, 1);
+  if (!outdata) {
+    free(indata);
+    return -1;
+  }
+
+  if (read(infile, indata, insize)!=(int) insize)
+  {
+    free(indata);
+    free(outdata);
+    return -1;
+  }
+
+  int err = uncompress(outdata, &outsize, indata, insize);
+  if (write(outfile, outdata, outsize)!=(int) outsize)
+  {
+    free(indata);
+    free(outdata);
+    return -1;
+  }
+  free(indata);
+  free(outdata);
+  return err!=Z_OK;
+}
+
+int pvrpack(int infile, int outfile, unsigned long insize)
+{
+  unsigned char *indata;
+  unsigned char *outdata;
+  unsigned long outsize = insize; //we don't care about safety, these files should always compress
+  
+  indata = (unsigned char *) malloc(insize);
+  if (!indata) return -1;
+  outdata = (unsigned char *) calloc(outsize, 1);
+  if (!outdata) return -1;
+
+  if (read(infile, indata, insize)!=(int) insize)
+  {
+    free(indata);
+    free(outdata);
+    return -1;
+  }
+  int err = compress2(outdata, &outsize, indata, insize, Z_BEST_COMPRESSION);
+  //int err = zlibcompress(indata, insize, outdata);
+  if (write(outfile, &insize, sizeof(insize) )!=sizeof(insize) )
+  {
+    free(indata);
+    free(outdata);
+    return -1;
+  }
+  if (write(outfile, outdata, outsize)!=(int) outsize)
+  {
+    free(indata);
+    free(outdata);
+    return -1;
+  }
+
+  free(indata);
+  free(outdata);
+  return err!=Z_OK;
+}
+
+int perform_pvrz2pvr(CString infname, CString outpath)
+{
+  CString outfname;  
+  unsigned long insize, outsize;
+  int infile, outfile, status;
+
+  /* set default output name */
+  outfname=outpath+"\\"+infname.Mid(infname.ReverseFind('\\')+1);
+  outfname.MakeLower();
+  outfname.Replace(".pvrz",".pvr");
+  
+  if ((infile = open(infname,O_BINARY| O_RDONLY)) == -1) {
+    return -2;
+  }
+  
+  insize = filelength(infile);
+  if (insize < 8)
+  {
+    close(infile);
+    return -1;
+  }
+  
+  if (read(infile, &outsize, 4)!=4)
+  {
+    close(infile);
+    return -1;
+  }
+  insize-=4;
+
+  if ((outfile = open(outfname, O_BINARY|O_WRONLY|O_CREAT|O_TRUNC, S_IWRITE|S_IREAD)) == -1)
+  {
+    close(infile);
+    return -2;
+  }
+   
+  status = pvrunpack(infile, outfile, insize, outsize);
+  close(outfile);
+  close(infile);
+  if (status) {
+    unlink(outfname);
+  }
+  
+  return(status);
+}
+
+int perform_pvr2pvrz(CString infname, CString outpath)
+{
+  CString outfname;  
+  int insize;
+  int infile, outfile, status;
+
+  /* set default output name */
+  outfname=outpath+"\\"+infname.Mid(infname.ReverseFind('\\')+1);
+  outfname.MakeLower();
+  outfname.Replace(".pvr",".pvrz");
+  
+  if ((infile = open(infname,O_BINARY| O_RDONLY)) == -1) {
+    return -2;
+  }
+       
+  insize = filelength(infile);
+  //PVR files should have a header of this size
+  if (insize < 0x34)
+  {
+    close(infile);
+    return -1;
+  }
+
+  if ((outfile = open(outfname, O_BINARY|O_WRONLY|O_CREAT|O_TRUNC, S_IWRITE|S_IREAD)) == -1)
+  {
+    close(infile);
+    return -2;
+  } 
+  
+  status = pvrpack(infile, outfile, insize);
+  close(outfile);
+  close(infile);
+  if (status) {
+    unlink(outfname);
+  }
+  
+  return(status);
+}

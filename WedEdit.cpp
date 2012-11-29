@@ -39,7 +39,7 @@ CWedEdit::CWedEdit(CWnd* pParent /*=NULL*/)	: CDialog(CWedEdit::IDD, pParent)
 }
 
 static int overlayboxids[]={IDC_TILESET, IDC_WIDTH, IDC_HEIGHT, IDC_UNKNOWN0C,
-IDC_REMOVE, IDC_EDIT, IDC_EDITTILE, IDC_OVERLAY,
+IDC_REMOVE, IDC_EDIT, IDC_EDITTILE, IDC_OVERLAY, IDC_MOVE,
 0};
 
 static int doorboxids[]={IDC_DOORID, IDC_CLOSED, IDC_DOORPOLYPICKER, IDC_DOORPOLYNUM,
@@ -104,7 +104,8 @@ void CWedEdit::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_HEIGHT, the_area.overlayheaders[m_overlaynum].height);
     if(tmp!=the_area.overlayheaders[m_overlaynum].height) the_area.wedchanged=true;
 
-    DDX_Text(pDX, IDC_UNKNOWN0C, the_area.overlayheaders[m_overlaynum].unknownc);
+    DDX_Text(pDX, IDC_UNKNOWN0C, the_area.overlayheaders[m_overlaynum].uniquetiles);
+    DDX_Text(pDX, IDC_MOVE, the_area.overlayheaders[m_overlaynum].movementtype);
   }
 
   /// DOOR ///
@@ -187,7 +188,7 @@ void CWedEdit::RefreshOverlay()
     return;
   }
   tis.SetAt(tisname,fileloc);
-  if(!m_overlaynum && otc<tmpmos.RetrieveTisFrameCount(fhandle,fileloc.size) )
+  if(!m_overlaynum && otc<tmpmos.RetrieveTisFrameCount(fhandle, &fileloc) )
   {
     m_problem="Doesn't match area dimensions";
   }
@@ -384,6 +385,7 @@ BEGIN_MESSAGE_MAP(CWedEdit, CDialog)
 	ON_BN_CLICKED(IDC_EDITTILE2, OnEdittile2)
 	ON_BN_CLICKED(IDC_DROP, OnDrop)
 	ON_COMMAND(IDC_ADD, OnAdd)
+	ON_EN_KILLFOCUS(IDC_MOVE, OnKillfocusMove)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -444,6 +446,13 @@ void CWedEdit::OnKillfocusUnknown0c()
 	UpdateData(UD_RETRIEVE);	
 	UpdateData(UD_DISPLAY);	
 }
+
+void CWedEdit::OnKillfocusMove() 
+{
+	UpdateData(UD_RETRIEVE);	
+	UpdateData(UD_DISPLAY);	
+}
+
 //////////////// DOOR /////////////////////
 
 void CWedEdit::OnKillfocusDoorpicker() 
@@ -1083,7 +1092,7 @@ void CWedEdit::OnTransparent()
       {
         tile=the_area.overlaytileheaders[tilenum].alternate=(short) the_mos.AddTileCopy(the_area.overlaytileindices[the_area.overlaytileheaders[tilenum].firsttileprimary]);
       }
-      the_area.overlaytileheaders[tilenum].flags|=1<<m_overlaynum;
+      the_area.overlaytileheaders[tilenum].overlayflags|=1<<m_overlaynum;
       //prepare the tile
       if(HandleOverlay(x*64,y*64, polygon, size, tile))
       {
@@ -1137,14 +1146,14 @@ void CWedEdit::OnClear()
       if(tile==-1) 
       {
         //the tile isn't overlaid at all?
-        if(!the_area.overlaytileheaders[tilenum].flags) continue; 
+        if(!the_area.overlaytileheaders[tilenum].overlayflags) continue; 
         //this tile is (was) fully overlaid, create overlay now (fully transparent)
         tile=the_area.overlaytileheaders[tilenum].alternate=(short) the_mos.AddTileCopy(original,NULL,2);
       }
       //prepare the tile
       if(RemoveOverlay(x*64, y*64, polygon, size, tile, original))
       {
-        the_area.overlaytileheaders[tilenum].flags=0;
+        the_area.overlaytileheaders[tilenum].overlayflags=0;        
         //fully opaque tiles don't need to be stored twice
         the_mos.RemoveTile(tile);
         for(tilenum=0;tilenum<the_area.overlaytilecount;tilenum++)
@@ -1214,9 +1223,11 @@ void CWedEdit::OnEdit()
 //clears a tileset
 void CWedEdit::OnRemove() 
 {
-  int i;
+  int i,j;
   int tilecount;
+  int indexcount;
   wed_tilemap *newtileheaders;
+  short *newindices;
 
   if(m_overlaynum==0)
   {
@@ -1228,8 +1239,9 @@ void CWedEdit::OnRemove()
   the_area.wedchanged=true;
   for(i=0;i<tilecount;i++)
   {
-    the_area.overlaytileheaders[i].flags&=~(1<<m_overlaynum);
+    the_area.overlaytileheaders[i].overlayflags&=~(1<<m_overlaynum);
   }
+  indexcount = the_area.getotic(m_overlaynum);
   tilecount = the_area.overlayheaders[m_overlaynum].height*the_area.overlayheaders[m_overlaynum].width; //removed tilecount
   newtileheaders = new wed_tilemap[the_area.overlaytilecount-tilecount];
   if(!newtileheaders)
@@ -1237,13 +1249,31 @@ void CWedEdit::OnRemove()
     MessageBox("Out of memory","Area editor",MB_ICONSTOP|MB_OK);
     return;
   }
+  newindices = new short[the_area.overlaytileidxcount-indexcount];
+  if (!newindices)
+  {
+    MessageBox("Out of memory","Area editor",MB_ICONSTOP|MB_OK);
+    delete [] newtileheaders;
+    return;
+  }
+
   the_area.overlaytilecount-=tilecount;
   i=the_area.getotc(m_overlaynum);
+  j=the_area.getotc(m_overlaynum+1);
   memcpy(newtileheaders, the_area.overlaytileheaders,  i*sizeof(wed_tilemap) );
-  memcpy(newtileheaders + i, the_area.overlaytileheaders+the_area.getotc(m_overlaynum+1), (the_area.overlaytilecount-i) *sizeof(wed_tilemap));
+  memcpy(newtileheaders + i, the_area.overlaytileheaders+j, (the_area.overlaytilecount-i) *sizeof(wed_tilemap));
   memset(the_area.overlayheaders+m_overlaynum,0,sizeof(wed_overlay));
   delete [] the_area.overlaytileheaders;
   the_area.overlaytileheaders=newtileheaders;
+  
+  //updating indices too
+  i=the_area.getfoti(m_overlaynum);
+  the_area.overlaytileidxcount-=indexcount;
+  memcpy(newindices, the_area.overlaytileindices, i*sizeof(short) );
+  memcpy(newindices+i, the_area.overlaytileindices+i+indexcount, (the_area.overlaytileidxcount-i) * sizeof(short));
+  delete [] the_area.overlaytileindices;
+  the_area.overlaytileindices=newindices;
+
   RefreshOverlay();
   RefreshWed();
 	UpdateData(UD_DISPLAY);	
@@ -1376,7 +1406,8 @@ void CWedEdit::OnNew()
     the_area.m_width=the_mos.mosheader.wWidth;
     the_area.m_height=the_mos.mosheader.wHeight;
   }
-  the_area.overlayheaders[m_overlaynum].unknownc=0;
+  the_area.overlayheaders[m_overlaynum].uniquetiles=0;
+  the_area.overlayheaders[m_overlaynum].movementtype=0;
 
   RefreshOverlay();
   RefreshWed();
@@ -1445,4 +1476,3 @@ void CWedEdit::PostNcDestroy()
   }
 	CDialog::PostNcDestroy();
 }
-

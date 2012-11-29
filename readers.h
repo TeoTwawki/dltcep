@@ -141,4 +141,10 @@ CSoundReader* CreateSoundReader (int fhandle, int open_mode, long samples);
 #define SND_READER_WAV 3
 #define SND_READER_ACM 4
 
+typedef struct MyFile {
+  int fhandle;
+  long base;
+  long end;
+} MyFile;
+
 #endif

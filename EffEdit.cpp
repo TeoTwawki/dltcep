@@ -47,9 +47,13 @@ CEffEdit::CEffEdit(CWnd* pParent /*=NULL*/)
   m_idsname="";
 }
 
+int flagboxids[16]={0,0,0,0,0,0,0,0,IDC_MIRROR,IDC_DIFF,0,0,0,0,0,0};
+
 void CEffEdit::DoDataExchange(CDataExchange* pDX)
 {
+  CButton *cb;
   CString tmpstr;
+  int i,j;
 
 	CDialog::DoDataExchange(pDX);
   if(editflg&SORTEFF)
@@ -140,7 +144,11 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
 
   tmpstr=get_save_type(the_effect.header.stype);
   DDX_Text(pDX, IDC_SAVETYPE, tmpstr);
-  the_effect.header.stype=atoi(tmpstr);
+  the_effect.header.stype = (unsigned short) strtonum(tmpstr);
+
+  tmpstr.Format("0x%04x", the_effect.header.flags);
+  DDX_Text(pDX, IDC_FLAGS, tmpstr);
+  the_effect.header.flags = (unsigned short) strtonum(tmpstr);
   
   DDX_Text(pDX, IDC_SAVEBONUS, the_effect.header.sbonus);
   DDV_MinMaxLong(pDX, the_effect.header.sbonus, -100, 100);
@@ -205,6 +213,18 @@ void CEffEdit::DoDataExchange(CDataExchange* pDX)
 
   DDX_Text(pDX, IDC_MIN, the_effect.header.minlevel);
   DDX_Text(pDX, IDC_MAX, the_effect.header.maxlevel);
+
+  j=1;
+  for(i=0;i<16;i++)
+  {
+    if (flagboxids[i])
+    {
+      cb = (CButton *) GetDlgItem(flagboxids[i]);
+      if (the_effect.header.flags&j) cb->SetCheck(true);
+      else cb->SetCheck(false);
+    }
+    j+=j;
+  }
 }
 
 void CEffEdit::SetDefaultDuration(int arg)
@@ -231,6 +251,7 @@ void CEffEdit::RefreshDialog()
   CString tmp;
   CString longformat;
   int strref;
+  int restype;
 
   if(m_hexadecimal) {
     longformat="0x%08x";
@@ -239,8 +260,11 @@ void CEffEdit::RefreshDialog()
   }
 
   SetWindowText("Edit effect: "+itemname);
+  restype=feature_resource(the_effect.header.feature);
   cb=(CButton *) GetDlgItem(IDC_PLAY);
-  cb->EnableWindow(feature_resource(the_effect.header.feature)==REF_WAV);
+  cb->EnableWindow(restype==REF_WAV);
+  cb=(CButton *) GetDlgItem(IDC_BROWSE);
+  cb->EnableWindow(restype!=-1);
   switch(m_par_type)
   {
   case 0:
@@ -538,9 +562,10 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_DURATION, OnToolsDuration)
 	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
 	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
-	ON_EN_KILLFOCUS(IDC_PAR4, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_PAR4, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_PAR_SPECIAL, OnParSpecial)
 	ON_BN_CLICKED(IDC_HEXADECIMAL, OnHexadecimal)
+	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
 	ON_CBN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EFFTARGET, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
@@ -577,6 +602,8 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_POS1Y, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2Y, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
+	ON_BN_CLICKED(IDC_DIFF, OnDiff)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -615,7 +642,6 @@ static char BASED_CODE szFilter[] = "Effect files (*.eff)|*.eff|All files (*.*)|
 
 void CEffEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -624,6 +650,7 @@ void CEffEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "eff", makeitemname(".eff",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -667,7 +694,6 @@ void CEffEdit::OnSaveas()
 
 void CEffEdit::SaveEff(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -687,6 +713,7 @@ void CEffEdit::SaveEff(int save)
     goto gotname;
   }
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -1049,10 +1076,17 @@ void CEffEdit::OnKillfocusPar2b4()
   RefreshDialog();
 }
 
-void CEffEdit::OnDefaultKillfocus() 
+
+void CEffEdit::OnMirror() 
 {
-	// TODO: Add your control notification handler code here
-	
+	the_effect.header.flags^=0x100;
+	UpdateData(UD_DISPLAY);
+}
+
+void CEffEdit::OnDiff() 
+{
+	the_effect.header.flags^=0x200;
+	UpdateData(UD_DISPLAY);
 }
 
 void CEffEdit::OnBrowse() 

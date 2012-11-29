@@ -402,7 +402,6 @@ static char BASED_CODE szFilter[] = "Worldmap files (*.wmp)|*.wmp|All files (*.*
 
 void CMapEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -411,6 +410,7 @@ void CMapEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "wmp", makeitemname(".wmp",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -464,7 +464,6 @@ void CMapEdit::OnSaveas()
 
 void CMapEdit::SaveMap(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -484,6 +483,7 @@ void CMapEdit::SaveMap(int save)
     goto gotname;
   }
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();

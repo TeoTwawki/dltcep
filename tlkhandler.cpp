@@ -38,14 +38,25 @@ bool truncate_references(long maxnumber, int which)
 
 CString CChitemDlg::GetTlkFileName(int which)
 {
-  
+  CString folder;
   CString tlkfilename;
 
+  if (language.GetLength())
+  {
+    folder = bgfolder+"lang/"+language+"/";
+  }
+  else
+  {
+    folder = bgfolder;
+  }
   if(which==1)
   {
-    tlkfilename.Format("%sdialogf.tlk",bgfolder);
+    tlkfilename.Format("%sdialogf.tlk",folder);
   }
-  else tlkfilename.Format("%sdialog.tlk",bgfolder);
+  else
+  {
+    tlkfilename.Format("%sdialog.tlk",folder);
+  }
   return tlkfilename;
 }
 

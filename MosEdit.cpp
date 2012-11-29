@@ -119,6 +119,7 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_BN_CLICKED(IDC_MINIMAP, OnMinimap)
 	ON_COMMAND(ID_FILE_LOADBMP, OnLoadBmp)
+	ON_COMMAND(ID_TOOLS_GUESSDIMENSIONS, OnToolsGuessdimensions)
 	ON_EN_KILLFOCUS(IDC_LIMIT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_RED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_GREEN, DefaultKillfocus)
@@ -130,7 +131,7 @@ BEGIN_MESSAGE_MAP(CMosEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
-	ON_COMMAND(ID_TOOLS_GUESSDIMENSIONS, OnToolsGuessdimensions)
+	ON_COMMAND(ID_TOOLS_CONVERTNIGHT, OnToolsConvertnight)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, OnTile)
 END_MESSAGE_MAP()
@@ -226,16 +227,15 @@ void CMosEdit::OnLoad()
 	res=pickerdlg.DoModal();
 	if(res==IDOK)
 	{
+ 		itemname=pickerdlg.m_picked;
 		if(tis_or_mos&TM_TIS) res=read_tis(pickerdlg.m_picked,false);
     else res=read_mos(pickerdlg.m_picked,false);
     switch(res)
     {
     case -1:
       MessageBox("Image loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
       break;
     case 0:
-  		itemname=pickerdlg.m_picked;
       break;
     default:
       MessageBox("Cannot read image!","Error",MB_ICONSTOP|MB_OK);
@@ -249,7 +249,7 @@ void CMosEdit::OnLoad()
 
 void CMosEdit::OnLoadex() 
 {
-  CString filepath;
+  CString tmpstr;
   int fhandle;
   int res;
   long tm1,tm2;
@@ -259,6 +259,7 @@ void CMosEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, (tis_or_mos&TM_TIS)?"tis":"mos", makeitemname(tis_or_mos?".tis":".mos",0), res, ImageFilter(tis_or_mos?0x0312:0x0321) );
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -276,13 +277,13 @@ restart:
       if(!res)
       {
         time(&tm2);
-        filepath.Format("Average quality loss: %d per pixel\nElapsed time: %d",the_mos.m_nQualityLoss/100,tm2-tm1);
-        MessageBox(filepath,"Image Editor",MB_ICONINFORMATION|MB_OK);
+        tmpstr.Format("Average quality loss: %d per pixel\nElapsed time: %d",the_mos.m_nQualityLoss/100,tm2-tm1);
+        MessageBox(tmpstr,"Image Editor",MB_ICONINFORMATION|MB_OK);
       }
     }
     else
     {
-      if(tis_or_mos&TM_TIS) res=the_mos.ReadTisFromFile(fhandle,-1,true);
+      if(tis_or_mos&TM_TIS) res=the_mos.ReadTisFromFile(fhandle, NULL, true, false);
       else res=the_mos.ReadMosFromFile(fhandle,-1);
     }
     close(fhandle);
@@ -318,7 +319,6 @@ restart:
 
 int CMosEdit::Savemos(Cmos &my_mos, int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int bmpsave;
@@ -341,6 +341,7 @@ int CMosEdit::Savemos(Cmos &my_mos, int save)
     goto gotname;
   }    
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -628,6 +629,23 @@ void CMosEdit::OnExtract()
   dlg.setrange(itemname,the_mos.mosheader.wColumn,the_mos.mosheader.wRow,tis_or_mos);
   dlg.DoModal();
 }
+
+void CMosEdit::OnToolsConvertnight() 
+{
+	if (itemname.GetLength()==6)
+  {
+    itemname+="N";
+    the_mos.m_changed=true;
+    the_mos.DropUnusedPalette();
+    the_mos.ApplyPaletteRGB(200,100,100,256);
+    RefreshDialog();
+  }
+  else
+  {
+    MessageBox("The name should be exactly 6 characters long.","Tileset editor",MB_OK);
+  }
+}
+
 
 void CMosEdit::OnOK() 
 {

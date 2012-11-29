@@ -44,6 +44,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void RefreshDialogPartial();
   void RefreshDialog();

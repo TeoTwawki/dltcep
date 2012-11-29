@@ -365,6 +365,45 @@
 #define IDS_GEMRB                       325
 #define IDS_DOORID                      326
 #define IDS_DOORREGION                  327
+#define IDS_SQL                         328
+#define IDS_FNT                         329
+#define IDS_WBM                         330
+#define IDS_GUI                         331
+#define IDS_WINSIZE                     332
+#define IDS_TLKCHANGE                   333
+#define IDS_2DACHANGE                   334
+#define IDS_RESOLVE                     335
+#define IDS_RECYCLE                     336
+#define IDS_INDENT                      337
+#define IDS_REMBAF                      338
+#define IDS_SELECTION                   339
+#define IDS_LASTOPENED                  340
+#define IDS_DECOMPRESS                  341
+#define IDS_DATAFOLDER                  342
+#define IDS_NOCHECK                     343
+#define IDS_FORCESTEREO                 344
+#define IDS_SORTEFF                     345
+#define IDS_NUMEFF                      346
+#define IDS_EATSPACE                    347
+#define IDS_WEIDUSTRING                 348
+#define IDS_IDUSTRING                   349
+#define IDS_PREVIEW                     350
+#define IDS_OCTREE                      351
+#define IDS_DITHER                      352
+#define IDS_W98                         353
+#define IDS_RESLOC                      354
+#define IDS_ZIP                         355
+#define IDS_LARGEWINDOW                 356
+#define IDS_VERTCENTER                  357
+#define IDS_IGNOREOVER                  358
+#define IDS_CHECKSIZE                   359
+#define IDS_CD                          360
+#define IDS_INTDECOMP                   361
+#define IDS_INTCOMP                     362
+#define IDS_SHADOW                      363
+#define IDS_FORCENEW                    364
+#define IDS_CHR                         365
+#define IDS_PVRZ                        366
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -646,6 +685,7 @@
 #define IDC_SOUND3                      1275
 #define IDC_UNKNOWN30                   1276
 #define IDC_BAM1                        1277
+#define IDC_UNKNOWN32                   1277
 #define IDC_SEQ1                        1278
 #define IDC_UNKNOWN4C                   1279
 #define IDC_UNKNOWN74                   1280
@@ -1708,6 +1748,7 @@
 #define IDC_LIGHTSPOT                   2334
 #define IDC_FRIENDLY                    2335
 #define IDC_U2E                         2337
+#define IDC_LANGUAGE                    2341
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1928,6 +1969,17 @@
 #define ID_SEARCH_BMP                   33048
 #define ID_TOOLS_IMPORTCYCLES           33051
 #define ID_FIX                          33052
+#define ID_TOOLS_CREATEMINIMAP          33053
+#define ID_CHECK_SPECIALSTRINGS         33054
+#define ID_TOOLS_VIEWDIALOGTREE         33055
+#define ID_SEARCH_WEIRDCHARACTER        33056
+#define ID_FILE_LOADCHAR                33057
+#define ID_TOOLS_CONVERTNIGHT           33058
+#define ID_TOOLS_LOADALLDIALOGS         33060
+#define ID_BG1FX                        33061
+#define ID_CONVERSIONS_PVRCOMPRESSTILESETSPVRZ 33062
+#define ID_CONVERSIONS_PVRUNPACKTILESETS 33063
+#define ID_CONVERSIONS_JPEGUNPACKTILESETS 33064
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1935,8 +1987,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33053
-#define _APS_NEXT_CONTROL_VALUE         2338
+#define _APS_NEXT_COMMAND_VALUE         33065
+#define _APS_NEXT_CONTROL_VALUE         2343
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

@@ -70,7 +70,9 @@ BEGIN_MESSAGE_MAP(CStrRefDlg, CDialog)
 	ON_COMMAND(ID_CHECKSOUND, OnChecksound)
 	ON_COMMAND(ID_CHECKTAG, OnChecktag)
 	ON_COMMAND(ID_TOOLS_SYNCHRONISETLKS, OnToolsSynchronisetlks)
+	ON_COMMAND(ID_CHECK_SPECIALSTRINGS, OnCheckSpecialstrings)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_COMMAND(ID_SEARCH_WEIRDCHARACTER, OnSearchWeirdcharacter)
 	//}}AFX_MSG_MAP
   ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
@@ -343,7 +345,7 @@ int perform_search_and_replace(int idx, int mode, int match, CString search, CSt
 
 int CStrRefDlg::do_search_and_replace(int direction,int mode,int match,CString search,CString replace)
 {
-  int found, count;
+  int found, count, start;
   int oldidx, idx;
   CString operation;
   CString what;
@@ -451,6 +453,12 @@ int CStrRefDlg::do_search_and_replace(int direction,int mode,int match,CString s
       operation.Format("Found %d entries.",count);
       MessageBox(operation);
     }
+    else
+    {
+      start = m_text.Find(search);
+      m_text_control.SetSel(start, start+search.GetLength());
+      //UpdateData(UD_DISPLAY);
+    }
   }
   else
   {
@@ -547,6 +555,36 @@ void CStrRefDlg::OnKillfocusStrref()
   UpdateData(UD_DISPLAY);
 }
 
+
+void CStrRefDlg::OnCheckSpecialstrings() 
+{
+  int i;
+  CString tmpref;
+
+  for(i=0;i<tlk_headerinfo[choosedialog].entrynum;i++)
+  {
+    tmpref=resolve_tlk_text(i,choosedialog);
+    if(tmpref.Find("STATISTICS:")>0 )
+    {
+      //item descriptions contain STATISTICS, formatted
+      if (tmpref.Find("STATISTICS:\r\n")<=0 )
+      {
+        ((CChitemDlg *) AfxGetMainWnd())->log("Bad item description formatting in strref #%d", i);
+      }
+      continue;
+    }
+
+    if(tmpref.Find("Area of Effect:")>0 )
+    {
+      //item descriptions contain STATISTICS, formatted
+      if (tmpref.Find("\r\nArea of Effect:")<=0 )
+      {
+        ((CChitemDlg *) AfxGetMainWnd())->log("Bad spell description formatting in strref #%d", i);
+      }
+    }
+  }	
+}
+
 void CStrRefDlg::OnChecksound() 
 {
   loc_entry tmploc;
@@ -603,10 +641,26 @@ void CStrRefDlg::OnChecktag()
 {
 	int i;
   int chg;
+  CString tmpstr, out;
 
   chg=0;
-  for(i=0;i<tlk_headerinfo[choosedialog].entrynum;i++)
+  for(i=m_strref+1;i<tlk_headerinfo[choosedialog].entrynum;i++)
   {
+    if ((tlk_entries[choosedialog][i].reference.flags&4) || old_version_dlg() )
+    {
+      tmpstr=reduce_tlk_text(tlk_entries[choosedialog][i].text);
+      if (tmpstr.FindOneOf("<>")>=0)
+      {
+        chg=1;
+        out.Format("#%d - %s", i, tmpstr);
+        if (MessageBox(out,"Tlk editor",MB_ICONEXCLAMATION|MB_OKCANCEL)==IDCANCEL)
+        {
+          m_strref=i;
+          OnKillfocusStrref();
+          break;
+        }
+      }
+    }
   }	
   if(!chg) MessageBox("No problem found!","Tlk editor",MB_OK);
 }
@@ -621,6 +675,33 @@ void CStrRefDlg::OnToolsSynchronisetlks()
   else
   {
     MessageBox("You should enable both TLK's first",MB_OK);
+  }
+}
+
+
+void CStrRefDlg::OnSearchWeirdcharacter() 
+{
+	int i, j, k;
+  CString tmpref;
+
+  for(i=m_strref+1;i<tlk_headerinfo[choosedialog].entrynum;i++)
+  {
+    tmpref=resolve_tlk_text(i,choosedialog);
+    j=tmpref.GetLength();
+    for(k=0;k<j;k++)
+    {
+      if(tmpref[k]<0)
+      {
+        if (tmpref[k]==-61)
+        {
+          k++;
+          continue;
+        }
+        m_strref=i;
+        OnKillfocusStrref();
+        return;
+      }
+    }
   }
 }
 

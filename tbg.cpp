@@ -724,8 +724,8 @@ int Ctbg::collect_spellrefs()
   if(!resolve_tbg_entry(the_spell.header.spellname,tlkentries[pos])) pos++;
 //  strrefs[pos]=calc_offset(the_spell.header, unknown4c);
 //  if(!resolve_tbg_entry(the_spell.header.unknown4c,tlkentries[pos])) pos++;
-  strrefs[pos]=calc_offset(the_spell.header, unknown0c);
-  if(!resolve_tbg_entry(the_spell.header.unknown0c,tlkentries[pos])) pos++;
+  strrefs[pos]=calc_offset(the_spell.header, idname);
+  if(!resolve_tbg_entry(the_spell.header.idname,tlkentries[pos])) pos++;
 
   for(i=0;i<the_spell.featblkcount;i++)
   {

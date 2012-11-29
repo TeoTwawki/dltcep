@@ -39,6 +39,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void RefreshDialog();
   void RClick();
@@ -140,6 +141,7 @@ protected:
 	afx_msg void OnFour();
 	afx_msg void OnSave();
 	afx_msg void OnEditFindid();
+	afx_msg void OnCheck();
 	//}}AFX_MSG
 	afx_msg void OnKillfocusEditlink();
   afx_msg void OnCustomdrawMyList ( NMHDR* pNMHDR, LRESULT* pResult );

@@ -49,6 +49,7 @@ protected:
   int background;
   COLORREF bgcolor;
   CToolTipCtrl m_tooltip;
+  CString filepath;
   int m_play;
   int playcycle, playmax, playindex;
   HBITMAP hbf[4], hbanim;

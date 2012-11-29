@@ -107,6 +107,14 @@ void CItemEdit::OnLoad()
       MessageBox("Item loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
+    case 1:
+      MessageBox("Item size problems fixed.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
+    case 2:
+      MessageBox("Item header order fixed.","Warning",MB_ICONEXCLAMATION|MB_OK);
+  		itemname=pickerdlg.m_picked;
+      break;
     case 0:
   		itemname=pickerdlg.m_picked;
       break;
@@ -125,7 +133,6 @@ static char BASED_CODE szFilter[] = "Item files (*.itm)|*.itm|All files (*.*)|*.
 
 void CItemEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -134,6 +141,7 @@ void CItemEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "itm", makeitemname(".itm",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -149,12 +157,12 @@ restart:
     lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
-    case -4:
+    case 2:
       MessageBox("Item loaded with serious errors (no extensions).","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
-    case -3:
+    case 1:
       MessageBox("Item loaded with errors (harmless inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
@@ -194,7 +202,6 @@ void CItemEdit::OnSaveas()
 
 void CItemEdit::SaveItem(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -215,6 +222,7 @@ void CItemEdit::SaveItem(int save)
   }    
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();

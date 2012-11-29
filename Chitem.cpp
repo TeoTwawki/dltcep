@@ -8,6 +8,7 @@
 #include <direct.h>
 #include <process.h>
 #include <mmsystem.h>
+#include <math.h>
 #include "2da.h"
 #include "chitem.h"
 #include "chitemDlg.h"
@@ -35,41 +36,67 @@ const unsigned char xorblock[64]={
 };
 
 const unsigned short objrefs[NUM_OBJTYPE+1]={
-  0,REF_2DA,REF_ACM,REF_ARE,REF_BAM,REF_BCS,REF_BMP,REF_CHU,REF_CRE,REF_DLG,//10
+  0,REF_2DA,REF_ACM,REF_ARE,REF_BAM,REF_BCS,REF_BMP,REF_CHR,REF_CHU,REF_CRE,REF_DLG,//10
     REF_EFF,REF_GAM,REF_IDS,REF_INI,REF_ITM,REF_MOS,REF_MUS,REF_MVE,REF_PLT,//19
     REF_PRO,REF_SPL,REF_SRC,REF_STO,REF_TIS,REF_VEF,REF_VVC,REF_WAV,REF_WED,//28
-    REF_WFX,REF_WMP,//30
+    REF_WFX,REF_WMP,REF_FNT, REF_SQL, REF_GUI, REF_WBM, REF_PVRZ //34
 };
 
 const CString objexts[NUM_OBJTYPE+1]={
-  ".*",".2da",".acm",".are",".bam",".bcs",".bmp",".chu",".cre",".dlg",//10
+  ".*",".2da",".acm",".are",".bam",".bcs",".bmp",".chr",".chu",".cre",".dlg",//10
     ".eff",".gam",".ids",".ini",".itm",".mos",".mus",".mve",".plt",".pro",//20
     ".spl",".src",".sto",".tis",".vef",".vvc",".wav",".wed",".wfx",".wmp",//30
+    ".fnt",".sql",".gui", ".wbm", ".pvrz" //34
 };
 
 const CString savedexts[]={".are",".sto",".tot",".toh","",
 };
 
 char tbgext[NUM_OBJTYPE+1]={
-  0,'r',0,'a',0,'b',0,'h','c','d',//10
+  0,'r',0,'a',0,'b',0,'c','h','c','d',//10 chr is the same as cre
   'e','n',0,0,'-',0,0,0,0,'m',    //20
   's','p','t',0,0,0,0,0,0,'w',    //30
+  0,0,0,0,0 //33
 };
 
 int idstrings[NUM_OBJTYPE+1]={IDS_UNKNOWN,IDS_2DA,IDS_MUSIC,IDS_AREA,  //4
-IDS_ANIMATION, IDS_SCRIPT, IDS_BITMAP,IDS_CHU,IDS_CREATURE, IDS_DIALOG,//10
+IDS_ANIMATION, IDS_SCRIPT, IDS_BITMAP,IDS_CHR, IDS_CHU,IDS_CREATURE, IDS_DIALOG,//10
 IDS_EFFECT,IDS_GAME,IDS_IDS,IDS_INI,IDS_ITEM,//15
 IDS_MOS,IDS_MUS,IDS_MOVIE,IDS_PLT,IDS_PRO,    //20
 IDS_SPELL,IDS_SRC,IDS_STORE,IDS_TILESET,IDS_VEF,IDS_VVC,IDS_WAV,IDS_WED,//28
-IDS_WFX,IDS_WMP};//30
+IDS_WFX,IDS_WMP, IDS_FNT, IDS_SQL, IDS_GUI, IDS_WBM, IDS_PVRZ};//34
 
 int menuids[NUM_OBJTYPE+1]={0,ID_EDIT_2DA,0,ID_EDIT_AREA,//4
-ID_EDIT_ANIMATION,ID_EDIT_SCRIPT,ID_EDIT_ANIMATION,ID_EDIT_CHUI,ID_EDIT_CREATURE,//9
+ID_EDIT_ANIMATION,ID_EDIT_SCRIPT,ID_EDIT_ANIMATION,ID_EDIT_CREATURE,ID_EDIT_CHUI,ID_EDIT_CREATURE,//9
 ID_EDIT_DIALOG, ID_EDIT_EFFECT, ID_EDIT_GAMES,ID_EDIT_IDS,0,ID_EDIT_ITEM,//15
 ID_EDIT_GRAPHICS,ID_EDIT_MUSICLIST,0,ID_EDIT_ANIMATION,ID_EDIT_PROJECTILE,//20
 ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,//28
-ID_EDIT_WFX, ID_EDIT_WORLDMAP,//30
+ID_EDIT_WFX, ID_EDIT_WORLDMAP, 0, 0, 0, 0, 0,//33
 };
+
+char *tokenlist[]={"CHARNAME", "GABBER",
+"BROTHERSISTER","PRO_BROTHERSISTER","PROTAGONIST_BROTHERSISTER",
+"GIRLBOY","PRO_GIRLBOY","PROTAGONIST_GIRLBOY",
+"HESHE","PRO_HESHE","PROTAGONIST_HESHE",
+"HIMHER","PRO_HIMHER","PROTAGONIST_HIMHER",
+"HISHER","PRO_HISHER","PROTAGONIST_HISHER",
+"LADYLORD","PRO_LADYLORD","PROTAGONIST_LADYLORD",
+"MALEFEMALE","PRO_MALEFEMALE","PROTAGONIST_MALEFEMALE",
+"MANWOMAN","PRO_MANWOMAN","PROTAGONIST_MANWOMAN",
+"RACE","PRO_RACE","PROTAGONIST_RACE",
+"SIRMAAM","PRO_SIRMAAM","PROTAGONIST_SIRMAAM",
+"SONDAUGHTER","PRO_SONDAUGHTER","PROTAGONIST_SONDAUGHTER",
+"FIGHTERTYPE","MAGESCHOOL","EXPERIENCEAMOUNT","TARGET", "CASTSPELL",
+"MINUTE","CLOCK_HOUR","CLOCK_MINUTE","CLOCK_AMPM",
+"LEVEL", "DAYANDMONTH", "DAYNIGHT","DAYNIGHTALL","TM","YEAR","MONTH","GAMEDAY","GAMEDAYS",
+"MONTHNAME","PLAYER1","PLAYER2","PLAYER3","PLAYER4","PLAYER5","PLAYER6","SURFACE_UNDERDARK",
+"SERVERVERSION","CLIENTVERSION","script","DURATIONNOAND","DAMAGER","AMOUNT","DAMAGEE",
+"WEAPONNAME","ITEMCOST","ITEMNAME","CurrentChapter","DAY","HP","EXPERIENCE","NEXTLEVEL",
+"MINIMUM","MAXIMUM","number", "SPELLLEVEL","SPECIALABILITYNAME","DURATION","HOUR","CLASS",
+"LEVELDIF","CREATURE","DOTS1","DOTS2","DOTS3","DOTS4","DOTS5", "RESOURCE", "XPPENALTY",
+"HIT_POINTS","TYPE","RESISTED","KEY","OPERATION","PAGE","NUMPAGES","TARGETNAME","VALUE",
+" \\", ".\\",//hack for a hack
+0};
 
 char BASED_CODE szFilterKey[] = "chitin.key|chitin.key|All files (*.*)|*.*||";
 char BASED_CODE szFilterTbg[] = "Tbg files (*.tbg)|*.tbg|All files (*.*)|*.*||";
@@ -131,6 +158,7 @@ CString descpath;
 CString weidupath;
 CString weiduextra;
 CString weidudecompiled;
+CString language;
 int logtype;
 int tooltips;
 int do_progress;
@@ -141,6 +169,7 @@ unsigned long chkflg;
 unsigned long editflg;
 unsigned long optflg;
 unsigned long weiduflg;
+unsigned long winsize;
 COLORREF color1, color2, color3;
 
 /// game objects
@@ -152,6 +181,7 @@ Cproj the_projectile;
 Cspell the_spell;
 Ceffect the_effect;
 Ccreature the_creature;
+Cpvr the_pvr;
 CVVC the_videocell;
 CWFX the_wfx;
 Cscript the_script;
@@ -214,73 +244,88 @@ CStringMapLocEntry items;//1
 CStringMapLocEntry icons;//2
 CStringMapLocEntry bitmaps;//3
 CStringMapLocEntry creatures;//4
-CStringMapLocEntry spells;//5
-CStringMapLocEntry stores;//6
-CStringMapLocEntry darefs;//7
-CStringMapLocEntry idrefs;//8
-CStringMapLocEntry dialogs;//9
-CStringMapLocEntry scripts;//10
-CStringMapLocEntry projects;//11
-CStringMapLocEntry effects;//12
-CStringMapLocEntry vvcs;//13
-CStringMapLocEntry areas;//14
-CStringMapLocEntry chuis;//15
-CStringMapLocEntry mos;//16
-CStringMapLocEntry weds;//17
-CStringMapLocEntry tis;//18
-CStringMapLocEntry sounds;//19
-CStringMapLocEntry games;//20
-CStringMapLocEntry wmaps;//21
-CStringMapLocEntry musics;//22
-CStringMapLocEntry musiclists;//23
-CStringMapLocEntry movies;//24
-CStringMapLocEntry wfxs;//25
-CStringMapLocEntry strings; //26
-CStringMapLocEntry paperdolls; //27
-CStringMapLocEntry vefs; //28
-CStringMapLocEntry inis; //29
+CStringMapLocEntry chars;//5
+CStringMapLocEntry spells;//6
+CStringMapLocEntry strings; //7
+CStringMapLocEntry stores;//8
+CStringMapLocEntry darefs;//9
+CStringMapLocEntry idrefs;//10
+CStringMapLocEntry dialogs;//11
+CStringMapLocEntry scripts;//12
+CStringMapLocEntry projects;//13
+CStringMapLocEntry effects;//14
+CStringMapLocEntry vvcs;//15
+CStringMapLocEntry areas;//16
+CStringMapLocEntry chuis;//17
+CStringMapLocEntry mos;//18
+CStringMapLocEntry weds;//19
+CStringMapLocEntry tis;//20
+CStringMapLocEntry sounds;//21
+CStringMapLocEntry games;//22
+CStringMapLocEntry wmaps;//23
+CStringMapLocEntry musics;//24
+CStringMapLocEntry musiclists;//25
+CStringMapLocEntry movies;//26
+CStringMapLocEntry wfxs;//27
+CStringMapLocEntry paperdolls; //28
+CStringMapLocEntry vefs; //29
+CStringMapLocEntry inis; //30
+CStringMapLocEntry fonts; //31
+CStringMapLocEntry wbms; //32
+CStringMapLocEntry sqls; //33
+CStringMapLocEntry guis; //34
+CStringMapLocEntry pvrzs; //35
 
 CStringListLocEntry d_items;//1
 CStringListLocEntry d_icons;//2
 CStringListLocEntry d_bitmaps;//3
 CStringListLocEntry d_creatures;//4
-CStringListLocEntry d_spells;//5
-CStringListLocEntry d_stores;//6
-CStringListLocEntry d_darefs;//7
-CStringListLocEntry d_idrefs;//8
-CStringListLocEntry d_dialogs;//9
-CStringListLocEntry d_scripts;//10
-CStringListLocEntry d_projects;//11
-CStringListLocEntry d_effects;//12
-CStringListLocEntry d_vvcs;//13
-CStringListLocEntry d_areas;//14
-CStringListLocEntry d_chuis;//15
-CStringListLocEntry d_mos;//16
-CStringListLocEntry d_weds;//17
-CStringListLocEntry d_tis;//18
-CStringListLocEntry d_sounds;//19
-CStringListLocEntry d_games;//20
-CStringListLocEntry d_wmaps;//21
-CStringListLocEntry d_musics;//22
-CStringListLocEntry d_musiclists;//23
-CStringListLocEntry d_movies;//24
-CStringListLocEntry d_wfxs;//25
-CStringListLocEntry d_strings; //26
-CStringListLocEntry d_paperdolls; //27
-CStringListLocEntry d_vefs; //28
-CStringListLocEntry d_inis; //29
+CStringListLocEntry d_chars;//5
+CStringListLocEntry d_spells;//6
+CStringListLocEntry d_strings; //7
+CStringListLocEntry d_stores;//8
+CStringListLocEntry d_darefs;//9
+CStringListLocEntry d_idrefs;//10
+CStringListLocEntry d_dialogs;//11
+CStringListLocEntry d_scripts;//12
+CStringListLocEntry d_projects;//13
+CStringListLocEntry d_effects;//14
+CStringListLocEntry d_vvcs;//15
+CStringListLocEntry d_areas;//16
+CStringListLocEntry d_chuis;//17
+CStringListLocEntry d_mos;//18
+CStringListLocEntry d_weds;//19
+CStringListLocEntry d_tis;//20
+CStringListLocEntry d_sounds;//21
+CStringListLocEntry d_games;//22
+CStringListLocEntry d_wmaps;//23
+CStringListLocEntry d_musics;//24
+CStringListLocEntry d_musiclists;//25
+CStringListLocEntry d_movies;//26
+CStringListLocEntry d_wfxs;//27
+CStringListLocEntry d_paperdolls; //28
+CStringListLocEntry d_vefs; //29
+CStringListLocEntry d_inis; //30
+CStringListLocEntry d_fonts; //31
+CStringListLocEntry d_wbms; //32
+CStringListLocEntry d_sqls; //33
+CStringListLocEntry d_guis; //34
+CStringListLocEntry d_pvrz; //35
   
 CStringMapLocEntry *resources[NUM_OBJTYPE+1]={0,&darefs,&musics,
-&areas, &icons, &scripts,&bitmaps, &chuis, &creatures,
-&dialogs, &effects, &games,&idrefs, &inis,&items, &mos,&musiclists,
-&movies,&paperdolls,&projects,&spells,&strings,
-&stores,&tis,&vefs,&vvcs,&sounds,&weds,&wfxs,&wmaps,
+&areas, &icons, &scripts, &bitmaps, &chars, &chuis, &creatures,
+&dialogs, &effects, &games, &idrefs, &inis, &items, &mos, 
+&musiclists, &movies,&paperdolls, &projects, &spells, &strings, 
+&stores, &tis, &vefs, &vvcs, &sounds, &weds, &wfxs, &wmaps, 
+&fonts, &guis,  &sqls, &wbms, &pvrzs
 };
+
 CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
-&d_areas, &d_icons, &d_scripts, &d_bitmaps, &d_chuis, &d_creatures,
+&d_areas, &d_icons, &d_scripts, &d_bitmaps, &d_chars, &d_chuis, &d_creatures,
 &d_dialogs, &d_effects, &d_games, &d_idrefs, &d_inis, &d_items, &d_mos,
-&d_musiclists,&d_movies, &d_paperdolls, &d_projects, &d_spells, &d_strings,
+&d_musiclists, &d_movies, &d_paperdolls, &d_projects, &d_spells, &d_strings,
 &d_stores,&d_tis, &d_vefs, &d_vvcs,&d_sounds, &d_weds, &d_wfxs, &d_wmaps,
+&d_fonts, &d_guis, &d_sqls, &d_wbms, &d_pvrz
 };
 
 CStringMapInt variables;
@@ -354,12 +399,20 @@ void CChitemApp::read_game_preferences()
     gp.checkopt=GetPrivateProfileInt(games[count],"check options",0,m_pszProfileName);
     gp.editopt=GetPrivateProfileInt(games[count],"edit options",0,m_pszProfileName);
     gp.gameopt=GetPrivateProfileInt(games[count],"game options",0,m_pszProfileName);
+    gp.winsize=GetPrivateProfileInt(games[count],"window size",0,m_pszProfileName);
+    if (gp.winsize<10) gp.winsize=10;
+    if (gp.winsize>32) gp.winsize=32;
+
     poi=gp.bgfolder.GetBuffer(MAX_PATH);
     GetPrivateProfileString(games[count],"game location","",poi,MAX_PATH,m_pszProfileName);
     gp.bgfolder.ReleaseBuffer(-1);
     poi=gp.descpath.GetBuffer(MAX_PATH);
     GetPrivateProfileString(games[count],"external defs","",poi,MAX_PATH,m_pszProfileName);
     gp.descpath.ReleaseBuffer(-1);
+    poi=gp.lang.GetBuffer(MAX_PATH);
+    GetPrivateProfileString(games[count],"language","",poi,MAX_PATH,m_pszProfileName);
+    gp.lang.ReleaseBuffer(-1);
+    
     allgameprops.SetAt(games[count],gp);
   }
   delete [] games;
@@ -376,6 +429,8 @@ int CChitemApp::select_setup(CString setupname)
     editflg=gp.editopt;
     optflg=gp.gameopt;
     descpath=gp.descpath;
+    language=gp.lang;
+    winsize=gp.winsize;
     return 1;
   }
   return 0;
@@ -396,19 +451,21 @@ void CChitemApp::save_settings()
     "Logtype=%d\n"       //2
     "Progressbar=%d\n"   //3
     "Readonly=%d\n"      //4
-    "Tooltips=%d\n",     //5
-    setupname,logtype,do_progress,readonly,tooltips);
+    "Tooltips=%d\n"      //5
+    "Window Size=%d\n",  //6
+    setupname,logtype,do_progress,readonly,tooltips, winsize);
   fprintf(fpoi,
     "Check Options=%d\n" //1
     "Edit Options=%d\n" //2
     "Game Options=%d\n"  //3
     "Game Location=%s\n" //4
-    "External Defs=%s\n" //5
-    "WeiDU Options=%d\n" //6
-    "WeiDU Path=%s\n"    //7
-    "WeiDU Extra=%s\n"  //8
-    "WeiDU Outpath=%s\n", //9
-    chkflg,editflg, optflg,bgfolder,descpath,weiduflg,weidupath,weiduextra, weidudecompiled); //1-9
+    "Language=%s\n" //5
+    "External Defs=%s\n" //6
+    "WeiDU Options=%d\n" //7
+    "WeiDU Path=%s\n"    //8
+    "WeiDU Extra=%s\n"  //9
+    "WeiDU Outpath=%s\n", //10
+    chkflg,editflg, optflg,bgfolder, language, descpath, weiduflg, weidupath,weiduextra, weidudecompiled); //1-9
   fprintf(fpoi,
     "Color1=%d,%d,%d\n"
     "Color2=%d,%d,%d\n"
@@ -433,8 +490,10 @@ void CChitemApp::save_settings()
       "Edit Options=%d\n"
       "Game Options=%d\n"
       "Game Location=%s\n"
-      "External Defs=%s\n",
-      gname,gp.checkopt,gp.editopt,gp.gameopt,gp.bgfolder,gp.descpath);
+      "Language=%s\n"
+      "External Defs=%s\n"
+      "Window Size=%d\n",
+      gname,gp.checkopt,gp.editopt,gp.gameopt,gp.bgfolder, gp.lang, gp.descpath, gp.winsize);
   }
   fclose(fpoi);
 }
@@ -486,6 +545,10 @@ BOOL CChitemApp::InitInstance()
     GetPrivateProfileString("settings","game location","",inifile,MAX_PATH,m_pszProfileName);//path
     inifile[MAX_PATH-1]=0;
     bgfolder=inifile;
+
+    GetPrivateProfileString("settings","language","",inifile,MAX_PATH,m_pszProfileName);//path
+    inifile[MAX_PATH-1]=0;
+    language=inifile;
     
     GetPrivateProfileString("settings","external defs","",inifile,MAX_PATH,m_pszProfileName);//path
     inifile[MAX_PATH-1]=0;
@@ -500,6 +563,7 @@ BOOL CChitemApp::InitInstance()
   do_progress=!!GetPrivateProfileInt("settings","progressbar",1,m_pszProfileName);
   readonly=!!GetPrivateProfileInt("settings","readonly",1,m_pszProfileName);
   weiduflg=GetPrivateProfileInt("settings","weidu options",0,m_pszProfileName);
+  winsize=GetPrivateProfileInt("settings","window size",10,m_pszProfileName);
   
   GetPrivateProfileString("settings","weidu path","",inifile,MAX_PATH,m_pszProfileName);//path
   inifile[MAX_PATH-1]=0;
@@ -984,6 +1048,7 @@ int extract_from_cbf(CString key, CString ext, int finput, int override, int &ma
   maxlen-=oflg+sizeof(oflg)+2*sizeof(long)+saventry.compressed;
 
   itemname=saventry.filename.Left(saventry.filename.Find('.'));
+  itemname.MakeUpper();
   if(!key.IsEmpty() && (itemname.Find(key,0)==-1) )
   {
     lseek(finput,saventry.compressed,SEEK_CUR);
@@ -1042,19 +1107,28 @@ endofquest:
 int locate_bif(loc_entry &fileloc)
 {
   CString cbfname;
-  int i;
+  int i, ret;
   int maxlen;
   int fhandle;
   char header[8];
 
   if(fileloc.cdloc!=0xffff)
   {
-    return open(cds[fileloc.cdloc]+fileloc.bifname,O_BINARY|O_RDONLY);
+    ret = open(cds[fileloc.cdloc]+fileloc.bifname,O_BINARY|O_RDONLY);
+    if (ret<=0)
+    {
+      ret = open(cds[fileloc.cdloc]+"/lang/en_us/"+fileloc.bifname,O_BINARY|O_RDONLY);
+    }
+    return ret;
   }
   for(i=0;i<NUM_CD;i++)
   {
     if(cds[i].IsEmpty() ) continue;
     fhandle=open(cds[i]+fileloc.bifname,O_BINARY|O_RDONLY);
+    if (fhandle<=0)
+    {
+      fhandle=open(cds[i]+"/lang/en_us/"+fileloc.bifname,O_BINARY|O_RDONLY);
+    }
     if(fhandle>0)
     {
       fileloc.cdloc=(unsigned short) i;
@@ -1260,12 +1334,22 @@ int write_tis_header(int fhandle, loc_entry fileloc)
 {
   tis_header tisheader;
 
-  memcpy(tisheader.filetype,"TIS V1  ",8);
-  tisheader.offset=sizeof(tisheader);
-  tisheader.pixelsize=64;
+  if (fileloc.tilesize==64*64) {
+    memcpy(tisheader.filetype,"TIS V1  ",8);
+    tisheader.pixelsize=64;
+    tisheader.tilelength=256*sizeof(COLORREF)+tisheader.pixelsize*tisheader.pixelsize;
+    tisheader.numtiles=fileloc.size/tisheader.tilelength;
+  
+  } else {
+    //new format with pvrz
+    memcpy(tisheader.filetype,"TIS V2  ",8);
+    tisheader.pixelsize=64;
+    tisheader.tilelength=fileloc.tilesize;
+    tisheader.numtiles=fileloc.numtiles;
+  }
+  
+  tisheader.offset = sizeof(tisheader);
   //palette + tiledata
-  tisheader.tilelength=256*sizeof(COLORREF)+tisheader.pixelsize*tisheader.pixelsize;
-  tisheader.numtiles=fileloc.size/tisheader.tilelength;
   return write(fhandle,&tisheader,sizeof(tisheader))==sizeof(tisheader);
 }
 
@@ -1375,7 +1459,7 @@ int locate_file_compressed(loc_entry &fileloc, int fhandle, long origlen)
     entryinfo.res_loc=tileinfo.res_loc;
     entryinfo.restype=tileinfo.restype;
     entryinfo.size=tileinfo.numtiles*tileinfo.size;
-    entryinfo.unused=(short) tileinfo.size;          //used to be 5120, always
+    entryinfo.unused=(short) tileinfo.numtiles;          //used to be 5120, always
   }
   offset=entryinfo.offset;
   if(offset>origlen)
@@ -1409,7 +1493,13 @@ int locate_file_compressed(loc_entry &fileloc, int fhandle, long origlen)
   fileloc.bifindex=0xffff;
   if(index)
   {
+    fileloc.tilesize=tileinfo.size;
+    fileloc.numtiles=tileinfo.numtiles;
     write_tis_header(fhandle2, fileloc);
+  }
+  else
+  {
+    fileloc.tilesize=-1;
   }
   do
   {
@@ -1512,6 +1602,7 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
     }
     else
     {
+      index = 0; //always zero for normal files
       if(fileloc.index>=headerinfo.file_entries)
       {
         return -1; //index is greater
@@ -1540,7 +1631,17 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
     {
       return -1;
     }
-    fileloc.size=entryinfo.size;
+    fileloc.size = entryinfo.size;
+    if (index)
+    {
+      fileloc.tilesize = tileinfo.size;
+      fileloc.numtiles = entryinfo.size/fileloc.tilesize;
+    }
+    else 
+    {
+      fileloc.tilesize = -1;
+      fileloc.numtiles = -1;
+    }
   }
   else fileloc.size=-1;
   return fhandle;
@@ -2206,7 +2307,10 @@ CString format_weaprofs(int profnum)
 unsigned short animidx[NUM_ANIMIDX]={
   0,'A2','A3','A4','W2','W3','W4','XA','WB','BC','LC','1D','2D','3D',
     '4D','DD','LF','SF','0H','1H','2H','3H','4H','5H','6H','BH','CM','SM',
-    'SQ','1S','2S','LS','PS','SS','HW','3S','CS'
+    'SQ','1S','2S','LS','PS','SS','HW','3S','CS',
+    '0C','1C','2C','3C','4C','5C','6C', //37
+    '2Q','3Q','SG',                     //44
+    '0S','2F','3F',                     //45
 };
 
 CString itemanimations[NUM_ANIMIDX]={
@@ -2216,8 +2320,13 @@ CString itemanimations[NUM_ANIMIDX]={
     "Dagger","Flail","Flame Sword","Helm #1 (Standard)","Helm #2",
     "Helm #3 (Bronze Winged)","(Gold Winged)","Helm #5",
     "Helm #6 (Feathers)","Helm #7","Halberd","Mace","Morning Star",
-    "Quarter Staff (Metal)","Sword 1-Handed","Sword 2-Handed","Sling",
-    "Spear","Short Sword","War Hammer","Katana","Scimitar"
+    "Quarter Staff (Wood)",
+    "Sword 1-Handed","Sword 2-Handed","Sling",
+    "Spear","Short Sword","War Hammer","Katana","Scimitar",
+    "Shield 2 (Small)","Shield 2 (Large)","Shield 3 (Large)","Shield 2 (Medium)",
+    "Shield 2 (Buckler)","Shield 3 (Small)","Shield 4 (Large)",
+    "Quarter Staff (Metal)", "Quarter Staff (Rough)","Quarter Staff (Gem)",
+    "Bastard sword","Flaming Short Sword", "Flail Of Ages"
 };
 
 int getanimationidx(int animtype)
@@ -2359,9 +2468,9 @@ CString get_spark_colour(int spktype)
 }
 
 CString area_flags[NUM_ARFLAGS]={"-No save/rest","-Tutorial",
-"-Antimagic area","-Dream"};
+"-Antimagic area","-Dream", "-Arena"};
 CString area_flags_iwd2[NUM_ARFLAGS]={"-No save","-No rest",
-"-Lock battle music","-Unknown"};
+"-Lock battle music","-Unknown","-Unknown"};
 
 CString get_areaflag(unsigned long arflags)
 {
@@ -2580,20 +2689,21 @@ int feature_resource(int feature)
 {
   switch(feature)
   {
-  
-  case 67: case 135: case 151:
+    //168 doesn't use resref
+  case 67: case 135: case 151:// case 168:
+    return REF_CRE;
   case 259: //HoW
   case 410: case 411: //IWD2
-    return REF_CRE;
+    if (has_xpvar()) {
+      return REF_CRE;
+    }
   case 82:
     return REF_BCS;
-  case 111: case 112: case 122: case 123: case 143: case 180: case 255:
+  case 107:
+    return REF_BMP;
+  case 111: case 112: case 122: case 123: case 143: case 180: case 182:
+  case 255:
     return REF_ITM;
-    /* this is the default
-  case 146: case 147: case 148: case 171: case 172: case 206: case 207:
-  case 232: case 251: case 252:
-    return REF_SPL;
-    */
   case 152:
     return REF_MVE;
     break;
@@ -2603,18 +2713,32 @@ int feature_resource(int feature)
     return REF_EFF;
   case 127: case 214: case 298:
     return REF_2DA;
-  case 187:  //in PST these used to be some BAM resources
-  case 188:
-  case 189:
-  case 190:
-  case 191:  //PST
-  case 201:  //PST
+    //case 201: doesn't use resref
+    //in PST these used to be some BAM resources
+  case 187: case 188: case 189: case 190: case 191:
+    if (pst_compatible_var()) {
+      return REF_BAM;
+    }
+    break;
+    //case 291: this doesn't use a vvc
   case 215:
-    return REF_BAM;
-  case 291: case 296:
+  case 296:
     return REF_VVC;
+  case 146: case 147: case 148: case 171: case 172:
+    return REF_SPL;
+  case 206:
+    //all but PST
+    if (!pst_compatible_var()) {
+      return REF_SPL;
+    }
+  case 207: case 232: case 251: case 252:
+    //bioware branch
+    if (!has_xpvar() && !pst_compatible_var()) {
+      return REF_SPL;
+    }
   }
-  return REF_SPL;
+  //none
+  return -1;
 }
 
 int *get_state_opcodes()
@@ -2765,7 +2889,7 @@ CString ChuiControlName(int controltype)
   return chuicontrolnames[controltype];
 }
 
-CString kitfile;
+//CString kitfile;
 
 char *idstype[NUM_IDS]={
   "ea","general","race","class",
@@ -3381,6 +3505,8 @@ CString get_compile_error(int ret)
     return "No need of this True() trigger";
   case CE_INCOMPLETE_OR:
     return "Not enough triggers after Or(x)";
+  case CE_INCORRECT_OR:
+    return "Incorrect or redundant Or(x)";
   case CE_ACTIONS_AFTER_CONTINUE:
     return "Actions after Continue()";
   case CE_EMPTY_TOP_LEVEL:
@@ -3649,6 +3775,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define EO sf(CHECK_NUM, IS_VAR)
 #define DV sf(ADD_DEAD, IS_VAR)
 #define IO sf(CHECK_ITEM, IS_VAR)
+#define Io sf(CHECK_ITEM, IS_VAR) | INANIMATE
 #define iO sf(CHECK_ITEM2, IS_VAR)
 #define io sf(CHECK_ITEM, IS_VAR) | CHECK_STRREF
 #define II sf(CHECK_ITEM, CHECK_ITEM)
@@ -3663,6 +3790,7 @@ CString *explode(const CString &array, char separator, int &count)
 //#define mv sf(1,MERGE_VARS) //merge vars with :
 #define mv sf(ADD_VAR3,CHECK_AREA)
 #define OO sf(IS_VAR,IS_VAR)
+#define NO sf(NO_CHECK, IS_VAR)
 #define oo sf(IS_VAR,IS_VAR)|INANIMATE
 #define D0 sf(IS_VAR,IS_VAR)|CHECK_DOOR //door
 #define T0 sf(IS_VAR,IS_VAR)|CHECK_TRIGGER //trigger
@@ -3675,6 +3803,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define st CHECK_STRREF
 #define jr CHECK_JOURNAL
 #define TO sf(CHECK_STORE, IS_VAR)
+//#define VA sf(ADD_VAR2, IS_VAR)
 #define VA sf(ADD_VAR3, CHECK_SCOPE)
 #define VO sf(ADD_VAR, IS_VAR)
 #define TV sf(VALID_TAG,IS_VAR)
@@ -3717,13 +3846,13 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 
-    OO,   OO,   OO,   DV,   DV,   DV,   OO,   IO,   OO,   IO,  
+    OO,   OO,   OO,   DV,   DV,   DV,   OO,   Io,   D0,   IO,  
 //0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f, 0x80, 0x81, 
     IO,   IO,   IO,   IO,   IO,   OO,   AO,   IO,   OO,   OO,  
 //0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 
-    OO,   OO,   OO,   OO,   OO,   PO,   DV,   OO,   OO,   OO,  
+    OO,   OO,   OO,   OO,   OO,   pO,   DV,   OO,   OO,   OO,  
 //0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 
     OO,   OO,   GG,   GG,   GG,   LL,   LL,   LL,   OO,   OO,  
 //0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 
@@ -3739,7 +3868,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 
     OO,   OO,   AO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   NO,   DV,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 
@@ -3750,7 +3879,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 
 int tob_action_flags[MAX_ACTION]={
 //  0,    1,    2,    3,    4,    5,    6,    7,    8,    9,  
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   CO,   OO,   IO,  
+    OO,   DV,   OO,   OO,   OO,   OO,   OO,   Cv,   OO,   IO,  
 // 10,   11,   12,   13,   14,   15,   16,   17,   18,   19,  
     OO,   IO,   OO,   OO,   IO,   IO,   OO,   OO,   OO,   OO,  
 // 20,   21,   22,   23,   24,   25,   26,   27,   28,   29,  
@@ -3772,7 +3901,7 @@ int tob_action_flags[MAX_ACTION]={
 //100,  101,  102,  103,  104,  105,  106,  107,  108,  109,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   aO,   VO,  
 //110,  111,  112,  113,  114,  115,  116,  117,  118,  119,  
-    Am,   OO,   OO,   pO,   pO,   VO,   IO,   OO,   D0,   OO,  
+    Am,   OO,   OO,   pO,   pO,   VO,   IO,   OO,   OO,   OO,  
 //120,  121,  122,  123,  124,  125,  126,  127,  128,  129,  
     BO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
@@ -3784,11 +3913,11 @@ int tob_action_flags[MAX_ACTION]={
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
     pO,   wO,   OO,   OO,   OO,   VA,   OO,   MO,   OO,   IO,
 //170,  171,  172,  173,  174,  175,  176,  177,  178,  179,  
-    AO,   OO,   OO,   jr,   OO,   OO,   OO,   OO,   OO,   OO,  
+    AO,   OO,   OO,   jr,   OO,   OO,   OO,   oo,   OO,   OO,  
 //180,  181,  182,  183,  184,  185,  186,  187,  188,  189,  
     OO,   pO,   OO,   OO,   OO,   AO,   OO,   OO,   IO,   Am,  
 //190,  191,  192,  193,  194,  195,  196,  197,  198,  199,  
-    OO,   pO,   pO,   IO,   CO,   OO,   OO,   AO,   OO,   WO,
+    OO,   pO,   pO,   IO,   CO,   D0,   D0,   AO,   OO,   WO,
 //200,  201,  202,  203,  204,  205,  206,  207,  208,  209,  
     OO,   OO,   OO,   OO,   IO,   OO,   OO,   OO,   OO,   OO,  
 //210,  211,  212,  213,  214,  215,  216,  217,  218,  219,  
@@ -4175,14 +4304,14 @@ CString makeitemname(CString ext, int remember)
     }
     break;
   case 2:
-    if(!lastopenedsave.IsEmpty() && (editflg&DECOMPRESS) )
+    if(!lastopenedsave.IsEmpty() ) //don't use the edit flag
     {
       if(itemname.Left(4)=="new ") return lastopenedsave+"\\*"+ext;
       return lastopenedsave+"\\"+itemname+ext;
     }
     break;
   case 3:
-    if(!lastopeneddata.IsEmpty() && (editflg&DATAFOLDER) )
+    if(!lastopeneddata.IsEmpty() && (editflg&LASTOPENED) )
     {
       if(itemname.Left(4)=="new ") return lastopeneddata+"\\*"+ext;
       return lastopeneddata+"\\"+itemname+ext;
@@ -4193,6 +4322,13 @@ CString makeitemname(CString ext, int remember)
     {
       if(itemname.Left(4)=="new ") return lastopenedmusic+"\\*"+ext;
       return lastopenedmusic+"\\"+itemname+ext;
+    }
+    break;
+  case 5:
+    if(!lastopenedsave.IsEmpty()  && (editflg&LASTOPENED) )
+    {
+      if(itemname.Left(4)=="new ") return lastopenedsave+"\\*"+ext;
+      return lastopenedsave+"\\"+itemname+ext;
     }
     break;
   }
@@ -4469,7 +4605,7 @@ int write_item(CString key, CString filepath)
   return ret;
 }
 
-int read_spell(CString key)
+int read_spell(CString key, Cspell *myspell)
 {
   loc_entry fileloc;
   int ret;
@@ -4490,7 +4626,8 @@ int read_spell(CString key)
   }
   if(fhandle<1) return -2;
   spells.SetAt(key,fileloc);
-  ret=the_spell.ReadSpellFromFile(fhandle, fileloc.size);
+  if (!myspell) myspell = &the_spell;
+  ret=myspell->ReadSpellFromFile(fhandle, fileloc.size);
   close(fhandle);
   return ret;
 }
@@ -4652,6 +4789,7 @@ int ReadWed(int res)
       break;
     case 1: case 2: case 3:
       the_area.wedchanged=true;
+      res=1;
       break;
     default:
       res=3;
@@ -4850,6 +4988,25 @@ int read_src(CString key)
   return ret;
 }
 
+int read_character(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(chars.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) return -2;
+    chars.SetAt(key,fileloc);
+    ret=the_creature.ReadCreatureFromFile(fhandle, fileloc.size);
+    close(fhandle);
+  }
+  else return -1;
+  return ret;
+}
+
 int read_creature(CString key)
 {
   loc_entry fileloc;
@@ -4903,7 +5060,16 @@ int write_creature(CString key, CString filepath)
   }
   return ret;
 }
-
+/*
+CString GetCharactersPath()
+{
+  if(language.GetLength())
+  {
+    return bgfolder+"lang/"+language+"/characters/";
+  }
+  return bgfolder+"characters/";
+}
+*/
 int write_character(CString key, CString filepath)
 {
   loc_entry fileloc;
@@ -4914,9 +5080,9 @@ int write_character(CString key, CString filepath)
 
   if(filepath.IsEmpty())
   {
-    filepath=bgfolder+"characters\\"+key+".CHR";
+    filepath=bgfolder+"override/"+key+".CHR";
   }
-  tmpath=bgfolder+"characters\\"+key+".TMP";
+  tmpath=bgfolder+"override/"+key+".TMP";
 
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(fhandle<1)
@@ -4929,14 +5095,12 @@ int write_character(CString key, CString filepath)
   if(!ret && size>0)
   {
     unlink(filepath);
-    rename(tmpath,filepath);
-    /*
-    tmpath="characters\\"+key+".CHR";
+    rename(tmpath,filepath);    
+    tmpath="override/"+key+".CHR";
     if(!filepath.CompareNoCase(bgfolder+tmpath) )
     {
       UpdateIEResource(key,REF_CHR,tmpath,size);
     }
-    */
   }
   return ret;
 }
@@ -4954,7 +5118,7 @@ int read_dialog(CString key)
     if(fhandle<1) return -2;
     dialogs.SetAt(key,fileloc);
     itemname=key;
-    ret=the_dialog.ReadDialogFromFile(fhandle, fileloc.size);
+    ret=the_dialog.ReadDialogFromFile(fhandle, fileloc.size, key);
     close(fhandle);
   }
   else return -3;
@@ -5297,6 +5461,40 @@ int write_game(CString key, CString filepath)
   return ret;
 }
 
+int read_pvrz(CString key, Cpvr *cb, int lazy)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(lazy && cb->m_name == key+".pvrz") return 0;
+
+  if (file_exists(bgfolder+"/override/"+key+".pvr") )
+  {
+    fhandle=open(bgfolder+"/override/"+key+".pvr",O_RDONLY|O_BINARY);
+    goto already_decompressed;
+  }
+  if(pvrzs.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    pvrzs.SetAt(key,fileloc);
+already_decompressed:
+    cb->m_name=key+".pvrz";
+    ret=cb->ReadPvrFromFile(fhandle, fileloc.size);
+    close(fhandle);
+  }
+  else ret=-1;
+endofquest:
+  if(ret) cb->m_name.Empty();
+  return ret;
+}
+
 int read_bmp(CString key, Cbam *cb, int lazy)
 {
   loc_entry fileloc;
@@ -5482,6 +5680,42 @@ endofquest:
   return ret;
 }
 
+int read_tis_preview(CString key, Cmos *cb, int lazy)
+{
+  loc_entry fileloc;
+  int header;
+  int ret;
+  int fhandle;
+  CString tmp;
+
+  if(!cb) cb=&the_mos;
+  if(lazy && (key+".tis"==cb->m_name) ) return 0;
+  if(tis.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) //falling back to same directory
+    {
+      fhandle=open(lastopenedoverride+"//"+key+".TIS",O_RDONLY|O_BINARY);
+    }
+    if(fhandle<1)
+    {
+      ret=-2;
+      goto endofquest;
+    }
+    tis.SetAt(key,fileloc);
+    //if not in bif, then it has a header
+    if(fileloc.bifname.Left(8)=="override") header=true;
+    else header=false;
+    ret=cb->ReadTisFromFile(fhandle, &fileloc, header, true);
+    close(fhandle);
+  }
+  else ret=-2;
+endofquest:
+  if(ret) cb->m_name.Empty();
+  else cb->m_name=key+".tis";
+  return ret;
+}
+
 int read_tis(CString key, Cmos *cb, int lazy)
 {
   loc_entry fileloc;
@@ -5508,7 +5742,7 @@ int read_tis(CString key, Cmos *cb, int lazy)
     //if not in bif, then it has a header
     if(fileloc.bifname.Left(8)=="override") header=true;
     else header=false;
-    ret=cb->ReadTisFromFile(fhandle, fileloc.size, header);
+    ret=cb->ReadTisFromFile(fhandle, &fileloc, header, false);
     close(fhandle);
   }
   else ret=-2;
@@ -5907,10 +6141,12 @@ CString WeiduGametype()
   return "BG ";
 }
 
-CString AssembleWeiduCommandLine(CString filename, CString outpath)
+CString AssembleWeiduCommandLine(CString filename, CString outpath, bool inout)
 {
   CString syscommand;
   CString flags;
+  CString tlk;
+  CString tlkname;
   int i,j;
 
   flags=weiduextra+" ";
@@ -5921,7 +6157,14 @@ CString AssembleWeiduCommandLine(CString filename, CString outpath)
     j<<=1;
   }
   if(weiduflg&WEI_GAMETYPE) flags+=WeiduGametype();
-  syscommand.Format("\"%s\" %s--out \"%s\" --tlkout dialog.tlk \"%s\"", weidupath, flags, outpath, filename);
+  tlk = ((CChitemDlg *) AfxGetMainWnd())->GetTlkFileName(whichdialog?choosedialog:0);
+
+  syscommand.Format("\"%s\" %s--out \"%s\" --tlkin \"%s\" \"%s\"", weidupath, flags, outpath, tlk, filename);
+  if (!inout)
+  {
+    tlkname.Format(" --tlkout \"%s\"", tlk);
+    syscommand+=tlkname;
+  }
   if(weiduflg&WEI_LOGGING) syscommand+=" --log "+WEIDU_LOG;
   return syscommand;
 } 
@@ -6446,6 +6689,7 @@ void ConvertToV10Eff(const creature_effect *v20effect, feat_block *v10effect)
   v10effect->count=v20effect->count;
   v10effect->sides=v20effect->sides;
   v10effect->stype=v20effect->stype;
+  v10effect->flags=v20effect->flags;
   v10effect->sbonus=v20effect->sbonus;
   v10effect->special=v20effect->special;
 }
@@ -6468,6 +6712,7 @@ void ConvertToV20Eff(creature_effect *v20effect,const feat_block *v10effect)
   v20effect->count=v10effect->count;
   v20effect->sides=v10effect->sides;
   v20effect->stype=v10effect->stype;
+  v20effect->flags=v10effect->flags;
   v20effect->sbonus=v10effect->sbonus;
   v20effect->special=v10effect->special;
 }
@@ -6585,14 +6830,17 @@ int WriteTempCreature(char *creature, long esize)
   return ret;
 }
 
-CString imagefilters[8]={
-  "All files (*.*)|*.*||",
-  "Image files (*.mos)|*.mos|",
-  "Tilesets (*.tis)|*.tis|",
-  "Bitmaps (*.bmp)|*.bmp|",
-/*  "Compressed tilesets (*.tiz)|*.tiz|",*/ "",
-  "Bam files (*.bam)|*.bam|",
-  "Paperdoll files (*.plt)|*.plt|",
+#define FILTERCOUNT 10
+CString imagefilters[FILTERCOUNT]={
+  "All files (*.*)|*.*||",     //0
+  "Image files (*.mos)|*.mos|",//1
+  "Tilesets (*.tis)|*.tis|",   //2
+  "Bitmaps (*.bmp)|*.bmp|",    //3
+  "Compressed tilesets (*.tiz)|*.tiz|",  //4
+  "Bam files (*.bam)|*.bam|",  //5
+  "Paperdoll files (*.plt)|*.plt|", //6
+  "Compressed surfaces (*.pvrz)|*.pvrz|", //7
+  "PVR surfaces (*.pvr)|*.pvr|", //8
   "",
 };
 
@@ -6601,7 +6849,7 @@ CString ImageFilter(int mostisbmp)
   CString ret;
   int i;
 
-  for(i=0;i<7;i++)
+  for(i=0;i<FILTERCOUNT;i++)
   {
     ret+=imagefilters[mostisbmp&15];
     if(!mostisbmp) break;
@@ -6631,10 +6879,17 @@ void CreateMinimap(HWND hwnd)
     return;
   }
   minimap.new_mos();
+  minimap.m_drawclosed=the_mos.m_drawclosed;
+  the_mos.m_drawclosed=true; //store hacked value
 	if(has_xpvar())  //iwd and iwd2  ( /8 ) 8 pixels in one
   {
     factor=8;
     tmpstr="Creating IWD minimap...";
+  }
+  else if (bg1_compatible_area() && tob_specific()) //bgee new maps
+  {
+    factor=10;
+    tmpstr="Creating BGEE minimap...";
   }
 	else             //pst, bg (/32*3)      32 pixels in three
   {
@@ -6680,16 +6935,18 @@ void CreateMinimap(HWND hwnd)
     MessageBox(hwnd,"Can't write file!","Error",MB_ICONSTOP|MB_OK);
   }
 endofquest:
+  the_mos.m_drawclosed=minimap.m_drawclosed; //restore hacked value
   if(truecolor) delete [] truecolor;
   if(the_area.m_night)
   {
     filepath="override\\"+itemname+"N.MOS";
+    UpdateIEResource(itemname+"N",REF_MOS,filepath,filelength(fhandle));
   }
   else
   {
     filepath="override\\"+itemname+".MOS";
+    UpdateIEResource(itemname,REF_MOS,filepath,filelength(fhandle));
   }
-  UpdateIEResource(itemname,REF_MOS,filepath,filelength(fhandle));
   close(fhandle);
   filepath=bgfolder+filepath;
   unlink(filepath);
@@ -6719,6 +6976,15 @@ int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes)
   0xb12, 0xb12,psize,0};
 
   return write(fhandle,&header,sizeof(header))==sizeof(header);
+}
+
+int CreatePltHeader(int fhandle, DWORD width, DWORD height, DWORD /*bytes*/)
+{
+  plt_header pltheader={'P','L','T',' ','V','1',' ',' '};
+
+  pltheader.dwWidth=width;
+  pltheader.dwHeight=height;
+  return write(fhandle,&pltheader,sizeof(pltheader))==sizeof(pltheader);
 }
 
 unsigned long getfreememory()
@@ -7062,6 +7328,14 @@ int CheckIntervallum(int value, int first, int count)
   return value-first;
 }
 
+int PointInCircle(area_ambient *ad, CPoint point)
+{
+  point.x-=ad->posx;
+  point.y-=ad->posy;
+  if (point.x*point.x+point.y*point.y<ad->radius*ad->radius) return true;
+  return false;
+}
+
 int PointInPolygon(area_vertex *wedvertex, int count, CPoint point)
 {
   register int   j, yflag0, yflag1, xflag0 , index;
@@ -7220,7 +7494,22 @@ int VertexOrder(area_vertex *wedvertex, int count)
   return 0;
 }
 
+CString reduce_tlk_text(CString str)
+{
+  CString token, ret;
+  int i;
+  
+  ret = str;
+  i=0;
+  while(tokenlist[i])
+  {
+    token.Format("<%s>", tokenlist[i++]);
+    ret.Replace(token,"");
+  }
+  return ret;
+}
 
+///////////////////////////////////////////////////////////////////////////////////
 //cstringmap functions
 CStringMapCStringMapInt::~CStringMapCStringMapInt()
 {

@@ -32,7 +32,7 @@ CFileDialog(bOpenFileDialog, lpszDefExt, lpszFileName, dwFlags, lpszFilter, pPar
   {
     strncpy(external,m_ofn.lpstrFile,MAXBUFFSIZE);
     m_ofn.lpstrFile=external;
-    m_ofn.nMaxFile=MAXBUFFSIZE;
+    m_ofn.nMaxFile=MAXBUFFSIZE/32; //this should be divided by MAX_PATH, but that would be too small, if someone uses long filenames they deserve the crash
   }
 	
 };

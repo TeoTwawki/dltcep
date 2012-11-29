@@ -65,6 +65,7 @@ public:
 // Implementation
 protected:
   CToolTipCtrl m_tooltip;
+  CString filepath;
 
   void RefreshDialog();
   void UpdateTooltip();
@@ -112,6 +113,8 @@ protected:
 	afx_msg void OnDefaultKillfocus();
 	afx_msg void OnParSpecial();
 	afx_msg void OnHexadecimal();
+	afx_msg void OnMirror();
+	afx_msg void OnDiff();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

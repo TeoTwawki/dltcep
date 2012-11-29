@@ -70,6 +70,8 @@ typedef struct {
   CString bifname;//bif or filename
   long index;
   long size;
+  long tilesize;
+  long numtiles;
   unsigned short bifindex;   // used for extraction (marks bif), original index
   unsigned short cdloc;
   CString resref;            // the key itself
@@ -293,7 +295,7 @@ typedef struct
   char filetype[4];       //'SPL '
   char revision[4];       //'V1.0'
   long spellname;
-  long unknown0c;
+  long idname;
   char wavc[8];           //completion sound
   unsigned char itmattr;
   unsigned char splattr;
@@ -307,19 +309,18 @@ typedef struct
   unsigned char sectype; //secondary type from sectype.ids
   long unknown28;
   long unknown2c;
-  long unknown30;
+  short mincon; //30
+  short minchr; //32
   long level;
-  short unknown38;
+  short stack;
   char icon[8];
-  short unknown42;
-  long unknown44;
-  long unknown48;
-  long unknown4c;
+  short lore;
+  char groundicon[8];
+  long weight;
   long desc;     //strref
-  long unknown54;
-  long unknown58;
-  long unknown5c;
-  long unknown60;
+  long iddesc;
+  char descicon[8];
+  long attributes;
   long extheadoffs;
   short extheadcount;
   long featureoffs;
@@ -464,7 +465,8 @@ typedef struct {
   char vvc[8];
   long count;
   long sides;
-  long stype;
+  unsigned short stype;
+  unsigned short flags;
   long sbonus;
   long special;
 } feat_block;
@@ -620,7 +622,8 @@ typedef struct
   char resource[8];
   unsigned long count;
   unsigned long sides;
-  unsigned long stype;
+  unsigned short stype;
+  unsigned short flags;
   long sbonus;
   long unknown2c;
   long school;
@@ -1191,7 +1194,8 @@ typedef struct {
   char resource[8];
   unsigned long count;
   unsigned long sides;
-  unsigned long stype;
+  unsigned short stype;
+  unsigned short flags;
   long sbonus;
   long special;
   long school;
@@ -1342,7 +1346,8 @@ typedef struct {
   short width;
   short height;
   char tis[8];
-  long unknownc;
+  short uniquetiles;
+  short movementtype;
   long tilemapoffset;
   long tileidxoffset;
 } wed_overlay;
@@ -1370,8 +1375,9 @@ typedef struct {
   unsigned short firsttileprimary;
   unsigned short counttileprimary; //tile indices are 16 bit values
   short alternate;
-  short flags;
-  short unknown;
+  unsigned char overlayflags;
+  unsigned char animspeed;
+  short wedflags;
 } wed_tilemap;
 
 // polygon indices could be POINTS type, x=index, y=count
@@ -1691,23 +1697,6 @@ public:
   }
 };
 
-/* we won't use this, we will simply cut 4 bytes
-typedef struct {
-  char filetype[4]; //'DLG '
-  char revision[4]; //'V1.0'
-  long numstates;
-  long offstates;
-  long numtrans;
-  long offtrans;
-  long offsttrigger;
-  long numsttrigger;
-  long offtrtrigger;
-  long numtrtrigger;
-  long offaction;
-  long numaction;
-} dlg_header_old;
-*/
-
 typedef struct {
   char filetype[4]; //'DLG '
   char revision[4]; //'V1.0'
@@ -1740,6 +1729,20 @@ typedef struct {
   char nextdlg[8];  //transition dlg
   long stateindex;  //next state index
 } dlg_trans;
+
+typedef struct {
+  char dlgname[8];
+  long numstates;
+  long firststate;
+  long numtrans;
+  long firsttrans;
+  long firststtrigger;
+  long numsttrigger;
+  long firsttrtrigger;
+  long numtrtrigger;
+  long firstaction;
+  long numaction;
+} dlg_extlink;
 
 typedef struct {
   long textoffset;
@@ -2039,6 +2042,31 @@ typedef struct {
 } tis_header;
 
 typedef struct {
+  unsigned long index;
+  unsigned long x;
+  unsigned long y;
+} pvr_entry;
+
+struct INF_MOS_HEADER
+{
+	char		chSignature[4]; //MOS
+	char		chVersion[4];
+	WORD		wWidth;
+	WORD		wHeight;
+	WORD		wColumn;
+	WORD		wRow;
+	DWORD		dwBlockSize;
+	DWORD		dwPaletteOffset;
+};
+
+struct INF_MOSC_HEADER
+{
+	char		chSignature[4]; //MOSC
+	char		chVersion[4];
+  DWORD   nExpandSize;
+};
+
+typedef struct {
   char signature[2]; //BM
   unsigned long fullsize;     //offset+width*height
   unsigned long unknown1;      //zero, reserved
@@ -2055,6 +2083,15 @@ typedef struct {
   unsigned long colors;       //0
   unsigned long impcolors;    //important colors
 } bmp_header;
+
+typedef struct {
+  unsigned long red;
+  unsigned long green;
+  unsigned long blue;
+  unsigned long alpha;
+  unsigned long colorspace;
+  unsigned char unused[64];
+} bmp_extheader;
 
 typedef struct {
   char signature[2]; //BM
@@ -2153,6 +2190,7 @@ typedef struct {
   short feature, feature2;
   char resource[8];
   char itemname[8];
+  char foundres[8]; //to display a resource found
   char variable[32];
   unsigned char ea, ea2;
   unsigned char general, general2;
@@ -2317,8 +2355,10 @@ typedef struct
   unsigned long checkopt;
   unsigned long editopt;
   unsigned long gameopt;
+  unsigned long winsize;
   CString bgfolder;
   CString descpath;
+  CString lang;
 } gameprops;
 
 typedef CMap<CString, LPCSTR, gameprops, gameprops&> CStringMapGameProps;

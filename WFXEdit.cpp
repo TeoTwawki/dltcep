@@ -195,7 +195,6 @@ static char BASED_CODE szFilter[] = "Wave effect files (*.wfx)|*.wfx|All files (
 
 void WFXEdit::OnLoadex() 
 {
-  CString filepath;
   int fhandle;
   int res;
   
@@ -204,6 +203,7 @@ void WFXEdit::OnLoadex()
   CMyFileDialog m_getfiledlg(TRUE, "wfx", makeitemname(".wfx",0), res, szFilter);
 
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();
@@ -246,7 +246,6 @@ void WFXEdit::OnSave()
 
 void WFXEdit::SaveWFX(int save) 
 {
-  CString filepath;
   CString newname;
   CString tmpstr;
   int res;
@@ -267,6 +266,7 @@ void WFXEdit::SaveWFX(int save)
   }    
   
 restart:  
+  //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
     filepath=m_getfiledlg.GetPathName();

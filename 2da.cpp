@@ -767,7 +767,8 @@ int Read2daStringFromFile(int fhandle, CString2List &refs, int length, int colum
   do
   {
     ret=read_string(fpoi, "\n",external,sizeof(external));   
-    if(ret==1)
+    //allow reading of last broken line
+    if(ret==1 || ret==2)
     {
       if(column) cnt=strtonum(external);
       else cnt++;
@@ -1435,6 +1436,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           switch(flg&0xff)
           {
           case IS_VAR:
+            parpoi->type=SPT_STRING2;
             break;
 					case ADD_VAR3:
           case ADD_GLOBAL:
@@ -1491,6 +1493,7 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           switch(flg&0xff)
           {
           case IS_VAR:
+            parpoi->type=SPT_STRING1; break;
             break;
           case ADD_GLOBAL: case ADD_LOCAL:case ADD_VAR3:
 						parpoi->type=SPT_VAR1;
@@ -1884,6 +1887,14 @@ int compile_trigger(CString line, trigger &trigger)
       }
 //check variable
       break;
+    case SPT_STRING1: //free string format
+      ret=convert_string(args[j],trigger.var1,32,CE_INVALID_STRING);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
+      break;
     case SPT_COLUMN1:
       ret=convert_string(args[j],trigger.var1,32,CE_INVALID_RESOURCE);
       if(ret<0)
@@ -1966,6 +1977,14 @@ int compile_trigger(CString line, trigger &trigger)
         return ret;
       }
 //check variable
+      break;
+    case SPT_STRING2: //free string format
+      ret=convert_string(args[j],trigger.var2,32,CE_INVALID_STRING);
+      if(ret<0)
+      {
+        delete [] args;
+        return ret;
+      }
       break;
     case SPT_COLUMN2:
       ret=convert_string(args[j],trigger.var2,32,CE_INVALID_RESOURCE);

@@ -709,6 +709,40 @@ int Cbam::ImplodeBamData()
   return 0;
 }
 
+int Cbam::WritePltToFile(int fhandle, int frame)
+{
+  LPBYTE poi;
+  CPoint fs;
+  int RLE;
+  int pad;
+  unsigned long padding;
+
+  padding=0;
+  fs=GetFrameSize(frame);
+  RLE=GetFrameRLE(frame);
+  SetFrameRLE(frame,0); //uncompressing the image
+
+  CreatePltHeader(fhandle, fs.x, fs.y, 1);
+  if(write(fhandle,m_palette, sizeof(m_palette) )!=sizeof(m_palette) )
+  {
+    return -2;
+  }
+  poi=GetFrameData(frame)+fs.y*fs.x;
+  pad=4-fs.x&3;
+  while(fs.y--)
+  {
+    poi-=fs.x;
+    if(write(fhandle,poi, fs.x)!=fs.x)
+    {
+      return -2;
+    }
+    if(pad!=4) write(fhandle,&padding,pad);
+  }
+
+  SetFrameRLE(frame,RLE);//compressing the image back
+  return 0;
+}
+
 int Cbam::ExplodeBamData(int flags)
 {
   BYTE *tmppoi;
@@ -727,6 +761,13 @@ int Cbam::ExplodeBamData(int flags)
   gret=0;
   memset(order,0,sizeof(order));
   m_nMinFrameOffset=0x7fffffff;
+
+  //invalid decompressed size isn't enough to hold header and palette
+  if (c_header.nExpandSize<sizeof(INF_BAM_HEADER)+256*sizeof(COLORREF))
+  {
+    return -4;
+  }
+
   if(memcmp(m_pData,"BAM V1  ",8))
   {
     return -4;
@@ -788,7 +829,7 @@ int Cbam::ExplodeBamData(int flags)
       if (m_pFrameLookup[0]!=nFrame) continue;
     }
     ret=m_pFrameData[nFrame].TakeBamData(m_pData+nOffset, m_pFrames[nFrame].wWidth, m_pFrames[nFrame].wHeight, m_header.chTransparentIndex, bIsCompressed, (int) (m_nDataSize-nOffset) );
-#ifdef _DEBUG
+#ifdef _DEBUGA
     if(ret==-1 && (flags!=EBD_HEAD) )
     {
       CString tmpstr;
@@ -1021,7 +1062,7 @@ static int ReadHeader(int fhandle, bmp_header &sHeader)
     return 0;
   }
   //Windows BMP?
-  if (sHeader.headersize!=0x28)
+  if (sHeader.headersize!=0x28 && sHeader.headersize!=0x7c)
   {
     return -2;
   }
@@ -1035,6 +1076,7 @@ static int ReadHeader(int fhandle, bmp_header &sHeader)
 int Cbam::ReadBmpFromFile(int fhandle, int ml)
 {
   bmp_header sHeader;      //BMP header
+  bmp_extheader extHeader;
   unsigned char *pcBuffer; //buffer for a scanline
   int scanline;            //size of a scanline in bytes (ncols * bytesize of a pixel)
   int tmpsize;
@@ -1063,7 +1105,15 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
   if(sHeader.fullsize>(unsigned long) ml) return -2;
   //if(sHeader.headersize!=0x28) return -2;
   if(sHeader.planes!=1) return -1;                  //unsupported
-  if(sHeader.compression!=BI_RGB) return -1;        //unsupported
+  if(sHeader.compression!=BI_RGB)
+  {
+    if ((sHeader.headersize==0x7c) && (sHeader.compression!=BI_BITFIELDS)) {
+      return -1;        //unsupported
+    }
+    if (read(fhandle, &extHeader, sizeof(extHeader))!=sizeof(extHeader)) return -1;
+    if (extHeader.alpha!=0xff000000 && extHeader.red!=0xff0000 && extHeader.green!=0xff00 && extHeader.blue!=0xff) return -1;
+    //bitfield
+  }
   if(sHeader.height<0 || sHeader.width<0) return -1; //unsupported
   if(sHeader.height>1024 || sHeader.width>1024) return -1; //unsupported
   //read palette if we got one
@@ -1589,6 +1639,43 @@ int Cbam::FindFrame(int nFrameWanted, int &nIndex)
     }
   }
   return -1;
+}
+
+int Cbam::CheckFrameSizes()
+{
+  int nCycleWanted, nFrameWanted;
+  int nIndex;
+  int nBad;
+  bool bError;
+  CPoint data;
+
+  //checking only attack bams (8 cycles)
+  if (m_nCycles!=8)
+  {
+    return 0;
+  }
+  nBad = 0;
+  for(nCycleWanted=0;nCycleWanted<m_nCycles;nCycleWanted++)
+  {
+    bError = true;
+    data=GetCycleData(nCycleWanted);
+    for(nIndex=0;nIndex<data.y;nIndex++)
+    {
+      if (data.x+nIndex>=m_nFrameLookupSize) continue; //error, but we don't care now
+      nFrameWanted = m_pFrameLookup[data.x+nIndex];
+      if (nFrameWanted>=m_nFrames) continue; //error, but we don't care now
+      if ((m_pFrames[nFrameWanted].wHeight!=1) || (m_pFrames[nFrameWanted].wWidth!=1))
+      {
+        bError=false;
+        break;
+      }
+    }
+    if (bError && data.y)
+    {
+      nBad++;
+    }
+  }
+  return nBad;
 }
 
 //drops unreferenced frames, reports the number

@@ -230,7 +230,7 @@ int Cspell::ReadSpellFromFile(int fhandle, long maxlen)
   }
   if(maxlen!=fullsize)
   {
-    return -3; //incorrect length
+    return 1; //incorrect length
   }
   return 0;
 }

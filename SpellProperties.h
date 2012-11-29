@@ -45,25 +45,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CSpellGeneral)
 	virtual BOOL OnInitDialog();
-	afx_msg void OnKillfocusWav();
-	afx_msg void OnKillfocusSpelltype();
-	afx_msg void OnKillfocusLevel();
-	afx_msg void OnKillfocusSchool();
-	afx_msg void OnKillfocusSectype();
-	afx_msg void OnKillfocusSelection();
-	afx_msg void OnKillfocusUnknown0c();
-	afx_msg void OnKillfocusUnknown23();
-	afx_msg void OnKillfocusUnknown28();
-	afx_msg void OnKillfocusUnknown2c();
-	afx_msg void OnKillfocusUnknown30();
-	afx_msg void OnKillfocusUnknown38();
-	afx_msg void OnKillfocusUnknown44();
-	afx_msg void OnKillfocusUnknown48();
-	afx_msg void OnKillfocusUnknown4c();
-	afx_msg void OnKillfocusUnknown54();
-	afx_msg void OnKillfocusUnknown58();
-	afx_msg void OnKillfocusUnknown5c();
-	afx_msg void OnKillfocusUnknown60();
+	afx_msg void OnDefaultKillfocus();
 	afx_msg void OnAttr1();
 	afx_msg void OnAttr2();
 	afx_msg void OnAttr3();
@@ -72,18 +54,11 @@ protected:
 	afx_msg void OnAttr6();
 	afx_msg void OnAttr7();
 	afx_msg void OnAttr8();
-	afx_msg void OnKillfocusExclude();
-	afx_msg void OnKillfocusBookicon();
-	afx_msg void OnKillfocusByte1();
-	afx_msg void OnKillfocusByte34();
 	afx_msg void OnV1();
 	afx_msg void OnV20();
 	afx_msg void OnBrowse();
 	afx_msg void OnInvicon1();
 	afx_msg void OnPlaysound();
-	afx_msg void OnKillfocusPriesttype();
-	afx_msg void OnKillfocusU1();
-	afx_msg void OnKillfocusU2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
