@@ -44,7 +44,6 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MT /W4 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
-# SUBTRACT CPP /Z<none>
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -54,7 +53,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 winmm.lib StaticZlib.lib jpeg.lib ogg_static.lib vorbisfile_static.lib vorbis_static.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"libc" /out:"Release/DLTCEP.exe"
+# ADD LINK32 winmm.lib StaticZlib.lib jpeg.lib ogg_static.lib vorbisfile_static.lib vorbis_static.lib /nologo /subsystem:windows /machine:I386 /nodefaultlib:"libc" /out:"Release/DLTCEP.exe"
+# SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "chitem - Win32 Debug"
 
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MTd /W4 /GR /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR /Yu"stdafx.h" /FD /GZ /c
+# ADD CPP /nologo /MTd /W4 /GR /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D WINVER=0x501 /FR /Yu"stdafx.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -476,6 +476,10 @@ SOURCE=.\TormentCre.cpp
 # Begin Source File
 
 SOURCE=.\unpacker.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\UTF8.cpp
 # End Source File
 # Begin Source File
 
@@ -932,6 +936,10 @@ SOURCE=.\TormentCre.h
 # Begin Source File
 
 SOURCE=.\unpacker.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UTF8.h
 # End Source File
 # Begin Source File
 

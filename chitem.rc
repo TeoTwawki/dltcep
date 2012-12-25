@@ -2446,8 +2446,8 @@ BEGIN
     EDITTEXT        IDC_UNKNOWN80,239,88,33,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_UNKNOWN82,280,88,33,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_MAX,7,122,33,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_LOW,91,122,33,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_HIGH,150,122,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOW,196,122,33,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_HIGH,258,122,33,14,ES_AUTOHSCROLL
     PUSHBUTTON      "xxxxxxxxxxxxxxxxxxxxxxxx",IDC_SCHEDULE,7,170,83,14,
                     BS_FLAT
     PUSHBUTTON      "Add spawnpoint",IDC_ADD,403,20,70,14
@@ -2464,17 +2464,17 @@ BEGIN
     GROUPBOX        "Spawned creatures",IDC_STATIC,147,7,167,60,BS_FLAT
     LTEXT           "Difficulty",IDC_STATIC,7,74,28,8
     LTEXT           "Delay ?",IDC_STATIC,49,74,42,8
-    LTEXT           "Spawn method ?",IDC_STATIC,96,74,54,8
+    LTEXT           "Spawn method",IDC_STATIC,96,74,48,8
     LTEXT           "Schedule",IDC_STATIC,7,156,31,8
     LTEXT           "Static",IDC_TIMEOFDAY,94,172,38,8
-    LTEXT           "Day chance",IDC_STATIC,91,109,40,8
+    LTEXT           "Day chance",IDC_STATIC,196,109,40,8
     LTEXT           "Expiry",IDC_STATIC,196,74,20,8
     LTEXT           "Walk distances",IDC_STATIC,239,74,50,8
-    LTEXT           "%",IDC_STATIC,185,124,8,8
+    LTEXT           "%",IDC_STATIC,293,124,8,8
     LTEXT           "Maximum",IDC_STATIC,7,109,30,8
     LTEXT           "Enabled",IDC_STATIC,100,33,27,8
-    LTEXT           "%",IDC_STATIC,129,124,8,8
-    LTEXT           "Night chance",IDC_STATIC,150,109,44,8
+    LTEXT           "%",IDC_STATIC,233,124,8,8
+    LTEXT           "Night chance",IDC_STATIC,258,109,44,8
 END
 
 IDD_CREATUREEDIT DIALOGEX 0, 0, 410, 250
@@ -4262,7 +4262,7 @@ BEGIN
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS | UDS_NOTHOUSANDS,68,6,11,14
     EDITTEXT        IDC_TEXT,7,49,238,91,ES_MULTILINE | ES_NOHIDESEL | 
-                    ES_WANTRETURN | WS_VSCROLL
+                    ES_OEMCONVERT | ES_WANTRETURN | WS_VSCROLL
     EDITTEXT        IDC_SOUND,110,6,45,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE,162,6,28,14
     PUSHBUTTON      "Play sound",IDC_PLAY,195,6,50,14
@@ -6530,8 +6530,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,5,0,0
- PRODUCTVERSION 7,5,0,0
+ FILEVERSION 7,5,0,3
+ PRODUCTVERSION 7,5,0,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6549,14 +6549,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 5, 0, 0\0"
+            VALUE "FileVersion", "7, 5, 0, 3\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2012 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.5\0"
-            VALUE "ProductVersion", "7, 5, 0, 0\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.5c\0"
+            VALUE "ProductVersion", "7, 5, 0, 3\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6662,6 +6662,7 @@ BEGIN
         MENUITEM "Sc&ript",                     ID_CHECK_SCRIPT
         MENUITEM "Spaw&n (INI)",                ID_CHECK_SPAWNINI
         MENUITEM "&Spell",                      ID_CHECK_SPELL
+        MENUITEM "S&QL",                        ID_CHECK_SQL
         MENUITEM "S&tore",                      ID_CHECK_STORE
         MENUITEM "Table (&2DA)",                ID_CHECK_2DA
         MENUITEM "&UI",                         ID_CHECK_UI
