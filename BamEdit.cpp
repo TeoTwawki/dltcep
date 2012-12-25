@@ -21,6 +21,7 @@ static char THIS_FILE[] = __FILE__;
 #define PLAYBAM     1
 #define CONTINUOUS  2
 #define MAX_DIMENSION 250
+#define MAX_DESC 64
 
 static char BASED_CODE szFilter[] = "Animation files (*.bam)|*.bam|All files (*.*)|*.*||";
 static char BASED_CODE szFilter2[] = "Bitmap files (*.bmp)|*.bmp|Paperdoll files (*.plt)|*.plt|All files (*.*)|*.*||";
@@ -678,6 +679,29 @@ restart:
   RefreshDialog();
 }
 
+int CBamEdit::WriteBackgroundBMP(CString newname, Cbam &my_bam)
+{
+  CString filename;
+  int res;
+  Cbam tmp_bam;
+  CPoint p;
+
+  if (my_bam.GetFrameCount()==4)
+  {
+    p = my_bam.GetCompositeSize();
+  }
+  else
+  {
+    p = my_bam.GetFrameSize(0);
+  }
+  //hack to fix BGEE padding problem
+  p.x=(p.x+7)&~7;
+  //
+  tmp_bam.MergeStructure(my_bam, p.x, p.y);
+  res=write_bmp(newname, "", &tmp_bam, 0);
+  return res;
+}
+
 int CBamEdit::WriteAllFrames(CString newname, Cbam &my_bam)
 {
   CString filename;
@@ -755,8 +779,14 @@ gotname:
     
     if(bmpsave==true)
     {
-      res=WriteAllFrames(newname, my_bam);
-      //res=write_bmp(itemname, filepath, &my_bam, m_framenum2);
+      if(background&1)
+      {
+        res=WriteBackgroundBMP(newname, my_bam);
+      }
+      else
+      {
+        res=WriteAllFrames(newname, my_bam);
+      }
     }
     else
     {
@@ -2008,6 +2038,12 @@ void CBamEdit::OnCycleAlignframes()
   UpdateData(UD_DISPLAY);
 }
 
+static inline int GetDescSplitSize(int scale)
+{
+  int div = (scale+MAX_DESC-1)/MAX_DESC;
+  return scale/div;
+}
+
 static inline int GetSplitSize(int scale)
 {
   int div = (scale+MAX_DIMENSION-1)/MAX_DIMENSION;
@@ -2018,27 +2054,14 @@ void CBamEdit::SplitBAM()
 {
   CPoint p,q;
   int i,j;
-  int fc = the_bam.GetFrameCount();
   int width = 0;
   int height = 0;
+  int max_dim;
   Cbam tmpbam;
+  int wsplit, hsplit;
   
-  for(i=0;i<fc;i++)
-  {
-    p=the_bam.GetFrameSize(i);
-    q=the_bam.GetFramePos(i);
-    j = p.x+q.x;
-    if (width<j)
-    {
-      width=j;
-    }
-    j = p.y+q.y;
-    if (height<j)
-    {
-      height=j;
-    }
-  }
-  if (width<MAX_DIMENSION && height<MAX_DIMENSION)
+  max_dim = MAX_DIMENSION;
+  if (width<max_dim && height<max_dim)
   {
     MessageBox("This BAM doesn't require splitting.","BAM Editor",MB_OK);
     return;
@@ -2046,8 +2069,9 @@ void CBamEdit::SplitBAM()
   CString tmpstr;
   CString key;
   int quarter = 0;
-  int wsplit = GetSplitSize(width);
-  int hsplit = GetSplitSize(height);
+
+  wsplit = GetSplitSize(width);
+  hsplit = GetSplitSize(height);
   for(i=0;i<width;i+=wsplit)
   {
     for(j=0;j<height;j+=hsplit)
@@ -2062,7 +2086,7 @@ void CBamEdit::SplitBAM()
       tmpstr="";
       write_bam(key,tmpstr,&tmpbam);
     }
-  }
+  }  
 }
 
 void CBamEdit::OnDecompress() 

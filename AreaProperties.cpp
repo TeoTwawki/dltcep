@@ -1903,7 +1903,7 @@ void CAreaTrigger::OnAdd()
   
   memcpy(newtriggers, the_area.triggerheaders, the_area.triggercount*sizeof(area_trigger));
   memset(newtriggers+the_area.triggercount,0,sizeof(area_trigger) );
-  tmpstr.Format("Info Point %d",the_area.header.infocnt);
+  tmpstr.Format("InfoPoint%02d",the_area.header.infocnt);
   newtriggers[the_area.triggercount].cursortype=42;
   StoreName(tmpstr,newtriggers[the_area.triggercount].infoname);
   newtriggers[the_area.triggercount].strref=-1;
@@ -4185,7 +4185,7 @@ void CAreaContainer::OnAdd()
 
   memcpy(newcontainers, the_area.containerheaders, count*sizeof(area_container));
   memset(newcontainers+count,0,sizeof(area_container) );
-  tmpstr.Format("Container %d",the_area.header.containercnt);
+  tmpstr.Format("Container%03d",the_area.header.containercnt);
   StoreName(tmpstr,newcontainers[count].containername);
   if(count)
   {
@@ -5704,7 +5704,7 @@ void CAreaDoor::OnAdd()
   }
   memcpy(newdoors, the_area.doorheaders, the_area.doorcount*sizeof(area_door));
   memset(newdoors+the_area.doorcount,0,sizeof(area_door) );
-  tmpstr.Format("Door %02d",the_area.header.doorcnt);
+  tmpstr.Format("Door%04d",the_area.header.doorcnt);
   StoreName(tmpstr,newdoors[the_area.doorcount].doorname);
   StoreResref(tmpstr,newdoors[the_area.doorcount].doorid);
   newdoors[the_area.doorcount].cursortype=30; //door

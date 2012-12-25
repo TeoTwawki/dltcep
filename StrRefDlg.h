@@ -22,7 +22,6 @@ public:
 	CSpinButtonCtrl	m_spin_control;
 	CEdit	m_strref_control;
   CEdit	m_text_control;
-  CString	m_text;
   CString	m_sound;
   BOOL	m_tag;
 	CString	m_maxstr;
@@ -48,6 +47,8 @@ protected:
 
   int do_search_and_replace(int direction,int mode,int match,CString search,CString replace);
   void StartFindReplace(int mode);
+  void SetTextControl(CString text);
+  CString GetTextControl();
 	// Generated message map functions
 	//{{AFX_MSG(CStrRefDlg)
 	afx_msg void OnUpdateStrref();

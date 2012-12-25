@@ -1306,10 +1306,11 @@ int Cmos::Allocate(DWORD x, DWORD y)
 
 int Cmos::ReadTisFromFile(int fhandle, loc_entry *fl, bool header, bool preview)
 {
-  Cpvr pvr;
   int esize;
   DWORD i;
+  int ret;
 
+  ret = 0;
   new_mos();
   if(header)
   {
@@ -1337,33 +1338,83 @@ int Cmos::ReadTisFromFile(int fhandle, loc_entry *fl, bool header, bool preview)
   //version 2 tileset
   if ((tisheader.tilelength==sizeof(pvr_entry)) )
   {
+    CPtrList pvrs;
+    POSITION pos;
+
     m_pvr = true;
+    ((CChitemDlg *) AfxGetMainWnd())->start_progress(tisheader.numtiles,"Decompressing tileset");
     for(i=0;i<tisheader.numtiles;i++)
     {
       pvr_entry entry;
       CString pvrname;
 
+      ((CChitemDlg *) AfxGetMainWnd())->set_progress(i);
       if (read(fhandle, &entry, sizeof(pvr_entry))!= sizeof(pvr_entry))
       {
-        return -2;
+        ret=-2;
+        break;
       }
       CString tmpstr = fl->resref;
       int x = tmpstr.Find(".");
       if (x>0) tmpstr = tmpstr.Left(x);
-      pvrname.Format("%c%-.5s%02d",tmpstr[0], tmpstr.Mid(2), entry.index);
-      if (read_pvrz(pvrname, &pvr, true)) {
-        return -4;
+      if (entry.index==0xffffffff)
+      {
+        //no need of transparency
+        memset(m_pclrDIBits,0, tisheader.pixelsize*tisheader.pixelsize*sizeof(COLORREF) );
       }
-      pvr.BuildTile(entry.x, entry.y, m_pclrDIBits);
+      else
+      {
+        Cpvr *pvr = NULL;
+        
+        pvrname.Format("%c%-.5s%02d",tmpstr[0], tmpstr.Mid(2), entry.index);
+        pos = pvrs.GetHeadPosition();
+        while(pos)
+        {
+          pvr = (Cpvr *) pvrs.GetNext(pos);
+          CString name = pvr->m_name;
+          name.Replace(".pvrz","");
+          if (name==pvrname)
+          {
+            break;
+          }
+          pvr = NULL;
+        }
+        if (!pvr)
+        {
+          pvr = new Cpvr();
+          if (read_pvrz(pvrname, pvr, true))
+          {
+            delete pvr;
+            ret=-4;
+            break;
+          }
+          else
+          {
+            pvrs.AddHead(pvr);
+          }
+        }
+        pvr->BuildTile(entry.x, entry.y, m_pclrDIBits);
+      }
       esize=tisheader.pixelsize*tisheader.pixelsize;
       INF_MOS_FRAMEDATA *p=m_pFrameDataPointer[i];
       p->pFrameData=new BYTE[esize];
-      if(!p->pFrameData) return -3; //out of memory
+      if(!p->pFrameData)
+      {
+        ret = -3; //out of memory
+        break;
+      }
       p->nFrameSize=esize;
       p->nHeight=p->nWidth=tisheader.pixelsize;      
-      p->TakeWholeBmpData(m_pclrDIBits);      
+      p->TakeWholeBmpData(m_pclrDIBits);
     }
-    return 0;
+    ((CChitemDlg *) AfxGetMainWnd())->end_progress();
+
+    pos = pvrs.GetHeadPosition();
+    while(pos)
+    {
+      delete pvrs.GetNext(pos);
+    }
+    return ret;    
   }
 
   m_pvr = false;

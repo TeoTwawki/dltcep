@@ -8,6 +8,9 @@
 #include "2da.h"
 #include "options.h"
 
+//
+//#include "ChitemDlg.h"
+//
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -136,6 +139,21 @@ int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int length=0)
   }
   if(tmpbuff) tmpbuff[k]=0;
   return 1;
+}
+
+
+int read_line_until(FILE *fpoi, CString line)
+{
+  int ret;
+
+  do
+  {
+    ret = read_string(fpoi, "\n", external,sizeof(external)); //header
+    //((CChitemDlg *) AfxGetMainWnd())->log("%s",external);
+  }
+  while((external!=line) && (ret==1));
+
+  return ret;
 }
 
 //// reads an array of integers from ids (ordered)
@@ -515,7 +533,7 @@ int Read2daFromFile(int fhandle, CStringList &refs, int length)
   fpoi=fdopen(fhandle,"rb");
   if(!fpoi)
   {
-    close(fhandle);
+//    close(fhandle);
     return -1;
   }
   read_string(fpoi, "\n"); //skipping crap
@@ -827,7 +845,7 @@ int Read2daFromFile4(int fhandle, CStringList &refs, int length, int first)
   fpoi=fdopen(fhandle,"rb");
   if(!fpoi)
   {
-    close(fhandle);
+//    close(fhandle);
     return -1;
   }
   read_string(fpoi, "\n"); //skipping crap
@@ -872,7 +890,7 @@ int Read2daColumnFromFile(int fhandle, CStringList &refs, int length, int column
   fpoi=fdopen(fhandle,"rb");
   if(!fpoi)
   {
-    close(fhandle);
+//    close(fhandle);
     return -1;
   }
   read_string(fpoi, "\n"); //skipping crap
@@ -3030,7 +3048,6 @@ int C2da::Read2DAFromFile(int fhandle, int length)
     }
     while(i<cols)
     {
-//      add[i]="*"; //default
       add[i]=defvalue;
       i++;
     }
@@ -3043,6 +3060,74 @@ int C2da::Read2DAFromFile(int fhandle, int length)
   return ret;
 }
 
+int C2da::Extract2DAFromSQLFile(int fhandle, int length, CString filename, int defcols)
+{
+  CString *row;
+  CString *add;
+  FILE *fpoi;
+  int mycols;
+  int res;
+  int i;
+  int ret;
+
+  xorflag=position=0;
+  new_2da();
+  cols = defcols;
+  if(length<0) maxlength=filelength(fhandle);
+  else maxlength=length;
+  fpoi=fdopen(fhandle,"rb");
+  if(!fpoi)
+  {
+    close(fhandle);
+    return -1;
+  }
+
+  read_line_until( fpoi, "INSERT INTO "+filename+" ROWS");
+  read_string( fpoi, "\n", external, sizeof(external) );
+  if (memcmp(external,"(",2) )
+  {
+    fclose(fpoi);
+    return -1;
+  }
+
+  ret=0;
+  do
+  {
+    res = read_string( fpoi, "\n", external, sizeof(external) );
+    row=explode(external,',',mycols);
+    
+    if (!memcmp(external,");",3) )
+    {
+      break;
+    }
+
+    if(mycols!=cols)
+    {
+      ret|=1;
+    }
+    add=new CString [cols];
+    if(!add)
+    {
+      if(row) delete [] row;
+      return -3;
+    }
+    for(i=0;i<mycols && i<cols;i++)
+    {
+      add[i]=row[i];
+    }
+    while(i<cols)
+    {
+      add[i]=defvalue;
+      i++;
+    }
+    if(row) delete [] row;
+    data->AddTail(add);
+  }
+  while(res==1);
+  fclose(fpoi);
+  rows=data->GetCount();
+  return ret;
+}
 ///////////////////////////////////////////////////////////////////////////
 //ids class (editor)
 
@@ -3399,3 +3484,4 @@ int Cmus::ReadMusFromFile(int fhandle, int length)
   rows=data->GetCount();
   return ret;
 }
+

@@ -196,7 +196,8 @@ protected:
   int check_creature_spells();
   int check_creature_features();
   int check_feature(long feature, int par1, int par2, const char *resource);
-  int check_item_effectblock();
+  int check_spell_usability(CString spell, unsigned long school);
+  int check_item_effectblock(unsigned long itemtype, unsigned long school);
   int check_spell_effectblock();
   int check_counters(unsigned long flags);
   int check_storespelltype();
@@ -392,6 +393,7 @@ protected:
 	afx_msg void OnBg1fx();
 	afx_msg void OnPvrPack();
 	afx_msg void OnPvrUnpack();
+	afx_msg void OnCheckSql();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

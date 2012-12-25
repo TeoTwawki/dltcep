@@ -138,6 +138,9 @@ public:
 	int INF_BAM_FRAMEDATA::TakePartialBamData(const LPBYTE pRawBits, unsigned int nWidth,
 			unsigned int nHeight, unsigned int nDataWidth, unsigned int nDataSkip,
 			unsigned int nRowSkip, unsigned int nMaxLength);
+	int INF_BAM_FRAMEDATA::TakeBamDataPartial(const LPBYTE pRawBits, unsigned int nWidth,
+			unsigned int nHeight, unsigned int nDataWidth, unsigned int nDataSkip,
+			unsigned int nRowSkip, unsigned int nMaxLength);
   int TakeBamData(const LPBYTE pRawBits, unsigned int nWidth, unsigned int nHeight,
        BYTE chTransparentIndex, bool bIsCompressed, unsigned int nMaxLength);
   int TakePltData(const LPWORD pRawBits, plt_header &sHeader, int row);
@@ -173,8 +176,11 @@ public:
   int GetFrameCount();
   int GetCycleCount();
   int DetachFrameData(int nFrameWanted);
+  CPoint GetCompositeSize();
   CPoint GetFrameSize(int nFrameWanted);
   void GetEmpty(INF_BAM_FRAMEDATA *fdata);
+	void GetQuarterSplit(INF_BAM_FRAMEDATA *fdata, int nFrameWanted, 
+    int skipwidth, int skipheight, int splitwidth, int splitheight);
 	void GetSplitQuarter(INF_BAM_FRAMEDATA *fdata, int nFrameWanted, 
     int skipwidth, int skipheight, int splitwidth, int splitheight);
   LPBYTE GetFrameData(int nFrameWanted);
@@ -205,6 +211,7 @@ public:
   int GetFrameIndex(int nCycle, int nIndex);
   int SetFrameIndex(int nCycle, int nIndex, int nFrameIndex);
   int SetFrameSize(int nFrameWanted, int x, int y);
+  int AllocateFrameSize(int nFrameWanted, int x, int y);
   int SetFramePos(int nFrameWanted, int x, int y);
    //use RGB(128,128,128) for a greyscale
   void ConvertToGrey(COLORREF shade, bool keepgray=false);
@@ -212,6 +219,8 @@ public:
   int SwapFrames(int a, int b); //swaps frames in lookup table
   int Reallocate(int x, int y);
   bool ShrinkFrame(int nFrameWanted);
+  void CreateAlpha();
+  bool MergeStructure(Cbam &original, int width, int height);
 	bool CopyStructure(Cbam &original, int skipwidth, int skipheight, int width, int height);
 
   inline int GetTransparentIndex()

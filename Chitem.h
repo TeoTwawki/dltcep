@@ -36,6 +36,7 @@
 #include "ini.h"
 #include "ItemPicker.h"
 #include "ColorPicker.h"
+#include <MBSTRING.H>
 
 class C2da;
 //
@@ -99,6 +100,13 @@ extern UINT WM_FINDREPLACE;
 //bif res_loc definitions
 #define FILE_IDX_MASK  0x03fff
 #define TIS_IDX_MASK   0xfc000
+
+//important itemtypes
+#define ITM_SCROLL          11
+
+//important opcodes
+#define OPC_DAMAGE  12
+#define OPC_LEARNSPELL 147
 
 //class definitions
 #define CLASS_MAGE          1
@@ -375,7 +383,7 @@ extern CString ammo_types[NUM_AMTYPE];
 
 #define NUM_FVALUES 16
 
-#define NUM_SPTYPE 3
+#define NUM_SPTYPE 5
 
 #define NUM_CITYPE 13
 
@@ -712,7 +720,7 @@ extern CStringMapLocEntry pvrzs;
 extern CStringMapLocEntry *resources[NUM_OBJTYPE+1];
 extern CStringListLocEntry *duplicates[NUM_OBJTYPE+1];
 extern CStringMapInt variables;
-extern CIntMapString journals;
+extern CIntMapJournal journals;
 
 extern const unsigned char xorblock[64];
 extern CString setupname;
@@ -835,6 +843,7 @@ extern CStringMapInt ini_entry;
 
 //area animation flags
 #define AA_MIRROR 2048
+#define AA_COMBAT 4096
 
  //0 button, 1 progress,2 slider, 3 editbox,4 unknown, 5 scrolltext,
 #define CC_BUTTON    0
@@ -938,6 +947,7 @@ CString get_script_type(int i);
 CString format_storetype(unsigned int storetype);
 CString format_spellslot(unsigned int spellslot);
 CString format_spelltype(unsigned int spelltype);
+CString format_exclusion(unsigned long exclusion);
 CString format_schooltype(unsigned int schooltype);
 CString format_sectype(unsigned int sectype);
 CString format_itemtype(unsigned int itemtype);
@@ -1007,6 +1017,7 @@ CString get_region_type(int rttype);
 CString format_feat(int i, bool flag);
 CString format_skill(int idx, int value);
 CString format_direction(int dir);
+CString jourtype(int type);
 CString get_songname(int songidx);
 CString get_songfile(int songidx);
 CString get_spawntype(int sptype);

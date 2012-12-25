@@ -15,6 +15,7 @@
 #include "zlib.h"
 #include "acmsound.h"
 #include "options.h"
+#include "utf8.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -317,7 +318,7 @@ CStringMapLocEntry *resources[NUM_OBJTYPE+1]={0,&darefs,&musics,
 &dialogs, &effects, &games, &idrefs, &inis, &items, &mos, 
 &musiclists, &movies,&paperdolls, &projects, &spells, &strings, 
 &stores, &tis, &vefs, &vvcs, &sounds, &weds, &wfxs, &wmaps, 
-&fonts, &guis,  &sqls, &wbms, &pvrzs
+&fonts, &sqls, &guis, &wbms, &pvrzs
 };
 
 CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
@@ -325,11 +326,12 @@ CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
 &d_dialogs, &d_effects, &d_games, &d_idrefs, &d_inis, &d_items, &d_mos,
 &d_musiclists, &d_movies, &d_paperdolls, &d_projects, &d_spells, &d_strings,
 &d_stores,&d_tis, &d_vefs, &d_vvcs,&d_sounds, &d_weds, &d_wfxs, &d_wmaps,
-&d_fonts, &d_guis, &d_sqls, &d_wbms, &d_pvrz
+&d_fonts, &d_sqls, &d_guis, &d_wbms, &d_pvrz
 };
 
+
 CStringMapInt variables;
-CIntMapString journals;
+CIntMapJournal journals;
 
 ///
 /////////////////////////////////////////////////////////////////////////////
@@ -1716,7 +1718,7 @@ CString resolve_tlk_text(long reference, int which)
   
   if(reference<0) return "<Not Available>";
   if(reference>=tlk_headerinfo[which].entrynum) return "<Invalid Reference>";
-  tmp=tlk_entries[which][reference].text;
+  tmp = tlk_entries[which][reference].text;
   tmp.Replace("\r","");
   tmp.Replace("\n","\r\n");
   return tmp;
@@ -2168,6 +2170,37 @@ CString format_spelltype(unsigned int spelltype)
     return tmp;
   }
   return spelltypes[spelltype];
+}
+
+static char *exclusions[]={"Chaotic","Evil","Good","... neutral","Lawful",
+"Neutral...","Abjurer","Conjurer","Diviner","Enchanter","Illusionist",
+"Invoker","Necromancer","Transmuter","Generalist",0};
+
+CString format_exclusion(unsigned long exclusion)
+{
+  CString tmpstr;
+  int bit;
+  unsigned long value;
+
+  value = 1;
+  tmpstr.Format("0x%04x-Unused",exclusion);
+  if ((exclusion&0x7fc0)==0x7fc0)
+  {
+    tmpstr.Format("0x%04x-Wildmagic",exclusion);
+  }
+  else
+  {
+    for(bit=0;exclusions[bit];bit++)
+    {
+      if(exclusion&value)
+      {
+        tmpstr.Format("0x%04x-Exclude %s",exclusion,exclusions[bit] );
+        break;
+      }
+      value<<=1;
+    }
+  }
+  return tmpstr;
 }
 
 CString format_schooltype(unsigned int schooltype)
@@ -3343,6 +3376,28 @@ CString format_direction(int dir)
   return tmp;
 }
 
+
+CString jourtype(int type)
+{
+  CString tmp;
+
+  if (!type) return "journal";
+
+  if (type&HAS_QUEST)
+  {
+    tmp+="given quest ";
+  }
+  if (type&HAS_SOLVED)
+  {
+    tmp+="solved quest ";
+  }
+  if (tmp.IsEmpty())
+  {
+    tmp = "unknown";
+  }
+  return tmp;
+}
+
 CString get_songname(int songidx)
 {
   POSITION pos;
@@ -3373,7 +3428,7 @@ CString get_songfile(int songidx)
   return tmp; //empty string
 }
 
-CString spawn_types[NUM_SPTYPE]={"0 Unknown","1 Need rest","2 When revealed"};
+CString spawn_types[NUM_SPTYPE]={"0 Unknown","1 Not continuous","2 Only once", "3 Normal", "4 Triggered"};
 
 CString get_spawntype(int sptype)
 {
@@ -6967,15 +7022,34 @@ int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes)
 {
   int fullsize;
   int psize;
+  int compression;
+  int extsize;
 
-  if(bytes==1) psize=256;
-  else psize=0;
+  if(bytes==1)
+  {
+    psize=256;
+    compression = BI_RGB;
+    extsize = 0;
+  }
+  else
+  {
+    psize=0;
+    compression = BI_BITFIELDS;
+    extsize = sizeof(bmp_extheader);
+  }
   fullsize=GetScanLineLength(width,8*bytes)*height;
-  bmp_header header={'B','M',fullsize+sizeof(header), 0,
-  sizeof(header)+psize*4, 40, width, height, (short) 1, (short) (8*bytes), 0, fullsize,
+  bmp_header header={'B','M',fullsize+sizeof(header)+extsize, 0,
+  sizeof(header)+extsize+psize*4, 40+extsize, width, height, (short) 1, (short) (8*bytes), compression, fullsize,
   0xb12, 0xb12,psize,0};
 
-  return write(fhandle,&header,sizeof(header))==sizeof(header);
+  if (bytes==1)
+  {
+    return write(fhandle,&header,sizeof(header))==sizeof(header);
+  }
+  bmp_extheader extheader={0xff0000, 0xff00, 0xff,0xff000000,'sRGB'};
+  int res = write(fhandle,&header,sizeof(header))==sizeof(header);
+  res |= write(fhandle,&extheader,sizeof(extheader))==sizeof(extheader);
+  return res;
 }
 
 int CreatePltHeader(int fhandle, DWORD width, DWORD height, DWORD /*bytes*/)

@@ -1980,6 +1980,7 @@
 #define ID_CONVERSIONS_PVRCOMPRESSTILESETSPVRZ 33062
 #define ID_CONVERSIONS_PVRUNPACKTILESETS 33063
 #define ID_CONVERSIONS_JPEGUNPACKTILESETS 33064
+#define ID_CHECK_SQL                    33065
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1987,7 +1988,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33065
+#define _APS_NEXT_COMMAND_VALUE         33066
 #define _APS_NEXT_CONTROL_VALUE         2343
 #define _APS_NEXT_SYMED_VALUE           120
 #endif

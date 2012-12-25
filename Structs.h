@@ -250,7 +250,7 @@ typedef struct//3
   short frame;
   short xpos;
   short ypos;
-  long unknown2;
+  long scrollcontrolid;
   char font[8]; //font bam
   char unknown3[34];
   short length;
@@ -2339,10 +2339,18 @@ typedef struct
 {
   CString a,b;
 } CString2;
+
+typedef struct
+{
+  CString string;
+  int type;
+} journal_type;
+
 typedef CList<CString2, CString2&> CString2List;
 typedef CMap<CString, LPCSTR, int, int&> CStringMapInt;
 typedef CMap<int, int, int, int&> CIntMapInt;
 typedef CMap<int, int, CString, LPCSTR> CIntMapString;
+typedef CMap<int, int, journal_type, journal_type&> CIntMapJournal;
 typedef CMap<CString, LPCSTR, tooltip_data, tooltip_data&> CStringMapTooltip;
 typedef CMap<CString, LPCSTR, compiler_data, compiler_data&> CStringMapToCompiler;
 typedef CTypedPtrMap<CMapStringToOb, CString, CStringMapInt*> CStringMapToCStringMapInt;

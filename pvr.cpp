@@ -118,21 +118,17 @@ inline COLORREF unpack(unsigned short rgb565)
   return ((rgb565<<3)&0xf8)|((rgb565<<5)&0xfc00)|((rgb565<<8)&0xf80000);
 }
 
-//1 dxt1 block contains 4x4 pixels
-//1 tile is 16 dxt1 blocks wide and 16 dxt1 blocks tall (256)
+//1 dxt1 block contains original 4x4 pixels packed in 
+//2 rgb565 color values and 16 2 bit indices stored on a dword
+//1 tile is 16 dxt1 blocks wide and 16 dxt1 blocks tall (256 dxt1)
 //as the dib tile contains 64x64 rgba pixels (4096)
 int Cpvr::BuildTile(unsigned int x, unsigned int y, COLORREF *dib)
 {
   //this should't happen
   if (x+64>header.width || y+64>header.height) return 1;
-  dxt1 *pdxt1 = bits+y/16*header.width+x/4;
+  dxt1 *pdxt1 = bits+y/4*header.width/4+x/4;
   COLORREF c[4];
 
-  COLORREF *origdib = dib;
-  int pos;
-  //memset(dib,0,4096*4);
-  //return 0;
-  //
   for(int tmpy=0;tmpy<16;tmpy++)
   {
     for(int tmpx=0;tmpx<16;tmpx++)
@@ -151,36 +147,22 @@ int Cpvr::BuildTile(unsigned int x, unsigned int y, COLORREF *dib)
         c[3] = TRANSPARENT_GREEN;
       }
 
-      //
-      //c[0]=0x000000ff;
-      //c[1]=0x000000ff;
-      //c[2]=0x000000ff;
-      //c[3]=0x000000ff;
-      //
-      unsigned long idx = pdxt1->pixels;
+      unsigned long idx = pdxt1->pixels; //get the dxt1 index value
       for(int i=0;i<4;i++)
       {
         for (int j=0;j<4;j++)
         {
-          pos=dib-origdib;
-          printf("%d\n",pos);
-          if (dib-origdib>4096) {
-            nop();
-            continue;
-          }
           *dib = c[idx&3];
           dib++;
-          //dib[j+i*16] = c[idx&3];
           idx>>=2;
         }
-        dib+=60;
+        dib+=60; //64-4 (4 was already added by the inner loop)
       }
-      dib-=252;
-      pdxt1++;
+      dib-=252; //3*64+60 (go back to the top for the next tile)
+      pdxt1++;  //next dxt1 block
     }
-    pos=&dib[0]-origdib;
-    dib+=3*64;
-    pdxt1+=(header.width-64)/4;
+    dib+=3*64;  //go down a full stripe length
+    pdxt1+=(header.width-64)/4; //same for the original dxt1 blob
   }
   return 0;
 }

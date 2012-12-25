@@ -190,9 +190,11 @@ int check_soundref(const char *poi, int needempty)
 // 1 - check length constraints
 // 2 - journal string
 // 4 - soundset entry
+// 8 - don't allow cr/lf in the end
 int check_reference(long reference, int loretoid, int min, int max)
 {
   CString snd;
+  CString str;
   int tmp;
   
   if(chkflg&NOREFCHK) return 0;
@@ -201,19 +203,20 @@ int check_reference(long reference, int loretoid, int min, int max)
   if(reference==-1) return 0; //allow this too
   if(reference>=tlk_headerinfo[0].entrynum) return 1; //bad ref
 
+  str = tlk_entries[0][reference].text;
+  tmp = str.GetLength();
   if(loretoid&1)
   {
-    tmp = tlk_entries[0][reference].text.GetLength();
     if (min && tmp<min) return 5;
     if (max>min && tmp>max) return 5;
   }
   if(loretoid&2)
   {
-    tmp=tlk_entries[0][reference].text.Find('\n');
+    tmp=str.Find('\n');
     if(tmp<0 || tmp>50) return 3; // no title, or title is big
   }
   if(chkflg&WARNINGS) return 0;
-  if(tlk_entries[0][reference].text==DELETED_REFERENCE)
+  if(str==DELETED_REFERENCE)
   {
     return 2; //deleted entry
   }
@@ -222,6 +225,14 @@ int check_reference(long reference, int loretoid, int min, int max)
   {
     RetrieveResref(snd, tlk_entries[0][reference].reference.soundref);
     if (check_soundref(snd, 0)) return 4;
+  }
+
+  if (loretoid&8)
+  {
+    if (tmp>1) {
+      char chr = str.GetAt(tmp-1);
+      if(chr=='\r' || chr=='\n') return 6;
+    }
   }
   return 0;
 }
@@ -619,6 +630,7 @@ int CChitemDlg::check_usability(unsigned long usability)
     log("Race usability flags are inconsistent.");
     ret|=BAD_USE;
   }
+
   return ret;
 }
 
@@ -848,7 +860,26 @@ int CChitemDlg::check_pro_num(int pronum)
   return pronum>256; // no projectl.ids, internal projectile number
 }
 
-int CChitemDlg::check_item_effectblock()
+int CChitemDlg::check_spell_usability(CString spell, unsigned long school)
+{
+  loc_entry fileloc;
+  Cspell myspell;
+  unsigned long bits;
+  int ret;
+
+  if (!spells.Lookup(spell, fileloc)) return -1;
+  ret = read_spell(spell, &myspell);
+  if (ret<0) return ret;
+  bits = myspell.header.school1 & 0x7fc0;
+  if (bits!=school)
+  {
+    log("Item school:%s doesn't match spell school: %s", format_exclusion(school), format_exclusion(bits) );
+    return 1;
+  }
+  return 0;
+}
+
+int CChitemDlg::check_item_effectblock(unsigned long itemtype, unsigned long school)
 {
   int fbc;
   int ret;
@@ -856,12 +887,13 @@ int CChitemDlg::check_item_effectblock()
   int ext;
   int actfbc, oldfbc;
   CString what;
+  CString spell;
   
   ret=0;
   ext=0;
   actfbc=the_item.header.featblkcount;
 
-  if(!actfbc || (chkflg&NOEXTCHK) ) return 0;
+  if(!actfbc && (chkflg&NOEXTCHK) ) return 0;
   for(fbc=0;fbc<the_item.featblkcount;fbc++)
   {
     equip_or_use=fbc<the_item.header.featblkcount;
@@ -922,29 +954,51 @@ int CChitemDlg::check_item_effectblock()
         log("Equipped effect in %s?",what);
       }
     }
-    if(chkflg&NODUR) continue;
-    //the further checks are very optional
-    if(member_array(the_item.featblocks[fbc].timing,has_duration)==-1)
+    if(!(chkflg&NODUR))
     {
-      if(the_item.featblocks[fbc].duration)
+      //these further checks are very optional
+      if(member_array(the_item.featblocks[fbc].timing,has_duration)==-1)
+      {
+        if(the_item.featblocks[fbc].duration)
+        {
+          ret|=BAD_EXTHEAD;
+          log("Useless duration set in %s",what);
+        }
+      }
+      else
+      {
+        if(!the_item.featblocks[fbc].duration)
+        {
+          ret|=BAD_EXTHEAD;
+          log("No duration set in %s",what);
+        }
+      }
+      
+      if(equip_or_use && (the_item.featblocks[fbc].timing!=TIMING_EQUIPED))
       {
         ret|=BAD_EXTHEAD;
-        log("Useless duration set in %s",what);
+        log("Non-equipping effect in %s",what);
       }
     }
-    else
+
+    if (chkflg&NOUSECHK) continue;
+
+    //usability check for scrolls
+    if (!equip_or_use && (itemtype==ITM_SCROLL) )
     {
-      if(!the_item.featblocks[fbc].duration)
+      if (the_item.featblocks[fbc].feature==OPC_LEARNSPELL)
       {
-        ret|=BAD_EXTHEAD;
-        log("No duration set in %s",what);
+        RetrieveResref(spell, the_item.featblocks[fbc].vvc);
+        switch (check_spell_usability(spell, school) )
+        {
+        case 0: break;
+        case 1:
+          log("Inconsistent scroll usability.");
+          break;
+        default:
+          log("Invalid spell (%s) taught by scroll.", spell);
+        }
       }
-    }
-    
-    if(equip_or_use && (the_item.featblocks[fbc].timing!=TIMING_EQUIPED))
-    {
-      ret|=BAD_EXTHEAD;
-      log("Non-equipping effect in %s",what);
     }
   }
   return ret;
@@ -962,6 +1016,8 @@ int CChitemDlg::check_spell_effectblock()
   ret=0;
   ext=0;
   actfbc=the_spell.header.featblkcount;
+
+  if(!actfbc && (chkflg&NOEXTCHK) ) return 0;
   for(fbc=0;fbc<the_spell.featblkcount;fbc++)
   {
     equip_or_use=fbc<the_spell.header.featblkcount;
@@ -2733,7 +2789,7 @@ bool CChitemDlg::match_2da()
 
 bool CChitemDlg::match_area()
 {
-  int actp;
+  int actp, spawnp;
   int idx, cidx;
   bool found;
   search_data tmpdata;
@@ -2807,7 +2863,20 @@ bool CChitemDlg::match_area()
     tmpdata.itemtype=the_area.header.areatype; //dungeon/forest/etc
     if((tmpdata.itemtype<searchdata.itemtype) || (tmpdata.itemtype>searchdata.itemtype2)) return false;
   }
-  
+
+  if(searchflags&MP )
+  {
+    if (!the_area.header.songoffset) return false;
+
+    for(idx=0;idx<10;idx++)
+    {
+      tmpdata.projectile = the_area.songheader.songs[idx];
+      if ((tmpdata.projectile>=searchdata.projectile) && (tmpdata.projectile<=searchdata.projectile2)) break;
+    }
+    if (idx==10) return false;
+    else tmpdata.projectile2=idx;
+  }
+
   if(searchflags&MF )
   {
     tmpdata.feature=(short) the_area.header.areaflags; //save, tutorial, antimagic, timestop
@@ -2887,65 +2956,17 @@ bool CChitemDlg::match_area()
       }
     }
   }
-  
+
+  spawnp = -1;
   if(searchflags&MR)
   {
     found=false;
+
     if(!strnicmp(the_area.header.scriptref,searchdata.resource,8) )
     {
       log("Using script: %.8s",the_area.header.scriptref);
     }
-    
-    for(actp=0;actp<the_area.actorcount;actp++)
-    {
-      memcpy(tmpdata.resource,the_area.actorheaders[actp].creresref,8);
-      if(searchdata.resource[0])
-      {
-        if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
-        {
-          found=true;
-          break;
-        }
-      }
-      else
-      {
-        if(tmpdata.resource[0])
-        {
-          found=true;
-          break;
-        }
-      }
-      if(!strnicmp(the_area.actorheaders[actp].scrarea,searchdata.resource,8) )
-      {
-        log("Using area script: %.8s in actor #%d",the_area.actorheaders[actp].scrarea, actp);
-        break;
-      }
-      if(!strnicmp(the_area.actorheaders[actp].scrclass,searchdata.resource,8) )
-      {
-        log("Using class script: %.8s in actor #%d",the_area.actorheaders[actp].scrclass, actp);
-        break;
-      }
-      if(!strnicmp(the_area.actorheaders[actp].scrdefault,searchdata.resource,8) )
-      {
-        log("Using default script: %.8s in actor #%d",the_area.actorheaders[actp].scrdefault, actp);
-        break;
-      }
-      if(!strnicmp(the_area.actorheaders[actp].scrgeneral,searchdata.resource,8) )
-      {
-        log("Using general script: %.8s in actor #%d",the_area.actorheaders[actp].scrgeneral, actp);
-        break;
-      }
-      if(!strnicmp(the_area.actorheaders[actp].scroverride,searchdata.resource,8) )
-      {
-        log("Using override script: %.8s in actor #%d",the_area.actorheaders[actp].scroverride, actp);
-        break;
-      }
-      if(!strnicmp(the_area.actorheaders[actp].dialog,searchdata.resource,8) )
-      {
-        log("Using dialog: %.8s in actor #%d",the_area.actorheaders[actp].dialog, actp);
-        break;
-      }
-    }
+
     for(actp=0;actp<the_area.animcount;actp++)
     {
       if(!strnicmp(the_area.animheaders[actp].bam, searchdata.resource,8) )
@@ -2991,7 +3012,85 @@ bool CChitemDlg::match_area()
         log("Using dialog: %.8s in trigger #%d",the_area.triggerheaders[actp].dialogref, actp);
         break;
       }
+    }   
+    
+    for(actp=0;actp<the_area.actorcount;actp++)
+    {
+      memcpy(tmpdata.resource,the_area.actorheaders[actp].creresref,8);
+      if(searchdata.resource[0])
+      {
+        if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
+        {
+          found=true;
+          break;
+        }
+      }
+      else
+      {
+        if(tmpdata.resource[0])
+        {
+          found=true;
+          break;
+        }
+      }
+
+      if(!strnicmp(the_area.actorheaders[actp].scrarea,searchdata.resource,8) )
+      {
+        log("Using area script: %.8s in actor #%d",the_area.actorheaders[actp].scrarea, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scrclass,searchdata.resource,8) )
+      {
+        log("Using class script: %.8s in actor #%d",the_area.actorheaders[actp].scrclass, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scrdefault,searchdata.resource,8) )
+      {
+        log("Using default script: %.8s in actor #%d",the_area.actorheaders[actp].scrdefault, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scrgeneral,searchdata.resource,8) )
+      {
+        log("Using general script: %.8s in actor #%d",the_area.actorheaders[actp].scrgeneral, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].scroverride,searchdata.resource,8) )
+      {
+        log("Using override script: %.8s in actor #%d",the_area.actorheaders[actp].scroverride, actp);
+        break;
+      }
+      if(!strnicmp(the_area.actorheaders[actp].dialog,searchdata.resource,8) )
+      {
+        log("Using dialog: %.8s in actor #%d",the_area.actorheaders[actp].dialog, actp);
+        break;
+      }
     }
+
+    if (!found)
+    {
+      for(spawnp=0;spawnp<the_area.spawncount;spawnp++)
+      {
+        int actp = the_area.spawnheaders[spawnp].creaturecnt;
+        while(actp--)
+        {
+          if (!strnicmp(searchdata.resource, the_area.spawnheaders[spawnp].creatures[actp], 8) )
+          {
+            memcpy(tmpdata.resource,the_area.spawnheaders[spawnp].creatures[actp],8);
+            found = true;
+            break;
+          }
+        }
+        if (found)
+        {
+          break;
+        }
+      }
+    }
+    if (!found)
+    {
+      spawnp=-1;
+    }
+
     if(!found) return false;
   }
   
@@ -3002,6 +3101,10 @@ bool CChitemDlg::match_area()
   if(searchflags&MF)
   {
     log("Found areaflags:0x%x",tmpdata.feature);
+  }
+  if(searchflags&MP)
+  {
+    log("Found area song: %d at index %d", tmpdata.projectile, tmpdata.projectile2);
   }
   if(searchflags&MI)
   {
@@ -3014,7 +3117,14 @@ bool CChitemDlg::match_area()
   }
   if(searchflags&MR)
   {
-    log("Found creature %s in position #%d",tmpdata.resource,actp);
+    if (spawnp!=-1)
+    {
+      log("Found creature %s in spawn header #%d at position #%d",tmpdata.resource, spawnp, actp);
+    }
+    else
+    {
+      log("Found creature %s in actor headers at position #%d",tmpdata.resource,actp);
+    }
   }
 #if _DEBUG
   switch(min)
@@ -3065,7 +3175,8 @@ bool CChitemDlg::match_dialog()
       if(the_dialog.dlgstates[i].actorstr==searchdata.strref)
       {
         ret=1;
-        break;
+        log("State #%d uses strref #%d as actor text",i, searchdata.strref);
+        //break;
       }
     }
     if(!ret)
@@ -3075,7 +3186,8 @@ bool CChitemDlg::match_dialog()
         if(the_dialog.dlgtrans[i].playerstr==searchdata.strref)
         {
           ret=2;
-          break;
+          log("Transition #%d uses strref #%d as player text",i, searchdata.strref);
+          //break;
         }
         if(the_dialog.dlgtrans[i].journalstr==searchdata.strref)
         {
@@ -3083,27 +3195,34 @@ bool CChitemDlg::match_dialog()
           {
           case 0:
             ret=3;
+            log("Transition #%d uses strref #%d as journal entry",i, searchdata.strref);
             break;
           case HAS_QUEST:
             ret=4;
+            log("Transition #%d uses strref #%d as quest entry",i, searchdata.strref);
             break;
           case HAS_SOLVED:
             ret=5;
+            log("Transition #%d uses strref #%d as done quest",i, searchdata.strref);
             break;
           case HAS_QUEST|HAS_SOLVED:
             ret=6;
+            log("Transition #%d uses strref #%d as user journal",i, searchdata.strref);
             break;
           case REMOVE_QUEST:
             ret=7;
+            log("Transition #%d uses strref #%d as remove quest",i, searchdata.strref);
             break;
           default:
             ret=8;
+            log("Transition #%d uses strref #%d as unknown",i, searchdata.strref);
             break;
           }
-          break;
+          //break;
         }
       }
     }
+    /*
     switch(ret)
     {
     case 1: log("State #%d uses strref #%d as actor text",i, searchdata.strref); break;
@@ -3115,6 +3234,7 @@ bool CChitemDlg::match_dialog()
     case 7: log("Transition #%d uses strref #%d as remove quest",i, searchdata.strref); break;
     case 8: log("Transition #%d uses strref #%d as unknown",i, searchdata.strref); break;
     }
+    */
   }
   
   if(searchflags&(MR| MV| MT) )
@@ -3213,7 +3333,7 @@ bool CChitemDlg::match_dialog()
     } //end for
   } //end if
   
-  if(searchflags&(MR|MV|MF) )
+  if(searchflags&(MR|MV|MF|MS) )
   {
     for(i=0;i<the_dialog.actioncount;i++)
     {
@@ -3222,6 +3342,35 @@ bool CChitemDlg::match_dialog()
       {
         if(compile_action(lines[k],action,false)) continue;
         
+        if(searchflags&MS)
+        {
+          trn=-1;
+          switch(action.opcode)
+          {
+          case AC_REMOVE_JOURNAL_IWD:case AC_QUESTDONE_IWD:
+            if(has_xpvar())
+            {
+              trn = action.bytes[0];
+            }
+            break;
+          case AC_REMOVE_JOURNAL_BG: case AC_QUESTDONE_BG:
+            if(!has_xpvar())
+            {
+              trn = action.bytes[0];
+            }
+            break;
+          case AC_ADD_JOURNAL:
+            //always a string
+            trn = action.bytes[0];
+            break;
+          }
+          if (searchdata.strref == trn)
+          {
+            ret=1;
+            log("Found %s in action %d", lines[k], i+1);
+          }
+        }
+
         if(searchflags&MF)
         {
           if(action.opcode>=searchdata.feature &&
@@ -3545,7 +3694,7 @@ int CChitemDlg::check_item()
   }
   
   //checking semantical constraints
-  switch(check_reference(the_item.header.unidref, the_item.header.loreid>0?1:0) )
+  switch(check_reference(the_item.header.unidref, the_item.header.loreid>0?9:8) )
   {
   case 1:
     ret|=BAD_STRREF;
@@ -3555,7 +3704,11 @@ int CChitemDlg::check_item()
     ret|=BAD_STRREF;
     log("Deleted unidentified name (reference: %d).",the_item.header.unidref);
     break;
+  case 6:
+    ret|=BAD_STRREF;
+    log("Item name contains cr/lf (reference: %d).",the_item.header.unidref);
   }
+
   switch(check_reference(the_item.header.uniddesc,1,32,0) )
   {
   case 1:
@@ -3568,11 +3721,11 @@ int CChitemDlg::check_item()
     break;
   case 5:
     ret|=BAD_STRREF;
-    log("Name length constraint violated (reference: %d).",the_spell.header.spellname);
+    log("Name length constraint violated (reference: %d).",the_item.header.unidref);
     break;
   }
   
-  switch(check_reference(the_item.header.idref,1,2,32) )
+  switch(check_reference(the_item.header.idref,9,2,32) )
   {
   case 1:
     ret|=BAD_STRREF;
@@ -3584,9 +3737,13 @@ int CChitemDlg::check_item()
     break;
   case 5:
     ret|=BAD_STRREF;
-    log("Name length constraint violated (reference: %d).",the_spell.header.spellname);
+    log("Name length constraint violated (reference: %d).",the_item.header.idref);
     break;
+  case 6:
+    ret|=BAD_STRREF;
+    log("Item name contains cr/lf (reference: %d).",the_item.header.idref);
   }
+
   switch(check_reference(the_item.header.iddesc) )
   {
   case 1:
@@ -3598,6 +3755,7 @@ int CChitemDlg::check_item()
     log("Deleted identified description (reference: %d).",the_item.header.idref);
     break;
   }
+
   if(pst_compatible_var())
   {
     switch(check_soundref(the_item.header.destname,0) )
@@ -3713,10 +3871,11 @@ int CChitemDlg::check_item()
   ret|=check_statr();
   
   ret|=check_other();
-  
+
   ret|=check_extheader(the_item.header.itemtype);
   
-  ret|=check_item_effectblock();
+  unsigned long school = the_item.header.kits4 | (the_item.header.kits3 <<8);  
+  ret|=check_item_effectblock(the_item.header.itemtype, school&0x7fc0);
   return ret;
 }
 
@@ -4641,6 +4800,11 @@ int CChitemDlg::check_area_anim()
   maxy=the_area.m_height;
   for(i=0;i<the_area.header.animationcnt;i++)
   {
+    if (tob_specific() && !(the_area.animheaders[i].flags&AA_COMBAT) )
+    {
+      log("Animation is turned off in combat.");
+    }
+
     RetrieveVariable(animname,the_area.animheaders[i].animname);
     px=the_area.animheaders[i].posx;
     py=the_area.animheaders[i].posy;

@@ -28,12 +28,6 @@ static spl_ext_header  headcopy;
 static feat_block *featblks=NULL; //for headcopy
 static int featblkcnt=0;          //for headcopy
 
-#define OPC_DAMAGE  12
-
-static char *exclusion[]={"Chaotic","Evil","Good","... neutral","Lawful",
-"Neutral...","Abjurer","Conjurer","Diviner","Enchanter","Illusionist",
-"Invoker","Necromancer","Transmuter","Generalist",0};
-
 //gets the starting feature block counter for this extended header
 static int GetFBC(int extheader_num)
 {
@@ -190,26 +184,8 @@ void CSpellGeneral::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX,IDC_SCHOOL, tmpstr);
     tmpstr=format_sectype(the_spell.header.sectype);
     DDX_Text(pDX,IDC_SECTYPE, tmpstr);
-   
-    tmpstr.Format("0x%04x-Unused",the_spell.header.school1);
-    if ((the_spell.header.school1&0x7fc0)==0x7fc0)
-    {
-      tmpstr.Format("0x%04x-Wildmagic",the_spell.header.school1);
-    }
-    else
-    {
-      value=1;
-      for(bit=0;exclusion[bit];bit++)
-      {
-        if(the_spell.header.school1&value)
-        {
-          tmpstr.Format("0x%04x-Exclude %s",the_spell.header.school1,exclusion[bit] );
-          break;
-        }
-        value<<=1;
-      }
-    }
-    
+
+    tmpstr = format_exclusion(the_spell.header.school1);
     DDX_Text(pDX, IDC_EXCLUDE, tmpstr);
 
     cb=(CComboBox *) GetDlgItem(IDC_SELECTION);
@@ -341,11 +317,10 @@ BOOL CSpellGeneral::OnInitDialog()
   }
 
   cb=(CComboBox *) GetDlgItem(IDC_EXCLUDE);  
-  x=0;
   num=1;
-  while(exclusion[x])
+  while(num<0x8000)
   {
-    tmpstr.Format("0x%04x-Exclude %s",num,exclusion[x++]);
+    tmpstr=format_exclusion(num);
     cb->AddString(tmpstr);
     num<<=1;
   }

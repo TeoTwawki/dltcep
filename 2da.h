@@ -97,6 +97,7 @@ public:
   int RemoveRow(int row);
   int RemoveColumn(int col);
   int Read2DAFromFile(int fhandle, int ml);
+  int Extract2DAFromSQLFile(int fhandle, int length, CString filename, int defcols);
   int Write2DAToFile(int fhandle);
   int CopyColumn(int col);
   int CopyRow(int row);

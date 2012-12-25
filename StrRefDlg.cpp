@@ -8,6 +8,7 @@
 #include "ItemPicker.h"
 #include "massclear.h"
 #include "options.h"
+#include "UTF8.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,7 +24,6 @@ CStrRefDlg::CStrRefDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CStrRefDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CStrRefDlg)
-	m_text = _T("");
 	m_sound = _T("");
 	m_tag = FALSE;
 	m_maxstr = _T("");
@@ -39,15 +39,14 @@ void CStrRefDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
   m_maxstr.Format("/ %d",tlk_headerinfo[choosedialog].entrynum);
 	//{{AFX_DATA_MAP(CStrRefDlg)
+	DDX_Control(pDX, IDC_SPIN, m_spin_control);
+	DDX_Control(pDX, IDC_STRREF, m_strref_control);
+	DDX_Control(pDX, IDC_TEXT, m_text_control);
 	DDX_Text(pDX, IDC_SOUND, m_sound);
 	DDV_MaxChars(pDX, m_sound, 8);
 	DDX_Check(pDX, IDC_TAG, m_tag);
 	DDX_Text(pDX, IDC_MAX, m_maxstr);
 	DDV_MaxChars(pDX, m_maxstr, 10);
-	DDX_Control(pDX, IDC_TEXT, m_text_control);
-	DDX_Text(pDX, IDC_TEXT, m_text);
-	DDX_Control(pDX, IDC_SPIN, m_spin_control);
-	DDX_Control(pDX, IDC_STRREF, m_strref_control);
 	//}}AFX_DATA_MAP
   m_spin_control.SetRange32(0,tlk_headerinfo[choosedialog].entrynum);
 }
@@ -86,10 +85,10 @@ void CStrRefDlg::OnUpdateStrref()
 
   if(!m_refresh) return;
   GetDlgItem(IDC_STRREF)->GetWindowText(strref);
-  m_strref=strtonum(strref);
-  m_tag=resolve_tlk_tag(m_strref,choosedialog);
-  m_text=resolve_tlk_text(m_strref,choosedialog);
-  m_sound=resolve_tlk_soundref(m_strref,choosedialog);
+  m_strref = strtonum(strref);
+  m_tag = resolve_tlk_tag(m_strref,choosedialog);
+  SetTextControl(resolve_tlk_text(m_strref,choosedialog));
+  m_sound = resolve_tlk_soundref(m_strref,choosedialog);
   if (choosedialog) strref="Edit DialogF.tlk ";
   else strref="Edit Dialog.tlk ";
   if(global_changed[choosedialog]==true) strref+="*";
@@ -97,13 +96,30 @@ void CStrRefDlg::OnUpdateStrref()
   UpdateData(UD_DISPLAY);
 }
 
+void CStrRefDlg::SetTextControl(CString text)
+{
+  WCHAR *tmpstr = ConvertUTF8ToUTF16(text);
+  ::SetWindowTextW(GetDlgItem(IDC_TEXT)->m_hWnd, tmpstr);
+  free(tmpstr);
+}
+
+CString CStrRefDlg::GetTextControl()
+{
+  int size = ::GetWindowTextLengthW(GetDlgItem(IDC_TEXT)->m_hWnd);
+  WCHAR *tmpstr = (WCHAR *) malloc(size*sizeof(WCHAR)+2 );
+  ::GetWindowTextW(GetDlgItem(IDC_TEXT)->m_hWnd, tmpstr, size+1);
+  CString ret = ConvertUTF16ToUTF8(tmpstr, size+1);
+  free(tmpstr);
+  return ret;
+}
 void CStrRefDlg::OnKillfocusText() 
 {
-  CString old;
+  CString old, text;
 
 	UpdateData(UD_RETRIEVE);
   old=resolve_tlk_text(m_strref,choosedialog);
-  if(old==m_text) return;
+  text = GetTextControl();
+  if(old==text) return;
   if(editflg&TLKCHANGE)
   {
     if(MessageBox("Do you want to update dialog.tlk?","TLK editor",MB_ICONQUESTION|MB_YESNO)!=IDYES)
@@ -121,7 +137,7 @@ void CStrRefDlg::OnKillfocusText()
   }
 	if(m_strref>0 && m_strref<=tlk_headerinfo[choosedialog].entrynum) //allow = so we can add strings
   {
-    m_strref=store_tlk_text(m_strref, m_text, choosedialog);
+    m_strref=store_tlk_text(m_strref,GetTextControl(), choosedialog);
   }
 end:
   old.Format("%d",m_strref);
@@ -199,9 +215,10 @@ void CStrRefDlg::StartFindReplace(int mode)
       return;
     }
     m_text_control.GetSel(a,b);
+    CString text = GetTextControl();
     if(mode)
     {
-      m_searchdlg->Create(readonly,m_text.Mid(a,b-a),NULL, FR_DOWN | FR_MATCHCASE, this);
+      m_searchdlg->Create(readonly, text.Mid(a,b-a),NULL, FR_DOWN | FR_MATCHCASE, this);
     }
     else
     {
@@ -455,7 +472,7 @@ int CStrRefDlg::do_search_and_replace(int direction,int mode,int match,CString s
     }
     else
     {
-      start = m_text.Find(search);
+      start = GetTextControl().Find(search);
       m_text_control.SetSel(start, start+search.GetLength());
       //UpdateData(UD_DISPLAY);
     }

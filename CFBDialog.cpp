@@ -203,7 +203,7 @@ void CCFBDialog::OnOpenfile()
     if(mode&2) the_item.WriteItemToFile(fhandle,0);
     else the_spell.WriteSpellToFile(fhandle,0);
     close(fhandle);
-    log("done");
+    log("Done.");
   }
   //cfb usually gets initialized once if mode==true and 
   //execution doesn't reach this point if it was not

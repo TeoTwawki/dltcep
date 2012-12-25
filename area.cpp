@@ -472,7 +472,7 @@ int Carea::WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, in
     return -4;
   }
   key+=suffix;
-  filepath=bgfolder+"override\\"+key+".BMP";
+  filepath="override\\"+key+".BMP";
   tmpath=bgfolder+"override\\"+key+".TMP";
   fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(fhandle<1)
@@ -533,8 +533,8 @@ endofquest:
   close(fhandle);
   if(!ret)
   {
-    unlink(filepath);
-    rename(tmpath,filepath);
+    unlink(bgfolder+filepath);
+    rename(tmpath,bgfolder+filepath);
     UpdateIEResource(key,REF_BMP,filepath,fullsize);
   }
   return ret;

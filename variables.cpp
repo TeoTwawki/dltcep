@@ -516,6 +516,7 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
   int num_or;
   int checkflags;
   CString area;
+  journal_type journal;
   int opcode;
   int i;
 
@@ -642,29 +643,58 @@ int CChitemDlg::check_script(int check_or_scan) //scans for variables
             //this is a solved journal entry
           case AC_REMOVE_JOURNAL_IWD:case AC_QUESTDONE_IWD:
             if(has_xpvar())
-              journals[apoi->bytes[0]]="";
+            {
+              journal.type=0;
+              journals.Lookup(apoi->bytes[0], journal);
+              journal.string="";
+              journal.type|=HAS_SOLVED;
+              journals[apoi->bytes[0]]=journal;
+            }
             break;
           case AC_REMOVE_JOURNAL_BG: case AC_QUESTDONE_BG:
             if(!has_xpvar())
-              journals[apoi->bytes[0]]="";
+            {
+              journal.type=0;
+              journals.Lookup(apoi->bytes[0], journal);
+              journal.string="";
+              journal.type|=HAS_SOLVED;
+              journals[apoi->bytes[0]]=journal;
+            }
             break;
           case AC_ADD_JOURNAL:
             
             //this is an undone quest journal entry
             if(has_xpvar() || (apoi->bytes[3]==JT_QUEST))
             {
-              if(journals.Lookup(apoi->bytes[0],area))
+              if(journals.Lookup(apoi->bytes[0],journal))
               {
-                if(!area.IsEmpty()) journals[apoi->bytes[0]]=area+", "+itemname;
+                if(!journal.string.IsEmpty())
+                {
+                  if (journal.string.Find(itemname)<0)
+                  {
+                    journal.string+=", "+itemname;
+                  }
+                  journal.type|=HAS_QUEST;
+                  journals[apoi->bytes[0]]=journal;
+                }
               }
               else
               {
-                journals[apoi->bytes[0]]=itemname;
+                journal.string=itemname;
+                journal.type=HAS_QUEST;
+                journals[apoi->bytes[0]]=journal;
               }
             }
             else
             {
-              journals[apoi->bytes[0]]="";
+              if (apoi->bytes[3]==JT_DONE)
+              {
+                journal.type=0;
+                journals.Lookup(apoi->bytes[0], journal);
+                journal.string="";
+                journal.type|=HAS_SOLVED;
+                journals[apoi->bytes[0]]=journal;
+              }
             }
             break;
           }
@@ -741,7 +771,8 @@ int CChitemDlg::check_or_scan_trigger(const trigger *tpoi, int checkflags, int c
   //don't store this if just scanning, these are checked, but never SET, so they must be invalid if used alone
   if (tpoi->trobj.var[0])
   {
-    store_variable(tpoi->trobj.var, ADD_DEAD, 0, OBJECT|TRIGGER|check_or_scan, bcnt);
+    ret = store_variable(tpoi->trobj.var, ADD_DEAD, 0, OBJECT|TRIGGER|check_or_scan, bcnt);
+    gret |= ret;
   }
 
   ret=check_integers(&tpoi->bytes[0], checkflags, tpoi->opcode, TRIGGER|check_or_scan, bcnt);
@@ -789,6 +820,7 @@ int CChitemDlg::check_dialog(int check_or_scan)
 {
   CString *lines;
   CString tmp;
+  journal_type journal;
   int fh;
   int ret, gret;
   int linecount;
@@ -812,12 +844,12 @@ int CChitemDlg::check_dialog(int check_or_scan)
         switch(check_reference(the_dialog.dlgstates[i].actorstr,1,1,0))
         {
         case 1:
-          gret=TREESTATE|i;
           log("Actor has invalid text in state #%d",i);
+          gret=TREESTATE|i;
           break;
         case 2: case 5:
-          gret=TREESTATE|i;
           log("Actor has no included text in state #%d",i);
+          gret=TREESTATE|i;
         }
         
         if(chkflg&NOSTRUCT) continue;
@@ -844,9 +876,11 @@ int CChitemDlg::check_dialog(int check_or_scan)
           num_or=the_dialog.dlgtrans[j].flags;
           if(!(num_or&HAS_TEXT))
           {
-            if ((j!=first) && got_continue && !(num_or&HAS_TRIGGER) ) {
-              log("Unconditional continue in state #%d overlaps a previous continue!", i);
-              gret=TREESTATE|i;
+            if ((j!=first) && got_continue && !(num_or&HAS_TRIGGER) )
+            {
+              log("Unconditional continue in state #%d (response #%d) overlaps a previous continue!", i, j);
+              //gret=TREESTATE|i;
+              gret=TRANSSTATE|j;
             }
             got_continue = true;
           }
@@ -935,18 +969,32 @@ int CChitemDlg::check_dialog(int check_or_scan)
           {
             if((num_or&(HAS_QUEST|HAS_SOLVED))==HAS_QUEST)
             {
-              if(journals.Lookup(strref,tmp))
+              if(journals.Lookup(strref,journal))
               {
-                if(!tmp.IsEmpty()) journals[strref]=tmp+", "+itemname;
+                if(!journal.string.IsEmpty())
+                {
+                  if (journal.string.Find(itemname)<0)
+                  {
+                    journal.string+=", "+itemname;
+                  }
+                  journal.type|=HAS_QUEST;
+                  journals[strref]=journal;
+                }
               }
               else
               {
-                journals[strref]=itemname;
+                journal.type=HAS_QUEST;
+                journal.string=itemname;
+                journals[strref]=journal;
               }
             }
-            else //solved
+            else
             {
-              journals[strref]="";
+              journal.type=0;
+              journals.Lookup(strref,journal);
+              journal.type|=num_or&(HAS_QUEST|HAS_SOLVED);
+              journal.string="";
+              journals[strref]=journal;
             }
             continue;
           }
@@ -955,18 +1003,19 @@ int CChitemDlg::check_dialog(int check_or_scan)
         switch(check_reference(strref,2,10,0) )
         {
         case 1:
-          gret=TRANSSTATE|i;
           log("Invalid journal string in transition #%d (reference: %d).",i, strref);
+          gret=TRANSSTATE|i;
           break;
         case 2:
-          gret=TRANSSTATE|i;
           log("Deleted journal string in transition #%d (reference: %d).",i, strref);
+          gret=TRANSSTATE|i;
           break;
         case 3:
           //if this isn't a quest journal entry, don't complain about missing title
-          if ((num_or&(HAS_QUEST|HAS_SOLVED))!=0) {
-            gret=TRANSSTATE|i;
+          if ((num_or&(HAS_QUEST|HAS_SOLVED))!=0)
+          {
             log("Titleless journal string in transition #%d (reference: %d).",i, strref);
+            gret=TRANSSTATE|i;
           }
           break;
         }
@@ -1028,7 +1077,10 @@ int CChitemDlg::check_dialog(int check_or_scan)
       num_or=0;
       for(j=0;j<linecount;j++)
       {
-        if(lines[j].IsEmpty()) ret=-44; //empty top level condition
+        if(lines[j].IsEmpty())
+        {
+          ret=-44; //empty top level condition
+        }
         else
         {
           ret=compile_trigger(lines[j], trigger);
@@ -1036,7 +1088,10 @@ int CChitemDlg::check_dialog(int check_or_scan)
           {
             if((trigger.opcode&0x3fff)==TR_OR)
             {
-              if(num_or) ret=-42;
+              if(num_or)
+              {
+                ret=-42;
+              }
               num_or=trigger.bytes[0];
               if (num_or<2 && check_or_scan!=SCANNING)
               {
@@ -1110,7 +1165,9 @@ int CChitemDlg::check_dialog(int check_or_scan)
           ret=check_or_scan_trigger(&trigger, handle_trigger(trigger.opcode), check_or_scan, j);
           if(ret && (check_or_scan!=SCANNING) )
           {
+            tmp = lasterrormsg;
             log("Transition trigger was: %s", lines[j]);
+            lasterrormsg = tmp + "\n" + lasterrormsg;
             gret=TRANSTR|i;
           }
         }
@@ -1165,27 +1222,56 @@ int CChitemDlg::check_dialog(int check_or_scan)
         {
         case AC_REMOVE_JOURNAL_IWD:case AC_QUESTDONE_IWD:
           if(has_xpvar())
-            journals[action.bytes[0]]="";
+          {
+            journal.type=0;
+            journals.Lookup(action.bytes[0], journal);
+            journal.string="";
+            journal.type|=HAS_SOLVED;
+            journals[action.bytes[0]]=journal;
+          }
           break;
         case AC_REMOVE_JOURNAL_BG: case AC_QUESTDONE_BG:
           if(!has_xpvar())
-            journals[action.bytes[0]]="";
+          {
+            journal.type=0;
+            journals.Lookup(action.bytes[0], journal);
+            journal.string="";
+            journal.type|=HAS_SOLVED;
+            journals[action.bytes[0]]=journal;
+          }
           break;
         case AC_ADD_JOURNAL:
           if(has_xpvar() || (action.bytes[3]==JT_QUEST))
           {
-            if(journals.Lookup(action.bytes[0],tmp))
+            if(journals.Lookup(action.bytes[0],journal))
             {
-              if(!tmp.IsEmpty()) journals[action.bytes[0]]=tmp+", "+itemname;
+              if(!journal.string.IsEmpty())
+              {
+                if (journal.string.Find(itemname)<0)
+                {
+                  journal.string+=", "+itemname;
+                }
+              }
+              journal.type|=HAS_QUEST;
+              journals[action.bytes[0]]=journal;
             }
             else
             {
-              journals[action.bytes[0]]=itemname;
+              journal.string=itemname;
+              journal.type=HAS_QUEST;
+              journals[action.bytes[0]]=journal;
             }
           }
           else
           {
-            journals[action.bytes[0]]="";
+            if (action.bytes[3]==JT_DONE)
+            {
+              journal.type=0;
+              journals.Lookup(action.bytes[0],journal);
+              journal.string="";
+              journal.type|=HAS_SOLVED;
+              journals[action.bytes[0]]=journal;
+            }
           }    
         }
         continue;

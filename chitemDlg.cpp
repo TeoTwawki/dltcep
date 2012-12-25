@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.5a"
+#define PRG_VERSION "7.5c"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -251,6 +251,7 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
+	ON_COMMAND(ID_CHECK_SQL, OnCheckSql)
 	//}}AFX_MSG_MAP
 ON_WM_SIZE()
 ON_WM_GETMINMAXINFO()
@@ -2382,6 +2383,122 @@ void CChitemDlg::OnCheckUi()
   MessageBox("No problem found!","User interface check",MB_OK|MB_ICONINFORMATION);
 }
 
+void CChitemDlg::OnCheckSql() 
+{
+  loc_entry fileloc;
+  journal_type data;
+  int fhandle;
+  C2da quests;
+  C2da mappings;
+  CIntMapInt quest_to_string;
+  CIntMapInt string_to_quest;
+  POSITION pos;
+  CString tmpstr;
+  int rows;
+  int journal, quest;
+  CString *row;
+  int i;
+  int tmp;
+
+  if(bgfolder.IsEmpty())
+  {
+    MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+  if(!sqls.Lookup("BGEE",fileloc) )
+  {
+    MessageBox("This doesn't appear to be a BGEE game!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+
+  process_scripts(JOURNAL); //this will clear the variables too
+  process_dialogs(JOURNAL);
+
+  fhandle = locate_file(fileloc, 0);
+  if(fhandle>0)
+  {
+    quests.Extract2DAFromSQLFile(fhandle, fileloc.size, "journals_quests", 3);
+  }
+
+  fhandle = locate_file(fileloc, 0);
+  if(fhandle>0)
+  {
+    mappings.Extract2DAFromSQLFile(fhandle, fileloc.size, "quests", 6);
+  }
+
+  if (quests.rows && mappings.rows)
+  {
+    rows = mappings.rows;
+    pos = mappings.data->GetHeadPosition();
+    for (i=0;i<rows; i++)
+    {
+      row = (CString *) mappings.data->GetNext(pos);
+      int a = atoi(row[0]);
+      int b = atoi(row[2]);
+      if (quest_to_string.Lookup(a, tmp))
+      {
+        log("Already used quest ID: %d. %d vs. %d", a, tmp, b);
+      }
+      quest_to_string[a]=b;
+
+      if (string_to_quest.Lookup(b, tmp))
+      {
+        log("Already used quest ID: %d. %d vs. %d", b, tmp, a);
+      }
+      string_to_quest[b]=a;
+    }
+
+    rows = quests.rows;
+    pos = quests.data->GetHeadPosition();
+    for (i=0;i<rows; i++)
+    {
+      row = (CString *) quests.data->GetNext(pos);
+      if (row[0][0]=='*') continue;
+      journal = atoi(row[0]);
+      quest = atoi(row[1]);
+
+      if (!quest_to_string.Lookup(quest, tmp))
+      {
+        log("Unknown quest ID: %d", quest);
+      }
+
+      if (!journals.Lookup(journal, data) )
+      {
+        tmpstr=resolve_tlk_text(journal);
+        tmp=tmpstr.Find('\n');
+        if(tmp>0) tmpstr=tmpstr.Left(tmp-1);
+        if(tmpstr.GetLength()>30) tmpstr=tmpstr.Left(30)+"...";
+
+        log("Extra strref %d (%s) in journals_quests.", journal, tmpstr);
+      }
+      else
+      {
+        journals.RemoveKey(journal);
+      }
+    }
+
+    if (journals.GetCount())
+    {
+      pos=journals.GetStartPosition();
+      while(pos)
+      {
+        journals.GetNextAssoc(pos, journal, data);
+        if (data.type)
+        {
+          log("Missing strref %d (used by %s %s) in journals_quests.", journal, data.string, jourtype(data.type) );
+        }
+      }
+    }
+    else
+    {
+      MessageBox("No problem found!","SQL check",MB_OK|MB_ICONINFORMATION);
+    }
+    return;
+  }
+
+  MessageBox("No quest tables found!","SQL check",MB_ICONEXCLAMATION|MB_OK);
+}
+
 void CChitemDlg::OnCheckSpawnini() 
 {
   if(bgfolder.IsEmpty())
@@ -3193,11 +3310,12 @@ void CChitemDlg::OnFindArea()
   CFindItem dlg;
   int ret;
   
-  dlg.mask=0xc000fc;
+  dlg.mask=0xc000ff; //fc
   dlg.flags=searchflags;
   dlg.searchdata=searchdata;
   dlg.title="Find areas";
   dlg.mtype_title="Match area type";
+  dlg.proj_title="Match area song";
   ret=dlg.DoModal();
   if(ret==IDOK)
   {
@@ -4017,21 +4135,22 @@ void CChitemDlg::OnScanjournal()
 {
   POSITION pos;
   int key, space;
-  CString tmpstr, where;
+  CString tmpstr;
+  journal_type data;
 
   process_scripts(JOURNAL); //this will clear the variables too
   process_dialogs(JOURNAL);
   pos=journals.GetStartPosition();
   while(pos)
   {
-    journals.GetNextAssoc(pos, key, where);
-    if(!where.IsEmpty())
+    journals.GetNextAssoc(pos, key, data);
+    if(!data.string.IsEmpty())
     {
       tmpstr=resolve_tlk_text(key);
       space=tmpstr.Find('\n');
-      if(space>0) tmpstr=tmpstr.Left(space);
+      if(space>0) tmpstr=tmpstr.Left(space-1);
       if(tmpstr.GetLength()>30) tmpstr=tmpstr.Left(30)+"...";
-      log("Journal entry %d (%s) is never removed, set in %s.", key,tmpstr, where);
+      log("Journal entry %d (%s) is never removed, set in %s.", key,tmpstr, data.string);
     }
   }
   journals.RemoveAll();
@@ -4213,7 +4332,8 @@ void CChitemDlg::OnToolsLoadalldialogs()
   dlg.SetViewOnly();
   pos = dialogs.GetStartPosition();
   ret = 0;
-  while(pos) {
+  while(pos)
+  {
     dialogs.GetNextAssoc(pos, key, value);
     fhandle=locate_file(value, 0);
     if(fhandle<1)
@@ -5413,4 +5533,3 @@ BOOL CChitemDlg::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
   return CDialog::PreTranslateMessage(pMsg);
 }
-

@@ -395,7 +395,7 @@ void CDialogEdit::RefreshDialog(int stateidx, int expandselection)
   else
   {
     m_currentselection_new=(HTREEITEM) 0;
-    m_activesection=FL_TEXT|FL_OPTION;
+    m_activesection = FL_TEXT|FL_OPTION;
   }
   m_currentselection=m_currentselection_new;
   RefreshMenu();
@@ -409,7 +409,7 @@ BOOL CDialogEdit::OnInitDialog()
   the_ids.new_ids();
   m_idsname="";
 	CDialog::OnInitDialog();
-  m_activesection=FL_TEXT;
+  m_activesection = FL_TEXT;
 	RefreshDialog(0);
   //tooltips
   {
@@ -556,12 +556,12 @@ void CDialogEdit::EnableWindows(int enableflags, int actualflags)
   j=1;
   tmpsection=m_activesection&actflags;
   if(!tmpsection) tmpsection=actflags;
-  m_activesection=0;
+  m_activesection = 0;
   for(i=0;i<8;i++)
   {
     if(tmpsection&j)
     {
-      m_activesection=j;
+      m_activesection = j;
       break;
     }
     j<<=1;
@@ -840,7 +840,7 @@ void CDialogEdit::OnLoad()
       break;
     }
 	}
-  m_activesection=FL_TEXT;
+  m_activesection = FL_TEXT;
   RefreshDialog(0);
   UpdateData(UD_DISPLAY);
 }
@@ -894,7 +894,7 @@ restart:
       break;
     }
   }
-  m_activesection=FL_TEXT;
+  m_activesection = FL_TEXT;
   RefreshDialog(0);
   UpdateData(UD_DISPLAY);
 }
@@ -902,7 +902,7 @@ restart:
 void CDialogEdit::OnNew() 
 {
   NewDialog();
-  m_activesection=FL_TEXT;
+  m_activesection = FL_TEXT;
   RefreshDialog(0);
   UpdateData(UD_DISPLAY);
 }
@@ -940,8 +940,8 @@ int CDialogEdit::SaveDialog(CString filename, CString newname)
   switch(res)
   {
   case 0:
-    tmpstr = bgfolder+"override\\"+itemname+".DLG";
-    if(!filename.CompareNoCase(tmpstr) )
+    tmpstr = "override\\"+itemname+".DLG";
+    if(!filename.CompareNoCase(bgfolder+tmpstr) )
     {
       UpdateIEResource(itemname,REF_DLG,tmpstr,size);
     }
@@ -1017,17 +1017,17 @@ void CDialogEdit::OnCheck()
     case STATETR:
       m_currentselection_new=m_treestates.FindStTrigger(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
-      m_activesection = FL_OPTION;
+      OnCondition();
       break;
     case TRANSTR:
       m_currentselection_new=m_transstates.FindTrTrigger(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
-      m_activesection = FL_CONDITION;
+      OnCondition();
       break;
     case ACTIONBL:
       m_currentselection_new=m_transstates.FindAction(node);
       m_dialogtree.Select(m_currentselection_new,TVGN_CARET);
-      m_activesection = FL_ACTION;
+      OnAction();
       break;
     case EXTERNAL: 
       m_currentselection_new=m_transstates.FindAction(node);
@@ -1048,6 +1048,7 @@ void CDialogEdit::OnCheck()
       break;
     }
   }
+  
   UpdateData(UD_DISPLAY);
 }
 
@@ -1104,7 +1105,7 @@ int CDialogEdit::SeekTo(int startnode, int type)
       {
         if(match_tlk_text(the_dialog.dlgstates[startnode].actorstr,m_searchdlg.m_text, m_searchdlg.m_ignorecase) )
         {
-          m_activesection=FL_TEXT;
+          m_activesection = FL_TEXT;
           return startnode|TREESTATE;
         }
       }
@@ -1115,7 +1116,7 @@ int CDialogEdit::SeekTo(int startnode, int type)
         {// in scripts case is always ignored
           if(match_script_text(the_dialog.sttriggers[i],m_searchdlg.m_text))
           {
-            m_activesection=FL_CONDITION;
+            m_activesection = FL_CONDITION;
             return startnode|TREESTATE;
           }
         }
@@ -1142,13 +1143,13 @@ int CDialogEdit::SeekTo(int startnode, int type)
     {
       if(match_tlk_text(the_dialog.dlgtrans[startnode].playerstr,m_searchdlg.m_text, m_searchdlg.m_ignorecase) )
       {
-        m_activesection=FL_OPTION;
+        m_activesection = FL_OPTION;
         return startnode|TRANSSTATE;
       }
 
       if(match_tlk_text(the_dialog.dlgtrans[startnode].journalstr,m_searchdlg.m_text, m_searchdlg.m_ignorecase) )
       {
-        m_activesection=FL_JOURNAL;
+        m_activesection = FL_JOURNAL;
         return startnode|TRANSSTATE;
       }
     }
@@ -1159,7 +1160,7 @@ int CDialogEdit::SeekTo(int startnode, int type)
       {
         if(match_script_text(the_dialog.trtriggers[i],m_searchdlg.m_text))
         {
-          m_activesection=FL_CONDITION;
+          m_activesection = FL_CONDITION;
           return startnode|TRANSSTATE;
         }
       }
@@ -1168,7 +1169,7 @@ int CDialogEdit::SeekTo(int startnode, int type)
       {
         if(match_script_text(the_dialog.actions[i],m_searchdlg.m_text))
         {
-          m_activesection=FL_ACTION;
+          m_activesection = FL_ACTION;
           return startnode|TRANSSTATE;
         }
       }
@@ -1381,7 +1382,7 @@ void CDialogEdit::OnFollowlink()
         NewDialog();
         break;
       }
-      m_activesection=FL_TEXT;
+      m_activesection = FL_TEXT;
       RefreshDialog(stateidx);
     }
     else
@@ -1459,7 +1460,7 @@ void CDialogEdit::OnHasoption()
 
 	if(m_transstates.Lookup(m_currentselection,key))
   {
-    m_activesection=FL_OPTION;
+    m_activesection = FL_OPTION;
     the_dialog.dlgtrans[key].flags^=HAS_TEXT;
     if(the_dialog.dlgtrans[key].flags&HAS_TEXT)
     {//create text entry ?
@@ -1477,7 +1478,7 @@ void CDialogEdit::OnHasoption()
   }
   if(m_treestates.Lookup(m_currentselection,key))
   {
-    m_activesection=FL_TEXT;
+    m_activesection = FL_TEXT;
     /*
     if(the_dialog.dlgstates[key].actorstr)
     {
@@ -1488,7 +1489,7 @@ void CDialogEdit::OnHasoption()
     return; //can't look it up
   }
   //is this an error ?
-  m_activesection=0;
+  m_activesection = 0;
   MessageBox("Can't find transition","Internal error",MB_OK);
   UpdateData(UD_DISPLAY);	
   return; //can't look it up
@@ -1593,7 +1594,7 @@ void CDialogEdit::OnHascondition()
   the_dialog.changed=1;
   if(m_transstates.Lookup(m_currentselection,key))
   {
-    m_activesection=FL_CONDITION;
+    m_activesection = FL_CONDITION;
     if(the_dialog.dlgtrans[key].flags&HAS_TRIGGER)
     {//remove transition trigger entry
       if(!remove_transition_trigger(the_dialog.dlgtrans[key].trtrindex))
@@ -1626,7 +1627,7 @@ void CDialogEdit::OnHascondition()
   }
   if(m_treestates.Lookup(m_currentselection,key))
   {
-    m_activesection=FL_CONDITION;
+    m_activesection = FL_CONDITION;
     if(the_dialog.dlgstates[key].stindex==-1)
     {
       tmp=add_state_trigger();
@@ -1714,7 +1715,7 @@ void CDialogEdit::OnHasaction()
     MessageBox("Can't find action","Internal error",MB_OK);
     return; //can't look it up
   }
-  m_activesection=FL_ACTION;
+  m_activesection = FL_ACTION;
   if(the_dialog.dlgtrans[key].flags&HAS_ACTION)
   {//remove action entry
     if(!remove_action(the_dialog.dlgtrans[key].actionindex))
@@ -1757,7 +1758,7 @@ void CDialogEdit::OnHasjournal()
     MessageBox("Can't find transition","Internal error",MB_OK);
     return; //can't look it up
   }
-  m_activesection=FL_JOURNAL;
+  m_activesection = FL_JOURNAL;
   the_dialog.dlgtrans[key].flags^=HAS_JOURNAL;
   if(the_dialog.dlgtrans[key].flags&HAS_JOURNAL)
   {//create journal entry
@@ -2058,7 +2059,9 @@ void CDialogEdit::RefreshLeaf()
     }
     if(key!=(idx&NODEMASK) )
     {
-      abort();
+      RefreshDialog(0);
+      MessageBox("Please try to reproduce this","Internal error",MB_ICONSTOP|MB_OK);
+      return;
     }
     if((idx&FLAGMASK)!=TRANSSTATE)
     {
@@ -2115,7 +2118,7 @@ void CDialogEdit::OnKillfocusDialog()
 
 void CDialogEdit::OnOption() 
 {
-	m_activesection=FL_TEXT|FL_OPTION;
+	m_activesection = FL_TEXT|FL_OPTION;
   UpdateData(UD_RETRIEVE);
   RefreshMenu();
   UpdateData(UD_DISPLAY);
@@ -2123,7 +2126,7 @@ void CDialogEdit::OnOption()
 
 void CDialogEdit::OnCondition() 
 {
-	m_activesection=FL_CONDITION;	
+	m_activesection = FL_CONDITION;	
   UpdateData(UD_RETRIEVE);
   RefreshMenu();
 	UpdateData(UD_DISPLAY);	
@@ -2131,7 +2134,7 @@ void CDialogEdit::OnCondition()
 
 void CDialogEdit::OnAction() 
 {
-	m_activesection=FL_ACTION;	
+	m_activesection = FL_ACTION;	
   UpdateData(UD_RETRIEVE);
   RefreshMenu();
 	UpdateData(UD_DISPLAY);	
@@ -2139,7 +2142,7 @@ void CDialogEdit::OnAction()
 
 void CDialogEdit::OnJournal() 
 {
-	m_activesection=FL_JOURNAL;	
+	m_activesection = FL_JOURNAL;	
   UpdateData(UD_RETRIEVE);
   RefreshMenu();
 	UpdateData(UD_DISPLAY);	
@@ -2473,7 +2476,7 @@ void CDialogEdit::OnRemove()
       }
     }
   }
-  m_activesection=FL_TEXT;
+  m_activesection = FL_TEXT;
   RefreshDialog(key,1);
   UpdateData(UD_DISPLAY);
 }
@@ -3044,7 +3047,7 @@ restart:
       break;
     }
   }
-  m_activesection=FL_TEXT;
+  m_activesection = FL_TEXT;
   RefreshDialog(0);
   UpdateData(UD_DISPLAY);
 }

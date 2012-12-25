@@ -513,16 +513,29 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
       if(bmd!=tmpstr)
       {
         bmd=tmpstr;
-        if(read_bmp(tmpstr, &the_bam, false) && read_bam(tmpstr))
+        int notbmp = read_bmp(tmpstr, &the_bam, false);
+
+        if(notbmp && read_bam(tmpstr))
         {
           for(fc=0;fc<4;fc++) m_descicon[fc].SetBitmap(0);
         }
         else
         {
-          fc=4;        
+          fc=4;
+          if (the_bam.GetFrameCount()==1) fc=1;
           while(fc--)
           {
-            newtopleft=topleft-the_bam.GetFramePos(fc);
+            if (notbmp)
+            {
+              newtopleft=topleft-the_bam.GetFramePos(fc);
+            }
+            else
+            {
+              CPoint pos =the_bam.GetFrameSize(0);
+              pos.x/=2;
+              pos.y/=2;
+              newtopleft=topleft - pos;
+            }
             m_descicon[fc].MoveWindow(CRect(newtopleft,the_bam.GetFrameSize(fc)));
             the_bam.MakeBitmap(fc,RGB(240,224,160),hbmd[fc],BM_RESIZE,1,1);
             m_descicon[fc].SetBitmap(hbmd[fc]);
@@ -595,7 +608,11 @@ void CItemIcons::RefreshIcons()
     cb=GetDlgItem(IDC_DESCICON);
     if(cb) cb->SetWindowText("Description");
     cb=GetDlgItem(IDC_DCENTER);
-    if(cb) cb->SetWindowText("Center BAM");
+    if(cb)
+    {
+      cb->SetWindowText("Center BAM");
+      if (tob_specific() && bg1_compatible_area()) cb->ShowWindow(false);
+    }
     cb=GetDlgItem(IDC_DESTRUCTED);
     if(cb) cb->SetWindowText("Destructed item");
     cb=GetDlgItem(IDC_PLAYSOUND);
@@ -936,7 +953,17 @@ void CItemIcons::OnPlaysound()
 void CItemIcons::OnBrowse3() 
 {
   if(the_item.revision==REV_PST) pickerdlg.m_restype=REF_WAV;
-  else pickerdlg.m_restype=REF_BAM;
+  else
+  {
+    if (tob_specific() && bg1_compatible_area() )
+    {
+      pickerdlg.m_restype=REF_BMP; //bgee uses bmp here
+    }
+    else
+    {
+      pickerdlg.m_restype=REF_BAM;
+    }
+  }
   RetrieveResref(pickerdlg.m_picked,the_item.header.descicon);
   if(pickerdlg.DoModal()==IDOK)
   {

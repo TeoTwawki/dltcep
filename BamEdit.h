@@ -69,6 +69,7 @@ protected:
   void LoadBamEx(Cbam *resource);
   void AddonBam(Cbam &addon);
   void AddinBam(Cbam &addin);
+  int WriteBackgroundBMP(CString newname, Cbam &my_bam);
   int WriteAllFrames(CString newname, Cbam &my_bam);
   void GetBMPCycle(CString dir, Cbam &bam);
   void Flip5Cycles();
