@@ -1097,6 +1097,15 @@ void CChitemDlg::read_cd_locations()
   
 }
 
+CString GetSoundsPath()
+{
+  if(language.GetLength())
+  {
+    return "/lang/"+language+"/sounds/";
+  }
+  return "/sounds/";
+}
+
 int CChitemDlg::scan_chitin()
 {
   key_entry resentry;
@@ -1247,10 +1256,10 @@ int CChitemDlg::scan_chitin()
     //another cheesy, fishy hack for the different path of sounds
     if(!fileloc.bifname.CompareNoCase("data\\desound.bif") )
     {
-      if(file_exists(bgfolder+"\\sounds\\"+ref+".wav") )
+      if(file_exists(bgfolder+GetSoundsPath()+ref+".wav") )
       {
         fileloc.index=-1;
-        fileloc.bifname="\\sounds\\"+ref+".wav";
+        fileloc.bifname=GetSoundsPath()+ref+".wav";
       }
     }
     resources[type]->SetAt(ref,fileloc);
@@ -1272,9 +1281,12 @@ void CChitemDlg::scan_override()
   if(gather_override("override\\")) OnCancel();
   if(gather_override("music\\",true)) OnCancel();
   if(gather_override("movies\\",true)) OnCancel();
+  if(gather_override("sounds\\",true)) OnCancel();
   if (language.GetLength())
   {
     path.Format("lang\\%s\\movies\\", language);
+    if (gather_override(path, true)) OnCancel();
+    path.Format("lang\\%s\\sounds\\", language);
     if (gather_override(path, true)) OnCancel();
   }
 }
