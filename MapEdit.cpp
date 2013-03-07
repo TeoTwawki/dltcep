@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "chitem.h"
@@ -21,6 +20,9 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 // CMapEdit dialog
+/*
+1. finish select map
+*/
 
 CMapEdit::CMapEdit(CWnd* pParent /*=NULL*/)
 	: CDialog(CMapEdit::IDD, pParent)
@@ -48,7 +50,7 @@ static int areaboxids[]={IDC_AREA,IDC_BROWSE3,IDC_BROWSE4,IDC_NAME,IDC_LONGNAME,
 IDC_ICONIDX,IDC_ICONRES,IDC_XPOS,IDC_YPOS,IDC_LOADSCREEN,IDC_AREAFLAG,IDC_AREAPICKER,
 IDC_CAPTION,IDC_TOOLTIP,IDC_CAPTIONTEXT,IDC_TOOLTIPTEXT,IDC_EDITLINK,IDC_DELAREA,
 IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,IDC_FLAG5,IDC_FLAG6,IDC_FLAG7,IDC_FLAG8,
-IDC_SET,
+IDC_SET, IDC_SELECTION,
 0};
 
 void CMapEdit::DoDataExchange(CDataExchange* pDX)
@@ -258,6 +260,7 @@ BOOL CMapEdit::OnInitDialog()
 {
   CString tmpstr, tmpstr1, tmpstr2;
 
+  the_mos.new_mos();
   CDialog::OnInitDialog();
   //tooltips
   {
@@ -292,6 +295,7 @@ void CMapEdit::NewMap()
 {
   itemname="new map";
   the_map.KillMaps();
+  the_mos.new_mos();
   
   memset(&the_map.mainheader,0,sizeof(map_mainheader) );
   the_map.mainheader.wmapoffset=sizeof(map_mainheader);
@@ -349,12 +353,13 @@ BEGIN_MESSAGE_MAP(CMapEdit, CDialog)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_FILE_TBG, OnFileTbg)
 	ON_COMMAND(ID_FILE_TP2, OnFileTp2)
+	ON_BN_CLICKED(IDC_SET, OnSet)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_BN_CLICKED(IDC_SET, OnSet)
+	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -820,6 +825,58 @@ void CMapEdit::OnKillfocusYpos()
 {
 	UpdateData(UD_RETRIEVE);	
 	UpdateData(UD_DISPLAY);	
+}
+
+int CMapEdit::GetMapPoint(POINT &point)
+{
+  int i;
+  int pos;
+  int x,y;
+
+  pos=m_mappicker.GetCurSel();
+  i=the_map.headers[pos].areacount;
+  while(i--)
+  {
+    x = the_map.areas[pos][i].xpos+50;
+    y = the_map.areas[pos][i].ypos+50;
+    int dist = (point.x-x)*(point.x-x)+(point.y-y)*(point.y-y);
+    if (dist<3000)
+    {
+      break;
+    }
+  }
+
+  return i;
+}
+
+void CMapEdit::OnSelection() 
+{
+  CImageView dlg;
+  CString tmpstr;
+  POINT point;
+  int pos, pos2;
+
+  pos=m_mappicker.GetCurSel();
+  pos2=m_areapicker.GetCurSel();
+  if(pos<0 || pos2<0) return;
+  RetrieveResref(tmpstr, the_map.headers[pos].mos);
+  read_mos(tmpstr, &the_mos, false);
+
+  dlg.SetMapType(MT_BAM,(LPBYTE) the_map.areas[pos]);
+  dlg.InitView(IW_SHOWALL|IW_SHOWGRID|IW_ENABLEBUTTON|IW_AUTOSET, &the_mos);  
+  dlg.SetupAnimationPlacement(&the_bam, the_map.areas[pos][pos2].xpos,
+    the_map.areas[pos][pos2].ypos, the_bam.GetFrameIndex(the_map.areas[pos][pos2].bamindex,0));    
+  dlg.m_showall=true;
+  if(dlg.DoModal()==IDOK)
+  {
+    point=dlg.GetPoint(GP_POINT);
+    pos2=GetMapPoint(point);
+    if (pos2>=0)
+    {
+      m_areapicker.SetCurSel(pos2);
+    }
+  }
+  UpdateData(UD_DISPLAY);
 }
 
 void CMapEdit::OnSet() 

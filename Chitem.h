@@ -274,14 +274,15 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define REF_VVC   0x03fb  //26
 #define REF_VEF   0x03fc  //27
 #define REF_PRO   0x03fd  //28
-#define REF_INI   0x0802  //29
-#define REF_SRC   0x0803  //30
-#define REF_FNT   0x400  //31
-#define REF_WBM   0x401  //32
-#define REF_GUI   0x402  //33
-#define REF_SQL   0x403  //34
-#define REF_PVRZ  0x404  //35
-#define NUM_OBJTYPE 35
+#define REF_BIO   0x03fe  //29
+#define REF_INI   0x0802  //30
+#define REF_SRC   0x0803  //31
+#define REF_FNT   0x400  //32
+#define REF_WBM   0x401  //33
+#define REF_GUI   0x402  //34
+#define REF_SQL   0x403  //35
+#define REF_PVRZ  0x404  //36
+#define NUM_OBJTYPE 36
 
 #define NUM_FVALUE 3
 extern CString proj_facing_desc[NUM_FVALUE];
@@ -679,6 +680,32 @@ public:
   int Lookup(CString key, loc_entry &loc);
 };
 
+struct quest_entry
+{
+  int strref;
+  int titleindex;
+};
+
+class CQuestList: public CList<quest_entry, quest_entry&>
+{
+public:
+  void Add(int value);
+};
+
+class CQuest2List: public CStringList
+{
+public:
+  int Add(CString value);
+};
+
+/*
+class CQuestMap: public CIntMapString
+{
+public:
+  int Find(CString entry);
+};
+*/
+
 //global variable definitions
 
 extern CStringMapLocEntry items;
@@ -716,6 +743,7 @@ extern CStringMapLocEntry inis;
 extern CStringMapLocEntry guis;
 extern CStringMapLocEntry sqls;
 extern CStringMapLocEntry pvrzs;
+extern CStringMapLocEntry bios;
 
 extern CStringMapLocEntry *resources[NUM_OBJTYPE+1];
 extern CStringListLocEntry *duplicates[NUM_OBJTYPE+1];
@@ -1109,6 +1137,7 @@ bool bg2_weaprofs();
 bool has_xpvar();
 bool dltc_weaprofs();
 bool tob_specific();
+bool is_this_bgee();
 
 CString getitemname(CString filepath);
 CString makeitemname(CString ext, int remember);

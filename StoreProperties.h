@@ -211,6 +211,7 @@ protected:
 	afx_msg void OnKillfocusStrref();
 	afx_msg void OnKillfocusScript();
 	afx_msg void OnNew();
+	afx_msg void OnRecharges();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

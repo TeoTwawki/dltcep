@@ -955,6 +955,7 @@ BEGIN_MESSAGE_MAP(CStoreItems, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
 	ON_EN_KILLFOCUS(IDC_SCRIPT, OnKillfocusScript)
 	ON_BN_CLICKED(IDC_NEW, OnNew)
+	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1458,6 +1459,24 @@ void CStoreItems::OnKillfocusScript()
 void CStoreItems::OnNew() 
 {
 	m_strref=-1;
+	UpdateData(UD_DISPLAY);
+}
+
+void CStoreItems::OnRecharges() 
+{
+  int j;
+  int count;
+
+  count=m_stored_control.GetCurSel();
+  if (count==-1) return;
+
+	read_item(m_itemres);
+  for(j=0;j<3;j++)
+  {
+    if (the_item.extheadcount<=j) break;
+    m_usages[j] = the_item.extheaders[j].charges;
+  }
+  RefreshEntry(count);
 	UpdateData(UD_DISPLAY);
 }
 
@@ -2280,3 +2299,4 @@ BEGIN_MESSAGE_MAP(CStorePropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CStorePropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+

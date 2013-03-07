@@ -9,6 +9,8 @@
 #include "massclear.h"
 #include "options.h"
 #include "UTF8.h"
+#include "2da.h"
+#include "MyFileDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -70,8 +72,11 @@ BEGIN_MESSAGE_MAP(CStrRefDlg, CDialog)
 	ON_COMMAND(ID_CHECKTAG, OnChecktag)
 	ON_COMMAND(ID_TOOLS_SYNCHRONISETLKS, OnToolsSynchronisetlks)
 	ON_COMMAND(ID_CHECK_SPECIALSTRINGS, OnCheckSpecialstrings)
-	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_COMMAND(ID_SEARCH_WEIRDCHARACTER, OnSearchWeirdcharacter)
+	ON_COMMAND(ID_TOOLS_ALLOCATEENTRIES, OnToolsAllocateentries)
+	ON_COMMAND(ID_FILE_IMPORTCSV, OnFileImportcsv)
+	ON_COMMAND(ID_FILE_EXPORTCSV, OnFileExportcsv)
+	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	//}}AFX_MSG_MAP
   ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
@@ -518,6 +523,240 @@ void CStrRefDlg::OnSave()
   OnUpdateStrref();
 }
 
+CString StripText(CString in)
+{
+  CString ret;
+  int len;
+
+  len = in.GetLength();
+  if (len<2) return in;
+
+  ret = in;
+  if (in.GetAt(0)=='"' && in.GetAt(len-1)=='"')
+  {
+    ret = in.Mid(1,len-2);
+  }
+
+  ret.Replace("\"\"","\"");
+  return ret;
+}
+
+int CStrRefDlg::EntryCount(FILE *fpoi)
+{
+  CString line;
+  int entrynum;
+  int current;
+  int res;
+
+  current = 0;
+  init_read('"');
+  read_until('\n',fpoi, line);
+  do
+  {
+    res = read_until('\n',fpoi, line);
+    entrynum = atoi(line);
+    if (entrynum==current) 
+    {
+      current++;
+      continue;
+    }
+    if (entrynum==0)
+    {
+      res = read_until('\n',fpoi, line);
+      continue;
+    }
+    if (entrynum<current) continue; //
+    if (entrynum>current)
+    {
+      //skipping entry, check for too big skips?
+      current = entrynum;
+      if (entrynum-current>100)
+      {
+        break;
+      }
+      current++;
+    }    
+  }
+  while(res);
+
+  rewind(fpoi);
+  return current;
+}
+
+int CStrRefDlg::ReadDlg(FILE *fpoi, int maxref)
+{
+  CString entry, text, sound;
+  int res;
+  int entrynum, current;
+  tlk_reference reference;
+
+  current = tlk_headerinfo[choosedialog].entrynum;
+  if (maxref!=current)
+  {
+    ((CChitemDlg *) AfxGetMainWnd())->start_progress(current,"Freeing memory...");
+    if(tlk_entries[choosedialog])
+    {
+      delete [] tlk_entries[choosedialog];
+    }
+    tlk_entries[choosedialog] = new tlk_entry[maxref];
+  }
+  global_changed[choosedialog]=true;
+  tlk_headerinfo[choosedialog].entrynum=maxref;
+  global_date[choosedialog]=-1;
+
+  ((CChitemDlg *) AfxGetMainWnd())->start_progress(maxref,choosedialog?"Reading DialogF.tlk":"Reading Dialog.tlk");
+  init_read('"');
+  read_until('\n',fpoi, entry);
+  current = 0;
+  res = 0;
+  do
+  {
+    read_until(',',fpoi,entry);
+    entrynum = atoi(entry);
+    if (entrynum<current)
+    {
+      res=2;
+      break;
+    }
+
+    if (entrynum>current)
+    {
+      //allow small skips
+      if (current+100>entrynum)
+      {
+        while(current<entrynum)
+        {
+          if (current<maxref)
+          {
+            memset(&tlk_entries[choosedialog][current].reference, 0, sizeof(tlk_reference) );
+          }
+          current++;
+        }
+      }
+      else
+      {
+        res=3;
+        break;
+      }
+    }
+
+    read_until(',',fpoi,text);
+    skip_string(fpoi,',');
+    text.Replace("\r\n","\n");
+    text = StripText(text);
+    read_until('\n', fpoi, sound);
+    skip_string(fpoi,'\n');
+    sound.Replace("\r","");
+    sound = StripText(sound);
+    if (sound.GetLength()>8) 
+    {
+      res=1;
+      break;
+    }
+
+    reference.pitch = 0;
+    reference.volume = 0;
+    reference.offset = 0;
+    reference.flags = 0;
+    if (text.GetLength()) reference.flags|=TLK_TEXT;
+    if(text.Find('<')>=0) reference.flags|=TLK_TAGGED;
+    if (sound.GetLength()) reference.flags|=TLK_SOUND;
+
+    StoreResref(sound, reference.soundref);
+    reference.length = text.GetLength();
+    if (maxref<=current)
+    {
+      Allocate(current+1);
+    }
+
+    memcpy(&tlk_entries[choosedialog][current].reference, &reference,sizeof(tlk_reference) );
+    tlk_entries[choosedialog][current].text = text;
+    current++;
+    ((CChitemDlg *) AfxGetMainWnd())->set_progress(current);
+  }
+  while(!res);
+  tlk_headerinfo[choosedialog].entrynum = current;
+  ((CChitemDlg *) AfxGetMainWnd())->end_progress();
+  return res;
+}
+
+static char BASED_CODE szFilter[] = "Csv files (*.csv)|*.csv|All files (*.*)|*.*||";
+
+void CStrRefDlg::OnFileImportcsv() 
+{
+  FILE *fpoi;
+  int res, maxref;
+  CString filepath;  
+
+  if (MessageBox("This will completely replace the existing tlk file\nDo you want to continue?","Warning",MB_ICONWARNING|MB_YESNO)!=IDYES)
+  {
+    return;
+  }
+
+  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
+  if(readonly) res|=OFN_READONLY;  
+  CMyFileDialog m_getfiledlg(TRUE, "csv", makeitemname(".csv",0), res, szFilter);
+
+restart:  
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    fpoi=fopen(filepath, "rb");
+    if(!fpoi)
+    {
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      goto restart;
+    }
+    maxref = EntryCount(fpoi);
+    res = ReadDlg(fpoi, maxref);
+    fclose(fpoi);
+  }  
+}
+
+void CStrRefDlg::OnFileExportcsv() 
+{
+  FILE *fpoi;
+  CString name, text, sound;
+  int max;
+  int i;
+  int which;
+
+  max = tlk_headerinfo[choosedialog].entrynum;
+  if(max<1)
+  {
+    MessageBox("Can't export an empty file.","Warning",MB_OK);
+    return;
+  }
+
+  which = 0;
+  name = ((CChitemDlg *) AfxGetMainWnd())->GetTlkFileName(choosedialog);
+  name.Replace(".tlk",".csv");
+  fpoi=fopen(name,"wb");
+  if (!fpoi)
+  {
+    MessageBox(name+" wasn't saved, exit all other programs that might use it, and try again.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    return;
+  }
+  fprintf(fpoi,"\"id\",\"text\",\"sound\"\r\n");
+
+  for (i=0;i<max;i++)
+  {
+    text = resolve_tlk_text(i, choosedialog);
+    sound = resolve_tlk_soundref(i, choosedialog);
+    text.Replace("\"","\"\"");
+    if (!text.IsEmpty())
+    {
+      text="\""+text+"\"";
+    }
+    if (!sound.IsEmpty())
+    {
+      sound="\""+sound+"\"";
+    }
+    fprintf(fpoi,"%d,%s,%s\r\n", i, text, sound);
+  }
+  fclose(fpoi);
+}
+
 void CStrRefDlg::OnReload() 
 {
 	((CChitemDlg *) AfxGetMainWnd())->rescan_dialog(false);
@@ -629,10 +868,10 @@ void CStrRefDlg::OnChecksound()
     }
     else
     {
-      if(tlk_entries[choosedialog][i].reference.flags&2)
+      if(tlk_entries[choosedialog][i].reference.flags&TLK_SOUND)
       {
         chg=1;
-        tlk_entries[choosedialog][i].reference.flags|=2;
+        tlk_entries[choosedialog][i].reference.flags|=TLK_SOUND;
       }
     }
 
@@ -663,7 +902,7 @@ void CStrRefDlg::OnChecktag()
   chg=0;
   for(i=m_strref+1;i<tlk_headerinfo[choosedialog].entrynum;i++)
   {
-    if ((tlk_entries[choosedialog][i].reference.flags&4) || old_version_dlg() )
+    if ((tlk_entries[choosedialog][i].reference.flags&TLK_TAGGED) || old_version_dlg() )
     {
       tmpstr=reduce_tlk_text(tlk_entries[choosedialog][i].text);
       if (tmpstr.FindOneOf("<>")>=0)
@@ -695,6 +934,25 @@ void CStrRefDlg::OnToolsSynchronisetlks()
   }
 }
 
+void CStrRefDlg::Allocate(int maxref)
+{
+  int i;
+  int oldeditflg;
+
+  oldeditflg = editflg;
+  editflg|=RECYCLE;
+  for(i=tlk_headerinfo[choosedialog].entrynum;i<maxref;i++)
+  {
+    store_tlk_text(i,DELETED_REFERENCE, choosedialog);
+  }
+  editflg = oldeditflg;
+}
+
+void CStrRefDlg::OnToolsAllocateentries() 
+{
+  Allocate(m_strref);  
+  UpdateData(UD_DISPLAY);
+}
 
 void CStrRefDlg::OnSearchWeirdcharacter() 
 {

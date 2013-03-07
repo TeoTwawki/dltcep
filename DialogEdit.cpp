@@ -2090,10 +2090,16 @@ void CDialogEdit::RefreshLeaf()
 
 void CDialogEdit::OnKillfocusStrref() 
 {
+  int oldstr=m_strref;
   UpdateData(UD_RETRIEVE);
   m_text=resolve_tlk_text(m_strref);
+  m_sound=resolve_tlk_soundref(m_strref);
   RefreshLeaf();
-  UpdateData(UD_DISPLAY);	
+  UpdateData(UD_DISPLAY);
+  if (oldstr!=m_strref)
+  {
+    the_dialog.changed=1;
+  }
 }
 
 //do not change the static flags
@@ -2860,6 +2866,7 @@ void CDialogEdit::OnToolsorder2()
   if(changed)
   {
     RefreshDialog(0);
+    the_dialog.changed=1;
   }
   else
   {

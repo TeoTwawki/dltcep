@@ -26,7 +26,7 @@
 #define IW_ENABLEFILL   512
 #define IW_GETPOLYGON   1024      //draws all polygons, you are allowed to select one
 #define IW_SHOWALL      2048      //show all button
-#define IW_OKBUTTON     4096
+#define IW_AUTOSET      4096      //when clicked on bitmap, call IDOK
 
 typedef CList<CPoint, CPoint &> CPointList;
 
@@ -109,6 +109,7 @@ protected:
   void DrawLine(CPoint source, CPoint destination, unsigned char color);
   void DrawActors();
   void DrawAnims();
+  void DrawMapText();
   void DrawIcons();
   void DrawAmbients();
   void DrawPolyPolygon(CPtrList *polygons);

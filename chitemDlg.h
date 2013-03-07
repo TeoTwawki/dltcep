@@ -284,6 +284,7 @@ protected:
   void CheckPrefix(CString key, int value);
   void which_transition(int idx);
   int OnAvatars(bool anisound);
+  CString GetTitle(CString str);
 	// Generated message map functions
 	//{{AFX_MSG(CChitemDlg)
 	virtual BOOL OnInitDialog();
@@ -394,6 +395,7 @@ protected:
 	afx_msg void OnPvrPack();
 	afx_msg void OnPvrUnpack();
 	afx_msg void OnCheckSql();
+	afx_msg void OnToolsCreatequestlist();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

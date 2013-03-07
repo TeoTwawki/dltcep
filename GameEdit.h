@@ -110,6 +110,7 @@ protected:
 	afx_msg void OnPCData();
 	afx_msg void OnEditblock2();
 	afx_msg void OnFix();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

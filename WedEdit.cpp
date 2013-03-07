@@ -386,6 +386,8 @@ BEGIN_MESSAGE_MAP(CWedEdit, CDialog)
 	ON_BN_CLICKED(IDC_DROP, OnDrop)
 	ON_COMMAND(IDC_ADD, OnAdd)
 	ON_EN_KILLFOCUS(IDC_MOVE, OnKillfocusMove)
+	ON_COMMAND(ID_OVERLAY_ADD, OnOverlayAdd)
+	ON_BN_CLICKED(IDC_ADDOVERLAY, OnOverlayAdd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -399,7 +401,7 @@ void CWedEdit::OnKillfocusOverlaypicker()
 
   m_overlaypicker_control.GetWindowText(tmpstr);
   x=strtonum(tmpstr)-1;
-  if(x>=0 && x<=the_area.entrancecount)
+  if(x>=0 && x<=the_area.overlaycount)
   {
     m_overlaynum=m_overlaypicker_control.SetCurSel(x);
   }
@@ -1459,6 +1461,25 @@ void CWedEdit::OnEdittile()
   if(the_mos.MosChanged()) the_area.wedchanged=true;
   RefreshWed();
   UpdateData(UD_DISPLAY);
+}
+
+void CWedEdit::OnOverlayAdd() 
+{
+  wed_overlay *newoverlayheaders=new wed_overlay[the_area.overlaycount+1];
+  if (!newoverlayheaders)
+  {
+    return;
+  }
+  memcpy(newoverlayheaders, the_area.overlayheaders, the_area.overlaycount*sizeof(wed_overlay) );
+  memset(newoverlayheaders+the_area.overlaycount, 0, sizeof(wed_overlay) );
+  delete [] the_area.overlayheaders;
+  the_area.overlayheaders = newoverlayheaders;
+  the_area.overlaycount++;
+  the_area.wedheader.overlaycnt = the_area.overlaycount;
+  the_area.wedchanged=true;
+  RefreshOverlay();
+  RefreshWed();
+	UpdateData(UD_DISPLAY);	
 }
 
 BOOL CWedEdit::PreTranslateMessage(MSG* pMsg) 

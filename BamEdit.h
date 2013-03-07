@@ -31,6 +31,7 @@ public:
 	CComboBox	m_framenum_control;
 	int		m_edit;
 	int		m_framenum2;
+	CString	m_framecount;
 	//}}AFX_DATA
   int m_zoom;
 
@@ -142,6 +143,8 @@ protected:
 	afx_msg void OnToolsMinimalframe();
 	afx_msg void OnZoom();
 	afx_msg void OnImportCycles();
+	afx_msg void OnCycleDuplicate();
+	virtual void OnCancel();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

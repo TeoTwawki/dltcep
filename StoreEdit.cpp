@@ -83,6 +83,7 @@ BEGIN_MESSAGE_MAP(CStoreEdit, CDialog)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
+	ON_COMMAND(ID_RECHARGES, OnRecharges)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -346,6 +347,25 @@ void CStoreEdit::OnCancel()
     }
   }
 	CDialog::OnCancel();
+}
+
+void CStoreEdit::OnRecharges() 
+{
+  int i,j;
+  CString itemname;
+
+	for(i=0;i<the_store.entrynum;i++)
+  {
+    RetrieveResref(itemname, the_store.entries[i].itemname);
+    read_item(itemname);
+    for(j=0;j<3;j++)
+    {
+      if (the_item.extheadcount<=j) break;
+      the_store.entries[i].usages[j] = the_item.extheaders[j].charges;
+    }
+  }
+  m_pModelessPropSheet->m_PageItems.RefreshItems();
+  m_pModelessPropSheet->m_PageItems.UpdateData(UD_DISPLAY);
 }
 
 BOOL CStoreEdit::PreTranslateMessage(MSG* pMsg) 

@@ -497,6 +497,7 @@ void CGameEdit::NewGame()
     the_game.revision=20;
     the_game.header.version=3;
   }
+  the_game.m_changed=false;
 }
 
 BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
@@ -554,12 +555,12 @@ BEGIN_MESSAGE_MAP(CGameEdit, CDialog)
 	ON_BN_CLICKED(IDC_GENERAL, OnGeneral)
 	ON_BN_CLICKED(IDC_EDITBLOCK, OnPCData)
 	ON_BN_CLICKED(IDC_EDITBLOCK2, OnEditblock2)
+	ON_COMMAND(ID_FIX, OnFix)
 	ON_COMMAND(ID_FILE_NEW, OnNew)
 	ON_COMMAND(ID_FILE_LOAD, OnLoad)
 	ON_COMMAND(ID_FILE_LOADEXTERNALSCRIPT, OnLoadex)
 	ON_COMMAND(ID_FILE_SAVEAS, OnSaveas)
 	ON_COMMAND(ID_CHECK, OnCheck)
-	ON_COMMAND(ID_FIX, OnFix)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -773,6 +774,7 @@ void CGameEdit::OnFix()
     }
     StoreVariable(tmpstr, the_game.deathvariables[i].variablename, false);
   }
+  the_game.m_changed=true;
   RefreshDialog();
 }
 
@@ -880,6 +882,7 @@ void CGameEdit::OnEdit()
   if(MessageBox("Do you want to keep the changes made on the creature?","Game editor",MB_YESNO)==IDYES)
   {
     ReadTempCreature(the_game.pcstructs[creaturenum],the_game.pcs[creaturenum].cresize);
+    the_game.m_changed=true;
   }
 }
 
@@ -917,6 +920,7 @@ void CGameEdit::OnEdit2()
   if(MessageBox("Do you want to keep the changes made on the creature?","Game editor",MB_YESNO)==IDYES)
   {
     ReadTempCreature(the_game.npcstructs[creaturenum],the_game.npcs[creaturenum].cresize);
+    the_game.m_changed=true;
   }
 }
 
@@ -953,6 +957,7 @@ void CGameEdit::OnAddnpc()
   m_npcpicker.AddString("");
   m_npcpicker.SetCurSel(pos);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnDelnpc() 
@@ -1010,6 +1015,7 @@ void CGameEdit::OnDelnpc()
   if(pos==the_game.npccount) pos--;
   m_npcpicker.SetCurSel(pos);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnKillfocusVariablepicker() 
@@ -1061,6 +1067,7 @@ void CGameEdit::DeleteVariable(int pos)
   the_game.header.variablecount=the_game.variablecount;
   if(pos==the_game.variablecount) pos--;
   m_variablepicker.SetCurSel(pos);
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnDelvar() 
@@ -1090,6 +1097,7 @@ void CGameEdit::OnAddvar()
   the_game.variablecount++;
   the_game.header.variablecount=the_game.variablecount;
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnKillfocusVariablepicker2() 
@@ -1132,6 +1140,7 @@ void CGameEdit::DeleteVariable2(int pos)
   the_game.pstheader.dvarcount=the_game.deathvariablecount;
   if(pos==the_game.deathvariablecount) pos--;
   m_dvarpicker.SetCurSel(pos);
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnDelvar2() 
@@ -1142,6 +1151,7 @@ void CGameEdit::OnDelvar2()
   if(pos<0 || pos>the_game.pstheader.dvarcount) return;
   DeleteVariable(pos);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnAddvar2() 
@@ -1160,6 +1170,7 @@ void CGameEdit::OnAddvar2()
   the_game.deathvariablecount++;
   the_game.pstheader.dvarcount=the_game.deathvariablecount;
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnKillfocusFamiliarpicker() 
@@ -1235,6 +1246,7 @@ void CGameEdit::OnAddjournal()
   the_game.header.journalcount=the_game.journalcount;
   RefreshDialog();
   m_journalpicker.SetCurSel(pos);
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnDeljournal() 
@@ -1258,6 +1270,7 @@ void CGameEdit::OnDeljournal()
   if(pos==the_game.journalcount) pos--;
   m_journalpicker.SetCurSel(pos);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnJoinable() 
@@ -1266,6 +1279,7 @@ void CGameEdit::OnJoinable()
 	the_game.header.npccount=0;
   m_npcpicker.SetCurSel(-1);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnParty() 
@@ -1273,6 +1287,7 @@ void CGameEdit::OnParty()
   the_game.KillPCs();
 	the_game.header.pccount=0;
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnVariables() 
@@ -1281,6 +1296,7 @@ void CGameEdit::OnVariables()
   the_game.header.variablecount=0;
   m_variablepicker.SetCurSel(-1);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnDvar() 
@@ -1289,6 +1305,7 @@ void CGameEdit::OnDvar()
   the_game.pstheader.dvarcount=0;
   m_dvarpicker.SetCurSel(-1);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnJournal() 
@@ -1297,6 +1314,7 @@ void CGameEdit::OnJournal()
   the_game.header.journalcount=0;
   m_journalpicker.SetCurSel(-1);
   RefreshDialog();
+  the_game.m_changed=true;
 }
 
 void CGameEdit::OnKillfocusCreaturenum() 
@@ -1338,9 +1356,24 @@ void CGameEdit::OnEditblock2()
   RefreshDialog();
 }
 
+void CGameEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_game.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the game.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
+}
+
 BOOL CGameEdit::PreTranslateMessage(MSG* pMsg) 
 {
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
-

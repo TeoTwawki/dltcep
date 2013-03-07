@@ -198,6 +198,10 @@ int ReadIdsFromFile(int fhandle, CStringList &refs, int add, int length);
 void ReadBeastIni(CStringList &beastnames, CStringList &beastkillvars);
 
 int read_effect_descs(); // setting up opcode descriptions
+int mygetc(FILE *fpoi);
+int skip_string(FILE *fpoi, char chr);
+void init_read(int esc);
+int read_until(char c, FILE *fpoi, CString &ret, int length=65535);
 int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &atdata, int trigger_or_action);
 
 #endif // !defined(AFX_2DA_H__D3555E4F_E3B8_492D_ABEA_638AF2B91177__INCLUDED_)

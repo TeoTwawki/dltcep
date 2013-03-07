@@ -27,6 +27,7 @@ CStringMapCompiler trigger_data;
 static int position=0;
 static int xorflag=0;
 static int maxlength=-1;
+static int escapechar=0;
 
 char external[MAXBUFFSIZE];
 
@@ -1224,21 +1225,28 @@ void ReadBeastIni(CStringList &beastnames, CStringList &beastkillvars)
   fclose(fpoi);
 }
 
-int read_until(char c, FILE *fpoi, CString &ret, int length=65535)
+int read_until(char c, FILE *fpoi, CString &ret, int length)
 {
   int stop, act;
   char *poi;
   int chr;
   bool flg;
+  bool esc;
 
   stop=0;
+  esc=0;
   poi=ret.GetBuffer(act=MAXIDSIZE);
   flg=true;
   do
   {
     chr=mygetc(fpoi);
     if(chr==EOF) break;
-    if(chr==c) break;
+    if(chr==escapechar)
+    {
+      esc=!esc;
+    }
+
+    if(!esc && (chr==c)) break;
     if(flg && (chr=='\n'))
     {
       ungetc('\n',fpoi);
@@ -2469,14 +2477,10 @@ int read_next_desc(FILE *fpoi)
   opcodes[index].opcodetext=tmp;
 
   read_until('"',fpoi,tmp);
-//  skip_string(fpoi,',');
-//  skip_string(fpoi,'"');
   len=read_until('"',fpoi,tmp);
   opcodes[index].par1=tmp;
 
   read_until('"',fpoi,tmp);
-//  skip_string(fpoi,',');
-//  skip_string(fpoi,'"');
   len=read_until('"',fpoi,tmp);
   if(!len)
   {
@@ -2485,8 +2489,6 @@ int read_next_desc(FILE *fpoi)
   opcodes[index].par2=tmp;
 
   read_until('"',fpoi,tmp);
-//  skip_string(fpoi,',');
-//  skip_string(fpoi,'"');
   len=read_until('"',fpoi,tmp);
   if(!len)
   {
@@ -2496,6 +2498,14 @@ int read_next_desc(FILE *fpoi)
 
   skip_string(fpoi,'\n');
   return 0;
+}
+
+void init_read(int esc)
+{
+  maxlength=-1;
+  xorflag=0;
+  position=0;
+  escapechar=esc;
 }
 
 int read_effect_descs()
@@ -2516,9 +2526,7 @@ int read_effect_descs()
     return 1;
   }
   
-  maxlength=-1;
-  xorflag=0;
-  position=0;
+  init_read(0);
   fpoi=fopen(descpath,"rt");
   if(fpoi<=0)
   {

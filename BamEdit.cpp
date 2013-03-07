@@ -50,7 +50,8 @@ CBamEdit::CBamEdit(CWnd* pParent /*=NULL*/)
 {
   //{{AFX_DATA_INIT(CBamEdit)
   m_framenum2 = 0;
-  //}}AFX_DATA_INIT
+	m_framecount = _T("");
+	//}}AFX_DATA_INIT
   topleft=CPoint(40,40);
   bgcolor=RGB(32,32,32);
   background=0;
@@ -95,7 +96,8 @@ void CBamEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_CYCLE, m_cyclenum_control);
   DDX_Control(pDX, IDC_FRAME, m_framenum_control);
   DDX_Text(pDX, IDC_FRAME2, m_framenum2);
-  //}}AFX_DATA_MAP
+	DDX_Text(pDX, IDC_FRAMECOUNT, m_framecount);
+	//}}AFX_DATA_MAP
   DDX_Check(pDX, IDC_COMPRESSED, the_bam.m_bCompressed); //kept it for simplicity
   DDX_Text(pDX, IDC_TRANSPARENT, the_bam.m_header.chTransparentIndex);
   
@@ -321,6 +323,7 @@ void CBamEdit::RefreshFramePicker()
   {
     m_cycleframe_control.SetCurSel(0);
   }
+  m_framecount.Format("Frames in cycle: %d", m_cycleframe_control.GetCount() );
 }
 
 BEGIN_MESSAGE_MAP(CBamEdit, CDialog)
@@ -386,6 +389,8 @@ ON_COMMAND(ID_CYCLE_DROPFRAME10, OnCycleDropframe10)
 ON_COMMAND(ID_FRAME_MINIMIZEFRAME, OnFrameMinimizeframe)
 ON_COMMAND(ID_TOOLS_MINIMALFRAME, OnToolsMinimalframe)
 ON_BN_CLICKED(IDC_ZOOM, OnZoom)
+ON_COMMAND(ID_TOOLS_IMPORTCYCLES, OnImportCycles)
+	ON_COMMAND(ID_CYCLE_DUPLICATEALLFRAMES, OnCycleDuplicate)
 ON_EN_KILLFOCUS(IDC_XSIZE, DefaultKillfocus)
 ON_EN_KILLFOCUS(IDC_YSIZE, DefaultKillfocus)
 ON_EN_KILLFOCUS(IDC_XPOS, DefaultKillfocus)
@@ -411,8 +416,7 @@ ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
 ON_COMMAND(ID_TOOLS_SPLITFRAMES, SplitBAM)
-ON_COMMAND(ID_TOOLS_IMPORTCYCLES, OnImportCycles)
-//}}AFX_MSG_MAP
+	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -830,6 +834,7 @@ void CBamEdit::OnNew()
 void CBamEdit::OnCompressed() 
 {
   the_bam.m_bCompressed^=1;
+  the_bam.m_changed=true;
   UpdateData(UD_DISPLAY);
 }
 
@@ -2038,6 +2043,25 @@ void CBamEdit::OnCycleAlignframes()
   UpdateData(UD_DISPLAY);
 }
 
+void CBamEdit::OnCycleDuplicate() 
+{
+  int nCycle;
+  int nFrameWanted;
+  CPoint CycleData;
+  int i;
+
+  nCycle=m_cyclenum_control.GetCurSel();
+  if(nCycle<0) return;
+  CycleData=the_bam.GetCycleData(nCycle);
+  for(i=0;i<CycleData.y;i++)
+  {
+    nFrameWanted = the_bam.GetFrameIndex(nCycle, i);
+    the_bam.AddFrameToCycle(nCycle,CycleData.y+i, nFrameWanted, 1);
+  }	
+  RefreshFramePicker();
+  UpdateData(UD_DISPLAY);
+}
+
 static inline int GetDescSplitSize(int scale)
 {
   int div = (scale+MAX_DESC-1)/MAX_DESC;
@@ -2140,6 +2164,22 @@ void CBamEdit::PostNcDestroy()
   if(m_cycledata) delete [] m_cycledata;
   m_cycledata=0;
   CDialog::PostNcDestroy();
+}
+
+void CBamEdit::OnCancel() 
+{
+  CString tmpstr;
+
+  if(the_bam.m_changed)
+  {
+    tmpstr.Format("Changes have been made to the game.\n"
+      "Do you want to quit without save?\n");
+    if(MessageBox(tmpstr,"Warning",MB_YESNO)==IDNO)
+    {
+      return;
+    }
+  }
+	CDialog::OnCancel();
 }
 
 BOOL CBamEdit::PreTranslateMessage(MSG* pMsg)

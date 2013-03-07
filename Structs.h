@@ -2059,6 +2059,16 @@ struct INF_MOS_HEADER
 	DWORD		dwPaletteOffset;
 };
 
+struct INF_MOS2_HEADER
+{
+	char		chSignature[4]; //MOS
+	char		chVersion[4];
+	DWORD		dwWidth;
+	DWORD		dwHeight;
+	DWORD		dwTextureCount;
+	DWORD		dwPaletteOffset;
+};
+
 struct INF_MOSC_HEADER
 {
 	char		chSignature[4]; //MOSC

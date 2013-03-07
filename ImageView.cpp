@@ -569,6 +569,33 @@ void CImageView::DrawAmbients()
   }
 }
 
+void CImageView::DrawMapText()
+{
+  int i;
+  CString tmpstr;
+	CDC dcBmp;
+  CPoint point;
+  map_area *ar;
+
+  CDC *pDC = m_bitmap.GetDC();
+  if(!pDC) return;
+  dcBmp.CreateCompatibleDC(pDC);
+  CBitmap *cbtmp=dcBmp.SelectObject(CBitmap::FromHandle(m_bitmap.GetBitmap()));
+
+  for(i=0;i<m_animbam->GetCycleCount();i++)
+  {
+    ar=((map_area *) m_map)+i;
+    point.x = ar->xpos-m_clipx*m_mos->mosheader.dwBlockSize;
+    point.y = ar->ypos-m_clipy*m_mos->mosheader.dwBlockSize;
+    ar=((map_area *) m_map)+i;
+    RetrieveResref(tmpstr, ar->areaname);
+    dcBmp.TextOut(point.x,point.y,tmpstr);
+  }
+  dcBmp.SelectObject(cbtmp);
+  m_bitmap.Invalidate(false);
+  m_bitmap.ReleaseDC(pDC);
+}
+
 void CImageView::DrawIcons()
 {
   int i, fc;
@@ -584,6 +611,7 @@ void CImageView::DrawIcons()
     point.y = ar->ypos-m_clipy*m_mos->mosheader.dwBlockSize;
     point-=m_animbam->GetFramePos(fc);
     m_animbam->MakeBitmap(fc,GREY,*m_mos,BM_OVERLAY,point.x, point.y);
+
   }
 }
 
@@ -1024,18 +1052,22 @@ void CImageView::RedrawContent()
   }
   if(m_max>1)
   {
-    m_showall_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
-    m_overlay_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
+    m_overlay_control.ShowWindow((m_enablebutton&(IW_SHOWALL|IW_EDITMAP))==(IW_SHOWALL|IW_EDITMAP) );
   }
-  
+  else
+  {
+    m_overlay_control.ShowWindow(false);
+  }
+  m_showall_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
+
   m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_SHOWGRID));
   m_fill_control.ShowWindow(!!(m_enablebutton&IW_ENABLEFILL));
   m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
   m_showgrid_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+70,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
   if(m_enablebutton&IW_SHOWALL)
   {
-    m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_overlay_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+210,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
+    m_overlay_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+210,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
   }
   if(m_enablebutton&(IW_EDITMAP|IW_GETPOLYGON) )
   {
@@ -1300,6 +1332,11 @@ void CImageView::OnBitmap()
     m_spiny.SetPos(m_confirmed.y);
     PostMessage(WM_COMMAND,ID_REFRESH,0);
   }
+
+  if (m_enablebutton&IW_AUTOSET)
+  {
+    PostMessage(WM_COMMAND,IDOK,0 );
+  }
 }
 
 void CImageView::OnMouseMove(UINT nFlags, CPoint point) 
@@ -1347,7 +1384,7 @@ void CImageView::RefreshDialog()
     }
     SetWindowText(tmpstr);
   }
-  else if(m_animbam && (m_enablebutton&IW_PLACEIMAGE))
+  else if(m_animbam && (m_enablebutton&IW_PLACEIMAGE|IW_AUTOSET))
   {
     if (m_showall)
     {
@@ -1393,6 +1430,9 @@ void CImageView::RefreshDialog()
       break;
     case MT_DOORPOLYLIST: case MT_WALLPOLYLIST:
       if(m_enablebutton&IW_SETVERTEX) DrawPolyPolygon(&the_area.wedvertexheaderlist);
+      break;
+    case MT_BAM:
+      DrawMapText();
       break;
     default:
       if(m_enablebutton&IW_SETVERTEX) DrawPolyPolygon(&the_area.vertexheaderlist);

@@ -430,7 +430,7 @@ int CKeyEdit::WriteChitin(int fhandle)
       keyentry.restype=objrefs[determinemenu(tmpstr)];
       if(!keyentry.restype)
       {
-        MessageBox("Invalid resource type","Key editor",MB_ICONWARNING|MB_OK);
+        MessageBox("Invalid resource type: "+tmpstr,"Key editor",MB_ICONWARNING|MB_OK);
       }
       tmpstr=tmpstr.Left(tmpstr.GetLength()-4); //remove extension
       StoreResref(tmpstr,keyentry.filename);

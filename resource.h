@@ -404,6 +404,7 @@
 #define IDS_FORCENEW                    364
 #define IDS_CHR                         365
 #define IDS_PVRZ                        366
+#define IDS_BIO                         367
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -495,6 +496,7 @@
 #define IDC_MVAR                        1088
 #define IDC_REMOVE                      1089
 #define IDC_SHORTDESCREF                1090
+#define IDC_ADDOVERLAY                  1090
 #define IDC_LONGDESCREF                 1091
 #define IDC_LOAD                        1092
 #define IDC_PAR_UNDEFINED               1093
@@ -1749,6 +1751,7 @@
 #define IDC_FRIENDLY                    2335
 #define IDC_U2E                         2337
 #define IDC_LANGUAGE                    2341
+#define IDC_FRAMECOUNT                  2343
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1981,6 +1984,13 @@
 #define ID_CONVERSIONS_PVRUNPACKTILESETS 33063
 #define ID_CONVERSIONS_JPEGUNPACKTILESETS 33064
 #define ID_CHECK_SQL                    33065
+#define ID_CYCLE_DUPLICATEALLFRAMES     33066
+#define ID_RECHARGES                    33067
+#define ID_TOOLS_ALLOCATEENTRIES        33068
+#define ID_TOOLS_CREATEQUESTLIST        33069
+#define ID_FILE_EXPORTCSV               33070
+#define ID_FILE_IMPORTCSV               33071
+#define ID_OVERLAY_ADD                  33072
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -1988,8 +1998,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33066
-#define _APS_NEXT_CONTROL_VALUE         2343
+#define _APS_NEXT_COMMAND_VALUE         33073
+#define _APS_NEXT_CONTROL_VALUE         2344
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

@@ -448,7 +448,7 @@ void CAreaGeneral::OnExplored()
     }
   }
   dlg.SetMapType(MT_EXPLORED, bitmap);
-  dlg.InitView(IW_OKBUTTON|IW_ENABLEBUTTON|IW_EDITMAP|IW_SHOWALL|IW_SHOWGRID|IW_ENABLEFILL, &the_mos);
+  dlg.InitView(IW_ENABLEBUTTON|IW_EDITMAP|IW_SHOWALL|IW_SHOWGRID|IW_ENABLEFILL, &the_mos);
   
   dlg.m_value=1;
   dlg.DoModal();
@@ -1430,7 +1430,7 @@ IDC_TUNK1, IDC_TUNK2, IDC_TNPC, IDC_TUNK3, IDC_TDEACTIVATED, IDC_NONPC,
 IDC_TOVERRIDE, IDC_TDOOR, IDC_TUNK4,IDC_TUNK5,IDC_TUNK6,IDC_TUNK7,
 IDC_BROWSE, IDC_BROWSE2, IDC_BROWSE3, IDC_BROWSE4, IDC_BROWSE5,
 IDC_SELECTION, IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_UNKNOWN, 
-IDC_CURSOR, IDC_SET, IDC_WAVRES,
+IDC_CURSOR, IDC_SET, IDC_SET2, IDC_WAVRES,
 0};
 
 static int triggerflagids[]={IDC_TUNDET, IDC_TRESET, IDC_PARTY, IDC_TDETECT,
@@ -2876,7 +2876,7 @@ void CAreaEntrance::OnAdd()
   }
   memcpy(newentrances, the_area.entranceheaders, the_area.entrancecount*sizeof(area_entrance));
   memset(newentrances+the_area.entrancecount,0,sizeof(area_entrance) );
-  tmpstr.Format("Entrance %d",the_area.header.entrancecnt);
+  tmpstr.Format("Entrance%d",the_area.header.entrancecnt);
   StoreName(tmpstr,newentrances[the_area.entrancecount].entrancename);
   
   if(the_area.entranceheaders)

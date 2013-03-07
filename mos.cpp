@@ -1457,8 +1457,8 @@ int Cmos::ReadMosFromFile(int fhandle, int ml)
   //not a compressed header, we read the raw data and compress the bam if needed (on save, if compressed=true)
   if(c_header.chSignature[3]!='C')
   {
-    // If this is an uncompressed bam we can just attach the buffer to the
-    // bam file object and be done with it.
+    // If this is an uncompressed mos we can just attach the buffer to the
+    // mos file object and be done with it.
     m_bCompressed=false;
     m_nDataSize=ml;
     m_pData = new BYTE[m_nDataSize];
@@ -1518,7 +1518,7 @@ int Cmos::ReadMosFromFile(int fhandle, int ml)
   }
   
 endofquest:
-  ret=ExplodeMosData();
+  ret=ExplodeMosData(fhandle);
   KillData();
   return ret; 
 }
@@ -1592,7 +1592,7 @@ int Cmos::ImplodeMosData()
   return 0;
 }
 
-int Cmos::ExplodeMosData()
+int Cmos::ExplodeMosData(int fhandle)
 {
   int nCount;
   int ret, gret;
@@ -1607,13 +1607,32 @@ int Cmos::ExplodeMosData()
   gret=0;
   if(memcmp(m_pData,"MOS V1  ",8))
   {
-    return -4;
+    if(memcmp(m_pData,"MOS V2  ",8))
+    {
+      return -4;
+    }
+    m_pvr = true;
   }
   memcpy(&mosheader,m_pData,sizeof(INF_MOS_HEADER) ); //get header
   fullsize=sizeof(INF_MOS_HEADER);
   if(mosheader.dwPaletteOffset!=fullsize) return -2;
   if(fullsize>m_nDataSize) return -2;
-  if(mosheader.dwBlockSize<8 || mosheader.dwBlockSize>256) return -2;
+  if (m_pvr)
+  {
+    //pvrz style entries
+    memcpy(&mosheader2, &mosheader, sizeof(mosheader2));
+    mosheader2.dwTextureCount = mosheader.dwBlockSize;
+    mosheader.dwBlockSize=64;
+    mosheader.wWidth = mosheader2.dwWidth;
+    mosheader.wHeight = mosheader2.dwHeight;
+    mosheader.wColumn = (mosheader.wWidth+mosheader.dwBlockSize-1)/mosheader.dwBlockSize;
+    mosheader.wRow = (mosheader.wHeight+mosheader.dwBlockSize-1)/mosheader.dwBlockSize;
+    //real size
+  }
+  else
+  {
+    if(mosheader.dwBlockSize<8 || mosheader.dwBlockSize>256) return -2;
+  }
   if(m_pclrDIBits) delete [] m_pclrDIBits;
   m_DIBsize=mosheader.dwBlockSize*mosheader.dwBlockSize;
   m_pclrDIBits=new COLORREF[m_DIBsize];
@@ -1627,6 +1646,7 @@ int Cmos::ExplodeMosData()
   m_nResX=mosheader.wWidth%mosheader.dwBlockSize;
   m_nResY=mosheader.wHeight%mosheader.dwBlockSize;
   esize=(mosheader.wWidth+mosheader.dwBlockSize-1)/mosheader.dwBlockSize;
+
   if(esize!=mosheader.wColumn)
   {
     if(!m_nResX && (esize==mosheader.wColumn-1) )
@@ -1644,12 +1664,26 @@ int Cmos::ExplodeMosData()
 
   if(ietmebug) tisheader.numtiles=(mosheader.wColumn-1)*mosheader.wRow;
   else tisheader.numtiles=mosheader.wColumn*mosheader.wRow;
+
   if(!CreateFrames())
   {
     return -3;
   }
 
   nCount=0;
+
+  if (m_pvr)
+  {
+    for(i=0;i<mosheader2.dwTextureCount;i++)
+    {
+      pvr_entry entry;
+
+      read(fhandle, &entry, sizeof(pvr_entry));
+    }
+    //more difficult than looks
+    return gret;
+  }
+
   for(i=0;i<mosheader.wRow;i++)
   {
     for(j=0;j<mosheader.wColumn;j++)

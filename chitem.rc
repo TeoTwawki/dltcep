@@ -18,12 +18,12 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Hungarian resources
+// English (U.S.) resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HUN)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
-LANGUAGE LANG_HUNGARIAN, SUBLANG_DEFAULT
-#pragma code_page(1250)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
 #endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
@@ -42,43 +42,6 @@ BEGIN
     EDITTEXT        IDC_FILTER,62,226,60,14,ES_UPPERCASE | ES_AUTOHSCROLL
     LTEXT           "Resource filter:",IDC_STATIC,7,228,48,8
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
-BEGIN
-    IDD_ANIMDIALOG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 413
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 242
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Hungarian resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
 
 IDD_WEIDU DIALOGEX 0, 0, 317, 279
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -150,7 +113,7 @@ FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
     LTEXT           "",IDC_VERSION,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2002-2012 Avenger",IDC_STATIC,40,23,119,8
+    LTEXT           "Copyright (C) 2002-2013 Avenger",IDC_STATIC,40,23,119,8
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
     LTEXT           "Source: http://gemrb.sourceforge.net",IDC_STATIC,40,36,
                     119,8
@@ -628,7 +591,7 @@ BEGIN
     LTEXT           "ID flags",IDC_STATIC,204,129,25,8
     LTEXT           "Speed",IDC_STATIC,358,32,22,8
     LTEXT           "Range",IDC_STATIC,318,32,22,8
-    LTEXT           "Target number && type",IDC_STATIC,123,31,68,8
+    LTEXT           "Action number && type",IDC_STATIC,123,31,68,8
     LTEXT           "Launcher type",IDC_STATIC,217,31,46,8
     LTEXT           "+",IDC_STATIC,65,69,8,8
     LTEXT           "Damage rolls",IDC_STATIC,11,58,42,8
@@ -855,7 +818,7 @@ END
 IDD_STOREGENERAL DIALOGEX 0, 0, 360, 199
 STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "General properties"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     EDITTEXT        IDC_STORENAMEREF,115,8,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_STORENAME,7,26,215,14,ES_AUTOHSCROLL
@@ -906,8 +869,8 @@ BEGIN
                     WS_TABSTOP,317,53,36,10,WS_EX_RIGHT
     CONTROL         "Bit 13",IDC_UNKNOWN6,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,319,71,34,10,WS_EX_RIGHT
-    CONTROL         "Bit 14",IDC_UNKNOWN7,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,319,89,34,10,WS_EX_RIGHT
+    CONTROL         "Charge",IDC_UNKNOWN7,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,314,89,39,10,WS_EX_RIGHT
     CONTROL         "Bit 15",IDC_UNKNOWN8,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,319,107,34,10,WS_EX_RIGHT
     CONTROL         "V1.0",IDC_V10,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
@@ -947,13 +910,13 @@ BEGIN
                     WS_TABSTOP
     PUSHBUTTON      "Remove all",IDC_REMALLITEM,199,17,47,14
     PUSHBUTTON      "Remove type",IDC_REMOVEITEM,250,17,47,14
-    PUSHBUTTON      "Add type",IDC_ADDITEM,305,17,47,14
+    PUSHBUTTON      "Add type",IDC_ADDITEM,303,17,50,14
     COMBOBOX        IDC_STOREDITEMS,7,43,140,149,CBS_DROPDOWN | WS_VSCROLL | 
                     WS_TABSTOP
     PUSHBUTTON      "Browse",IDC_BROWSE,151,43,45,14
     PUSHBUTTON      "Remove all",IDC_REMALLITEM2,199,43,47,14
     PUSHBUTTON      "Remove Item",IDC_REMOVEITEM2,250,43,47,14
-    PUSHBUTTON      "Add Item",IDC_ADDITEM2,305,43,47,14
+    PUSHBUTTON      "Add Item",IDC_ADDITEM2,303,46,50,14
     EDITTEXT        IDC_ITEMRES,7,68,42,14,ES_UPPERCASE | ES_AUTOHSCROLL
     EDITTEXT        IDC_COUNT,54,69,33,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_UNLIMITED,99,69,16,14,ES_AUTOHSCROLL
@@ -968,7 +931,7 @@ BEGIN
     CONTROL         "Stolen",IDC_STOLEN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,215,81,36,10
     EDITTEXT        IDC_UNKNOWN,265,69,34,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Order Store",IDC_ORDER,305,69,47,14
+    PUSHBUTTON      "Order Store",IDC_ORDER,303,104,50,14
     EDITTEXT        IDC_STRREF,7,104,40,14,ES_AUTOHSCROLL
     PUSHBUTTON      "New string",IDC_NEW,62,104,50,14
     EDITTEXT        IDC_SCRIPT,7,124,346,68,ES_MULTILINE | ES_AUTOHSCROLL | 
@@ -983,6 +946,7 @@ BEGIN
     LTEXT           "Select itemtype to add",IDC_STATIC,85,6,71,8
     LTEXT           "Itemname",IDC_STATIC,7,58,32,8
     LTEXT           "Item Trigger (PST)",IDC_STATIC,7,94,58,8
+    PUSHBUTTON      "Recharge item",IDC_RECHARGES,303,75,50,14
 END
 
 IDD_EFFEDIT DIALOG DISCARDABLE  0, 0, 410, 322
@@ -1207,13 +1171,13 @@ END
 IDD_COMPAT DIALOGEX 0, 0, 322, 269
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Compatibility options"
-FONT 8, "MS Sans Serif", 0, 0, 0x1
+FONT 8, "MS Sans Serif"
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,252,247,64,14
     PUSHBUTTON      "&Save && Back",IDC_SAVE,7,248,64,14
     DEFPUSHBUTTON   "&P",IDC_OPENFILE,292,51,16,16,BS_BITMAP
     EDITTEXT        IDC_FILENAME,13,51,269,16,ES_AUTOHSCROLL | ES_READONLY,
-                    WS_EX_ACCEPTFILES,HIDC_FILENAME
+                    WS_EX_ACCEPTFILES,0x809103eb
     LTEXT           "Location of chitin.key (override folder must be in the same place)",
                     IDC_STATIC,13,40,203,8
     CONTROL         "PST style variable management (var.var)",IDC_PSTVAR,
@@ -1398,7 +1362,7 @@ BEGIN
     LTEXT           "Position",IDC_STATIC,317,40,26,8
     LTEXT           "Select frame",IDC_STATIC,258,0,40,8
     LTEXT           "Select cycle",IDC_STATIC,258,84,40,8
-    LTEXT           "Frames in cycle",IDC_STATIC,320,84,50,8
+    LTEXT           "Frames in cycle",IDC_FRAMECOUNT,320,84,86,8
     CONTROL         "",IDC_BAMFRAME2,"Static",SS_BITMAP,28,7,15,13
     CONTROL         "",IDC_BAMFRAME3,"Static",SS_BITMAP,7,29,15,13
     CONTROL         "",IDC_BAMFRAME4,"Static",SS_BITMAP,27,30,15,13
@@ -1848,7 +1812,7 @@ BEGIN
     LTEXT           "Location:",IDC_STATIC,125,31,30,8
     LTEXT           "Speed",IDC_STATIC,330,31,22,8
     LTEXT           "Range",IDC_STATIC,299,31,22,8
-    LTEXT           "Target number && type",IDC_STATIC,192,31,68,8
+    LTEXT           "Action number && type",IDC_STATIC,192,31,68,8
     LTEXT           "/",IDC_STATIC,113,16,8,8
     LTEXT           "0",IDC_HEADNUM,123,16,8,8
     LTEXT           "Projectile animation:",IDC_STATIC,88,57,64,8
@@ -3724,6 +3688,7 @@ BEGIN
     GROUPBOX        "Area Links",IDC_STATIC,264,155,114,64,BS_FLAT
     LTEXT           "/ 0",IDC_MAXAREA,104,97,18,8
     LTEXT           "Total Links:",IDC_MAXLINK,266,198,54,8
+    PUSHBUTTON      "Select area",IDC_SELECTION,353,95,50,14
 END
 
 IDD_MAPLINK DIALOG DISCARDABLE  0, 0, 258, 231
@@ -4129,7 +4094,7 @@ BEGIN
     EDITTEXT        IDC_FRAME,171,17,24,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_CYCLE,205,17,24,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_FLAGS,239,17,61,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_HEIGHT,307,17,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_HEIGHT,307,17,40,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_TRANSPARENT,371,17,40,14,ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_BMP,171,43,48,14,ES_UPPERCASE | ES_AUTOHSCROLL
     PUSHBUTTON      "Browse",IDC_BROWSE2,226,43,30,14
@@ -4397,10 +4362,10 @@ BEGIN
     LTEXT           "/ 00",IDC_DOORPOLYNUM,256,130,21,8
     LTEXT           "Choose door polygon group",IDC_STATIC,19,116,88,8
     LTEXT           "Problem:",IDC_PROBLEM,204,9,122,8
-    PUSHBUTTON      "Extract",IDC_EDIT,309,54,50,14
-    PUSHBUTTON      "Set overlay",IDC_NEW,367,54,50,14
+    PUSHBUTTON      "Extract",IDC_EDIT,252,54,50,14
+    PUSHBUTTON      "Set overlay",IDC_NEW,310,54,50,14
     PUSHBUTTON      "Edit tiles",IDC_EDITTILE,367,14,50,14
-    PUSHBUTTON      "Delete overlay",IDC_REMOVE,367,34,50,14
+    PUSHBUTTON      "Delete overlay",IDC_REMOVE,367,54,50,14
     CONTROL         "View whole",IDC_OVERLAY,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,144,9,52,10
     PUSHBUTTON      "Select polygon",IDC_SELECTION,367,105,50,14
@@ -4419,6 +4384,7 @@ BEGIN
     PUSHBUTTON      "Drop door",IDC_DROP,253,105,50,14
     EDITTEXT        IDC_MOVE,268,34,36,14,ES_AUTOHSCROLL
     LTEXT           "Movement type",IDC_STATIC,270,20,50,8
+    PUSHBUTTON      "Add overlay",IDC_ADDOVERLAY,367,34,50,14
 END
 
 IDD_WEDPOLY DIALOG DISCARDABLE  0, 0, 228, 261
@@ -5642,6 +5608,14 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO MOVEABLE PURE 
 BEGIN
+    IDD_ANIMDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 413
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 242
+    END
+
     IDD_WEIDU, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -6530,8 +6504,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,5,0,3
- PRODUCTVERSION 7,5,0,3
+ FILEVERSION 7,6,0,1
+ PRODUCTVERSION 7,6,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6549,14 +6523,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 5, 0, 3\0"
+            VALUE "FileVersion", "7, 6, 0, 1\0"
             VALUE "InternalName", "dltcep\0"
-            VALUE "LegalCopyright", "Copyright (C) 2002-2012 Avenger\0"
+            VALUE "LegalCopyright", "Copyright (C) 2002-2013 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.5c\0"
-            VALUE "ProductVersion", "7, 5, 0, 3\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.6a\0"
+            VALUE "ProductVersion", "7, 6, 0, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6701,6 +6675,7 @@ BEGIN
     END
     POPUP "&Tools"
     BEGIN
+        MENUITEM "&Create quest list",          ID_TOOLS_CREATEQUESTLIST
         MENUITEM "&Decompile all dialogs",      ID_TOOLS_DECOMPILE
         MENUITEM "&Edit strings",               ID_TOOLS_LOOKUPSTRREF
         MENUITEM "&Generate avatars.2da",       ID_AVATARS
@@ -6791,6 +6766,7 @@ BEGIN
         MENUITEM "Shift cycle &backward",       ID_SHIFT_BACKWARD
         MENUITEM "&Flip frames in cycle",       ID_FLIPCYCLE
         MENUITEM "A&lign frames",               ID_CYCLE_ALIGNFRAMES
+        MENUITEM "D&uplicate all frames",       ID_CYCLE_DUPLICATEALLFRAMES
     END
     POPUP "&Palette"
     BEGIN
@@ -6942,6 +6918,10 @@ BEGIN
         MENUITEM "E&xit",                       IDCANCEL
     END
     MENUITEM "&Check",                      ID_CHECK
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "Recharge items",              ID_RECHARGES
+    END
 END
 
 IDR_EFFECT MENU DISCARDABLE 
@@ -7065,6 +7045,8 @@ IDR_TLKMENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "&Export CSV",                 ID_FILE_EXPORTCSV
+        MENUITEM "&Import CSV",                 ID_FILE_IMPORTCSV
         MENUITEM "Re&load",                     IDC_RELOAD
         MENUITEM "&Save",                       ID_FILE_SAVE
         MENUITEM SEPARATOR
@@ -7087,6 +7069,7 @@ BEGIN
         MENUITEM "&Mass clear",                 ID_CLEAR
         MENUITEM "&Trim at current strref #",   ID_TRIM
         MENUITEM "Synchronise TLKs",            ID_TOOLS_SYNCHRONISETLKS
+        MENUITEM "&Allocate entries",           ID_TOOLS_ALLOCATEENTRIES
     END
 END
 
@@ -7325,6 +7308,7 @@ BEGIN
         MENUITEM "&Extract",                    IDC_EDIT
         MENUITEM "&Set",                        IDC_NEW
         MENUITEM "Edit &tiles",                 IDC_EDITTILE
+        MENUITEM "&Add",                        ID_OVERLAY_ADD
         MENUITEM "&Drop",                       IDC_REMOVE
     END
     POPUP "&Door"
@@ -7412,6 +7396,8 @@ BEGIN
     IDC_GAMETYPE, 0x403, 19, 0
 0x6c50, 0x6e61, 0x7365, 0x6163, 0x6570, 0x542f, 0x726f, 0x656d, 0x746e, 
 "\000" 
+    IDC_GAMETYPE, 0x403, 8, 0
+0x4742, 0x325b, 0x455d, 0x0045, 
     IDC_LOGTYPE, 0x403, 5, 0
 0x6f4e, 0x656e, "\000" 
     IDC_LOGTYPE, 0x403, 8, 0
@@ -8080,6 +8066,7 @@ BEGIN
     IDS_FORCENEW            "Don't overwrite changed strings when importing TBG."
     IDS_CHR                 "character"
     IDS_PVRZ                "tile surfaces"
+    IDS_BIO                 "biography"
 END
 
 #endif    // English (U.S.) resources

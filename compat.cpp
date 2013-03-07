@@ -23,6 +23,12 @@ bool tob_specific()
   return false;
 }
 
+bool is_this_bgee()
+{
+  if ( (optflg&(COM_TOB|COM_BG1))==(COM_TOB|COM_BG1) ) return true;
+  return false;
+}
+
 bool old_version_dlg()
 {
   if(optflg&COM_DLG) return true;
@@ -395,7 +401,7 @@ void Ccompat::OnTob()
   OnAdd();
 }
 
-#define MAXGAME 9
+#define MAXGAME 10
 static unsigned long gametypes[MAXGAME]={
   COM_DLG|COM_BG1|COM_NOZIP|COM_NOWP,           //baldur's gate
   COM_DLG|COM_BG1|COM_NOZIP|COM_NOWP,           //totsc
@@ -406,11 +412,13 @@ static unsigned long gametypes[MAXGAME]={
   COM_DLG|COM_ITEM|COM_NOZIP|COM_ITEM|COM_NOWP|COM_XPL,  //HoW
   COM_DLG|COM_IWD2|COM_ITEM|COM_NOWP|COM_XPL,   //iwd 2
   COM_DLG|COM_PST|COM_ITEM|COM_NOWP|COM_NOZIP|COM_ITEM,  //pst
+  COM_BG1|COM_TOB|COM_ITEM,                              //BGEE, BG2EE
 };
 
 static CString deftypes[MAXGAME]={"BG1Effects.dat","BG1Effects.dat",
 "BG2Effects.dat","BG2Effects.dat","BG2Effects.dat",
-"IWD2Effects.dat","IWD2Effects.dat","IWD2Effects.dat","PST_Effects.dat"};
+"IWD2Effects.dat","IWD2Effects.dat","IWD2Effects.dat","PST_Effects.dat",
+"BG2Effects.dat"};
 
 
 void Ccompat::OnNew() 

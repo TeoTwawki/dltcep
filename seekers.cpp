@@ -405,8 +405,10 @@ int check_triggerref(const char *poi, int open)
   {
     if(!strnicmp(poi,the_area.triggerheaders[i].infoname,16))
     {
+      //info triggers could also be blocked
+      /*
       if(the_area.triggerheaders[i].triggertype!=2) f=2;
-      else f=0;
+      else*/ f=0;
       if(!(the_area.triggerheaders[i].infoflags&2048) == !open) f|=1;
       return -f;
     }
@@ -5662,9 +5664,12 @@ int CChitemDlg::check_area(int swap_weds)
     log("Area script '%-.8s' does not exist.",the_area.header.scriptref);
     break;
   case 0:
-    if(the_area.header.scriptref[0] && strnicmp(itemname,the_area.header.scriptref,8) )
+    if (!(chkflg&NOSCRIPT))
     {
-      log("Scriptname '%-.8s' isn't the same as the area name (possible problem)",the_area.header.scriptref);
+      if(the_area.header.scriptref[0] && strnicmp(itemname,the_area.header.scriptref,8) )
+      {
+        log("Scriptname '%-.8s' isn't the same as the area name (possible problem)",the_area.header.scriptref);
+      }
     }
   }
   if(!the_area.wedheader.overlaycnt || !the_area.overlaycount || !the_area.m_height || !the_area.m_width)
@@ -5805,6 +5810,23 @@ retry:
       log("Invalid tile in [%d.%d]",i%the_area.overlayheaders[0].width,i/the_area.overlayheaders[0].width);
     }
   }
+  if (is_this_bgee())
+  {
+    if (tmptis.tisheader.tilelength!=12)
+    {
+      ret|=BAD_EXTHEAD;
+      log("Tileset (%s) is in old format.", tmptis.m_name);
+    }
+  }
+  else
+  {
+    if (tmptis.tisheader.tilelength!=5120)
+    {
+      ret|=BAD_EXTHEAD;
+      log("The tileset (%s) is corrupted (or you didn't configure DLTCEP to BGEE).", tmptis.m_name);
+    }
+  }
+
   pos=the_area.doortilelist.GetHeadPosition();
   for(i=0;i<the_area.weddoorcount;i++)
   {

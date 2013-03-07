@@ -111,6 +111,7 @@ public:
   int AddWedDoor(CString doorid);
   int RemoveWedDoor(char *doorid);
   int DefaultAreaOverlays();
+  int AddAreaOverlay();
   int WriteAreaToFile(int fh, int calculate);
   int WriteWedToFile(int fh);
   int WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize);

@@ -10,6 +10,10 @@
 /////////////////////////////////////////////////////////////////////////////
 // CStrRefDlg dialog
 
+#define TLK_TEXT 1
+#define TLK_SOUND 2
+#define TLK_TAGGED 4
+
 class CStrRefDlg : public CDialog
 {
   // Construction
@@ -49,6 +53,9 @@ protected:
   void StartFindReplace(int mode);
   void SetTextControl(CString text);
   CString GetTextControl();
+  void Allocate(int maxref);
+  int EntryCount(FILE *fpoi);
+  int ReadDlg(FILE *fpoi, int maxref);
 	// Generated message map functions
 	//{{AFX_MSG(CStrRefDlg)
 	afx_msg void OnUpdateStrref();
@@ -70,6 +77,9 @@ protected:
 	afx_msg void OnToolsSynchronisetlks();
 	afx_msg void OnCheckSpecialstrings();
 	afx_msg void OnSearchWeirdcharacter();
+	afx_msg void OnToolsAllocateentries();
+	afx_msg void OnFileExportcsv();
+	afx_msg void OnFileImportcsv();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

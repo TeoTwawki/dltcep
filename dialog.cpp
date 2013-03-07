@@ -33,6 +33,7 @@ Cdialog::Cdialog()
   trtriggercount=0;
   actioncount=0;
   extlinkcnt=0;
+  changed=0;
 }
 
 Cdialog::~Cdialog()

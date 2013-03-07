@@ -2423,7 +2423,7 @@ int CCreatureItem::ResolveTypeAndLevel(CString key)
 CIntMapString *CCreatureItem::GetIWD2SpellList(int pos)
 {
   if(pos<9*7) return &listspells;
-  if(pos<9*8) return &listdomains;
+  if(pos<9*8) return &listspells; //domains also use the spell list
   if(pos==9*8) return &listinnates;
   if(pos==9*8+1) return &listsongs;
   if(pos==9*8+2) return &listshapes;

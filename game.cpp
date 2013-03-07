@@ -49,6 +49,7 @@ Cgame::Cgame()
   sloccount=0;
   ppcount=0;
   revision=20; //bg2 revision is 2.0
+  m_changed=false;
 }
 
 Cgame::~Cgame()
@@ -402,6 +403,7 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   {
     return -2;
   }
+  the_game.m_changed=false;
   return 0;
 }
 
@@ -444,6 +446,7 @@ int Cgame::ReadGameFromFile(int fh, long ml)
   if(ml==-1) maxlen=filelength(fhandle);
   else maxlen=ml;
   if(maxlen<1) return -1; //short file, invalid item
+  the_game.m_changed=false;
   startpoint=tell(fhandle);
   fullsize=sizeof(header);
   if(read(fhandle,&header,fullsize )!=fullsize )
@@ -790,7 +793,7 @@ read_pc:
     {
       KillPPLocs();
       pplocs = new gam_sloc[header.ppcount];
-      if(!slocs) return -3;
+      if(!pplocs) return -3;
       ppcount=header.ppcount;
     }
     esize =sizeof(gam_sloc)*header.ppcount;

@@ -29,10 +29,12 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
   CButton *cb;
 	CWnd *cw;
   CString tmpstr;
-  int tmp;
+  int weather;
   int i,j;
+  gam_header tmp;
 
-	CDialog::DoDataExchange(pDX);
+  memcpy(&tmp,&the_game.header,sizeof(gam_header));
+  CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CGameGeneral)
 	DDX_Control(pDX, IDC_SLIDER, m_slider_control);
 	//}}AFX_DATA_MAP
@@ -89,14 +91,18 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_UNKNOWN1C, the_game.header.areaviewed);
   DDX_Text(pDX, IDC_WEATHER, the_game.header.weather);
 
-  tmp=the_game.header.weather;
+  weather=the_game.header.weather;
   j=1;
   for(i=0;i<9;i++)
 	{
 		cb=(CButton *) GetDlgItem(IDC_FLAG1+i);
-		if(cb) cb->SetCheck(!!(tmp&j) );
+		if(cb) cb->SetCheck(!!(weather&j) );
 		j<<=1;
   }	
+  if(memcmp(&tmp,&the_game.header,sizeof(gam_header)))
+  {
+    the_game.m_changed=true;
+  }
 }
 
 

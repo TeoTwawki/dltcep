@@ -37,14 +37,14 @@ const unsigned char xorblock[64]={
 };
 
 const unsigned short objrefs[NUM_OBJTYPE+1]={
-  0,REF_2DA,REF_ACM,REF_ARE,REF_BAM,REF_BCS,REF_BMP,REF_CHR,REF_CHU,REF_CRE,REF_DLG,//10
-    REF_EFF,REF_GAM,REF_IDS,REF_INI,REF_ITM,REF_MOS,REF_MUS,REF_MVE,REF_PLT,//19
-    REF_PRO,REF_SPL,REF_SRC,REF_STO,REF_TIS,REF_VEF,REF_VVC,REF_WAV,REF_WED,//28
-    REF_WFX,REF_WMP,REF_FNT, REF_SQL, REF_GUI, REF_WBM, REF_PVRZ //34
+  0,REF_2DA,REF_ACM,REF_ARE,REF_BAM,REF_BCS,REF_BIO,REF_BMP,REF_CHR,REF_CHU,//9
+    REF_CRE,REF_DLG,REF_EFF,REF_GAM,REF_IDS,REF_INI,REF_ITM,REF_MOS,REF_MUS,//18
+    REF_MVE,REF_PLT,REF_PRO,REF_SPL,REF_SRC,REF_STO,REF_TIS,REF_VEF,REF_VVC,//27
+    REF_WAV,REF_WED,REF_WFX,REF_WMP,REF_FNT,REF_SQL,REF_GUI,REF_WBM,REF_PVRZ //35
 };
 
 const CString objexts[NUM_OBJTYPE+1]={
-  ".*",".2da",".acm",".are",".bam",".bcs",".bmp",".chr",".chu",".cre",".dlg",//10
+  ".*",".2da",".acm",".are",".bam",".bcs",".bio",".bmp",".chr",".chu",".cre",".dlg",//10
     ".eff",".gam",".ids",".ini",".itm",".mos",".mus",".mve",".plt",".pro",//20
     ".spl",".src",".sto",".tis",".vef",".vvc",".wav",".wed",".wfx",".wmp",//30
     ".fnt",".sql",".gui", ".wbm", ".pvrz" //34
@@ -54,21 +54,21 @@ const CString savedexts[]={".are",".sto",".tot",".toh","",
 };
 
 char tbgext[NUM_OBJTYPE+1]={
-  0,'r',0,'a',0,'b',0,'c','h','c','d',//10 chr is the same as cre
+  0,'r',0,'a',0,'b',0,0,'c','h','c','d',//10 chr is the same as cre
   'e','n',0,0,'-',0,0,0,0,'m',    //20
   's','p','t',0,0,0,0,0,0,'w',    //30
   0,0,0,0,0 //33
 };
 
 int idstrings[NUM_OBJTYPE+1]={IDS_UNKNOWN,IDS_2DA,IDS_MUSIC,IDS_AREA,  //4
-IDS_ANIMATION, IDS_SCRIPT, IDS_BITMAP,IDS_CHR, IDS_CHU,IDS_CREATURE, IDS_DIALOG,//10
+IDS_ANIMATION, IDS_SCRIPT, IDS_BIO, IDS_BITMAP,IDS_CHR, IDS_CHU,IDS_CREATURE, IDS_DIALOG,//10
 IDS_EFFECT,IDS_GAME,IDS_IDS,IDS_INI,IDS_ITEM,//15
 IDS_MOS,IDS_MUS,IDS_MOVIE,IDS_PLT,IDS_PRO,    //20
 IDS_SPELL,IDS_SRC,IDS_STORE,IDS_TILESET,IDS_VEF,IDS_VVC,IDS_WAV,IDS_WED,//28
 IDS_WFX,IDS_WMP, IDS_FNT, IDS_SQL, IDS_GUI, IDS_WBM, IDS_PVRZ};//34
 
 int menuids[NUM_OBJTYPE+1]={0,ID_EDIT_2DA,0,ID_EDIT_AREA,//4
-ID_EDIT_ANIMATION,ID_EDIT_SCRIPT,ID_EDIT_ANIMATION,ID_EDIT_CREATURE,ID_EDIT_CHUI,ID_EDIT_CREATURE,//9
+ID_EDIT_ANIMATION,ID_EDIT_SCRIPT,0, ID_EDIT_ANIMATION,ID_EDIT_CREATURE,ID_EDIT_CHUI,ID_EDIT_CREATURE,//9
 ID_EDIT_DIALOG, ID_EDIT_EFFECT, ID_EDIT_GAMES,ID_EDIT_IDS,0,ID_EDIT_ITEM,//15
 ID_EDIT_GRAPHICS,ID_EDIT_MUSICLIST,0,ID_EDIT_ANIMATION,ID_EDIT_PROJECTILE,//20
 ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,//28
@@ -164,8 +164,8 @@ int logtype;
 int tooltips;
 int do_progress;
 int readonly;
-int whichdialog;
-int choosedialog;
+int whichdialog;    //enable both dialogs
+int choosedialog;   //selected dialog
 unsigned long chkflg;
 unsigned long editflg;
 unsigned long optflg;
@@ -276,6 +276,7 @@ CStringMapLocEntry wbms; //32
 CStringMapLocEntry sqls; //33
 CStringMapLocEntry guis; //34
 CStringMapLocEntry pvrzs; //35
+CStringMapLocEntry bios; //36
 
 CStringListLocEntry d_items;//1
 CStringListLocEntry d_icons;//2
@@ -312,9 +313,10 @@ CStringListLocEntry d_wbms; //32
 CStringListLocEntry d_sqls; //33
 CStringListLocEntry d_guis; //34
 CStringListLocEntry d_pvrz; //35
+CStringListLocEntry d_bios; //36
   
 CStringMapLocEntry *resources[NUM_OBJTYPE+1]={0,&darefs,&musics,
-&areas, &icons, &scripts, &bitmaps, &chars, &chuis, &creatures,
+&areas, &icons, &scripts, &bios, &bitmaps, &chars, &chuis, &creatures,
 &dialogs, &effects, &games, &idrefs, &inis, &items, &mos, 
 &musiclists, &movies,&paperdolls, &projects, &spells, &strings, 
 &stores, &tis, &vefs, &vvcs, &sounds, &weds, &wfxs, &wmaps, 
@@ -322,7 +324,7 @@ CStringMapLocEntry *resources[NUM_OBJTYPE+1]={0,&darefs,&musics,
 };
 
 CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
-&d_areas, &d_icons, &d_scripts, &d_bitmaps, &d_chars, &d_chuis, &d_creatures,
+&d_areas, &d_icons, &d_scripts, &d_bios, &d_bitmaps, &d_chars, &d_chuis, &d_creatures,
 &d_dialogs, &d_effects, &d_games, &d_idrefs, &d_inis, &d_items, &d_mos,
 &d_musiclists, &d_movies, &d_paperdolls, &d_projects, &d_spells, &d_strings,
 &d_stores,&d_tis, &d_vefs, &d_vvcs,&d_sounds, &d_weds, &d_wfxs, &d_wmaps,
@@ -1712,6 +1714,7 @@ void synchronise()
   }
   ((CChitemDlg *) AfxGetMainWnd())->end_progress();
 }
+
 CString resolve_tlk_text(long reference, int which)
 {
   CString tmp;
@@ -1723,6 +1726,16 @@ CString resolve_tlk_text(long reference, int which)
   tmp.Replace("\n","\r\n");
   return tmp;
 }
+/*
+int find_tlk_text(CString tmp, int which)
+{
+  for(i=0;i<tlk_headerinfo[which].entrynum;i++)
+  {
+    if (tlk_entries[which][i].text==tmp) return i;
+  }
+  return -1;
+}
+*/
 
 BOOL match_tlk_text(long reference, CString text, int ignorecase, int which)
 {
@@ -1827,9 +1840,12 @@ int store_tlk_text(long reference, CString text, int which)
   {
     //since we want to avoid to include a new entry at all costs
     //there is a shortcut to reuse existing entries
-    for(i=0;i<tlk_headerinfo[which].entrynum;i++) 
+    if (text!=DELETED_REFERENCE)
     {
-      if(tlk_entries[which][i].text==text) return i;
+      for(i=0;i<tlk_headerinfo[which].entrynum;i++) 
+      {
+        if(tlk_entries[which][i].text==text) return i;
+      }
     }    
     if(!(editflg&RECYCLE)) //if we recycle string references
     {
@@ -2627,10 +2643,11 @@ CString get_location_type(int lftype)
 }
 
 CString target_types[NUM_TTYPE]={
-  "0-Invalid","1-Creature","2-Inventory/Crash", "3-Creature (no range)","4-Area","5-Self","6-Unknown/Crash",
-  "7-None",
+  "0-Invalid","1-Creature","2-Ground Item", "3-Portrait","4-Area","5-Self","6-Group",
+  "7-Self Instant",
 };
 
+//action type
 CString get_target_type(int ttype)
 {
   CString tmp;
@@ -6060,7 +6077,11 @@ int determinemenu(CString commandline)
   CString tmp;
   int i;
 
-  tmp=commandline.Right(4);
+  tmp=commandline.Right(5);
+  if (tmp.GetLength()>2) if(tmp[1]=='.')
+  {
+    tmp=commandline.Right(4);
+  }
   tmp.MakeLower();
   for(i=0;i<=NUM_OBJTYPE;i++)
   {
@@ -7736,4 +7757,47 @@ int CStringMapLocEntry::Lookup(CString key, loc_entry &loc)
   loc.size=-1;
   loc.bifindex=0;
   return CMap<CString, LPCSTR, loc_entry, loc_entry&>::Lookup(key,loc);
+}
+
+void CQuestList::Add(int entry)
+{
+  POSITION pos;
+  quest_entry value;
+  
+  pos=GetHeadPosition();
+  while(pos)
+  {
+    value = GetAt(pos);
+    if (value.strref == entry) return;
+    if (value.strref>entry)
+    {
+      value.strref = entry;
+      value.titleindex = -1;
+      InsertBefore(pos, value);
+      return;
+    }
+    GetNext(pos);
+  }
+  value.strref = entry;
+  value.titleindex = -1;
+  AddTail(value);
+}
+
+int CQuest2List::Add(CString entry)
+{
+  POSITION pos;
+  int i;
+  CString value;
+
+  i=1;
+  pos=GetHeadPosition();
+  while(pos)
+  {
+    value = GetAt(pos);
+    if (!value.CompareNoCase(entry)) return i;
+    i++;
+    GetNext(pos);
+  }
+  AddTail(entry);
+  return i;
 }

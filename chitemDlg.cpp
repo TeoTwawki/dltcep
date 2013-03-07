@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.5c"
+#define PRG_VERSION "7.6a"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -227,6 +227,7 @@ ON_COMMAND(ID_TOOLS_LOADALLDIALOGS, OnToolsLoadalldialogs)
 ON_COMMAND(ID_BG1FX, OnBg1fx)
 ON_COMMAND(ID_CONVERSIONS_PVRCOMPRESSTILESETSPVRZ, OnPvrPack)
 ON_COMMAND(ID_CONVERSIONS_PVRUNPACKTILESETS, OnPvrUnpack)
+	ON_COMMAND(ID_CHECK_SQL, OnCheckSql)
 ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
 ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
@@ -251,7 +252,7 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
-	ON_COMMAND(ID_CHECK_SQL, OnCheckSql)
+	ON_COMMAND(ID_TOOLS_CREATEQUESTLIST, OnToolsCreatequestlist)
 	//}}AFX_MSG_MAP
 ON_WM_SIZE()
 ON_WM_GETMINMAXINFO()
@@ -374,6 +375,7 @@ BOOL CChitemDlg::OnInitDialog()
   guis.InitHashTable(SMALL_PRIME); //.gui33
   wbms.InitHashTable(SMALL_PRIME); //.wbm34
   pvrzs.InitHashTable(LARGE_PRIME); //.pvrz35
+  bios.InitHashTable(SMALL_PRIME); //.bio36
 
   storeitems.InitHashTable(SMALL_PRIME); //container .itm
   rnditems.InitHashTable(SMALL_PRIME);   //random .itm
@@ -741,6 +743,8 @@ int CChitemDlg::scan_2da()
     val|=Read2daInt(tmploc, rnditems, 0); //adding more items
     darefs.Lookup("LISTSPLL", tmploc);
     val|=Read2daResRef(tmploc, listspells, 1, 7);
+    darefs.Lookup("LISTDOMN", tmploc);
+    val|=Read2daResRef(tmploc, listdomains, 1, 9);
     darefs.Lookup("LISTINNT", tmploc);
     val|=Read2daResRef(tmploc, listinnates, 1);
     darefs.Lookup("LISTSONG", tmploc);
@@ -985,7 +989,7 @@ int CChitemDlg::scan_dialog(bool refresh, int which)
   {
     delete [] tlk_entries[which];
   }
-  tlk_entries[which]=new tlk_entry[maxref];
+  tlk_entries[which] = new tlk_entry[maxref];
   if(!tlk_entries[which])
   {
     MessageBox("Not enough memory to load "+GetTlkFileName(which),"Error",MB_ICONSTOP|MB_OK);
@@ -1232,7 +1236,7 @@ int CChitemDlg::scan_chitin()
     }
     if(!type)
     {
-      log("Unknown resource: %s/%0x in %s",ref, resentry.restype, bifname);
+      log("Unknown resource: %s/%0x in %s (#%d)",ref, resentry.restype, bifname, locidx);
       continue;
     }
     ext=objexts[type];
@@ -1240,7 +1244,7 @@ int CChitemDlg::scan_chitin()
     if(duplo && resources[type]->Lookup(ref,fileloc) )
     {
       duplicates[type]->AddList(ref,fileloc); //old duplicated entries
-      log("Duplicate %s in chitin.key: %s%s (%s  %s)",chfilename,ref,ext,fileloc.bifname,bifname);
+      log("Duplicate %s in chitin.key: %s%s (%s  %s) (#%d)",chfilename,ref,ext,fileloc.bifname,bifname,locidx);
     }
     if(bifidx>=key_headerinfo.numbif)
     {
@@ -4141,6 +4145,106 @@ void CChitemDlg::OnBg1fx()
   }
   tmpstr.Format("Converted %d creatures.", cnt);
   MessageBox(tmpstr,"DLTCEP", MB_OK);
+}
+
+CString CChitemDlg::GetTitle(CString str)
+{
+  int x = str.Find('\n');
+  int y = str.Find(':');
+  if (y<x && y!=-1) x=y+1;
+
+  if (x<5 || x>str.GetLength()/2) return "";
+  if (str.GetAt(x-2)=='.')
+  {
+    x--;
+  }
+  str = str.Left(x-1);
+  str.TrimLeft();
+  str.TrimRight();
+  return str;
+}
+
+void CChitemDlg::OnToolsCreatequestlist() 
+{
+  POSITION pos;
+  quest_entry key;
+  int cnt;
+  int ref;
+  CString tmpstr;
+  journal_type data;
+  CQuestList quests;
+  CQuest2List titles;
+  FILE *fpoi;
+  int start;
+
+  cnt = 1;
+  process_scripts(JOURNAL); //this will clear the variables too
+  process_dialogs(JOURNAL);
+	pos = journals.GetStartPosition();
+  while(pos)
+  {
+    journals.GetNextAssoc(pos, ref, data);
+    quests.Add(ref);
+    
+  }
+
+  titles.Add("Important Events");
+  pos = quests.GetHeadPosition();
+  while(pos)
+  {
+    key = quests.GetAt(pos);
+    tmpstr = GetTitle(resolve_tlk_text(key.strref));
+    if (tmpstr.IsEmpty())
+    {
+      log("Titleless journal entry: %d", key.strref);
+      quests.GetNext(pos);
+      continue;
+    }
+    key.titleindex = titles.Add(tmpstr);
+    quests.SetAt(pos, key);
+    quests.GetNext(pos);
+  }
+  
+  start = tlk_headerinfo[choosedialog].entrynum;
+  fpoi = fopen("bgee_titles.txt","wb");
+  if (fpoi)
+  {
+    pos = titles.GetHeadPosition();
+    while(pos)
+    {
+      tmpstr = titles.GetNext(pos);
+
+      ref = store_tlk_text(-1, tmpstr);
+      if (cnt==1) {
+        fprintf(fpoi,"%3d,'main',%d,1,0,0,\r\n", cnt++, ref );
+      } else {
+        fprintf(fpoi,"%3d,'',%d,0,0,0,\r\n", cnt++, ref );
+      }
+      if (ref>start)
+      {
+        //log(fpoi2,"%3d,'','%s',0,0,0,\r\n", cnt++, tmpstr );
+      }
+    }
+    fclose(fpoi);
+  }
+
+  fpoi = fopen("bgee_quests.txt","wb");
+  if (fpoi)
+  {
+    for(ref=1;ref<cnt;ref++)
+    {
+      pos = quests.GetHeadPosition();
+      while(pos)
+      {
+        key = quests.GetNext(pos);
+        if (key.titleindex==ref)
+        {
+          fprintf(fpoi,"%5d,%3d,0,\r\n", key.strref, ref );
+        }
+      }
+    }
+    fclose(fpoi);
+  }
 }
 
 void CChitemDlg::OnScanjournal() 

@@ -71,6 +71,7 @@ public:
   CString m_name;
   int m_nQualityLoss;
   INF_MOS_HEADER mosheader;
+  INF_MOS2_HEADER mosheader2;
   tis_header tisheader;
   BOOL m_bCompressed;
   BOOL m_pvr;
@@ -175,7 +176,7 @@ private:
   int m_DIBsize;
 
   bool CreateFrames();
-  int ExplodeMosData();
+  int ExplodeMosData(int fhandle);
   int ImplodeMosData();
   int ReducePalette(int fhandle, bmp_header &sHeader, LPBYTE pcBuffer,
     DWORD scanline, DWORD nSourceOff);

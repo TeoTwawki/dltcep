@@ -544,6 +544,7 @@ void Cbam::new_bam()
   m_palettesize=256*sizeof(COLORREF);
   m_bCompressed=false;
   m_nSaveOrder=0xe1;
+  m_changed=false;
 }
 
 int Cbam::Reallocate(int x, int y)
@@ -671,6 +672,7 @@ int Cbam::WriteBamToFile(int fhandle)
       }
       delete [] pCData;
       KillData();
+      m_changed=false;
       return 0;
     }
     delete [] pCData;
@@ -684,6 +686,7 @@ int Cbam::WriteBamToFile(int fhandle)
     return -2;
   }
   KillData();
+  m_changed=false;
   return 0;
 }
 
@@ -1025,6 +1028,7 @@ bool Cbam::ShrinkFrame(int nFrameWanted)
     m_pFrames[nFrameWanted].dwFrameDataOffset&=0x7fffffff;
     m_pFrameData[nFrameWanted].RLECompression(m_header.chTransparentIndex);
   }
+  m_changed=true;
   return ret;
 }
 
@@ -1137,7 +1141,7 @@ static int ReadHeader(int fhandle, bmp_header &sHeader)
   if(read(fhandle,((char *) (&sHeader))+18,sizeof(bmp_header)-18)!=sizeof(bmp_header)-18 )
   {
     return -2;
-  }
+  }  
   return 0;
 }
 
@@ -1329,6 +1333,7 @@ endofquest:
     m_pFrameLookup[0]=0;
   }
 
+  m_changed=false;
   return ret;
 }
 
@@ -1406,6 +1411,7 @@ int Cbam::ReadPltFromFile(int fhandle, int ml)
   }
 endofquest:
   delete [] filedata;
+  m_changed=false;
   return ret;
 }
 
@@ -1502,6 +1508,7 @@ int Cbam::ReadBamFromFile(int fhandle, int ml, bool onlyheader)
 endofquest:
   ret=ExplodeBamData(onlyheader?EBD_HEAD:EBD_ALL);
   KillData();
+  m_changed=false;
   return ret;
 }
 
@@ -1677,6 +1684,7 @@ int Cbam::SetFrameSize(int nFrameWanted, int x, int y)
 		return -1;
   m_pFrames[nFrameWanted].wWidth=(short) x;
   m_pFrames[nFrameWanted].wHeight=(short) y;
+  m_changed=true;
   return 0;
 }
 
@@ -1701,6 +1709,7 @@ int Cbam::SetFramePos(int nFrameWanted, int x, int y)
 		return -1;
   m_pFrames[nFrameWanted].wCenterX=(short) x;
   m_pFrames[nFrameWanted].wCenterY=(short) y;
+  m_changed=true;
   return 0;
 }
 
@@ -1909,6 +1918,7 @@ int Cbam::ConsolidateFrameLookup()
   delete [] m_pFrameLookup;
   m_pFrameLookup=newFrameLookup;
   m_nFrameLookupSize=x;
+  m_changed=true;
   return 0;
 }
 
@@ -2288,6 +2298,7 @@ bool Cbam::SetFrameRLE(int nFrameWanted, BOOL NewRLE)
       return false;
     }
   }
+  m_changed=true;
   return true; //made it!
 }
 

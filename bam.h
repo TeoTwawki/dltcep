@@ -311,6 +311,7 @@ public:
   INF_BAM_HEADER m_header;
   plt_header m_pltheader;
   short *m_pFrameLookup;     //frame lookup tables (made them global for convenience)
+  bool m_changed;
 
   BOOL m_bCompressed; //save as (leave it public for simplicity)
   //palette : 0,  frame/cycle : 1, framelookup: 2, frame data: 3

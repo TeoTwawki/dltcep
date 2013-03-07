@@ -106,6 +106,7 @@ protected:
 	afx_msg void OnDrop();
 	afx_msg void OnAdd();
 	afx_msg void OnKillfocusMove();
+	afx_msg void OnOverlayAdd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

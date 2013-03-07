@@ -52,6 +52,7 @@ protected:
 
   void RefreshDialog();
   void SaveMap(int save);
+  int GetMapPoint(POINT &pos);
 
 	// Generated message map functions
 	//{{AFX_MSG(CMapEdit)
@@ -108,6 +109,7 @@ protected:
 	afx_msg void OnFileTbg();
 	afx_msg void OnFileTp2();
 	afx_msg void OnSet();
+	afx_msg void OnSelection();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
