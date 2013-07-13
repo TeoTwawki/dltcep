@@ -24,7 +24,7 @@ public:
 	//}}AFX_DATA
   CString m_idsname;
   int m_indent;
-  int m_bcs;
+  int m_bcs; //0 - baf, 1 - bcs, 2 - sql
   int m_count, m_firsterror;
   int *m_errors;
 

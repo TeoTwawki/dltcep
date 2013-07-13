@@ -93,10 +93,10 @@ void CMosEdit::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_WIDTH, (short &) the_mos.mosheader.wColumn);
   DDX_Text(pDX, IDC_HEIGHT, (short &) the_mos.mosheader.wRow);
 
-  maxx=the_mos.GetImageWidth(0,0);
+  maxx=the_mos.GetImageWidth(-1,-1);
   DDX_Text(pDX, IDC_PWIDTH, maxx);
 
-  maxy=the_mos.GetImageHeight(0,0);
+  maxy=the_mos.GetImageHeight(-1,-1);
   DDX_Text(pDX, IDC_PHEIGHT, maxy);
 }
 
@@ -669,7 +669,7 @@ void CMosEdit::OnOK()
   }	
   if(!Savemos(the_mos,0))
   {
-    UpdateIEResource(itemname,REF_TIS,"override\\"+itemname+".tis",-1);
+    UpdateIEResource(itemname,REF_TIS,"override\\"+itemname+".TIS",-1);
 	  CDialog::OnOK();
   }
 }

@@ -125,9 +125,23 @@ void CTisDialog::RefreshDialog()
   }
 
   CPoint point = m_preview.GetPoint(GP_TILE);
-  m_preview.m_clipx=point.x;
+  if ((DWORD) point.x!=m_minx && (m_maxx-m_minx>(DWORD) m_preview.m_maxextentx))
+  {
+    m_preview.m_clipx=point.x;
+  } 
+  else
+  {
+    m_preview.m_clipx=m_minx;
+  }
   m_preview.m_minclipx=m_minx;
-  m_preview.m_clipy=point.y;
+  if ((DWORD) point.x!=m_minx && (m_maxx-m_minx>(DWORD) m_preview.m_maxextentx))
+  {
+    m_preview.m_clipy=point.y;
+  }
+  else
+  {
+    m_preview.m_clipy=m_miny;
+  }
   m_preview.m_minclipy=m_miny;
   m_preview.m_maxclipx=m_maxx+1;
   m_preview.m_maxclipy=m_maxy+1;

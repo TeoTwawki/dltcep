@@ -80,6 +80,7 @@ protected:
 	afx_msg void OnToolsAllocateentries();
 	afx_msg void OnFileExportcsv();
 	afx_msg void OnFileImportcsv();
+	afx_msg void OnToolsFixlinefeeds();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -2668,7 +2668,7 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_BN_CLICKED(IDC_STRBONUS, OnStrbonus)
 	ON_BN_CLICKED(IDC_BREAKABLE, OnBreakable)
 	ON_BN_CLICKED(IDC_HOSTILE, OnHostile)
-	ON_EN_KILLFOCUS(IDC_SECTYPE, OnKillfocusSectype)
+	ON_CBN_KILLFOCUS(IDC_SCHOOL, OnKillfocusSchool)
 	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
@@ -2681,7 +2681,7 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnDefaultKillfocus)
 	ON_CBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
 	ON_CBN_KILLFOCUS(IDC_IDENTIFY, OnDefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_SCHOOL, OnKillfocusSchool)
+	ON_CBN_KILLFOCUS(IDC_SECTYPE, OnKillfocusSectype)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2809,7 +2809,6 @@ void CItemExtended::OnKillfocusDie()
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
-
 
 void CItemExtended::OnKillfocusSectype() 
 {

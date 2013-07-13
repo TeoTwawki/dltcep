@@ -33,6 +33,7 @@ CKeyEdit::CKeyEdit(CWnd* pParent /*=NULL*/)	: CDialog(CKeyEdit::IDD, pParent)
   m_bifindex=0xffff;
   m_biflocation=-1;
   m_bifsize=-1;
+  m_searchdlg=NULL;
 }
 
 void CKeyEdit::DoDataExchange(CDataExchange* pDX)
@@ -48,8 +49,6 @@ void CKeyEdit::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CKeyEdit, CDialog)
 	//{{AFX_MSG_MAP(CKeyEdit)
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, OnItemchangedFilelist)
-  ON_NOTIFY(NM_CUSTOMDRAW, IDC_FILELIST, OnCustomdrawFilelist)  
 	ON_LBN_SELCHANGE(IDC_BIFLIST, OnSelchangeBiflist)
 	ON_BN_CLICKED(IDC_DELETEALL, OnDeleteall)
 	ON_BN_CLICKED(IDC_REMOVEBIF, OnRemovebif)
@@ -67,7 +66,11 @@ BEGIN_MESSAGE_MAP(CKeyEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_EXPLODE, OnToolsExplode)
 	ON_COMMAND(ID_TOOLS_IMPLODE, OnToolsImplode)
 	ON_COMMAND(ID_CHECK, OnCheck)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, OnItemchangedFilelist)
+  ON_NOTIFY(NM_CUSTOMDRAW, IDC_FILELIST, OnCustomdrawFilelist)  
+	ON_COMMAND(ID_SEARCH, OnSearch)
 	//}}AFX_MSG_MAP
+ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -312,12 +315,6 @@ BOOL CKeyEdit::OnInitDialog()
   }
   RefreshBiflist();
 	return TRUE; 
-}
-
-BOOL CKeyEdit::PreTranslateMessage(MSG* pMsg) 
-{
-  m_tooltip.RelayEvent(pMsg);
-	return CDialog::PreTranslateMessage(pMsg);
 }
 
 CString GetBifPath(int numbif)
@@ -1489,6 +1486,102 @@ void CKeyEdit::OnToolsImplode()
 
 void CKeyEdit::OnCheck() 
 {
-	// TODO: Add your command handler code here
-	
+}
+
+void CKeyEdit::OnSearch()
+{
+  if(!m_searchdlg)
+  {
+    m_searchdlg=new CFindReplaceDialog;
+
+    if(!m_searchdlg)
+    {
+      MessageBox("Not enough memory.","Error",MB_ICONEXCLAMATION|MB_OK);
+      return;
+    }
+    CString m_ref = "";
+    m_searchdlg->Create(readonly,m_ref,NULL, FR_DOWN | FR_HIDEMATCHCASE|FR_HIDEWHOLEWORD, this);
+  }
+}
+
+long CKeyEdit::OnFindReplace(WPARAM /*wParam*/, LPARAM /*lParam*/)
+{
+  CString search;
+
+  if(!m_searchdlg) return 0;
+  if(m_searchdlg->IsTerminating() )
+  {
+    m_searchdlg=NULL;
+    return 0;
+  }
+  search=m_searchdlg->GetFindString();
+  do_search_and_replace(search);
+  return 0;
+}
+
+void CKeyEdit::do_search_and_replace(CString filename) 
+{
+  loc_entry fileloc;
+  CString ref, ext;
+  POSITION pos;
+  int i, idx;
+
+  filename.MakeUpper();
+  LVFINDINFO info;
+  
+  info.flags = LVFI_PARTIAL|LVFI_STRING|LVFI_WRAP;
+  info.psz = filename;
+  info.lParam = GetCurSel()+1;
+  idx = m_filelist_control.FindItem(&info);
+
+  if (idx!=-1)
+  {
+    m_filelist_control.EnsureVisible(idx, false);
+    m_filelist_control.SetSelectionMark(idx);
+    return;
+  }
+
+  idx = m_biflist_control.GetCurSel()+1;
+  for(;idx<=key_headerinfo.numbif;idx++)
+  {
+    m_bifindex = m_biflist_control.GetItemData(idx);
+    if (m_bifindex==0xffff) continue;
+
+    for(i=1;i<=NUM_OBJTYPE;i++)
+    {
+      ext=objexts[i];
+      pos=resources[i]->GetStartPosition();
+      while(pos)
+      {
+        resources[i]->GetNextAssoc(pos,ref,fileloc);
+        if(fileloc.index<0)
+        {
+          continue;
+        }
+        if(fileloc.bifindex!=m_bifindex) continue;
+        if(fileloc.bifname.IsEmpty() )
+        {
+          continue;
+        }
+
+        if(!filename.IsEmpty() && (ref.Find(filename,0)==-1) ) continue;
+        m_biflist_control.SetCurSel(idx);
+        OnSelchangeBiflist();
+        LVFINDINFO info;
+
+        info.flags = LVFI_PARTIAL|LVFI_STRING|LVFI_WRAP;
+        info.psz = filename;
+        idx = m_filelist_control.FindItem(&info);
+        m_filelist_control.EnsureVisible(idx, false);
+        m_filelist_control.SetSelectionMark(idx);
+        return;
+      }
+    }
+  }
+}
+
+BOOL CKeyEdit::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
 }

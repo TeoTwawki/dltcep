@@ -170,11 +170,11 @@ int CImageView::GetPixel(CPoint point)
 void CImageView::InitView(int flags, Cmos *my_mos)
 {
   m_mos = my_mos;  
-  m_oladjust=0;
-  m_animbam=NULL;
-  m_confirmed=m_mousepoint=0;
-  m_clipx=m_minclipx=0;
-  m_clipy=m_minclipy=0;
+  m_oladjust = 0;
+  m_animbam = NULL;
+  m_confirmed = m_mousepoint = 0;
+  m_clipx = m_minclipx = 0;
+  m_clipy = m_minclipy = 0;
   if(m_mos)
   {
     m_maxclipx=m_mos->mosheader.wColumn;
@@ -277,7 +277,7 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int fram
   }
   m_mousepoint.x=orgx;
   m_mousepoint.y=orgy;
-  m_confirmed=m_mousepoint;
+  m_confirmed = m_mousepoint;
   m_oladjust=point;
 }
 
@@ -1229,7 +1229,7 @@ void CImageView::DrawLine(CPoint source, CPoint destination, unsigned char color
 
 void CImageView::OnBitmap() 
 {
-  m_confirmed=m_mousepoint;
+  m_confirmed = m_mousepoint;
   if( m_map && (m_enablebutton&IW_OVERLAY))
   {
     CPoint point;
@@ -1246,7 +1246,7 @@ void CImageView::OnBitmap()
     {
       GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0 );
     }
-    else PostMessage(WM_COMMAND,ID_REFRESH,0 );
+    /*else */ PostMessage(WM_COMMAND,ID_REFRESH,0 );
     return;
   }
   if(m_enablebutton&(IW_SETVERTEX|IW_MARKTILE) )
@@ -1256,6 +1256,7 @@ void CImageView::OnBitmap()
     {
       GetParent()->PostMessage(WM_COMMAND,ID_REFRESH,0 );
     }
+    PostMessage(WM_COMMAND,ID_REFRESH,0 );
     return;
   }
 
@@ -1679,9 +1680,9 @@ BOOL CImageView::PreTranslateMessage(MSG* pMsg)
       
       if(pMsg->message==WM_LBUTTONUP)
       {
-        m_confirmed=m_mousepoint;
         if(m_map && (m_enablebutton&IW_EDITMAP) && (m_sourcepoint.x || m_sourcepoint.y) )
         {
+          m_confirmed = m_mousepoint;
           if(m_maptype==MT_EXPLORED)
           {
             point=GetPoint(GP_EXPLORED);
@@ -1697,7 +1698,7 @@ BOOL CImageView::PreTranslateMessage(MSG* pMsg)
       {
         if(m_map && (m_enablebutton&IW_EDITMAP) )
         {
-          m_confirmed=m_mousepoint;
+          m_confirmed = m_mousepoint;
           if(m_maptype==MT_EXPLORED)
           {
             point=GetPoint(GP_EXPLORED);

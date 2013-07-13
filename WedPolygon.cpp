@@ -168,6 +168,7 @@ void CWedPolygon::RefreshVertex()
 
 void CWedPolygon::DoDataExchange(CDataExchange* pDX)
 {
+  CString tmpstr;
   int tmp;
 
 	CDialog::DoDataExchange(pDX);
@@ -190,9 +191,16 @@ void CWedPolygon::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_MAXY, wedpolygon->maxy);
   if(m_vertexnum>=0)
   {
+    tmp = wedvertex[m_vertexnum].x;
     DDX_Text(pDX, IDC_POSX, (short &) wedvertex[m_vertexnum].x);
+    if (tmp!=wedvertex[m_vertexnum].x) m_changed=1;
+
+    tmp = wedvertex[m_vertexnum].y;
     DDX_Text(pDX, IDC_POSY, (short &) wedvertex[m_vertexnum].y);
+    if (tmp!=wedvertex[m_vertexnum].y) m_changed=1;
   }
+  if(m_changed) tmpstr="*";
+  SetWindowText("Edit Polygon"+tmpstr);
 }
 
 BOOL CWedPolygon::OnInitDialog() 
@@ -473,7 +481,9 @@ void CWedPolygon::OnDblclkVertexpicker()
   memcpy(newvertices+m_vertexnum, wedvertex+m_vertexnum+1, sizeof(area_vertex)*(wedpolygon->countvertex-m_vertexnum) );
   the_area.wedvertexheaderlist.SetAt(pos,newvertices); //this will also free up the old wedvertex
   wedvertex=newvertices;
+  m_changed=1;
   RefreshPolygon(true);
+  UpdateData(UD_DISPLAY);
 }
 
 void CWedPolygon::OnInsert() 
@@ -579,6 +589,7 @@ restart:
     point.y=0;
     FixPolygon(point);
   }
+  m_changed=1;
   RefreshPolygon(true);
 	UpdateData(UD_DISPLAY);
 }

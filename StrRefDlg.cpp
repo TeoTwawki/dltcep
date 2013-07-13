@@ -74,9 +74,10 @@ BEGIN_MESSAGE_MAP(CStrRefDlg, CDialog)
 	ON_COMMAND(ID_CHECK_SPECIALSTRINGS, OnCheckSpecialstrings)
 	ON_COMMAND(ID_SEARCH_WEIRDCHARACTER, OnSearchWeirdcharacter)
 	ON_COMMAND(ID_TOOLS_ALLOCATEENTRIES, OnToolsAllocateentries)
-	ON_COMMAND(ID_FILE_IMPORTCSV, OnFileImportcsv)
 	ON_COMMAND(ID_FILE_EXPORTCSV, OnFileExportcsv)
+	ON_COMMAND(ID_FILE_IMPORTCSV, OnFileImportcsv)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
+	ON_COMMAND(ID_TOOLS_FIXLINEFEEDS, OnToolsFixlinefeeds)
 	//}}AFX_MSG_MAP
   ON_REGISTERED_MESSAGE( WM_FINDREPLACE, OnFindReplace )
 END_MESSAGE_MAP()
@@ -643,6 +644,7 @@ int CStrRefDlg::ReadDlg(FILE *fpoi, int maxref)
     read_until(',',fpoi,text);
     skip_string(fpoi,',');
     text.Replace("\r\n","\n");
+    text.Replace("\r","");
     text = StripText(text);
     read_until('\n', fpoi, sound);
     skip_string(fpoi,'\n');
@@ -820,7 +822,7 @@ void CStrRefDlg::OnCheckSpecialstrings()
   for(i=0;i<tlk_headerinfo[choosedialog].entrynum;i++)
   {
     tmpref=resolve_tlk_text(i,choosedialog);
-    if(tmpref.Find("STATISTICS:")>0 )
+    if(tmpref.Find("STATISTICS")>0 )
     {
       //item descriptions contain STATISTICS, formatted
       if (tmpref.Find("STATISTICS:\r\n")<=0 )
@@ -931,6 +933,33 @@ void CStrRefDlg::OnToolsSynchronisetlks()
   else
   {
     MessageBox("You should enable both TLK's first",MB_OK);
+  }
+}
+
+void CStrRefDlg::OnToolsFixlinefeeds() 
+{
+  CString text, old;
+  int fixes, i;
+
+  fixes = 0;
+  for(i=0;i<tlk_headerinfo[choosedialog].entrynum;i++)
+  {
+    old = text = resolve_tlk_text(i, choosedialog);
+    text.Replace("\r\n","\n");
+    if (text.Replace("\r",""))
+    {
+      fixes++;
+    }
+    store_tlk_text(i,text, choosedialog);
+  }
+  if (fixes)
+  {
+    text.Format("%d lines were changed!", fixes);
+    MessageBox(text,"Tlk editor",MB_OK);
+  }
+  else
+  {
+    MessageBox("No problem found!","Tlk editor",MB_OK);
   }
 }
 

@@ -28,6 +28,7 @@ public:
   int m_biflocation;
   long m_bifsize;
 
+  long OnFindReplace(WPARAM wParam, LPARAM lParam);
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CKeyEdit)
@@ -39,8 +40,11 @@ public:
 
 // Implementation
 protected:
+  CFindReplaceDialog *m_searchdlg;
   CToolTipCtrl m_tooltip;
 
+  void do_search_and_replace(CString filename);
+  void StartFindReplace();
   void RefreshDialog();
   void RefreshBiflist();
   int GetCurSel();
@@ -63,7 +67,6 @@ protected:
 	afx_msg void OnSelchangeFilelist();
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-	//afx_msg void OnClickFilelist(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDeleteall();
 	afx_msg void OnRemovebif();
 	afx_msg void OnMark();
@@ -81,6 +84,7 @@ protected:
 	afx_msg void OnToolsImplode();
 	afx_msg void OnCheck();
 	afx_msg void OnItemchangedFilelist(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnSearch();
 	//}}AFX_MSG
   afx_msg void OnCustomdrawFilelist ( NMHDR* pNMHDR, LRESULT* pResult );  
 	DECLARE_MESSAGE_MAP()

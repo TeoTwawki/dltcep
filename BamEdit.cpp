@@ -416,6 +416,7 @@ ON_COMMAND(ID_FRAME_CENTERFRAME, OnCenterPos)
 ON_COMMAND(ID_TOOLS_CENTERFRAMES, OnCenter)
 ON_COMMAND(ID_TOOLS_IMPORTFRAMES, OnImport)
 ON_COMMAND(ID_TOOLS_SPLITFRAMES, SplitBAM)
+	ON_COMMAND(ID_TOOLS_FIXZEROFRAMES, OnToolsFixzeroframes)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -850,6 +851,26 @@ void CBamEdit::DefaultKillfocus()
   UpdateData(UD_DISPLAY);
 }
 
+void CBamEdit::OnToolsFixzeroframes() 
+{
+  int i;
+  CPoint size;
+  bool ret = 0;
+
+  for(i=0;i<the_bam.m_header.wFrameCount;i++)
+  {
+    size = the_bam.GetFrameSize(i);
+    if (size.x==0 && size.y==0) {
+      the_bam.AllocateFrameSize(i,1,1);
+      ret = 1;
+    }
+  }
+  if(ret)
+  {
+    MessageBox("BAM altered","BAM Editor",MB_OK);
+  }
+  UpdateData(UD_DISPLAY);
+}
 
 void CBamEdit::OnToolsMinimalframe() 
 {
@@ -2071,19 +2092,23 @@ static inline int GetDescSplitSize(int scale)
 static inline int GetSplitSize(int scale)
 {
   int div = (scale+MAX_DIMENSION-1)/MAX_DIMENSION;
-  return scale/div;
+  return scale/div+1;
 }
 
 void CBamEdit::SplitBAM()
 {
   CPoint p,q;
   int i,j;
-  int width = 0;
-  int height = 0;
+  int width;
+  int height;
   int max_dim;
   Cbam tmpbam;
   int wsplit, hsplit;
   
+  p = the_bam.GetCombinedFrameSize();
+  width = p.x;
+  height = p.y;
+
   max_dim = MAX_DIMENSION;
   if (width<max_dim && height<max_dim)
   {

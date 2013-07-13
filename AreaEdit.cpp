@@ -408,7 +408,8 @@ void CAreaEdit::OnToolsMirrorareavertically()
 	for(i=0;i<the_area.actorcount;i++)
   {
     the_area.actorheaders[i].destx=(short) (the_area.m_width-the_area.actorheaders[i].destx);
-    the_area.actorheaders[i].posx=(short) (the_area.m_width-the_area.actorheaders[i].posx);
+    the_area.actorheaders[i].posx =(short) (the_area.m_width-the_area.actorheaders[i].posx);
+    the_area.actorheaders[i].face =(short) ((16-the_area.actorheaders[i].face)&15);
   }
   for(i=0;i<the_area.ambientcount;i++)
   {

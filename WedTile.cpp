@@ -776,13 +776,15 @@ void CWedTile::OnLoad3()
   CString filepath;
   int fhandle;
   int res;
-  int bmportis;
   
-  qsort(m_pdooridx, m_maxtile, sizeof(short), shortsortb);
+  if (m_pdooridx)
+  {
+    qsort(m_pdooridx, m_maxtile, sizeof(short), shortsortb);
+  }
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
-  if(readonly) res|=OFN_READONLY;  
-  bmportis=3;
+  
   CMyFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, ImageFilter(0x032) );
+  m_getfiledlg.m_ofn.nFilterIndex=1;
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -794,8 +796,9 @@ restart:
       MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
       goto restart;
     }
-    readonly=m_getfiledlg.GetReadOnlyPref();
-    if(bmportis==3)
+
+    filepath.MakeLower();
+    if(filepath.Right(4)==".bmp")
     {
       res=tmpmos.ReadBmpFromFile(fhandle,-1);
     }
@@ -803,12 +806,13 @@ restart:
     {
       res=tmpmos.ReadTisFromFile(fhandle, NULL, true, false);
     }
+    
     close(fhandle);
     lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     switch(res)
     {
     case 0:
-      InsertTiles(tmpmos,0,1);
+      InsertTiles(tmpmos,0,!!m_pdooridx);
       break;
     default:
       MessageBox("Cannot read bitmap!","Error",MB_ICONSTOP|MB_OK);

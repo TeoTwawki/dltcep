@@ -86,10 +86,10 @@ void INF_MOS_FRAMEDATA::AlterPalette(int r, int g, int b, int strength)
   {
     if (Palette[i]==TRANSPARENT_GREEN) continue;
     pClr = (BYTE *) (Palette+i);
-    pClr[0] = (pClr[0]*r)>>8;
-    pClr[1] = (pClr[1]*g)>>8;
-    pClr[2] = (pClr[2]*b)>>8;
-    pClr[3] = (pClr[3]*strength)>>8;
+    pClr[0] = (BYTE) ((pClr[0]*r)>>8);
+    pClr[1] = (BYTE) ((pClr[1]*g)>>8);
+    pClr[2] = (BYTE) ((pClr[2]*b)>>8);
+    pClr[3] = (BYTE) ((pClr[3]*strength)>>8);
   }
 }
 
@@ -470,6 +470,12 @@ COLORREF Cmos::GetPixelData(int x, int y)
   //creates m_overlaytile
   nFrameWanted=ResolveFrameNumber(y/tisheader.pixelsize*mosheader.wColumn+x/tisheader.pixelsize);
   p=GetFrameData(nFrameWanted);
+  if (!p)
+  {
+    //this is an invalid condition, no such tile
+    val = TRANSPARENT_GREEN;
+    return val;
+  }
   offset = y%tisheader.pixelsize*p->nWidth+x%tisheader.pixelsize;
   val = p->Palette[p->pFrameData[offset]];
   if (!m_overlaytile)
@@ -497,9 +503,9 @@ COLORREF Cmos::GetPixelData(int x, int y)
         {
           pClr1 = (BYTE *) &val;
           pClr2 = (BYTE *) &val2;
-          pClr1[0] = (pClr1[0] + pClr2[0])/2;
-          pClr1[1] = (pClr1[1] + pClr2[1])/2;
-          pClr1[2] = (pClr1[2] + pClr2[2])/2;        
+          pClr1[0] =(BYTE) ((pClr1[0] + pClr2[0])/2);
+          pClr1[1] =(BYTE) ((pClr1[1] + pClr2[1])/2);
+          pClr1[2] =(BYTE) ((pClr1[2] + pClr2[2])/2);        
           return val;
         }
       }
@@ -737,7 +743,7 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
   DWORD x,y;
   BYTE *zerobuffer;
   int ret;
-  DWORD tmpsave;
+  DWORD tmpsave, newcount;
   DWORD nFrameWanted;
 
   esize=tisheader.pixelsize*tisheader.pixelsize;
@@ -747,6 +753,7 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
   ret=0;
   //this hack makes sure the header contains as many tiles as we wanted
   memcpy(&tisheader.filetype,"TIS V1  ",8);
+  tisheader.offset=sizeof(tisheader);
   tmpsave=tisheader.numtiles;
   if(maxclipx!=-1)
   {
@@ -757,10 +764,13 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
     ret=-2;
     goto endofquest;
   }
+  newcount = tisheader.numtiles;
+  tisheader.numtiles = tmpsave;
+
   //end of hack
   //this hack makes sure we write out the tiles we wanted
   //maximum contains the last tile
-  for(i=0;i<tisheader.numtiles;i++)
+  for(i=0;i<newcount;i++)
   {
     if(maxclipx!=-1)
     {
@@ -804,14 +814,13 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
     }
   }
 endofquest:
-  tisheader.numtiles=tmpsave;
   delete [] zerobuffer;
   return ret;
 }
 
 int Cmos::GetImageWidth(int clipx, int maxclipx)
 {
-  if(!maxclipx && !clipx)
+  if(maxclipx==-1 && clipx==-1)
   {
     return mosheader.wWidth;
   }
@@ -822,7 +831,7 @@ int Cmos::GetImageWidth(int clipx, int maxclipx)
 
 int Cmos::GetImageHeight(int clipy, int maxclipy)
 {
-  if(!maxclipy && !clipy)
+  if(maxclipy==-1 && clipy==-1)
   {    
     return mosheader.wHeight;    
   }
@@ -1036,6 +1045,7 @@ int Cmos::ReadBmpFromFile(int fhandle, int ml)
 
   //create the frames, set up the internal headers
   //a bit hackish
+  tisheader.offset = sizeof(tisheader);
   tisheader.pixelsize = 64;
   cols=(sHeader.width+tisheader.pixelsize-1)/tisheader.pixelsize;
   rows=(sHeader.height+tisheader.pixelsize-1)/tisheader.pixelsize;
@@ -1597,7 +1607,7 @@ int Cmos::ExplodeMosData(int fhandle)
   int nCount;
   int ret, gret;
   int esize;
-  int i,j;
+  DWORD i,j;
   int nHeight, nWidth;
   DWORD nFrameSize;
   bool ietmebug=false;
@@ -1622,11 +1632,11 @@ int Cmos::ExplodeMosData(int fhandle)
     //pvrz style entries
     memcpy(&mosheader2, &mosheader, sizeof(mosheader2));
     mosheader2.dwTextureCount = mosheader.dwBlockSize;
-    mosheader.dwBlockSize=64;
-    mosheader.wWidth = mosheader2.dwWidth;
-    mosheader.wHeight = mosheader2.dwHeight;
-    mosheader.wColumn = (mosheader.wWidth+mosheader.dwBlockSize-1)/mosheader.dwBlockSize;
-    mosheader.wRow = (mosheader.wHeight+mosheader.dwBlockSize-1)/mosheader.dwBlockSize;
+    mosheader.dwBlockSize = 64;
+    mosheader.wWidth = (WORD) mosheader2.dwWidth;
+    mosheader.wHeight = (WORD) mosheader2.dwHeight;
+    mosheader.wColumn = (WORD) ((mosheader.wWidth+mosheader.dwBlockSize-1)/mosheader.dwBlockSize);
+    mosheader.wRow = (WORD) ((mosheader.wHeight+mosheader.dwBlockSize-1)/mosheader.dwBlockSize);
     //real size
   }
   else
@@ -1689,7 +1699,7 @@ int Cmos::ExplodeMosData(int fhandle)
     for(j=0;j<mosheader.wColumn;j++)
     {
       //skipping palette for the empty frame
-      if( (j!=mosheader.wColumn-1) || !ietmebug)
+      if( (j!=(DWORD)mosheader.wColumn-1) || !ietmebug)
       {
         if(fullsize+sizeof(palettetype)>m_nDataSize) return -2;
         INF_MOS_FRAMEDATA *p=m_pFrameDataPointer[nCount++];
@@ -1707,7 +1717,7 @@ int Cmos::ExplodeMosData(int fhandle)
     for(j=0;j<mosheader.wColumn;j++)
     {
       //skipping palette for the empty frame
-      if( (j!=mosheader.wColumn-1) || !ietmebug)
+      if( (j!=(DWORD) mosheader.wColumn-1) || !ietmebug)
       {
         if(fullsize+sizeof(DWORD)>m_nDataSize) return -2;
         m_pOffsets[nCount++]=* (DWORD *) (m_pData+fullsize);
@@ -1723,11 +1733,11 @@ int Cmos::ExplodeMosData(int fhandle)
   nHeight=mosheader.dwBlockSize;
   for(i=0;i<mosheader.wRow;i++)
   {
-    if((i==mosheader.wRow-1) && m_nResY) nHeight=m_nResY;
+    if((i==(DWORD) mosheader.wRow-1) && m_nResY) nHeight=m_nResY;
     nWidth=mosheader.dwBlockSize;
     for(j=0;j<mosheader.wColumn;j++)
     {
-      if((j==mosheader.wColumn-1) )
+      if((j==(DWORD) mosheader.wColumn-1) )
       {
         if(m_nResX || ietmebug) nWidth=m_nResX;
       }
@@ -1828,6 +1838,7 @@ int Cmos::RemoveTile(DWORD nFrameWanted)
   }
   tisheader.numtiles--;
   m_pFrameDataPointer=(INF_MOS_FRAMEDATA **) calloc(tisheader.numtiles, sizeof(INF_MOS_FRAMEDATA *));
+  m_changed=true;
   return 0;
 }
 
