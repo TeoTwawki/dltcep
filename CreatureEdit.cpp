@@ -125,7 +125,7 @@ void CCreatureEdit::OnFileLoadchar()
     switch(res)
     {
     case -3:
-      MessageBox("Not enough memory","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Not enough memory.","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
     case 1: case 2:
@@ -159,7 +159,7 @@ void CCreatureEdit::OnLoad()
     switch(res)
     {
     case -3:
-      MessageBox("Not enough memory","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Not enough memory.","Warning",MB_ICONEXCLAMATION|MB_OK);
   		itemname=pickerdlg.m_picked;
       break;
     case 1: case 2:
@@ -210,7 +210,7 @@ restart:
     switch(res)
     {
     case -3:
-      MessageBox("Not enough memory","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Not enough memory.","Warning",MB_ICONEXCLAMATION|MB_OK);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;

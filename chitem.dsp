@@ -491,6 +491,14 @@ SOURCE=.\variables.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\VEF.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VEFEdit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\VVC.cpp
 # End Source File
 # Begin Source File
@@ -948,6 +956,14 @@ SOURCE=.\utils.h
 # Begin Source File
 
 SOURCE=.\variables.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VEF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VEFEdit.h
 # End Source File
 # Begin Source File
 

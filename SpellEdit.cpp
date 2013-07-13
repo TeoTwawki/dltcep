@@ -340,7 +340,7 @@ void CSpellEdit::OnSavecfb()
     if(!cfb)
     {
       close(fhandle);
-      MessageBox("Not enough memory","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
       return;
     }
     esize=the_spell.header.featblkcount*sizeof(feat_block);
@@ -360,7 +360,7 @@ void CSpellEdit::OnSavecfb()
     }
     if(write(fhandle,cfb,esize)!=esize)
     {
-      MessageBox("Can't write file","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
     }
     close(fhandle);
     delete [] cfb;
