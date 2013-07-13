@@ -831,19 +831,30 @@ int Cbam::ExplodeBamData(int flags)
   //variable.
   gret=0;
   memset(order,0,sizeof(order));
+  m_version = 0;
   m_nMinFrameOffset=0x7fffffff;
+  memcpy(&m_header,m_pData,sizeof(INF_BAM_HEADER) ); //get header
+
+  if(memcmp(m_pData,"BAM V1  ",8))
+  {
+    if(memcmp(m_pData,"BAM V2  ",8))
+    {
+      return -4;
+    }
+    m_version = 2;
+    return 99; //BAM not supported
+  }
+  else
+  {
+    m_version = 1;
+  }
 
   //invalid decompressed size isn't enough to hold header and palette
   if (c_header.nExpandSize<sizeof(INF_BAM_HEADER)+256*sizeof(COLORREF))
   {
     return -4;
   }
-
-  if(memcmp(m_pData,"BAM V1  ",8))
-  {
-    return -4;
-  }
-  memcpy(&m_header,m_pData,sizeof(INF_BAM_HEADER) ); //get header
+  
   if(flags==EBD_HEAD) return 0;
   if(m_header.dwPaletteOffset)                       //get palette
   {
@@ -1691,6 +1702,11 @@ int Cbam::SetFrameSize(int nFrameWanted, int x, int y)
 int Cbam::AllocateFrameSize(int nFrameWanted, int x, int y)
 {
   int nNumPixels = x*y;
+  if (m_pFrameData[nFrameWanted].pFrameData)
+  {
+    delete [] m_pFrameData[nFrameWanted].pFrameData;
+    m_pFrameData[nFrameWanted].pFrameData = NULL;
+  }
   m_pFrameData[nFrameWanted].pFrameData=new BYTE[nNumPixels];
   if(!m_pFrameData[nFrameWanted].pFrameData) return -1;             //memory problem
   SetFrameSize(nFrameWanted, x, y);
@@ -2316,6 +2332,9 @@ CPoint Cbam::GetCompositeSize()
   {
     p[i]=GetFrameSize(i);
   }
+
+  p[0]=GetFramePos(0);
+
   if (p[2].x>p[0].x) p[0].x=p[2].x;
   if (p[1].y>p[0].y) p[0].y=p[1].y;
 
@@ -2346,6 +2365,19 @@ CPoint Cbam::GetFrameSize(int nFrameWanted)
 	if (m_nFrames <= nFrameWanted )  //not enough frames
 		return (DWORD) -1;
   return CPoint(m_pFrames[nFrameWanted].wWidth, m_pFrames[nFrameWanted].wHeight);
+}
+
+CPoint Cbam::GetCombinedFrameSize()
+{
+  CPoint ret = CPoint(0,0);
+
+  for(int i=0;i<m_nFrames;i++)
+  {
+    CPoint size = GetFrameSize(i);
+    if (size.x>ret.x) ret.x=size.x;
+    if (size.y>ret.y) ret.y=size.y;
+  }
+  return ret;
 }
 
 //adds a bam to an alien m_pclrDIBits area, without creating bitmap

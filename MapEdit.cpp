@@ -548,7 +548,7 @@ void CMapEdit::OnCheck()
 {
   int ret;
 
-	ret=((CChitemDlg *) AfxGetMainWnd())->check_map();
+	ret=((CChitemDlg *) AfxGetMainWnd())->check_worldmap();
   if(ret)
   {
     MessageBox(lasterrormsg,"Worldmap editor",MB_ICONEXCLAMATION|MB_OK);

@@ -444,19 +444,22 @@ void CScriptEdit::OnLoad()
   RefreshDialog();
 }
 
-static char BASED_CODE szFiltera[] = "Script files (*.bcs)|*.bcs|Script Source files (*.baf)|*.baf|All files (*.*)|*.*||";
+//static char BASED_CODE szFiltera[] = "Script files (*.bcs)|*.bcs|Script Source files (*.baf)|*.baf|All files (*.*)|*.*||";
 static char BASED_CODE szFilterb[] = "Script Source files (*.baf)|*.baf|Script files (*.bcs)|*.bcs|All files (*.*)|*.*||";
 
 void CScriptEdit::OnLoadex() 
 {
   char BASED_CODE *szFilter;
   CString m_text;
+  CString fpath;
   int fhandle;
   int res;
   char *pos;
   
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;
+  szFilter=szFilterb;
+/*
   if(m_bcs)
   {
     szFilter=szFiltera;
@@ -465,26 +468,28 @@ void CScriptEdit::OnLoadex()
   {
     szFilter=szFilterb;
   }
+*/
   CMyFileDialog m_getfiledlg(TRUE, m_bcs?"bcs":"baf", m_bcs ? makeitemname(".bcs",0): makeitemname(".baf",1), res, szFilter);
+  m_getfiledlg.m_ofn.nFilterIndex = m_bcs+1;
 
   if( m_getfiledlg.DoModal() == IDOK )
   {
-    filepath=m_getfiledlg.GetPathName();
-    if(checkfile(filepath,"SC") )
+    filepath = fpath = m_getfiledlg.GetPathName();
+    if(checkfile(fpath,"SC") )
     {
       m_bcs=1;
       res=decompile(filepath, m_getfiledlg.GetFileTitle()); //decompile first
       if(res)
       {
-        MessageBox("Cannot decompile file!","Error",MB_OK);
+        MessageBox("Cannot decompile file: "+fpath+"!","Error",MB_OK);
         return;
       }
-      lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+      lastopenedoverride=fpath.Left(filepath.ReverseFind('\\'));
     }
     else
     { //remember the path when opening a script source 
       m_bcs=0;
-      lastopenedscript=filepath.Left(filepath.ReverseFind('\\'));
+      lastopenedscript=fpath.Left(filepath.ReverseFind('\\'));
     }
     fhandle=open(filepath, O_RDONLY|O_BINARY);
     if(fhandle<1)
@@ -561,17 +566,19 @@ void CScriptEdit::OnSaveasGeneral(int type)
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
 
   if(type!=-1) m_bcs=type;
+  szFilter=szFilterb;
   if(m_bcs)
   {
-    szFilter=szFiltera;
+    //szFilter=szFiltera;
     tmpstr=bgfolder+"override\\"+itemname;
   }
   else
   {
-    szFilter=szFilterb;    
+    //szFilter=szFilterb;    
     tmpstr=makeitemname(".baf",1);
   }
   CMyFileDialog m_getfiledlg(FALSE, m_bcs?"bcs":"baf", tmpstr, res, szFilter);
+  m_getfiledlg.m_ofn.nFilterIndex = m_bcs+1;
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -805,8 +812,8 @@ void CScriptEdit::CheckScript(int messages)
   int triggeroraction;
   int startline, endline;
   int num_or;
+  bool tr_override;
   int commentpos;
-
   
   if(m_bcs)
   {
@@ -854,6 +861,7 @@ void CScriptEdit::CheckScript(int messages)
       }
     }
     num_or=0;
+    tr_override=false;
     for(i=startline;i<endline;i++)
     {
       line=GetLine(i);
@@ -893,6 +901,10 @@ void CScriptEdit::CheckScript(int messages)
             {
               m_errors[i]=CE_INCOMPLETE_OR;
             }
+            if(tr_override)
+            {
+              m_errors[i]=CE_INCOMPLETE_TROVERRIDE;
+            }
             triggeroraction=TA_RESPONSE;
             break;
           }
@@ -907,11 +919,22 @@ void CScriptEdit::CheckScript(int messages)
           {
             if(num_or) num_or--;
           }
+          if((trigger.opcode==TR_OVERRIDE) && is_this_bgee())
+          {
+            if(tr_override) m_errors[i]=CE_INCOMPLETE_TROVERRIDE;
+            else tr_override=true;
+          }
+          else
+          {
+            //override object???
+            tr_override=false;
+          }
           break;
         case TA_IF:
           m_errors[i]=match_string(tmpstr, "IF",0,-100);
           triggeroraction=TA_TRIGGER;
           num_or=0;
+          tr_override=false;
           break;
         case TA_RESPONSE:
           m_errors[i]=match_string(tmpstr, "RESPONSE #%d",m_indent,-110);
@@ -1259,7 +1282,9 @@ void CScriptEdit::OnOptionsAutocheck()
 void CScriptEdit::OnOptionsLargeindent() 
 {
 	editflg^=INDENT;
-	RefreshMenu();
+  if(editflg&INDENT) m_indent=2;
+  else m_indent=4;
+  RefreshMenu();
 }
 
 void CScriptEdit::OnOptionsUseinternaldecompiler() 

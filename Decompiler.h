@@ -158,6 +158,7 @@ private:
   char *buffer;
   CString line;
   int num_or;
+  CString has_trov;
   int bpoi, valid;
   int ObjectFieldsCount;
   int MaxObjectNesting;

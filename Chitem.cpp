@@ -40,14 +40,15 @@ const unsigned short objrefs[NUM_OBJTYPE+1]={
   0,REF_2DA,REF_ACM,REF_ARE,REF_BAM,REF_BCS,REF_BIO,REF_BMP,REF_CHR,REF_CHU,//9
     REF_CRE,REF_DLG,REF_EFF,REF_GAM,REF_IDS,REF_INI,REF_ITM,REF_MOS,REF_MUS,//18
     REF_MVE,REF_PLT,REF_PRO,REF_SPL,REF_SRC,REF_STO,REF_TIS,REF_VEF,REF_VVC,//27
-    REF_WAV,REF_WED,REF_WFX,REF_WMP,REF_FNT,REF_SQL,REF_GUI,REF_WBM,REF_PVRZ //35
+    REF_WAV,REF_WED,REF_WFX,REF_WMP,REF_FNT,REF_SQL,REF_GUI,REF_WBM,        //35
+    REF_PVRZ,REF_GLSL, //37
 };
 
 const CString objexts[NUM_OBJTYPE+1]={
   ".*",".2da",".acm",".are",".bam",".bcs",".bio",".bmp",".chr",".chu",".cre",".dlg",//10
     ".eff",".gam",".ids",".ini",".itm",".mos",".mus",".mve",".plt",".pro",//20
     ".spl",".src",".sto",".tis",".vef",".vvc",".wav",".wed",".wfx",".wmp",//30
-    ".fnt",".sql",".gui", ".wbm", ".pvrz" //34
+    ".fnt",".sql",".gui", ".wbm", ".pvrz", ".glsl" //34
 };
 
 const CString savedexts[]={".are",".sto",".tot",".toh","",
@@ -57,7 +58,7 @@ char tbgext[NUM_OBJTYPE+1]={
   0,'r',0,'a',0,'b',0,0,'c','h','c','d',//10 chr is the same as cre
   'e','n',0,0,'-',0,0,0,0,'m',    //20
   's','p','t',0,0,0,0,0,0,'w',    //30
-  0,0,0,0,0 //33
+  0,0,0,0,0,0 //33
 };
 
 int idstrings[NUM_OBJTYPE+1]={IDS_UNKNOWN,IDS_2DA,IDS_MUSIC,IDS_AREA,  //4
@@ -65,14 +66,14 @@ IDS_ANIMATION, IDS_SCRIPT, IDS_BIO, IDS_BITMAP,IDS_CHR, IDS_CHU,IDS_CREATURE, ID
 IDS_EFFECT,IDS_GAME,IDS_IDS,IDS_INI,IDS_ITEM,//15
 IDS_MOS,IDS_MUS,IDS_MOVIE,IDS_PLT,IDS_PRO,    //20
 IDS_SPELL,IDS_SRC,IDS_STORE,IDS_TILESET,IDS_VEF,IDS_VVC,IDS_WAV,IDS_WED,//28
-IDS_WFX,IDS_WMP, IDS_FNT, IDS_SQL, IDS_GUI, IDS_WBM, IDS_PVRZ};//34
+IDS_WFX,IDS_WMP, IDS_FNT, IDS_SQL, IDS_GUI, IDS_WBM, IDS_PVRZ,IDS_GLSL};//34
 
 int menuids[NUM_OBJTYPE+1]={0,ID_EDIT_2DA,0,ID_EDIT_AREA,//4
 ID_EDIT_ANIMATION,ID_EDIT_SCRIPT,0, ID_EDIT_ANIMATION,ID_EDIT_CREATURE,ID_EDIT_CHUI,ID_EDIT_CREATURE,//9
 ID_EDIT_DIALOG, ID_EDIT_EFFECT, ID_EDIT_GAMES,ID_EDIT_IDS,0,ID_EDIT_ITEM,//15
 ID_EDIT_GRAPHICS,ID_EDIT_MUSICLIST,0,ID_EDIT_ANIMATION,ID_EDIT_PROJECTILE,//20
-ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, 0, ID_EDIT_VVC, 0, ID_EDIT_AREA,//28
-ID_EDIT_WFX, ID_EDIT_WORLDMAP, 0, 0, 0, 0, 0,//33
+ID_EDIT_SPELL,0,ID_EDIT_STORE, ID_EDIT_TILESET, ID_EDIT_VEF, ID_EDIT_VVC, 0, ID_EDIT_AREA,//28
+ID_EDIT_WFX, ID_EDIT_WORLDMAP, 0, 0, 0, 0, 0, 0,//33
 };
 
 char *tokenlist[]={"CHARNAME", "GABBER",
@@ -184,6 +185,7 @@ Ceffect the_effect;
 Ccreature the_creature;
 Cpvr the_pvr;
 CVVC the_videocell;
+CVEF the_vef;
 CWFX the_wfx;
 Cscript the_script;
 Cdialog the_dialog;
@@ -228,6 +230,7 @@ CIntMapString listinnates;       //iwd2 innate list (number to resref mapping)
 CIntMapString listsongs;         //iwd2 song list (number to resref mapping)
 CIntMapString listshapes;        //iwd2 wildshape list (number to resref mapping)
 CStringMapInt ini_entry;         //acceptable spawn ini entries
+CStringMapPoint entries;         //entries.2da mapping
 
 CColorPicker colordlg;
 CItemPicker pickerdlg;
@@ -277,6 +280,7 @@ CStringMapLocEntry sqls; //33
 CStringMapLocEntry guis; //34
 CStringMapLocEntry pvrzs; //35
 CStringMapLocEntry bios; //36
+CStringMapLocEntry glsl; //37
 
 CStringListLocEntry d_items;//1
 CStringListLocEntry d_icons;//2
@@ -314,13 +318,14 @@ CStringListLocEntry d_sqls; //33
 CStringListLocEntry d_guis; //34
 CStringListLocEntry d_pvrz; //35
 CStringListLocEntry d_bios; //36
+CStringListLocEntry d_glsl; //37
   
 CStringMapLocEntry *resources[NUM_OBJTYPE+1]={0,&darefs,&musics,
 &areas, &icons, &scripts, &bios, &bitmaps, &chars, &chuis, &creatures,
 &dialogs, &effects, &games, &idrefs, &inis, &items, &mos, 
 &musiclists, &movies,&paperdolls, &projects, &spells, &strings, 
 &stores, &tis, &vefs, &vvcs, &sounds, &weds, &wfxs, &wmaps, 
-&fonts, &sqls, &guis, &wbms, &pvrzs
+&fonts, &sqls, &guis, &wbms, &pvrzs, &glsl
 };
 
 CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
@@ -328,7 +333,7 @@ CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
 &d_dialogs, &d_effects, &d_games, &d_idrefs, &d_inis, &d_items, &d_mos,
 &d_musiclists, &d_movies, &d_paperdolls, &d_projects, &d_spells, &d_strings,
 &d_stores,&d_tis, &d_vefs, &d_vvcs,&d_sounds, &d_weds, &d_wfxs, &d_wmaps,
-&d_fonts, &d_sqls, &d_guis, &d_wbms, &d_pvrz
+&d_fonts, &d_sqls, &d_guis, &d_wbms, &d_pvrz, &d_glsl
 };
 
 
@@ -1108,14 +1113,17 @@ endofquest:
   return ret;
 }
 
-int locate_bif(loc_entry &fileloc)
+int locate_bif(loc_entry &fileloc, int ignoreoverride)
 {
   CString cbfname;
+  CString bifname;
   int i, ret;
   int maxlen;
   int fhandle;
   char header[8];
 
+  if (ignoreoverride) bifname = bifs[fileloc.bifindex].bifname;
+  else bifname = fileloc.bifname;
   if(fileloc.cdloc!=0xffff)
   {
     ret = open(cds[fileloc.cdloc]+fileloc.bifname,O_BINARY|O_RDONLY);
@@ -1128,10 +1136,10 @@ int locate_bif(loc_entry &fileloc)
   for(i=0;i<NUM_CD;i++)
   {
     if(cds[i].IsEmpty() ) continue;
-    fhandle=open(cds[i]+fileloc.bifname,O_BINARY|O_RDONLY);
+    fhandle=open(cds[i]+bifname,O_BINARY|O_RDONLY);
     if (fhandle<=0)
     {
-      fhandle=open(cds[i]+"/lang/en_us/"+fileloc.bifname,O_BINARY|O_RDONLY);
+      fhandle=open(cds[i]+"/lang/en_us/"+bifname,O_BINARY|O_RDONLY);
     }
     if(fhandle>0)
     {
@@ -1139,7 +1147,7 @@ int locate_bif(loc_entry &fileloc)
       return fhandle;
     }
     //decompressing IWD cbf on demand
-    cbfname=fileloc.bifname;
+    cbfname=bifname;
     cbfname.Replace(".bif",".cbf");
     if(file_exists(cds[i]+cbfname) )
     {      
@@ -1153,7 +1161,7 @@ int locate_bif(loc_entry &fileloc)
       maxlen=filelength(fhandle)-sizeof(header);
       i=extract_from_cbf("",".bif",fhandle,0,maxlen); //don't overwrite
       close(fhandle);
-      return open(bgfolder+fileloc.bifname,O_BINARY|O_RDONLY);
+      return open(bgfolder+bifname,O_BINARY|O_RDONLY);
     }
   }
   return 0;
@@ -1338,7 +1346,7 @@ int write_tis_header(int fhandle, loc_entry fileloc)
 {
   tis_header tisheader;
 
-  if (fileloc.tilesize==64*64) {
+  if (fileloc.tilesize==5120) {
     memcpy(tisheader.filetype,"TIS V1  ",8);
     tisheader.pixelsize=64;
     tisheader.tilelength=256*sizeof(COLORREF)+tisheader.pixelsize*tisheader.pixelsize;
@@ -1503,7 +1511,8 @@ int locate_file_compressed(loc_entry &fileloc, int fhandle, long origlen)
   }
   else
   {
-    fileloc.tilesize=-1;
+    fileloc.tilesize = 0;
+    fileloc.numtiles = 0;
   }
   do
   {
@@ -1551,7 +1560,7 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
   else fhandle=open(bgfolder+fileloc.bifname,O_BINARY|O_RDONLY);
   if(fhandle<1)
   {
-    fhandle=locate_bif(fileloc);
+    fhandle=locate_bif(fileloc, ignoreoverride);
     if(fhandle<1) return fhandle;
   }
   if((fileloc.index>=0) && ((ignoreoverride&LF_IGNOREOVERRIDE) || ( (fileloc.bifindex!=0xffff) && (!bifs[fileloc.bifindex].bifname.CompareNoCase(fileloc.bifname) ) ) ) ) //seeking in bif
@@ -1643,8 +1652,8 @@ int locate_file(loc_entry &fileloc, int ignoreoverride)
     }
     else 
     {
-      fileloc.tilesize = -1;
-      fileloc.numtiles = -1;
+      fileloc.tilesize = 0;
+      fileloc.numtiles = 0;
     }
   }
   else fileloc.size=-1;
@@ -2355,8 +2364,9 @@ CString format_weaprofs(int profnum)
 
 unsigned short animidx[NUM_ANIMIDX]={
   0,'A2','A3','A4','W2','W3','W4','XA','WB','BC','LC','1D','2D','3D',
-    '4D','DD','LF','SF','0H','1H','2H','3H','4H','5H','6H','BH','CM','SM',
-    'SQ','1S','2S','LS','PS','SS','HW','3S','CS',
+    '4D','DD','LF','SF','0H','1H','2H','3H','4H','5H','6H','BJ',
+    'BH','CM','SM',
+    'SQ','SB','1S','2S','LS','PS','SS','HW','3S','CS',
     '0C','1C','2C','3C','4C','5C','6C', //37
     '2Q','3Q','SG',                     //44
     '0S','2F','3F',                     //45
@@ -2368,8 +2378,9 @@ CString itemanimations[NUM_ANIMIDX]={
     "Buckler","Shield (Small)","Shield (Medium)","Shield (Large)",
     "Dagger","Flail","Flame Sword","Helm #1 (Standard)","Helm #2",
     "Helm #3 (Bronze Winged)","(Gold Winged)","Helm #5",
-    "Helm #6 (Feathers)","Helm #7","Halberd","Mace","Morning Star",
-    "Quarter Staff (Wood)",
+    "Helm #6 (Feathers)","Helm #7","Headband",
+    "Halberd","Mace","Morning Star",
+    "Quarter Staff (Wood)", "Short Bow",
     "Sword 1-Handed","Sword 2-Handed","Sling",
     "Spear","Short Sword","War Hammer","Katana","Scimitar",
     "Shield 2 (Small)","Shield 2 (Large)","Shield 3 (Large)","Shield 2 (Medium)",
@@ -3587,6 +3598,8 @@ CString get_compile_error(int ret)
     return "Invalid spell list length";
   case CE_INVALID_SPELL_NUMBER:
     return "Invalid spell number on list";
+  case CE_INCOMPLETE_TROVERRIDE:
+    return "Need one trigger after a TriggerOverride";
 
   case CE_BAD_IF:
     return "Bad IF";
@@ -3862,6 +3875,7 @@ CString *explode(const CString &array, char separator, int &count)
 //#define mv sf(1,MERGE_VARS) //merge vars with :
 #define mv sf(ADD_VAR3,CHECK_AREA)
 #define OO sf(IS_VAR,IS_VAR)
+#define OA sf(IS_VAR,IS_VAR)
 #define NO sf(NO_CHECK, IS_VAR)
 #define oo sf(IS_VAR,IS_VAR)|INANIMATE
 #define D0 sf(IS_VAR,IS_VAR)|CHECK_DOOR //door
@@ -3871,6 +3885,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define sD sf(CHECK_SOUND2, CHECK_DSOUND)
 #define SO sf(CHECK_SOUND, IS_VAR)
 #define sO sf(CHECK_SOUND2, IS_VAR)
+#define pa sf(CHECK_PAL, IS_VAR)
 #define sr sf(CHECK_SRC, IS_VAR)
 #define st CHECK_STRREF
 #define jr CHECK_JOURNAL
@@ -3940,7 +3955,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 
     OO,   OO,   AO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 
-    OO,   OO,   NO,   DV,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   OO,   NO,   DV,   OA,   OO,   OO,   OO,   OO,   OO,  
 //0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 
@@ -3979,7 +3994,7 @@ int tob_action_flags[MAX_ACTION]={
 //130,  131,  132,  133,  134,  135,  136,  137,  138,  139,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   DO,   dO,   OO,  
 //140,  141,  142,  143,  144,  145,  146,  147,  148,  149,  
-    IO,   VO,   OO,   D0,  D0,   D0,   OO,   OO,   OO,   OO, 
+    IO,   VO,   OO,   D0,  D0,   D0,   OO,   pO,   OO,   OO, 
 //150,  151,  152,  153,  154,  155,  156,  157,  158,  159,  
     TO,   st,   OO,   by,   by,   by,   by,   by,   by,   by,  
 //160,  161,  162,  163,  164,  165,  166,  167,  168,  169,  
@@ -4019,9 +4034,9 @@ int tob_action_flags[MAX_ACTION]={
 //330,  331,  332,  333,  334,  335,  336,  337,  338,  339,  
     OO,   OO,   OO,   OO,   DO,   VT,   OO,   pO,   OO,   OO,  
 //340,  341,  342,  343,  344,  345,  346,  347,  348,  349,  
-    OO,   SO,   st,   OO,   OO,   OO,   st,   AA,   OO,   OO,  
+    OO,   pa,   st,   OO,   OO,   OO,   st,   AA,   OO,   OO,
 //350,  351,  352,  353,  354,  355,  356,  357,  358,  359,  
-    AE,   AE,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    AE,   AE,   bO,   OO,   CO,   CO,   II,   aO,   OO,   OO,
 };
 
 int iwd2_trigger_flags[MAX_TRIGGER]={
@@ -5246,6 +5261,60 @@ int write_videocell(CString key, CString filepath)
     if(!filepath.CompareNoCase(bgfolder+tmpath) )
     {
       UpdateIEResource(key,REF_VVC,tmpath,size);
+    }
+  }
+  return ret;
+}
+
+int read_vef(CString key)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(vefs.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+    if(fhandle<1) return -2;
+    vefs.SetAt(key,fileloc);
+    ret=the_vef.ReadVEFFromFile(fhandle, fileloc.size);
+    close(fhandle);
+  }
+  else return -1;
+  return ret;
+}
+
+int write_vef(CString key, CString filepath)
+{
+  loc_entry fileloc;
+  int ret;
+  CString tmpath;
+  int size;
+  int fhandle;
+
+  if(filepath.IsEmpty())
+  {
+    filepath=bgfolder+"override\\"+key+".VEF";
+  }
+  tmpath=bgfolder+"override\\"+key+".TMP";
+
+  fhandle=open(tmpath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(fhandle<1)
+  {
+    return -2;
+  }
+  ret=the_vef.WriteVEFToFile(fhandle);
+  size=filelength(fhandle);
+  close(fhandle);
+  if(!ret && size>0)
+  {
+    unlink(filepath);
+    rename(tmpath,filepath);
+    tmpath="override\\"+key+".VEF";
+    if(!filepath.CompareNoCase(bgfolder+tmpath) )
+    {
+      UpdateIEResource(key,REF_VEF,tmpath,size);
     }
   }
   return ret;
@@ -6540,6 +6609,28 @@ CString colortitle(unsigned int value)
   }
   else tmpstr.Format("%d-%s",value,tmp);
   return tmpstr;
+}
+
+void init_entries()
+{
+  C2da tmp2da;
+  CPoint value;
+  int i,j;
+
+  entries.RemoveAll();
+  if(!tob_specific()) return;
+  read_2da("ENTRIES",tmp2da);
+  for(i=0;i<tmp2da.rows;i++)
+  {
+    CString area = tmp2da.GetValue(i,0);
+    for(j=1;j<tmp2da.cols;j++)
+    {
+      CString key = area + "/" + tmp2da.collabels[j];
+      CString tmp = tmp2da.GetValue(i,j);
+      sscanf(tmp, "%d.%d", &value.x, &value.y);
+      entries.SetAt(key, value);
+    }
+  }
 }
 
 void init_spawn_entries()

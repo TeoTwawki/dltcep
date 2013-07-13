@@ -50,6 +50,7 @@ public:
   void end_panic();
 
   int check_videocell();
+  int check_vef();
   int check_store();
   int check_applyspell();
   int check_spell();
@@ -61,7 +62,7 @@ public:
   int check_area(int swap_weds);
   int check_ids();
   int check_game();
-  int check_map();
+  int check_worldmap();
   int check_bam();
   int check_spawnini();
   int check_dialog(int check_or_scan);
@@ -129,9 +130,10 @@ protected:
   int process_creatures(int check_or_search);
   int process_chuis(int check_or_search);
   int process_videocells(bool check_or_search);
+  int process_vefs(bool check_or_search);
   int process_scripts(int check_or_search); //three states
   int process_dialogs(int check_or_search);
-  int process_areas(bool check_or_search);
+  int process_areas(int check_or_search);
   int process_bams(bool check_or_search); // only check/search
   int process_tables(); //only search
   int process_games(); // only check
@@ -147,12 +149,14 @@ protected:
   bool match_creature();
   bool match_chui();
   bool match_videocell();
+  bool match_vef();
   bool match_script();
   bool match_2da();
   bool match_area();
   bool match_dialog();
   int read_next_table(loc_entry fileloc);
   int read_next_videocell(loc_entry fileloc);
+  int read_next_vef(loc_entry fileloc);
   int read_next_item(loc_entry fileloc);
   int read_next_spell(loc_entry fileloc);
   int read_next_projectile(loc_entry fileloc);
@@ -320,6 +324,7 @@ protected:
 	afx_msg void OnReadonly();
 	afx_msg void OnEditItem();
 	afx_msg void OnEditVvc();
+  afx_msg void OnEditVef();
   afx_msg void OnEditWfx();
 	afx_msg void OnEditCreature();
 	afx_msg void OnEditEffect();

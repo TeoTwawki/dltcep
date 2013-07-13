@@ -119,6 +119,10 @@ void CFileExtract::do_copy_file(CString key, CString ext, loc_entry fileloc)
   {
     return;
   }
+  if (fileloc.bifname=="override\\"+key+ext)
+  {
+    return; //extraction copy already done
+  }
   filename=bgfolder+"override\\"+key+ext;
   if(m_override) oflg=O_BINARY|O_RDWR|O_TRUNC|O_CREAT|O_SEQUENTIAL;
   else oflg=O_BINARY|O_RDWR|O_EXCL|O_CREAT|O_SEQUENTIAL;

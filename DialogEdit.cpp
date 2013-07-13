@@ -2940,8 +2940,7 @@ void CDialogEdit::OnExportWeidu()
     return;
   }
   chdir(bgfolder);
-  mkdir(weidudecompiled);
-  if(!dir_exists(weidudecompiled) )
+  if(!assure_dir_exists(bgfolder+weidudecompiled))
   {
     tmpstr.Format("%s cannot be created as output path.",weidudecompiled);
       MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);

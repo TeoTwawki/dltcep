@@ -31,6 +31,64 @@ static char THIS_FILE[] = __FILE__;
 #define F_COLORRGB         8
 #define F_COLORGLOW        9
 
+#define F_CHR              6
+#define F_CON              10
+#define F_DEX              15
+#define F_INT              19
+#define F_LORE             21
+#define F_LUCK             22
+#define F_RES_ACID         27
+#define F_RES_COLD         28
+#define F_RES_ELEC         29
+#define F_RES_FIRE         30
+#define F_RES_MAGIC        31
+#define F_SAVE_DEATH       33
+#define F_SAVE_WAND        34
+#define F_SAVE_POLY        35
+#define F_SAVE_BREATH      36
+#define F_SAVE_SPELL       37
+#define F_STR              44
+#define F_WIS              49
+#define F_THAC0            54
+#define F_STEALTH          59
+#define F_DAMAGE           73
+#define F_RES_MFIRE        84
+#define F_RES_MCOLD        85
+#define F_RES_SLASH        86
+#define F_RES_CRUSH        87
+#define F_RES_PIERCE       88
+#define F_RES_MISSILE      89
+#define F_LOCKS            90
+#define F_TRAPS            91
+#define F_POCKETS          92
+#define F_FATIGUE          93
+#define F_DRUNK            94
+#define F_TRACKING         95
+#define F_LEVEL            96
+#define F_STRBONUS         97
+#define F_XP               104
+#define F_GOLD             105
+#define F_MORALEBREAK      106
+#define F_REPUTATION       108
+#define F_MOVEMENT         126
+#define F_RANGED           167
+#define F_MOVEMENT2        176
+#define F_BACKSTAB         263
+#define F_HIDE             275
+#define F_ILLUSIONS        276
+#define F_SETTRAPS         277
+#define F_THAC02           278
+#define F_WILDMAGIC        281
+#define F_MELEE            284
+#define F_MDAMAGE          285
+#define F_RDAMAGE          286
+#define F_FIST             288
+#define F_FDAMAGE          289
+#define F_OFFHAND          305
+#define F_RIGHT            306
+#define F_HASTE            16
+#define F_HASTE2           317
+
 #define F_SUMMON           127 //summon creature (2da)
 
 #define F_SELECT           214 //select spell
@@ -43,6 +101,14 @@ static char THIS_FILE[] = __FILE__;
 #define MT (1<<FLG_MTYPE)
 #define MS (1<<FLG_MSTRREF)
 
+typedef struct linktype {
+  short link;
+  short dir;
+  short cnt;
+} linktype;
+
+CString directions[4]={"north","west","south","east"};
+
 CString attr_types[32]={
   "Critical","Two handed","Movable","Displayable","Cursed",
     "<always set>","Magical","Bow","Silver","Cold iron","Stolen",
@@ -54,7 +120,7 @@ CString attr_types[32]={
 };
 
 /*
-"0-Invalid","1-Creature","2-Inventory/Crash", "3-Dead character","4-Area","5-Self","6-Unknown/Crash",
+"0-Invalid","1-Creature","2-Inventory/Crash", "3-Dead character","4-Area","5-Self","6-Group/Crash",
 "7-None",
 */
 int atypevsttype[NUM_ATYPE]={
@@ -260,20 +326,41 @@ int check_itemref(const char *poi, int rndtres)
   return -1;
 }
 
-int check_resource(const char *poi, bool noneisnull)
+int GetBAMVersion(const char *poi, loc_entry &fileloc)
+{
+  if (!fileloc.tilesize)
+  {
+    Cbam tmpbam;
+
+    read_bam_preview(poi, &tmpbam, true);
+    fileloc.tilesize = tmpbam.m_header.chVersion[1]&15;
+  }
+  return fileloc.tilesize;
+}
+
+// 1 - noneisnull
+// 2 - forbid BAM V2
+int check_resource(const char *poi, int noneisnull)
 {
   CString tmpref;
   loc_entry fileloc;
   
   if(chkflg&NORESCHK) return 0;
   RetrieveResref(tmpref, poi);
-  if(noneisnull && (tmpref=="NONE")) tmpref.Empty();
+  if((noneisnull&1) && (tmpref=="NONE")) tmpref.Empty();
   if(tmpref.IsEmpty())
   {
     if(chkflg&WARNINGS) return 0;
     else return -2;
   }
-  if(icons.Lookup(tmpref,fileloc) ) return 0;
+  if(icons.Lookup(tmpref,fileloc) )
+  {
+    if ((noneisnull&2) && (GetBAMVersion(poi, fileloc)==2))
+    {
+      return -3;
+    }
+    return 0;
+  }
   return -1;
 }
 
@@ -362,6 +449,7 @@ int check_area_reference(const char *poi, int flg)
       if (!masterareas.Find(tmpref)) return -2;
     }
     if(areas.Lookup(tmpref, dummy) ) return 0; //area exists
+    if ((flg==3) && tmpref.IsEmpty()) return 0;
     return -1; //area doesn't exist, but it should
   }
   if(poi[0]) return 1; //area set without use
@@ -1145,6 +1233,16 @@ int CChitemDlg::check_extheader(int itemtype)
       }
       continue; //don't bother looking further
     }
+
+    if(atype==1)
+    {
+      ttype = the_item.extheaders[i].proref-1;
+      if(ttype)
+      {
+        log("Melee weapon uses projectile %s %d", get_projectile_id(ttype+1, 1), ttype+1 );
+      }
+    }
+
     if(check_atype(atype))
     {
       log("This %s has a wrong attack type (%s) in extended header #%d",format_itemtype(itemtype), get_attack_type(atype), i+1);
@@ -1176,7 +1274,7 @@ int CChitemDlg::check_extheader(int itemtype)
         ret|=BAD_EXTHEAD;
       }
     }
-    switch(check_resource(the_item.extheaders[i].useicon, false) )
+    switch(check_resource(the_item.extheaders[i].useicon, 2) )
     {
     case -1:
       ret|=BAD_ICONREF;
@@ -2683,6 +2781,51 @@ bool CChitemDlg::match_videocell()
   return true;
 }
 
+bool CChitemDlg::match_vef()
+{
+  bool found;
+  search_data tmpdata;
+  int i;
+  
+  memset(&tmpdata,0,sizeof(tmpdata) );
+  if(searchflags&MR)
+  {
+    found=false;
+    for (i=0;i<the_vef.comp1count;i++)
+    {
+      memcpy(tmpdata.resource,the_vef.comp1[i].resref,8);    
+      if(searchdata.resource[0])
+      {
+        if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
+        {
+          found=true;
+          break;
+        }
+      }
+    }
+    if(!found) return false;
+
+    for (i=0;i<the_vef.comp2count;i++)
+    {
+      memcpy(tmpdata.resource,the_vef.comp2[i].resref,8);    
+      if(searchdata.resource[0])
+      {
+        if(!strnicmp(tmpdata.resource,searchdata.resource,8) )
+        {
+          found=true;
+          break;
+        }
+      }
+    }
+    if(!found) return false;  
+  }
+  if(searchflags&MR)
+  {
+    if(tmpdata.resource[0]) log("Found resource '%-.8s'",tmpdata.resource);
+  }
+  return true;
+}
+
 bool CChitemDlg::match_script()
 {
   search_data tmpdata;
@@ -3181,17 +3324,28 @@ bool CChitemDlg::match_dialog()
         //break;
       }
     }
-    if(!ret)
+  }
+  if (!ret)
+  {
+    for(i=0;i<the_dialog.transcount;i++)
     {
-      for(i=0;i<the_dialog.transcount;i++)
+      if(searchflags&MR)
       {
-        if(the_dialog.dlgtrans[i].playerstr==searchdata.strref)
+        if(!strnicmp(the_dialog.dlgtrans[i].nextdlg,searchdata.resource,8))
+        {
+          ret=1;
+          log("Found %s in transition #%d",searchdata.resource,i);
+        }        
+      }
+      if(searchflags&MS)
+      {
+        if((the_dialog.dlgtrans[i].flags&HAS_TEXT) && (the_dialog.dlgtrans[i].playerstr==searchdata.strref))
         {
           ret=2;
           log("Transition #%d uses strref #%d as player text",i, searchdata.strref);
           //break;
         }
-        if(the_dialog.dlgtrans[i].journalstr==searchdata.strref)
+        if((the_dialog.dlgtrans[i].flags&HAS_JOURNAL) && (the_dialog.dlgtrans[i].journalstr==searchdata.strref))
         {
           switch(the_dialog.dlgtrans[i].flags&(HAS_QUEST|HAS_SOLVED|REMOVE_QUEST))
           {
@@ -3224,21 +3378,10 @@ bool CChitemDlg::match_dialog()
         }
       }
     }
-    /*
-    switch(ret)
-    {
-    case 1: log("State #%d uses strref #%d as actor text",i, searchdata.strref); break;
-    case 2: log("Transition #%d uses strref #%d as player text",i, searchdata.strref); break;
-    case 3: log("Transition #%d uses strref #%d as journal entry",i, searchdata.strref); break;
-    case 4: log("Transition #%d uses strref #%d as quest entry",i, searchdata.strref); break;
-    case 5: log("Transition #%d uses strref #%d as done quest",i, searchdata.strref); break;
-    case 6: log("Transition #%d uses strref #%d as user journal",i, searchdata.strref); break;
-    case 7: log("Transition #%d uses strref #%d as remove quest",i, searchdata.strref); break;
-    case 8: log("Transition #%d uses strref #%d as unknown",i, searchdata.strref); break;
-    }
-    */
   }
-  
+
+  if (ret) return !!ret;
+
   if(searchflags&(MR| MV| MT) )
   {
     ret=0;
@@ -3668,7 +3811,7 @@ done:
 //check the whole item
 int CChitemDlg::check_item()
 {
-  int ret;
+  int ret, tmp;
   CString tmpref;
   
   ret=0;
@@ -3715,15 +3858,15 @@ int CChitemDlg::check_item()
   {
   case 1:
     ret|=BAD_STRREF;
-    log("Invalid unidentified description (reference: %d).",the_item.header.unidref);
+    log("Invalid unidentified description (reference: %d).",the_item.header.uniddesc);
     break;
   case 2:
     ret|=BAD_STRREF;
-    log("Deleted unidentified description (reference: %d).",the_item.header.unidref);
+    log("Deleted unidentified description (reference: %d).",the_item.header.uniddesc);
     break;
   case 5:
     ret|=BAD_STRREF;
-    log("Name length constraint violated (reference: %d).",the_item.header.unidref);
+    log("Description length constraint violated (reference: %d).",the_item.header.uniddesc);
     break;
   }
   
@@ -3779,7 +3922,7 @@ int CChitemDlg::check_item()
     }
   }
   
-  switch(check_resource(the_item.header.invicon,false) )
+  switch(check_resource(the_item.header.invicon,2) )
   {
   case -1:
     ret|=BAD_ICONREF;
@@ -3789,9 +3932,12 @@ int CChitemDlg::check_item()
     ret|=BAD_ICONREF;
     log("Empty inventory icon reference.");
     break;
+  case -3:
+    ret|=BAD_ICONREF;
+    log("BAM V2 used for inventory icon: '%-.8s'",the_item.header.invicon);
   }
   
-  switch(check_resource(the_item.header.grnicon,false) )
+  switch(check_resource(the_item.header.grnicon,2) )
   {
   case -1:
     ret|=BAD_ICONREF;
@@ -3801,6 +3947,9 @@ int CChitemDlg::check_item()
     ret|=BAD_ICONREF;
     log("Empty ground icon reference.");
     break;
+  case -3:
+    ret|=BAD_ICONREF;
+    log("BAM V2 used for ground icon: '%-.8s'",the_item.header.grnicon);
   }
   
   if(pst_compatible_var())
@@ -3821,7 +3970,9 @@ int CChitemDlg::check_item()
   {
     if(!has_xpvar()) //unused in iwd/iwd2
     {
-      switch(check_resource(the_item.header.descicon,false) )
+      if (is_this_bgee()) tmp = check_bitmap(the_item.header.descicon,false);
+      else tmp = check_resource(the_item.header.descicon,false);
+      switch(tmp)
       {
       case -1:
         ret|=BAD_ICONREF;
@@ -3971,6 +4122,7 @@ int CChitemDlg::check_creature()
   int i;
   int ret;
   int idsrace;
+  int sscnt;
   
   ret=0;
   switch(check_reference(the_creature.header.shortname,1,2,40) )
@@ -4014,7 +4166,10 @@ int CChitemDlg::check_creature()
     }
   }
   
-  for(i=0;i<100;i++)
+  if (iwd2_structures()) sscnt = SND_SLOT_IWD2;
+  else sscnt = SND_SLOT_COUNT;
+
+  for(i=0;i<sscnt;i++)
   {
     switch(check_reference(the_creature.header.strrefs[i], 4) )
     {
@@ -4581,6 +4736,22 @@ int CChitemDlg::check_videocell()
   return ret;
 }
 
+int CChitemDlg::check_vef()
+{
+  int i;
+  int ret;
+  
+  ret=0;
+  for (i=0;i<the_vef.header.count1;i++)
+  {
+  }
+
+  for (i=0;i<the_vef.header.count2;i++)
+  {
+  }
+  return ret;
+}
+
 int CChitemDlg::check_area_actors()
 {
   int i;
@@ -4933,6 +5104,12 @@ int CChitemDlg::check_area_container()
       log("Non existent key item (%-.8s) for container #%d (%-.32s [%d.%d])",
         the_area.containerheaders[i].keyitem,i+1,contname,px,py);
     }
+
+    if (!the_area.containerheaders[i].trapdetect && the_area.containerheaders[i].trapremove && the_area.containerheaders[i].trapped)
+    {
+      ret|=BAD_USE;
+      log("Automatic detection of trap #%d!", i+1);
+    }
   }
   return ret;
 }
@@ -4955,6 +5132,7 @@ int CChitemDlg::check_area_door()
   int i;
   int ret;
   CString doorname;
+  CString doorid;
   unsigned int maxx,maxy;
   unsigned int p1x,p1y;
   unsigned int p2x,p2y;
@@ -4976,9 +5154,19 @@ int CChitemDlg::check_area_door()
   }
   for(i=0;i<the_area.header.doorcnt;i++)
   {
+    RetrieveResref(doorid,the_area.doorheaders[i].doorid);
+    RetrieveVariable(doorname,the_area.doorheaders[i].doorname);
+
+    if (the_area.WedAvailable())
+    {
+      if(the_area.GetWedDoorIndex(the_area.doorheaders[i].doorid)==the_area.wedheader.doorcnt)
+      {
+        log("Door #%d %-.8s (%-.32s) doesn't exist in the wed.", i+1, doorid, doorname);
+      }
+    }
+
     if (!(chkflg&NOATTRCH))
     {
-      RetrieveVariable(doorname,the_area.doorheaders[i].doorname);
       region = check_trigger_overlap(doorname);
       if (region)
       {
@@ -5810,6 +5998,7 @@ retry:
       log("Invalid tile in [%d.%d]",i%the_area.overlayheaders[0].width,i/the_area.overlayheaders[0].width);
     }
   }
+
   if (is_this_bgee())
   {
     if (tmptis.tisheader.tilelength!=12)
@@ -5825,6 +6014,12 @@ retry:
       ret|=BAD_EXTHEAD;
       log("The tileset (%s) is corrupted (or you didn't configure DLTCEP to BGEE).", tmptis.m_name);
     }
+  }
+
+  if (tmptis.tisheader.offset!=sizeof(tis_header) )
+  {
+    ret|=BAD_EXTHEAD;
+    log("The tileset (%s) is corrupted, offset value is wrong.", tmptis.m_name);
   }
 
   pos=the_area.doortilelist.GetHeadPosition();
@@ -6357,6 +6552,17 @@ int CChitemDlg::check_bam()
   int ret;
   int cycle;
   
+  if (!the_bam.m_header.wFrameCount)
+  {
+    log("BAM has no frames!");
+    ret|=BAD_INDEX;
+  }
+  else if (!the_bam.m_header.chCycleCount && (the_bam.m_version==1) )
+  {
+    log("BAM has no cycles!");
+    ret|=BAD_INDEX;
+  }
+
   if (chkflg&WARNINGS)
   {
     ret = 0;
@@ -6373,18 +6579,20 @@ int CChitemDlg::check_bam()
   if(the_bam.GetTransparentIndex())
   {
     log("This bam has a nonzero transparent index.");
-    ret|=BAD_ATTR;
+    ret|=BAD_INDEX;
   }
   
   //compression check
-  if(no_compress()) return ret; //don't check bams for lame noncompressing games
-  if(the_bam.GetFrameCount()<=4) //most likely item bams
+  if(!no_compress() && !(chkflg&WARNINGS))
   {
-    //apparently animation bams are not compressed, could they be ?
-    if(the_bam.CanCompress() )
+    if(the_bam.GetFrameCount()<=4) //most likely item bams
     {
-      ret|=BAD_COMPRESS;
-      log("Bam could be compressed to save at least %d bytes.",the_bam.GetDataSize()/2);
+      //apparently animation bams are not compressed, could they be ?
+      if(the_bam.CanCompress() )
+      {
+        ret|=BAD_COMPRESS;
+        log("Bam could be compressed to save at least %d bytes.",the_bam.GetDataSize()/2);
+      }
     }
   }
 
@@ -6700,7 +6908,7 @@ int CChitemDlg::check_spawnini()
   return ret;
 }
 
-int fill_links(short *links, int from, int count, int area, int max)
+int fill_links(linktype *links, int dir, int from, int count, int area, int max)
 {
   int i;
   int ret;
@@ -6711,20 +6919,23 @@ int fill_links(short *links, int from, int count, int area, int max)
   for(i=0;i<count;i++)
   {
     if(from+i>=max) return -1; //overflow
-    if(links[from+i]!=-1) ret=1;
-    links[from+i]=(short) area;
+    if(links[from+i].link!=-1) ret=1;
+    links[from+i].link=(short) area;
+    links[from+i].dir=(short) dir;
+    links[from+i].cnt=(short) i;
   }
   return ret;
 }
 
-int CChitemDlg::check_map()
+int CChitemDlg::check_worldmap()
 {
   int i; //mapcount
   int j; //areacount, arealinkcount
   int k; //linkcount in areas
   int ret;
   int link;
-  short *links;
+  linktype *links;
+  CString tmpstr;
   
   ret=0;
   if(!the_map.mapcount)
@@ -6750,10 +6961,10 @@ int CChitemDlg::check_map()
       ret|=BAD_ICONREF;
     }
     k=the_map.headers[i].arealinkcount;
-    links=new short[k];
+    links=new linktype[k];
     if(links)
     {
-      memset(links,-1,k * sizeof(short) );
+      memset(links,-1,k * sizeof(linktype) );
     }
     else
     {
@@ -6792,7 +7003,7 @@ int CChitemDlg::check_map()
         log("Length constraint violated (reference: %d).",the_map.areas[i][j].tooltip);
         break;
       }
-      switch(fill_links(links,the_map.areas[i][j].northidx,the_map.areas[i][j].northcnt,j,k))
+      switch(fill_links(links,0,the_map.areas[i][j].northidx,the_map.areas[i][j].northcnt,j,k))
       {
       case 1:
         log("Duplicate references for the north group in map #%d area #%d.",i+1,j+1);
@@ -6803,7 +7014,7 @@ int CChitemDlg::check_map()
         ret|=BAD_INDEX;
         break;
       }
-      switch(fill_links(links,the_map.areas[i][j].westidx,the_map.areas[i][j].westcnt,j,k))
+      switch(fill_links(links,1,the_map.areas[i][j].westidx,the_map.areas[i][j].westcnt,j,k))
       {
       case 1:
         log("Duplicate references for the west group in map #%d area #%d.",i+1,j+1);
@@ -6814,7 +7025,7 @@ int CChitemDlg::check_map()
         ret|=BAD_INDEX;
         break;
       }
-      switch(fill_links(links,the_map.areas[i][j].southidx,the_map.areas[i][j].southcnt,j,k))
+      switch(fill_links(links,2,the_map.areas[i][j].southidx,the_map.areas[i][j].southcnt,j,k))
       {
       case 1:
         log("Duplicate references for the south group in map #%d area #%d.",i+1,j+1);
@@ -6825,7 +7036,7 @@ int CChitemDlg::check_map()
         ret|=BAD_INDEX;
         break;
       }
-      switch(fill_links(links,the_map.areas[i][j].eastidx,the_map.areas[i][j].eastcnt,j,k))
+      switch(fill_links(links,3,the_map.areas[i][j].eastidx,the_map.areas[i][j].eastcnt,j,k))
       {
       case 1:
         log("Duplicate references for the east group in map #%d area #%d.",i+1,j+1);
@@ -6847,7 +7058,7 @@ int CChitemDlg::check_map()
     {
       for(j=0;j<the_map.headers[i].arealinkcount;j++)
       {
-        if(links[j]==-1)
+        if(links[j].link==-1)
         {
           log("Unreferenced link #%d in map #%d",j,i+1);
           ret|=BAD_INDEX;
@@ -6855,14 +7066,23 @@ int CChitemDlg::check_map()
         }
         if(!the_map.arealinks[i][j].flags)
         {
-          log("Invalid area link flag for map #%d/link #%d used in area entry #%d.",i+1,j,links[j]);
+          log("Invalid area link flag for map #%d/link #%d used in area entry #%d/%s/%d.",i+1,j,links[j].link+1, directions[links[j].dir], links[j].cnt+1);
           ret|=BAD_ATTR;
         }
         link=the_map.arealinks[i][j].link;
         if(link<0 || link>=the_map.headers[i].areacount)
         {
-          log("Invalid area reference for map #%d/link #%d used in area entry #%d.",i+1,j,links[j]);
+          log("Invalid area reference for map #%d/link #%d used in area entry #%d/%s/%d.",i+1,j,links[j].link+1, directions[links[j].dir], links[j].cnt+1);
           ret|=BAD_INDEX;
+        }
+        for (k=0;k<5;k++)
+        {
+          if (check_area_reference(the_map.arealinks[i][j].encounters[k], 3) )
+          {
+            RetrieveResref(tmpstr,the_map.arealinks[i][j].encounters[k] );
+            log("Invalid ambush area reference (%s) for map #%d/encounter #%d (used in area entry #%d/%s/%d)",tmpstr, i+1, k+1, links[j].link+1, directions[links[j].dir], links[j].cnt+1);
+            ret|=BAD_RESREF;
+          }
         }
       }
       delete [] links;
@@ -8595,6 +8815,7 @@ int CChitemDlg::check_feature(long feature, int par1, int par2, const char *reso
 {
   int ret;
   int restype;
+  int max;
   
   if(chkflg&NOFEATCHK) return 0;
   if(feature>=NUM_FEATS)
@@ -8604,6 +8825,32 @@ int CChitemDlg::check_feature(long feature, int par1, int par2, const char *reso
   }
   switch(feature)
   {
+  case F_CHR: case F_CON: case F_DEX: case F_INT: case F_LORE: case F_LUCK:
+  case F_RES_ACID: case F_RES_COLD: case F_RES_ELEC: case F_RES_FIRE: case F_RES_MAGIC:
+  case F_SAVE_DEATH: case F_SAVE_WAND: case F_SAVE_POLY: case F_SAVE_BREATH: case F_SAVE_SPELL:
+  case F_STR: case F_WIS: case F_THAC0: case F_STEALTH: case F_DAMAGE:
+  case F_RES_MFIRE: case F_RES_MCOLD: case F_RES_SLASH: case F_RES_CRUSH:
+  case F_RES_PIERCE: case F_RES_MISSILE: case F_LOCKS: case F_TRAPS:
+  case F_POCKETS: case F_FATIGUE: case F_DRUNK: case F_TRACKING: case F_LEVEL: 
+  case F_STRBONUS: case F_XP: case F_GOLD: case F_MORALEBREAK: case F_REPUTATION: 
+  case F_MOVEMENT: case F_RANGED: case F_MOVEMENT2: case F_BACKSTAB: case F_HIDE:
+  case F_ILLUSIONS: case F_SETTRAPS: case F_THAC02: case F_WILDMAGIC: case F_MELEE:
+  case F_MDAMAGE: case F_RDAMAGE: case F_FIST: case F_FDAMAGE: case F_OFFHAND:
+  case F_RIGHT: case F_HASTE: case F_HASTE2:
+    max = 2;
+    if (has_xpvar() )
+    {
+      if (feature == F_DAMAGE) max = 10;
+      else if (feature == F_DEX || feature == F_STR) max = 4;
+      else if (feature == F_FIST) max=255; //actually set_state
+      else if (feature == F_ILLUSIONS) max=457; //actually remove effect
+    }
+    if (par2>max)
+    {
+      log("Stat fx is definitely using a wrong second parameter. (%d)", par2);
+      return 1;
+    }
+    break;
   case F_COLOR: case F_COLORRGB: case F_COLORGLOW:
     if((par2&0xffc0) || ((par2&15)>=7) )
     {

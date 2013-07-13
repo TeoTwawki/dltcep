@@ -248,6 +248,7 @@
 #define IDR_WFX                         222
 #define IDS_TRANSPARENT                 223
 #define IDD_CREATUREPST                 223
+#define IDR_VEF                         223
 #define IDS_FRAME2                      224
 #define IDD_GAMESTATS                   224
 #define IDS_ADDFRAME                    225
@@ -275,6 +276,7 @@
 #define IDS_VEF                         236
 #define IDD_WFXEDIT                     236
 #define IDS_INI                         237
+#define IDD_VEFEDIT                     237
 #define IDS_FEATURE                     238
 #define IDS_DESC                        239
 #define IDS_TARGET                      240
@@ -405,6 +407,7 @@
 #define IDS_CHR                         365
 #define IDS_PVRZ                        366
 #define IDS_BIO                         367
+#define IDS_GLSL                        368
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -462,6 +465,7 @@
 #define IDC_MRES                        1054
 #define IDC_RESOURCE                    1055
 #define IDC_CHECKEFF                    1056
+#define IDC_RESOURCE2                   1056
 #define IDC_FINDCRE                     1057
 #define IDC_ITEMNAME                    1058
 #define IDC_VVC                         1059
@@ -1164,6 +1168,7 @@
 #define IDC_MAXCONTAINER                1749
 #define IDC_TYPE                        1750
 #define IDC_DIFF                        1751
+#define IDC_TYPE2                       1751
 #define IDC_MAXITEM                     1752
 #define IDC_ITEMNUMPICKER               1753
 #define IDC_VOLUMED                     1754
@@ -1565,6 +1570,7 @@
 #define IDC_ID2                         2149
 #define IDC_LENGTH                      2150
 #define IDC_TEXTAREA2                   2151
+#define IDC_LENGTH2                     2151
 #define IDC_TEXTAREA3                   2152
 #define IDC_LABEL1                      2153
 #define IDC_BUTTONBAM                   2154
@@ -1752,6 +1758,15 @@
 #define IDC_U2E                         2337
 #define IDC_LANGUAGE                    2341
 #define IDC_FRAMECOUNT                  2343
+#define IDC_GROUP1                      2345
+#define IDC_GROUP2                      2346
+#define IDC_START                       2347
+#define IDC_UNUSED                      2348
+#define IDC_START2                      2349
+#define IDC_UNUSED2                     2350
+#define IDC_CONTINUOUS                  2352
+#define IDC_CONTINUOUS2                 2353
+#define IDC_UNDEAD                      2353
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -1991,15 +2006,18 @@
 #define ID_FILE_EXPORTCSV               33070
 #define ID_FILE_IMPORTCSV               33071
 #define ID_OVERLAY_ADD                  33072
+#define ID_TOOLS_FIXZEROFRAMES          33073
+#define ID_TOOLS_FIXLINEFEEDS           33074
+#define ID_EDIT_VEF                     33076
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        233
-#define _APS_NEXT_COMMAND_VALUE         33073
-#define _APS_NEXT_CONTROL_VALUE         2344
+#define _APS_NEXT_RESOURCE_VALUE        234
+#define _APS_NEXT_COMMAND_VALUE         33077
+#define _APS_NEXT_CONTROL_VALUE         2354
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

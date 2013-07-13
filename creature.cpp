@@ -821,7 +821,10 @@ redo:
     
     //creature memory
     flg=adjust_actpoint(header.memoffs);
-    if(flg<0) return flg;
+    if(flg<0) {
+      if (header.memcnt) return flg;
+      else flg=1;
+    }
     ret|=flg;
     if(header.memcnt!=memocount)
     {

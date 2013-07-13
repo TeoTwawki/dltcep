@@ -2645,12 +2645,10 @@ int Carea::AddWedDoor(CString doorid)
   return 0;
 }
 
-int Carea::RemoveWedDoor(char *doorid)
+int Carea::GetWedDoorIndex(char *doorid)
 {
-  wed_door *newdoors;
-  POSITION pos;
   int newcount;
-  int i,j;
+  int i;
 
   newcount=0;
   for(i=0;i<wedheader.doorcnt;i++)
@@ -2661,6 +2659,18 @@ int Carea::RemoveWedDoor(char *doorid)
       newcount++;
     }
   }
+  return newcount;
+}
+
+int Carea::RemoveWedDoor(char *doorid)
+{
+  wed_door *newdoors;
+  POSITION pos;
+  int newcount;
+  int i,j;
+
+  newcount=GetWedDoorIndex(doorid);
+
   if(newcount==wedheader.doorcnt) return 1; //wed didn't need any change
   newdoors=new wed_door[newcount];
   if(!newdoors) return -3;

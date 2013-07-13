@@ -9,7 +9,7 @@
 #include "options.h"
 
 //
-//#include "ChitemDlg.h"
+#include "ChitemDlg.h"
 //
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -793,6 +793,7 @@ int Read2daStringFromFile(int fhandle, CString2List &refs, int length, int colum
       else cnt++;
       if(tmparray) delete [] tmparray;
       tmparray=explode(external,' ',count);
+      //((CChitemDlg *) AfxGetMainWnd())->log("%s",external);
       if(!tmparray)
       {
         ret=2;
@@ -812,7 +813,11 @@ int Read2daStringFromFile(int fhandle, CString2List &refs, int length, int colum
         if(ref.b.Right(4)==".MUS") ref.b=ref.b.Left(ref.b.GetLength()-4);
       }
       prev++;
-      if(prev!=cnt) res=1;
+      //((CChitemDlg *) AfxGetMainWnd())->log("%s %s",ref.a, ref.b);
+      if(prev!=cnt)
+      {
+        res=1;
+      }
       refs.AddTail(ref);
     }
   }

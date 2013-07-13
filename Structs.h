@@ -727,9 +727,10 @@ typedef struct
   unsigned char fatigue;
   unsigned char intox;
   char luck;
-  unsigned char unused[21];       //old weapon proficiencies
+  unsigned char unused[20];       //old weapon proficiencies
+  unsigned char undead;
   unsigned char tracking;
-  unsigned long unused2[8];
+  unsigned long unused2[8];       //tracking target
   long strrefs[SND_SLOT_COUNT];
   unsigned char levels[3];
   unsigned char sex;
@@ -1064,7 +1065,7 @@ typedef struct
   unsigned char totlevel;
   unsigned char levels[11];
   unsigned char unknown96[22];
-  long strrefs[64];
+  long strrefs[SND_SLOT_IWD2];
   unsigned char script1[8]; //team script
   unsigned char script2[8]; //special script1
   long dr;                  //damage resistance
@@ -2115,6 +2116,25 @@ typedef struct {
   unsigned short bits;        //24 3*8?
 } bmpos2_header;
 
+typedef struct {
+  char filetype[4]; //VEF
+  char revision[4]; //
+  long offset1;
+  long count1;
+  long offset2;
+  long count2;
+} vef_header;
+
+typedef struct {
+  unsigned long ticks;  //start
+  unsigned long unknown;
+  unsigned long length;
+  unsigned long type; //0,1,2
+  char resref[8]; //vef, vvc, bam (based on type)
+  unsigned long cycles;
+  unsigned char unused[196];
+} vef_component;
+
 //tbg & iap
 
 typedef struct
@@ -2366,6 +2386,8 @@ typedef CMap<CString, LPCSTR, compiler_data, compiler_data&> CStringMapToCompile
 typedef CTypedPtrMap<CMapStringToOb, CString, CStringMapInt*> CStringMapToCStringMapInt;
 typedef CMap<CString, LPCSTR, CString, LPCSTR> CStringMapString;
 typedef CTypedPtrMap<CMapStringToOb, CString, CStringMapString*> CStringMapToCStringMapString;
+typedef CMap<CString, LPCSTR, CPoint, CPoint&> CStringMapPoint;
+
 typedef COLORREF palettetype[256];
 
 typedef struct 

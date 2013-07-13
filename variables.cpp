@@ -211,6 +211,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
 {
   CString tmp;
   loc_entry dummyloc;
+  CPoint dummypoint;
   int cnt;
   int i;
   int sf;
@@ -396,7 +397,7 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     }
     if(varname!="LOCALS" && varname!="GLOBAL" && varname !="MYAREA")
     {
-      log("Invalid scope: %s",varname);
+      log("Invalid scope: %s (%s)",varname, tmp);
       return 1;
     }
     varname2=varname;
@@ -416,11 +417,23 @@ int CChitemDlg::store_variable(CString varname, int storeflags, int opcode, int 
     /// no idea yet
     return 0;
   case ENTRY_POINT:
+    if(varname2.IsEmpty())
+    {
+      log("Missing area! (%s)", tmp);
+      return 1;
+    }
+    if(!entries.Lookup(varname2+"/"+varname, dummypoint))
+    {
+      log("Invalid entrance '%s' for area '%s' (%s)",varname,varname2,tmp);
+      return 1;
+    }
+    /*
     if(CheckDestination(varname2,varname) )
     {
       log("Invalid entrance '%s' for area '%s' (%s)",varname,varname2,tmp);
       return 1;
-    }    
+    }
+    */
     return 0;
   case CHECK_XPLIST:
     varname.MakeUpper();

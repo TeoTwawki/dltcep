@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.6a"
+#define PRG_VERSION "7.6d"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -35,6 +35,7 @@
 #include "CreatureEdit.h"
 #include "ChuiEdit.h"
 #include "VVCEdit.h"
+#include "VEFEdit.h"
 #include "WFXEdit.h"
 #include "AreaEdit.h"
 #include "ScriptEdit.h"
@@ -154,6 +155,7 @@ ON_COMMAND(ID_FILE_EXTRACT, OnFileExtract)
 ON_COMMAND(ID_READONLY, OnReadonly)
 ON_BN_CLICKED(IDC_CHECKITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_VVC, OnEditVvc)
+ON_COMMAND(ID_EDIT_VEF, OnEditVef)
 ON_COMMAND(ID_EDIT_WFX, OnEditWfx)
 ON_BN_CLICKED(IDC_CHECKCRE, OnEditCreature)
 ON_BN_CLICKED(IDC_CHECKEFF, OnEditEffect)
@@ -376,6 +378,7 @@ BOOL CChitemDlg::OnInitDialog()
   wbms.InitHashTable(SMALL_PRIME); //.wbm34
   pvrzs.InitHashTable(LARGE_PRIME); //.pvrz35
   bios.InitHashTable(SMALL_PRIME); //.bio36
+  glsl.InitHashTable(SMALL_PRIME); //.glsl37
 
   storeitems.InitHashTable(SMALL_PRIME); //container .itm
   rnditems.InitHashTable(SMALL_PRIME);   //random .itm
@@ -593,6 +596,7 @@ int CChitemDlg::scan_2da()
 
   init_colors();
   init_spawn_entries();
+  init_entries();
 
   pos=idsmaps.GetStartPosition();
   while(pos)
@@ -1251,12 +1255,14 @@ int CChitemDlg::scan_chitin()
       log("Invalid resource locator: 0x%x",resentry.residx);
       continue;
     }
-    fileloc.bifname=bifs[bifidx].bifname;
-    fileloc.index=locidx;
-    fileloc.size=-1;
-    fileloc.bifindex=(unsigned short) bifidx;
-    fileloc.cdloc=0xffff;
-    fileloc.resref=ref+ext;
+    fileloc.bifname = bifs[bifidx].bifname;
+    fileloc.index = locidx;
+    fileloc.size = -1;
+    fileloc.bifindex = (unsigned short) bifidx;
+    fileloc.cdloc = 0xffff;
+    fileloc.resref = ref+ext;
+    fileloc.numtiles = 0;
+    fileloc.tilesize = 0;
     //another cheesy, fishy hack for the different path of sounds
     if(!fileloc.bifname.CompareNoCase("data\\desound.bif") )
     {
@@ -1331,11 +1337,13 @@ int CChitemDlg::gather_override(CString folder, int where)
       {
         continue;
       }
-      flg=resourcepoi->Lookup(ref,fileloc);
-      filename=folder+ref+objexts[type];      
-      fileloc.bifname=filename;
-      fileloc.size=fdata.size;
-      fileloc.resref=ref+objexts[type];
+      flg = resourcepoi->Lookup(ref,fileloc);
+      filename = folder+ref+objexts[type];      
+      fileloc.bifname = filename;
+      fileloc.size = fdata.size;
+      fileloc.resref = ref+objexts[type];
+      fileloc.numtiles = 0;
+      fileloc.tilesize = 0;
       if(!flg)
       {
         fileloc.bifindex=0xffff;
@@ -1804,6 +1812,42 @@ int CChitemDlg::process_videocells(bool check_or_search)
   return gret;
 }
 
+int CChitemDlg::process_vefs(bool check_or_search)
+{
+  int gret, ret;
+  POSITION pos;
+  CString key;
+  loc_entry fileloc;
+  
+  m_event.Empty();
+  UpdateData(UD_DISPLAY);
+  gret=0;
+  
+  log("Checking vefs...");
+  pos=vefs.GetStartPosition();
+  start_panic();
+  while(pos && m_panicbutton)
+  {
+    ret=-1;
+    vefs.GetNextAssoc(pos,key,fileloc);
+    if (SkipOriginal(fileloc.bifname)) continue;
+    
+    changeitemname(key);
+    ret=read_next_vef(fileloc);
+    if(ret) gret=1;
+    if(ret>=0)
+    {
+      if(check_or_search) ret=match_vef();
+      else ret=check_vef();
+    }
+    newitem=FALSE;
+    if(ret) gret=1;
+  }
+  end_panic();
+  log("Done.");
+  return gret;
+}
+
 int CChitemDlg::process_scripts(int check_or_search)
 {
   int gret, ret;
@@ -2054,7 +2098,7 @@ int CChitemDlg::process_tables()
   return gret;
 }
 
-int CChitemDlg::process_areas(bool check_or_search)
+int CChitemDlg::process_areas(int check_or_search)
 {
   int gret, ret;
   POSITION pos;
@@ -2079,8 +2123,21 @@ int CChitemDlg::process_areas(bool check_or_search)
     if(ret) gret=1;
     if(ret>=0)
     {
-      if(check_or_search) ret=match_area();
-      else ret=check_area(1);      
+      switch(check_or_search)
+      {
+      case CHECKING: ret=check_area(1); break;
+      case MATCHING: ret=match_area(); break;
+      case SCANNING:
+        for(int i=0;i<the_area.actorcount;i++)
+        {
+          if (!the_area.actorheaders[i].actorname) continue;
+          if (has_xpvar() || (the_area.actorheaders[i].fields&8))
+          {
+            add_death_variable(the_area.actorheaders[i].actorname);
+          }
+        }
+        break;
+      }
     }
     newitem=FALSE;
     if(ret) gret=1;
@@ -2296,7 +2353,7 @@ int CChitemDlg::process_maps()
     if(ret) gret=1;
     if(ret>=0)
     {
-      ret=check_map();
+      ret=check_worldmap();
     }
     newitem=FALSE;
     if(ret) gret=1;
@@ -2615,7 +2672,7 @@ void CChitemDlg::OnCheckCreature()
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-  if(process_creatures(0))
+  if(process_creatures(CHECKING))
   {
     switch(logtype)
     {
@@ -2649,7 +2706,7 @@ void CChitemDlg::OnCheckScript()
     }
   }
 
-  if(process_scripts(0))
+  if(process_scripts(CHECKING))
   {
     switch(logtype)
     {
@@ -2695,7 +2752,7 @@ void CChitemDlg::OnCheckArea()
     MessageBox("Use the setup first!","Warning",MB_ICONEXCLAMATION|MB_OK);
     return;
   }
-  if(process_areas(false))
+  if(process_areas(CHECKING))
   {
     switch(logtype)
     {
@@ -3626,8 +3683,7 @@ void CChitemDlg::OnToolsDecompile()
   }
 
   chdir(bgfolder);
-  mkdir(weidudecompiled);
-  if(!dir_exists(weidudecompiled) )
+  if(!assure_dir_exists(bgfolder+weidudecompiled))
   {
     tmpstr.Format("%s cannot be created as output path.",weidudecompiled);
       MessageBox(tmpstr,"Dialog editor",MB_OK|MB_ICONSTOP);
@@ -4281,6 +4337,8 @@ void CChitemDlg::OnScanvariables()
   process_scripts(SCANNING); //this will clear the variables too
   process_dialogs(SCANNING);
   process_creatures(SCANNING);
+  process_areas(SCANNING);   //scripting names could come from areas
+
   pos=variables.GetStartPosition();
   while(pos)
   {
@@ -4332,6 +4390,15 @@ void CChitemDlg::OnEditVvc()
   CVVCEdit dlg;
 
   dlg.NewVVC();
+  dlg.DoModal();
+  RefreshMenu(); //readonly might have changed
+}
+
+void CChitemDlg::OnEditVef() 
+{
+  CVEFEdit dlg;
+
+  dlg.NewVEF();
   dlg.DoModal();
   RefreshMenu(); //readonly might have changed
 }
@@ -4984,6 +5051,29 @@ int CChitemDlg::read_next_videocell(loc_entry fileloc)
   return ret;
 }
 
+int CChitemDlg::read_next_vef(loc_entry fileloc)
+{
+  int ret;
+  int fhandle;
+  
+  fhandle=locate_file(fileloc, 0);
+  if(fhandle<1) return -2;
+  ret=the_vef.ReadVEFFromFile(fhandle, fileloc.size);
+  close(fhandle);
+  switch(ret)
+  {
+  case -2:
+    if(chkflg&NOSTRUCT) break;
+    log("Invalid video effect or length is zero.");
+    break;
+  case -1:
+    if(chkflg&NOSTRUCT) break;
+    log("Serious error while looking up video effect.");
+    break;
+  }
+  return ret;
+}
+
 int CChitemDlg::read_next_table(loc_entry fileloc)
 {
   int ret;
@@ -5276,7 +5366,7 @@ int CChitemDlg::read_next_map(loc_entry fileloc)
     if(chkflg&NOSTRUCT) break;
     log("Worldmap is inconsistent.");
     break;
-  case 0:
+  case 0: case 1:
     break;
   default: //serious error
     if(chkflg&NOSTRUCT) break;

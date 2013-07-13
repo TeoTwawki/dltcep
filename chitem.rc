@@ -2709,6 +2709,8 @@ BEGIN
     LTEXT           "Resist piercing",IDC_STATIC,222,148,47,8
     LTEXT           "Resist missile",IDC_STATIC,227,181,42,8
     GROUPBOX        "Saving throws",IDC_STATIC,325,16,62,99,BS_FLAT
+    EDITTEXT        IDC_UNDEAD,161,178,24,14,ES_AUTOHSCROLL
+    LTEXT           "Undead level",IDC_STATIC,109,181,43,8
 END
 
 IDD_CREATURESTRINGS DIALOG DISCARDABLE  0, 0, 400, 199
@@ -2773,7 +2775,6 @@ BEGIN
     EDITTEXT        IDC_U10,300,20,20,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_U11,324,20,20,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_U12,348,20,20,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_U13,372,20,20,14,ES_AUTOHSCROLL
     LTEXT           "Unknowns at 0x76 (more weapons?)",IDC_STATIC,84,7,116,8
     EDITTEXT        IDC_U20,84,116,20,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_U21,84,52,40,14,ES_AUTOHSCROLL
@@ -4571,7 +4572,7 @@ BEGIN
     CONTROL         "Overlaid tiles",IDC_OVERLAY,"Button",BS_AUTOCHECKBOX | 
                     BS_PUSHLIKE | WS_TABSTOP,221,18,58,14
     PUSHBUTTON      "Unused overlays",IDC_DROP,221,102,58,14
-    PUSHBUTTON      "External tiles",IDC_LOAD3,221,207,58,14,NOT WS_VISIBLE
+    PUSHBUTTON      "External tiles",IDC_LOAD3,221,207,58,14
     EDITTEXT        IDC_SPEED,64,185,34,14,ES_AUTOHSCROLL
     LTEXT           "Speed",IDC_STATIC,64,174,22,8
     PUSHBUTTON      "Add frame",IDC_ADD,157,144,58,14
@@ -5599,6 +5600,53 @@ BEGIN
     PUSHBUTTON      "Save",IDC_SAVE,194,51,64,14
 END
 
+IDD_VEFEDIT DIALOG DISCARDABLE  0, 0, 400, 209
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Video Effect:"
+MENU IDR_VEF
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Load VEF",IDC_LOAD,8,188,50,14
+    PUSHBUTTON      "Load external VEF",IDC_LOADEX,71,188,64,14
+    PUSHBUTTON      "Save VEF As...",IDC_SAVEAS,148,188,54,14
+    PUSHBUTTON      "New VEF",IDC_NEW,215,188,50,14
+    PUSHBUTTON      "Check VEF",IDC_CHECK,278,188,50,14
+    PUSHBUTTON      "E&xit",IDCANCEL,341,188,50,14
+    GROUPBOX        "Group 1",IDC_STATIC,7,3,385,89,BS_FLAT
+    GROUPBOX        "Group 2",IDC_STATIC,7,88,385,89,BS_FLAT
+    COMBOBOX        IDC_GROUP1,13,16,223,75,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_GROUP2,13,103,223,73,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Remove",IDC_REMOVE,350,15,35,14
+    PUSHBUTTON      "Add",IDC_ADD,350,39,35,14
+    PUSHBUTTON      "Remove",IDC_REMOVE2,349,102,35,14
+    PUSHBUTTON      "Add",IDC_ADD2,349,126,35,14
+    EDITTEXT        IDC_START,13,42,40,14,ES_AUTOHSCROLL
+    LTEXT           "Start",IDC_STATIC,13,33,16,8
+    EDITTEXT        IDC_UNUSED,63,42,40,14,ES_AUTOHSCROLL
+    LTEXT           "0x4",IDC_STATIC,63,33,12,8
+    EDITTEXT        IDC_LENGTH,113,42,40,14,ES_AUTOHSCROLL
+    LTEXT           "Length",IDC_STATIC,113,33,23,8
+    COMBOBOX        IDC_TYPE,167,42,70,50,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_RESOURCE,253,16,59,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    CONTROL         "Continuous",IDC_CONTINUOUS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,253,41,51,10
+    EDITTEXT        IDC_START2,13,129,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_UNUSED2,63,129,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LENGTH2,113,129,40,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_TYPE2,167,129,70,50,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Continuous",IDC_CONTINUOUS2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,253,129,51,10
+    EDITTEXT        IDC_RESOURCE2,253,102,59,14,ES_UPPERCASE | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Start",IDC_STATIC,14,118,16,8
+    LTEXT           "0x4",IDC_STATIC,64,118,12,8
+    LTEXT           "Length",IDC_STATIC,114,118,23,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -6455,6 +6503,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 156
     END
+
+    IDD_VEFEDIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 393
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 202
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -6504,8 +6560,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,6,0,1
- PRODUCTVERSION 7,6,0,1
+ FILEVERSION 7,6,0,2
+ PRODUCTVERSION 7,6,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -6523,14 +6579,14 @@ BEGIN
             VALUE "Comments", "forums.gibberlings3.net\0"
             VALUE "CompanyName", "GemRB Project (gemrb.sourceforge.net)\0"
             VALUE "FileDescription", "DragonLance Total Conversion Editor Pro\0"
-            VALUE "FileVersion", "7, 6, 0, 1\0"
+            VALUE "FileVersion", "7, 6, 0, 2\0"
             VALUE "InternalName", "dltcep\0"
             VALUE "LegalCopyright", "Copyright (C) 2002-2013 Avenger\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "chitem.EXE\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "DLTC Editor Pro 7.6a\0"
-            VALUE "ProductVersion", "7, 6, 0, 1\0"
+            VALUE "ProductName", "DLTC Editor Pro 7.6b\0"
+            VALUE "ProductVersion", "7, 6, 0, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -6603,6 +6659,7 @@ BEGIN
         MENUITEM "&UI (CHU)",                   ID_EDIT_CHUI
         MENUITEM "Variables (VAR)",             ID_EDIT_VARIABLES
         MENUITEM "&Videocell (VVC)",            ID_EDIT_VVC
+        MENUITEM "Visual Effect (VE&F)",        ID_EDIT_VEF
         MENUITEM "Wave effect (WF&X)",          ID_EDIT_WFX
         MENUITEM "&Worldmap (WMP)",             ID_EDIT_WORLDMAP
     END
@@ -6784,22 +6841,26 @@ BEGIN
         MENUITEM "&Play cycle",                 ID_ANIMATECYCLE
         MENUITEM "&Continuous play",            ID_CONTINUOUSPLAY
     END
+    POPUP "&Import"
+    BEGIN
+        MENUITEM "Import &frames",              ID_TOOLS_IMPORTFRAMES
+        MENUITEM "Import &cycles",              ID_TOOLS_IMPORTCYCLES
+        MENUITEM "&Merge bam to cycles",        ID_MERGEBAM
+    END
     POPUP "&Tools"
     BEGIN
         MENUITEM "&Drop unused frames",         ID_CLEANUP
         MENUITEM "&Center frames",              ID_TOOLS_CENTERFRAMES
-        MENUITEM "&Import frames",              ID_TOOLS_IMPORTFRAMES
-        MENUITEM "&Import cycles",              ID_TOOLS_IMPORTCYCLES
         MENUITEM "Comp&ress all",               ID_TOOLS_COMPRESSALLFRAMES
         MENUITEM "&Uncompress all",             ID_TOOLS_DECOMPRESSALLFRAMES
         MENUITEM "&Align all",                  ID_TOOLS_ALIGNALL
         MENUITEM SEPARATOR
-        MENUITEM "Create &mirror frames",       ID_CREATEMIRROR
         MENUITEM "Drop all &but last",          ID_TOOLS_DROPALLBUTLAST
-        MENUITEM "&Reduce orientation",         ID_REDUCEORIENTATION
-        MENUITEM "&Merge bam to cycles",        ID_MERGEBAM
+        MENUITEM "Create &mirror frames",       ID_CREATEMIRROR
         MENUITEM "Minimalize &frames",          ID_TOOLS_MINIMALFRAME
-        MENUITEM "Split frames",                ID_TOOLS_SPLITFRAMES
+        MENUITEM "&Reduce orientation",         ID_REDUCEORIENTATION
+        MENUITEM "&Split frames",               ID_TOOLS_SPLITFRAMES
+        MENUITEM "Fix &zero frames",            ID_TOOLS_FIXZEROFRAMES
     END
 END
 
@@ -7070,6 +7131,7 @@ BEGIN
         MENUITEM "&Trim at current strref #",   ID_TRIM
         MENUITEM "Synchronise TLKs",            ID_TOOLS_SYNCHRONISETLKS
         MENUITEM "&Allocate entries",           ID_TOOLS_ALLOCATEENTRIES
+        MENUITEM "&Fix linefeeds",              ID_TOOLS_FIXLINEFEEDS
     END
 END
 
@@ -7342,6 +7404,7 @@ BEGIN
         MENUITEM "E&xit",                       IDCANCEL
     END
     MENUITEM "&Check",                      ID_CHECK
+    MENUITEM "&Search",                     ID_SEARCH
     POPUP "&Tools"
     BEGIN
         MENUITEM "&Explode chitin",             ID_TOOLS_EXPLODE
@@ -7359,6 +7422,22 @@ BEGIN
         MENUITEM "Load &external VVC",          ID_FILE_LOADEXTERNAL
         MENUITEM "&Save VVC",                   ID_FILE_SAVE
         MENUITEM "Save VVC &As ...",            ID_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       IDCANCEL
+    END
+    MENUITEM "&Check",                      ID_CHECK
+END
+
+IDR_VEF MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New VEF",                    ID_FILE_NEW
+        MENUITEM SEPARATOR
+        MENUITEM "&Load VEF",                   ID_FILE_LOAD
+        MENUITEM "Load &external VEF",          ID_FILE_LOADEXTERNAL
+        MENUITEM "&Save VEF",                   ID_FILE_SAVE
+        MENUITEM "Save VEF &As ...",            ID_FILE_SAVEAS
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDCANCEL
     END
@@ -7543,8 +7622,9 @@ BEGIN
     IDC_DUALFLAGS, 0x403, 18, 0
 0x7830, 0x3830, 0x3030, 0x4520, 0x7078, 0x726f, 0x6174, 0x6c62, 0x0065, 
 
-    IDC_DUALFLAGS, 0x403, 14, 0
-0x7830, 0x3031, 0x3030, 0x5520, 0x756e, 0x6573, 0x0064, 
+    IDC_DUALFLAGS, 0x403, 22, 0
+0x7830, 0x3031, 0x3030, 0x4e20, 0x206f, 0x7068, 0x6620, 0x6565, 0x6264, 
+0x6361, 0x006b, 
     IDC_DUALFLAGS, 0x403, 28, 0
 0x7830, 0x3032, 0x3030, 0x4320, 0x6972, 0x6974, 0x6163, 0x206c, 0x6170, 
 0x6874, 0x2820, 0x5749, 0x3244, 0x0029, 
@@ -7717,6 +7797,23 @@ BEGIN
     0
 END
 
+IDD_VEFEDIT DLGINIT
+BEGIN
+    IDC_TYPE, 0x403, 8, 0
+0x2030, 0x202d, 0x4157, 0x0056, 
+    IDC_TYPE, 0x403, 12, 0
+0x2031, 0x202d, 0x5656, 0x2f43, 0x4142, 0x004d, 
+    IDC_TYPE, 0x403, 16, 0
+0x2032, 0x202d, 0x4556, 0x2f46, 0x5656, 0x2f43, 0x4142, 0x004d, 
+    IDC_TYPE2, 0x403, 8, 0
+0x2030, 0x202d, 0x4157, 0x0056, 
+    IDC_TYPE2, 0x403, 12, 0
+0x2031, 0x202d, 0x5656, 0x2f43, 0x4142, 0x004d, 
+    IDC_TYPE2, 0x403, 16, 0
+0x2032, 0x202d, 0x4556, 0x2f46, 0x5656, 0x2f43, 0x4142, 0x004d, 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -7852,9 +7949,9 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_DLG30               "The engine lacks the dialog flags. (Practically all, except BG2)."
-    IDS_BG1AREA             "The areas are connected via internal fields. This is BG1 specific."
+    IDS_BG1AREA             "The areas are connected via internal fields. This is BG1 specific. Also used for BGEE."
     IDS_IWD2                "IWD2 specific structures. This option handles most of the IWD2 specific quirks."
-    IDS_UNLIMIT             "This option disables the itemtype limit of BG1/BG2. Affects PST/IWD1/IWD2."
+    IDS_UNLIMIT             "This option disables the itemtype limit of BG1/BG2. Affects PST/IWD1/IWD2/BGEE."
     IDS_NOZIP               "This option turns off BAM compression options. PST/IWD1 specific."
     IDS_WEAPON              "No weapon proficiency in items. (Practically all, except BG2)."
     IDS_XPLIST              "XPVAR.2DA file is used instead of XPLIST.2DA (IWD1/IWD2)"
@@ -8065,8 +8162,13 @@ BEGIN
     IDS_SHADOW              "Move the shadow palette entry when reordering palettes. (turn off to keep shadow in place)"
     IDS_FORCENEW            "Don't overwrite changed strings when importing TBG."
     IDS_CHR                 "character"
-    IDS_PVRZ                "tile surfaces"
+    IDS_PVRZ                "tile surface"
     IDS_BIO                 "biography"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_GLSL                "shader script"
 END
 
 #endif    // English (U.S.) resources

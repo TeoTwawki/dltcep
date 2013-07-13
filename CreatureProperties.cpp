@@ -1434,6 +1434,10 @@ void CCreatureResist::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX,IDC_MISSILE, tmp);
   DDV_MinMaxInt(pDX, tmp, -127,127);
   the_creature.header.resmiss=(char) tmp;
+  tmp=the_creature.header.undead;
+  DDX_Text(pDX,IDC_UNDEAD, tmp);
+  DDV_MinMaxInt(pDX, tmp, 0,127);
+  the_creature.header.undead=(char) tmp;
   if(memcmp(&tmpheader,&the_creature.header,sizeof(creature_header) ))
   {
     the_creature.m_changed=true;
@@ -1487,6 +1491,7 @@ BEGIN_MESSAGE_MAP(CCreatureResist, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_ELECTRICITY, OnKillfocusElectricity)
 	ON_EN_KILLFOCUS(IDC_ACID, OnKillfocusAcid)
 	ON_EN_KILLFOCUS(IDC_MAGIC, OnKillfocusMagic)
+	ON_EN_KILLFOCUS(IDC_UNDEAD, OnKillfocusUndead)
 	ON_EN_KILLFOCUS(IDC_MAGFIRE, OnKillfocusMagfire)
 	ON_EN_KILLFOCUS(IDC_MAGCOLD, OnKillfocusMagcold)
 	ON_EN_KILLFOCUS(IDC_SLASHING, OnKillfocusSlashing)
@@ -1559,6 +1564,12 @@ void CCreatureResist::OnKillfocusAcid()
 }
 
 void CCreatureResist::OnKillfocusMagic() 
+{
+  UpdateData(UD_RETRIEVE);
+  UpdateData(UD_DISPLAY);
+}
+
+void CCreatureResist::OnKillfocusUndead() 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
@@ -1956,7 +1967,7 @@ void CCreatureUnknown::DoDataExchange(CDataExchange* pDX)
   DDV_MinMaxInt(pDX,the_creature.header.unused[6],0,255);
   DDX_Text(pDX,IDC_MISSILE, the_creature.header.unused[7]);
   DDV_MinMaxInt(pDX,the_creature.header.unused[7],0,255);
-  for(i=0;i<13;i++)
+  for(i=0;i<12;i++)
   {
     DDX_Text(pDX,IDC_U1+i, the_creature.header.unused[8+i]);
     DDV_MinMaxInt(pDX,the_creature.header.unused[8+i],0,255);
@@ -2038,7 +2049,6 @@ BEGIN_MESSAGE_MAP(CCreatureUnknown, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_U10, OnKillfocusU10)
 	ON_EN_KILLFOCUS(IDC_U11, OnKillfocusU11)
 	ON_EN_KILLFOCUS(IDC_U12, OnKillfocusU12)
-	ON_EN_KILLFOCUS(IDC_U13, OnKillfocusU13)
 	ON_EN_KILLFOCUS(IDC_U20, OnKillfocusU20)
 	ON_EN_KILLFOCUS(IDC_U21, OnKillfocusU21)
 	ON_EN_KILLFOCUS(IDC_U22, OnKillfocusU22)
@@ -2185,13 +2195,6 @@ void CCreatureUnknown::OnKillfocusU12()
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
-
-void CCreatureUnknown::OnKillfocusU13() 
-{
-  UpdateData(UD_RETRIEVE);
-  UpdateData(UD_DISPLAY);
-}
-
 
 void CCreatureUnknown::OnKillfocusU14() 
 {

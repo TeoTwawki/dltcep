@@ -24,6 +24,7 @@
 #include "pvr.h"
 #include "script.h"
 #include "VVC.h"
+#include "VEF.h"
 #include "WFX.h"
 #include "dialog.h"
 #include "area.h"
@@ -134,6 +135,7 @@ extern UINT WM_FINDREPLACE;
 #define SPT_OVERRIDE 'O1'
 #define SPT_SECONDOB 'O2'
 #define SPT_ACTION   'A'
+#define SPT_TRIGGER  'T'  //trigger inside a triggeroverride
 #define SPT_POINT    'P'
 #define SPT_INTEGER  'I'  //1. position
 #define SPT_INTEGER2 'I2' //3. (trigger) or 4. (action) position
@@ -190,7 +192,7 @@ extern int itvs2h[NUM_ITEMTYPE];
 
 #define NUM_ANIMTYPES 12
 
-#define NUM_ANIMIDX  50
+#define NUM_ANIMIDX  52
 #define NUM_STYPE  6
 #define NUM_STYPE2 4
 
@@ -282,7 +284,8 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define REF_GUI   0x402  //34
 #define REF_SQL   0x403  //35
 #define REF_PVRZ  0x404  //36
-#define NUM_OBJTYPE 36
+#define REF_GLSL  0x405  //37
+#define NUM_OBJTYPE 37
 
 #define NUM_FVALUE 3
 extern CString proj_facing_desc[NUM_FVALUE];
@@ -408,6 +411,7 @@ extern CString ammo_types[NUM_AMTYPE];
 #define TR_TRUE      0x23
 #define TR_FALSE     0x30
 #define TR_OR        0x89
+#define TR_OVERRIDE  0x40e0 //only BGEE
 
 #define AC_CONTINUE  0x36
 #define AC_STARTCUT  120
@@ -634,6 +638,7 @@ extern colortype colors[COLORNUM];
 
 extern void init_colors();
 extern CString colortitle(unsigned int value);
+extern void init_entries();
 extern void init_spawn_entries();
 extern int feature_resource(int feature);
 extern int *get_strref_opcodes();
@@ -744,6 +749,7 @@ extern CStringMapLocEntry guis;
 extern CStringMapLocEntry sqls;
 extern CStringMapLocEntry pvrzs;
 extern CStringMapLocEntry bios;
+extern CStringMapLocEntry glsl;
 
 extern CStringMapLocEntry *resources[NUM_OBJTYPE+1];
 extern CStringListLocEntry *duplicates[NUM_OBJTYPE+1];
@@ -809,6 +815,7 @@ extern Ceffect the_effect;
 extern Ccreature the_creature;
 extern Cpvr the_pvr;
 extern CVVC the_videocell;
+extern CVEF the_vef;
 extern CWFX the_wfx;
 extern Cscript the_script;
 extern Cdialog the_dialog;
@@ -865,6 +872,7 @@ extern CIntMapString listinnates;
 extern CIntMapString listsongs;
 extern CIntMapString listshapes;
 extern CStringMapInt ini_entry;
+extern CStringMapPoint entries;
 
 #define INI_CREATURE 1
 #define INI_SPAWN    2
@@ -1110,6 +1118,7 @@ int ChiSquare(BYTE *a,BYTE *b);
 #define CE_INVALID_SPELL_LIST       -45
 #define CE_INVALID_SPELL_NUMBER     -46
 #define CE_INCORRECT_OR             -47
+#define CE_INCOMPLETE_TROVERRIDE    -48
 #define CE_BAD_IF                   -100
 #define CE_BAD_RESPONSE             -110
 #define CE_BAD_THEN                 -120
@@ -1207,6 +1216,8 @@ int read_mos(CString key, Cmos *cb=NULL, int lazy=0);
 int read_tis(CString key, Cmos *cb=NULL, int lazy=0);
 int read_tis_preview(CString key, Cmos *cb, int lazy=0);
 int read_dialog(CString key);
+int read_vef(CString key);
+int write_vef(CString key, CString filepath);
 int read_videocell(CString key);
 int write_videocell(CString key, CString filepath);
 int read_wfx(CString key);

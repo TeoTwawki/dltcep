@@ -108,6 +108,7 @@ public:
 	virtual ~Carea();
   void new_area();
   int RemoveDoorPolygon(int first);
+  int GetWedDoorIndex(char *doorid);
   int AddWedDoor(CString doorid);
   int RemoveWedDoor(char *doorid);
   int DefaultAreaOverlays();

@@ -550,6 +550,22 @@ CString Decompiler::PrintTrigger(Trigger *tR)
 		tmp=CString("  ")+tmp;
 		num_or--;
 	}
+
+  if (has_trov.GetLength())
+  {
+    tmp=CString("  TriggerOverride(")+has_trov+CString(", ")+tmp.Mid(2)+CString(")");
+    has_trov.Empty();
+  }
+
+  if(tR->triggerID==TR_OVERRIDE)
+  {
+    if (is_this_bgee())
+    {      
+      has_trov = params;
+      return "";
+    }
+  }
+
 	if((tR->triggerID&0x3fff)==TR_OR)
 	{
 		num_or=tR->int0Parameter;
@@ -619,6 +635,7 @@ int Decompiler::ReadCondition()
 	}
 	WriteString("IF\r\n");
 	num_or = 0;
+  has_trov.Empty();
 	while (true)
 	{
 		ReadLine( 10 );

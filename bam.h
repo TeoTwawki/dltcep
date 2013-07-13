@@ -176,7 +176,8 @@ public:
   int GetFrameCount();
   int GetCycleCount();
   int DetachFrameData(int nFrameWanted);
-  CPoint GetCompositeSize();
+  CPoint GetCompositeSize();     //used for 2x2 description bams
+  CPoint GetCombinedFrameSize(); //used for animations, max size
   CPoint GetFrameSize(int nFrameWanted);
   void GetEmpty(INF_BAM_FRAMEDATA *fdata);
 	void GetQuarterSplit(INF_BAM_FRAMEDATA *fdata, int nFrameWanted, 
@@ -312,6 +313,7 @@ public:
   plt_header m_pltheader;
   short *m_pFrameLookup;     //frame lookup tables (made them global for convenience)
   bool m_changed;
+  int m_version;
 
   BOOL m_bCompressed; //save as (leave it public for simplicity)
   //palette : 0,  frame/cycle : 1, framelookup: 2, frame data: 3
