@@ -153,6 +153,8 @@ int Cgame::WriteGameToFile(int fhandle, int calculate)
   int mysize;
   int i;
 
+  if (is_this_bgee() && revision<20) revision = 20;
+
   //precalculating fullsize
   switch(revision)
   {

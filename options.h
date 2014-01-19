@@ -13,6 +13,7 @@
 #define WEI_TEXT     8
 #define WEI_GAMETYPE 16
 #define WEI_LOGGING  0x8000
+#define WEI_USELANG  0x10000
 
 #define NOREFCHK 1    //string ref
 #define NOITEMCH 2    //broken item reference
@@ -273,6 +274,7 @@ protected:
 	afx_msg void OnKillfocusDecompiled();
 	afx_msg void OnFlag5();
 	afx_msg void OnKillfocusLanguage();
+	afx_msg void OnUseLang();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

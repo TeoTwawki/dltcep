@@ -345,6 +345,7 @@ private:
        COLORREF *pDIBits, bool bIsCompressed, int nMaxLength, int nColumn);
   bool FitAndCenterBitmap(HBITMAP &hOriginal, COLORREF clrBackground,
 	     int nWidth, int nHeight, int zoom);
+  bool CheckPixelData(const DWORD *pRawBits, LPBYTE pixelidx, int pixelcount);
   int ReducePalette(int fhandle, bmp_header sHeader, int scanline);
 };
 

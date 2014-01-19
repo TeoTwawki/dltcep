@@ -857,8 +857,11 @@ int Carea::WriteAreaToFile(int fh, int calculate)
   if(header.songoffset) header.songoffset=fullsize;
   fullsize+=sizeof(area_song);                              //song
   //set this only when needed
-  if(header.intoffset) header.intoffset=fullsize;
-  fullsize+=sizeof(area_int);                               //interruption
+  if(header.intoffset)
+  {
+    header.intoffset=fullsize;
+    fullsize+=sizeof(area_int);                             //interruption
+  }
   if(header.mapnotecnt)
   {
     header.mapnoteoffset=fullsize;
@@ -1404,12 +1407,11 @@ int Carea::RecalcBoundingBoxes()
     if (minx<0) minx=0;
     if (miny<0) miny=0;
     if (maxx>=wgx) maxx=wgx-1;
+    if (maxy>=wgy) maxy=wgy-1;
     for(x=minx;x<=maxx;x++) for(y=miny;y<=maxy;y++)
     {
-      if(PolygonInBox( (area_vertex *) poi, count, CRect(minx*640, miny*480, (minx+1)*640, (miny+1)*480) ) )
+      if(PolygonInBox( (area_vertex *) poi, count, CRect(x*640, y*480, (x+1)*640, (y+1)*480) ) )
       {
-        if (x>=wgx) continue;
-        if (y>=wgy) continue;
         wallgroupindices[y*wgx+x].count++;
       }
     }
@@ -1447,12 +1449,14 @@ int Carea::RecalcBoundingBoxes()
       maxy=doorpolygonheaders[i-secheader.wallpolycnt].maxy/480;
       count=doorpolygonheaders[i-secheader.wallpolycnt].countvertex;
     }
+    if (minx<0) minx=0;
+    if (miny<0) miny=0;
+    if (maxx>=wgx) maxx=wgx-1;
+    if (maxy>=wgy) maxy=wgy-1;
     for(x=minx;x<=maxx;x++) for(y=miny;y<=maxy;y++)
     {
-      if(PolygonInBox((area_vertex *) poi, count, CRect(minx*640, miny*480, (minx+1)*640, (miny+1)*480) ) )
+      if(PolygonInBox((area_vertex *) poi, count, CRect(x*640, y*480, (x+1)*640, (y+1)*480) ) )
       {
-        if (x>=wgx) continue;
-        if (y>=wgy) continue;
         wed_polyidx *wgi=wallgroupindices+y*wgx+x;
         polygonindices[wgi->index+wgi->count++]=(short) i;
       }

@@ -881,6 +881,7 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               finddata.param1=bcnt;
+              strncpy(finddata.resource, trigger->var1, 6);
               return 1;
             }
           }
@@ -890,6 +891,7 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               finddata.param1=bcnt;
+              strncpy(finddata.resource, trigger->var2, 6);
               return 1;
             }
           }
@@ -966,6 +968,7 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               finddata.param1=bcnt;
+              strncpy(finddata.resource, action->var1, 6);
               return 1;
             }
           }
@@ -975,6 +978,7 @@ int Cscript::find_itemtype(search_data &searchdata, search_data &finddata, int i
             if(!strnicmp(finddata.variable,searchdata.variable,32))
             {
               finddata.param1=bcnt;
+              strncpy(finddata.resource, action->var2, 6);
               return 1;
             }
           }

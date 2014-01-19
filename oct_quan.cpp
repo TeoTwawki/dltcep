@@ -106,7 +106,16 @@ int OctQuant::BuildTree(const DWORD *pRawBits, LPBYTE pFrameData, CPoint nDimens
   for (i = 0; i < nPixelNum; i++)
   {
       // Insert pixel color into octree
-      memcpy(&color.data,pRawBits+i,3);      
+      memcpy(&color.data,pRawBits+i,3);
+      /* set the pixel's hue based on alpha
+      if (color.IsEmpty())
+      {
+        color.data.red = * ((unsigned char *) (pRawBits+i)+3);
+        color.data.green = * ((unsigned char *) (pRawBits+i)+3);
+        color.data.blue = * ((unsigned char *) (pRawBits+i)+3);
+        memcpy((LPBYTE) (pRawBits+i), &color.data, 3);
+      }
+      */
       if (InsertNode(proot, color, -1 ) == FALSE)
       {
         DeleteTree();      // Delete the octree

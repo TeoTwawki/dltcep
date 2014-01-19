@@ -1,12 +1,19 @@
 // WedEdit.cpp : implementation file
 //
 
+// TODO: make overlay from BMP
+// load bmp, use colorkey green ? transparent...
+// add different stencils
+//
 #include "stdafx.h"
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "chitem.h"
 #include "WedEdit.h"
 #include "WedPolygon.h"
 #include "WedTile.h"
 #include "TisDialog.h"
+#include "MyFileDialog.h"
 #include "MosEdit.h"
 
 #ifdef _DEBUG
@@ -339,6 +346,7 @@ BOOL CWedEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_REMOVE2), IDS_REMOVEPOLY);
     m_tooltip.AddTool(GetDlgItem(IDC_SELECTION2), IDS_SELECTPOLY);
     m_tooltip.AddTool(GetDlgItem(IDC_EDITWALLPOLY), IDS_EDITPOLY);
+    m_tooltip.AddTool(GetDlgItem(IDC_MOVE), IDS_LAYERFLAGS);
   }
 	UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -388,6 +396,7 @@ BEGIN_MESSAGE_MAP(CWedEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_MOVE, OnKillfocusMove)
 	ON_COMMAND(ID_OVERLAY_ADD, OnOverlayAdd)
 	ON_BN_CLICKED(IDC_ADDOVERLAY, OnOverlayAdd)
+	ON_COMMAND(ID_OVERLAY_LOAD, OnOverlayLoad)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -708,7 +717,7 @@ void CWedEdit::OnSelection()
   if(m_open) first=the_area.weddoorheaders[m_doornum].offsetpolygonopen+m_doorpolynum;
   else first=the_area.weddoorheaders[m_doornum].offsetpolygonclose+m_doorpolynum;
   dlg.SetMapType(MT_DOORPOLYLIST, (LPBYTE) &the_area.wedvertexheaderlist);
-  dlg.m_max=the_area.doorpolygoncount;
+  dlg.m_max=the_area.doorpolygoncount-1;
   dlg.m_value=first;
   dlg.InitView(IW_SHOWGRID|IW_GETPOLYGON|IW_ENABLEBUTTON, &the_mos);
   dlg.DoModal();
@@ -845,24 +854,7 @@ void CWedEdit::OnOrder()
 
 void CWedEdit::OnRemove2() 
 {
-	wed_polygon *newpolygons;
-  POSITION pos;
-	
-  pos=the_area.wedvertexheaderlist.FindIndex(m_wallgroupnum);
-  if(!pos) return;
-  newpolygons=new wed_polygon[--the_area.secheader.wallpolycnt];
-  if(!newpolygons)
-  {
-    the_area.secheader.wallpolycnt++;
-    return;
-  }
-  memcpy(newpolygons, the_area.wallpolygonheaders, m_wallgroupnum*sizeof(wed_polygon));
-  memcpy(newpolygons+m_wallgroupnum, the_area.wallpolygonheaders+m_wallgroupnum+1,(the_area.secheader.wallpolycnt-m_wallgroupnum)*sizeof(wed_polygon) );
-  delete [] the_area.wallpolygonheaders;
-  the_area.wallpolygonheaders=newpolygons;
-  the_area.wedvertexheaderlist.RemoveAt(pos);//this also frees the polygon
-  the_area.wallpolygoncount=the_area.secheader.wallpolycnt;
-  the_area.wedchanged=true;
+  DropWallPolygon(m_wallgroupnum);
   RefreshWed();
   UpdateData(UD_DISPLAY);
 }
@@ -917,7 +909,7 @@ void CWedEdit::OnSelection2()
 
   dlg.SetMapType(MT_WALLPOLYLIST, (LPBYTE) &the_area.wedvertexheaderlist);
   dlg.m_value=m_wallgroupnum;
-  dlg.m_max=the_area.wallpolygoncount;
+  dlg.m_max=the_area.wallpolygoncount-1;
   dlg.InitView(IW_SHOWGRID|IW_GETPOLYGON|IW_ENABLEBUTTON, &the_mos);
   dlg.DoModal();
   m_wallgroupnum=dlg.m_value;
@@ -1177,10 +1169,80 @@ void CWedEdit::OnClear()
   OnRemove2();
 }
 
+void CWedEdit::DropWallPolygon(int index)
+{
+	wed_polygon *newpolygons;
+  POSITION pos;
+		
+  pos=the_area.wedvertexheaderlist.FindIndex(index);
+  if(!pos) return;
+  newpolygons=new wed_polygon[--the_area.secheader.wallpolycnt];
+  if(!newpolygons)
+  {
+    the_area.secheader.wallpolycnt++;
+    return;
+  }
+  memcpy(newpolygons, the_area.wallpolygonheaders, index*sizeof(wed_polygon));
+  memcpy(newpolygons+index, the_area.wallpolygonheaders+index+1,(the_area.secheader.wallpolycnt-index)*sizeof(wed_polygon) );
+  delete [] the_area.wallpolygonheaders;
+  the_area.wallpolygonheaders=newpolygons;
+  the_area.wedvertexheaderlist.RemoveAt(pos);//this also frees the polygon
+  the_area.wallpolygoncount=the_area.secheader.wallpolycnt;
+  the_area.wedchanged=true;
+}
+
+/*
+void CWedEdit::DropDoorPolygon(int index)
+{
+	wed_polygon *newpolygons;
+  POSITION pos;
+		
+  pos=the_area.wedvertexheaderlist.FindIndex(index);
+  if(!pos) return;
+  newpolygons=new wed_polygon[--doorpolygoncount];
+  if(!newpolygons)
+  {
+    the_area.secheader.wallpolycnt++;
+    return;
+  }
+  memcpy(newpolygons, the_area.doorpolygonheaders, index*sizeof(wed_polygon));
+  memcpy(newpolygons+index, the_area.doorpolygonheaders+index+1,(doorpolygoncount-index)*sizeof(wed_polygon) );
+  delete [] the_area.wallpolygonheaders;
+  the_area.doorpolygonheaders=newpolygons;
+  the_area.wedvertexheaderlist.RemoveAt(pos);//this also frees the polygon
+  the_area.wedchanged=true;
+}
+*/
+void CWedEdit::DropInvalidPolygons()
+{
+  int i;
+  int ret;
+
+	for(i=0;i<the_area.wallpolygoncount;i++)
+  {
+    ret=the_area.wallpolygonheaders[i].countvertex;
+    if(ret<3)
+    {
+      DropWallPolygon(i);
+    }
+  }
+  /*
+	for(i=0;i<the_area.doorpolygoncount;i++)
+  {
+    ret=the_area.doorpolygonheaders[i].countvertex;
+    if(ret<3)
+    {
+      DropDoorPolygon(i);
+    }
+  }
+  */
+}
+
 void CWedEdit::OnCleanup() 
 {
 	int ret;
-	
+
+  DropInvalidPolygons();
   ret=the_area.RecalcBoundingBoxes();
   if(ret)
   {
@@ -1228,6 +1290,7 @@ void CWedEdit::OnRemove()
   int i,j;
   int tilecount;
   int indexcount;
+  int alttile;
   wed_tilemap *newtileheaders;
   short *newindices;
 
@@ -1241,7 +1304,28 @@ void CWedEdit::OnRemove()
   the_area.wedchanged=true;
   for(i=0;i<tilecount;i++)
   {
-    the_area.overlaytileheaders[i].overlayflags&=~(1<<m_overlaynum);
+    if (the_area.overlaytileheaders[i].overlayflags&(1<<m_overlaynum) )
+    {
+      the_area.overlaytileheaders[i].overlayflags&=~(1<<m_overlaynum);
+      alttile = the_area.overlaytileheaders[i].alternate;
+      if (alttile!=-1)
+      {
+        the_area.overlaytileheaders[i].alternate = -1;
+        the_mos.RemoveTile(alttile);
+        //removes the same tile from everywhere
+        for(j=0;j<tilecount;j++)
+        {
+          if(the_area.overlaytileheaders[j].alternate>alttile)
+          {
+            the_area.overlaytileheaders[j].alternate--;
+          }
+          else if(the_area.overlaytileheaders[j].alternate==alttile)
+          {
+            the_area.overlaytileheaders[j].alternate=-1;
+          }
+        }  
+      }
+    }
   }
   indexcount = the_area.getotic(m_overlaynum);
   tilecount = the_area.overlayheaders[m_overlaynum].height*the_area.overlayheaders[m_overlaynum].width; //removed tilecount
@@ -1445,8 +1529,8 @@ void CWedEdit::OnEdittile()
   {
     baseoverlay=0;
   }
-//  if(SetupSelectPoint(baseoverlay, &overlay)) return;
   if(SetupSelectPoint(0)) return;
+
   if(!m_whole)
   {
     for(baseoverlay=0;baseoverlay<10;baseoverlay++)
@@ -1477,6 +1561,119 @@ void CWedEdit::OnOverlayAdd()
   the_area.overlaycount++;
   the_area.wedheader.overlaycnt = the_area.overlaycount;
   the_area.wedchanged=true;
+  RefreshOverlay();
+  RefreshWed();
+	UpdateData(UD_DISPLAY);	
+}
+
+//returns true if the whole tile became transparent
+int CWedEdit::HandleStencil(Cmos &stencilmos, int tile1, int tile2)
+{
+  CPoint tmp;
+  unsigned char *framebuffer;
+  COLORREF *framepal;
+  int i;
+  bool replace=false;
+
+  framebuffer=stencilmos.GetFrameBuffer(tile2);
+  framepal=stencilmos.GetFramePalette(tile2);
+  tmp = stencilmos.GetFrameSize(tile2);
+  if(!framebuffer) return -1;
+  i = tmp.x*tmp.y;
+  while(i--)
+  {
+    if (framepal[framebuffer[i]]==TRANSPARENT_GREEN)
+    {
+      replace=true;
+      break;
+    }
+  }
+  if (replace)
+  {
+    return the_mos.AddTileCopy(tile1, framebuffer, 0);
+  }
+  return -1;
+}
+
+void CWedEdit::ApplyStencil(Cmos &stencilmos)
+{
+  unsigned int i;
+  unsigned int alttile;
+
+  if (m_overlaynum<1)
+  {
+    MessageBox("Select an overlay first!","Error",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  if (stencilmos.tisheader.numtiles!=(unsigned) the_area.getotc(1))
+  {
+    MessageBox("This bitmap is not the same size!","Error",MB_ICONSTOP|MB_OK);
+    return;
+  }
+  if(SetupSelectPoint(0)) return;
+
+  for (i=0;i<stencilmos.tisheader.numtiles;i++)
+  {
+    if (the_area.overlaytileheaders[i].alternate==-1)
+    {
+      alttile = HandleStencil(stencilmos, the_area.overlaytileindices[the_area.overlaytileheaders[i].firsttileprimary], i);
+      if (alttile!=-1)
+      {
+        the_area.overlaytileheaders[i].overlayflags |= 1<<m_overlaynum;
+        the_area.overlaytileheaders[i].alternate = (short) alttile;
+        the_mos.SetFrameData(i, stencilmos.GetFrameData(i) );
+        the_area.wedchanged = true;
+      }
+    }
+  }
+}
+
+void CWedEdit::OnOverlayLoad() 
+{
+  Cmos tmpmos;
+  CString filepath;
+  int res;
+  int fhandle;
+
+  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
+  
+  CMyFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, ImageFilter(0x032) );
+  m_getfiledlg.m_ofn.nFilterIndex=1;
+
+restart:  
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    fhandle=open(filepath, O_RDONLY|O_BINARY);
+    if(!fhandle)
+    {
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      goto restart;
+    }
+
+    filepath.MakeLower();
+    if(filepath.Right(4)==".bmp")
+    {
+      res=tmpmos.ReadBmpFromFile(fhandle,-1);
+    }
+    else
+    {
+      res=tmpmos.ReadTisFromFile(fhandle, NULL, true, false);
+    }
+    
+    close(fhandle);
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+    switch(res)
+    {
+    case 0:
+      ApplyStencil(tmpmos);
+      break;
+    default:
+      MessageBox("Cannot read bitmap!","Error",MB_ICONSTOP|MB_OK);
+      break;
+    }
+  }
+
   RefreshOverlay();
   RefreshWed();
 	UpdateData(UD_DISPLAY);	

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.6d"
+#define PRG_VERSION "7.6h"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -229,7 +229,9 @@ ON_COMMAND(ID_TOOLS_LOADALLDIALOGS, OnToolsLoadalldialogs)
 ON_COMMAND(ID_BG1FX, OnBg1fx)
 ON_COMMAND(ID_CONVERSIONS_PVRCOMPRESSTILESETSPVRZ, OnPvrPack)
 ON_COMMAND(ID_CONVERSIONS_PVRUNPACKTILESETS, OnPvrUnpack)
-	ON_COMMAND(ID_CHECK_SQL, OnCheckSql)
+ON_COMMAND(ID_CHECK_SQL, OnCheckSql)
+ON_COMMAND(ID_TOOLS_CREATEQUESTLIST, OnToolsCreatequestlist)
+ON_COMMAND(ID_TOOLS_CREATESPELLLIST, OnToolsCreatespelllist)
 ON_COMMAND(ID_SEARCH_AREA, OnFindArea)
 ON_COMMAND(ID_EDIT_ITEM, OnEditItem)
 ON_COMMAND(ID_EDIT_CREATURE, OnEditCreature)
@@ -254,7 +256,7 @@ ON_COMMAND(ID_RESCAN2, OnRescan2)
 ON_COMMAND(ID_RESCAN3, OnRescan3)
 ON_COMMAND(ID_RESCAN4, OnRescan4)
 ON_COMMAND(ID_RESCAN5, OnRescan5)
-	ON_COMMAND(ID_TOOLS_CREATEQUESTLIST, OnToolsCreatequestlist)
+	ON_COMMAND(ID_TOOLS_HUNTFORDISKSPACE, OnToolsHunt)
 	//}}AFX_MSG_MAP
 ON_WM_SIZE()
 ON_WM_GETMINMAXINFO()
@@ -379,6 +381,9 @@ BOOL CChitemDlg::OnInitDialog()
   pvrzs.InitHashTable(LARGE_PRIME); //.pvrz35
   bios.InitHashTable(SMALL_PRIME); //.bio36
   glsl.InitHashTable(SMALL_PRIME); //.glsl37
+
+  usedtis.InitHashTable(MEDIUM_PRIME);
+  usedwed.InitHashTable(MEDIUM_PRIME);
 
   storeitems.InitHashTable(SMALL_PRIME); //container .itm
   rnditems.InitHashTable(SMALL_PRIME);   //random .itm
@@ -767,6 +772,22 @@ int CChitemDlg::scan_2da()
       darefs.Lookup("RNDTRES", tmploc);
       val=Read2daInt(tmploc, rnditems, 1); //adding more items
     }
+    else
+    {
+      for (int i=1;i<9;i++)
+      {
+        key.Format("RNDEQU0%c",'1'+i);
+        rnditems[key]=1;
+        key.Format("RNDTRE0%c",'1'+i);
+        rnditems[key]=1;
+        key.Format("RNDMAG0%c",'1'+i);
+        rnditems[key]=1;
+        key.Format("RNDSCR0%c",'1'+i);
+        rnditems[key]=1;
+        key.Format("RNDWEP0%c",'1'+i);
+        rnditems[key]=1;
+      }
+    }
     
     if(pst_compatible_var())
     {
@@ -818,7 +839,7 @@ int CChitemDlg::scan_2da()
     break;
   }
 
-  get_idsfile("ALIGNMEN",1);
+  get_idsfile("ALIGNMEN",true);
 /*
   idrefs.Lookup("RACE",tmploc);
   val=ReadIds(tmploc, race_names,1);
@@ -1312,6 +1333,7 @@ int CChitemDlg::gather_override(CString folder, int where)
   _finddata_t fdata;
   int flg;
   int type;
+  int len1;
   CStringMapLocEntry *resourcepoi;
   
   memset(ovrnum,0,sizeof(ovrnum));
@@ -1323,7 +1345,10 @@ int CChitemDlg::gather_override(CString folder, int where)
   {
     do
     {
-      if(strlen(fdata.name)>12)
+      if (fdata.name[0]=='.') continue;
+
+      for(len1=0;len1<8 && fdata.name[len1] && fdata.name[len1]!='.';len1++);
+      if(len1>8)
       {
         if(chkflg&NOMISS)
         {
@@ -2023,7 +2048,7 @@ int CChitemDlg::process_stores(bool check_or_search)
 
 //search : true
 //check : false
-int CChitemDlg::process_items(bool check_or_search)
+int CChitemDlg::process_items(int check_or_search)
 {
   int dummy;
   int gret, ret;
@@ -2051,8 +2076,15 @@ int CChitemDlg::process_items(bool check_or_search)
     if(ret) gret=1;
     if(ret>=0)
     {
-      if(check_or_search) ret=match_item();
-      else ret=check_item();
+      switch(check_or_search)
+      {
+      //case SCANNING: ret=scan_item();
+      //  break;
+      case MATCHING: ret=match_item();
+        break;
+      case CHECKING: ret=check_item();
+        break;
+      }
     }
     newitem=FALSE;
     if(ret) gret=1;
@@ -3643,6 +3675,82 @@ void CChitemDlg::OnCreateIAP()
   dlg.DoModal();
 }
 
+void CChitemDlg::StoreWedAndTileset(CString key)
+{
+  CString res;
+
+  RetrieveResref(res,the_area.header.wed);
+  if (the_area.m_night) res+="N";
+  usedwed[res]=key;
+  for(int i=0;i<the_area.overlaycount;i++)
+  {
+    RetrieveResref(res, the_area.overlayheaders[i].tis);
+    if (res.GetLength())
+    {
+      usedtis[res]=key;
+      if (i)
+      {
+        res+="R";
+        usedtis[res]=key;
+      }
+    }
+  }
+}
+
+void CChitemDlg::OnToolsHunt() 
+{
+  loc_entry fileloc;
+  CString key, wed;
+  POSITION pos;
+  int ret;
+
+  usedtis.RemoveAll();
+  usedwed.RemoveAll();
+  pos=areas.GetStartPosition();
+  while(pos)
+  {
+    areas.GetNextAssoc(pos,key,fileloc);
+    changeitemname(key);
+    ret=read_next_area(fileloc);
+    if(ret<0) continue;
+    the_area.m_night=0;
+    ret=ReadWed(0);
+    if (ret<0) continue;
+    StoreWedAndTileset(key);
+
+    if (the_area.header.areatype&EXTENDED_NIGHT)
+    {
+      the_area.m_night=1;
+      ret=ReadWed(0);
+      StoreWedAndTileset(key);
+    }
+  }
+
+  pos=weds.GetStartPosition();
+  while(pos)
+  {
+    weds.GetNextAssoc(pos, key, fileloc);
+    changeitemname(key);
+    if (!usedwed.Lookup(key, wed))
+    {
+      log("Unused wed.");
+    }
+  }
+
+  pos=tis.GetStartPosition();
+  while(pos)
+  {
+    ret=-1;
+    tis.GetNextAssoc(pos,key,fileloc);   
+    changeitemname(key);
+    if (usedtis.Lookup(key,wed)) continue;
+    log("Unused tileset.");
+  }
+
+  //clean up
+  the_area.new_area();
+}
+
 void CChitemDlg::OnToolsDecompile() 
 {
   POSITION pos;
@@ -4220,6 +4328,53 @@ CString CChitemDlg::GetTitle(CString str)
   return str;
 }
 
+
+void CChitemDlg::OnToolsCreatespelllist() 
+{
+  C2da hidespell;
+  Cspell tmpspell;
+  loc_entry loc;
+  int types; //spell types
+	int slot = 48; //first entry
+  int j; //index within level
+  int level;
+  int fh;
+
+  if (!is_this_bgee())
+  {
+    MessageBox("This is a BGEE specific function.","Error", MB_ICONSTOP|MB_OK);
+    return;
+  }
+  read_2da("HIDESPL",hidespell);
+  for (types = 0; types<2; types++) //priest and wizard spells
+  {
+    for (level = 1; level<=get_max_levels(types); level++)
+    {
+      if (level>5) break;
+      for (j=1;j<100;j++)
+      {
+        CString spellname = format_spell_id((types+1)*1000+level*100+j);
+        CString x = hidespell.FindValue(spellname,1);
+        if (atoi(x))
+        {
+          continue;
+        }
+        if (spells.Lookup(spellname, loc))
+        {
+          fh = locate_file(loc, false);
+          if (fh)
+          {
+            int strref = tmpspell.RetrieveNameRef(fh);
+            if (strref<1 || strref>500000) continue;
+            log("%d,\t%d,\t\"%s\",\t%d,\t\"\",\t0,\t0,", slot, 5+types, spellname, strref);
+            slot++;
+          }
+        }
+      }
+    }
+  }
+}
+
 void CChitemDlg::OnToolsCreatequestlist() 
 {
   POSITION pos;
@@ -4747,7 +4902,7 @@ void CChitemDlg::DecompressAcm2(bool wavc_or_acm)
   }  
   res=OFN_FILEMUSTEXIST|OFN_ALLOWMULTISELECT|OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;  
-  CMyFileDialog m_getfiledlg(TRUE, wavc_or_acm?"wav":"acm", wavc_or_acm?makeitemname(".wav",0):makeitemname(".acm",0), res, wavc_or_acm?szFilter1:szFilter2); 
+  CMyFileDialog m_getfiledlg(TRUE, wavc_or_acm?"wav":"acm", wavc_or_acm?makeitemname(".wav",0):makeitemname(".acm",0), res, wavc_or_acm?szFilter1:szFilter2);
 
   folder.Format("Which %s files to decompress?",wavc_or_acm?"WAVC":"ACM");  
   m_getfiledlg.m_ofn.lpstrTitle=folder;

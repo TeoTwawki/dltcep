@@ -482,22 +482,22 @@ typedef struct {
   long depreciation;  //depreciacion 3
   short steal;     //steal success   4
   short capacity;  //capacity
-  char dlgresref1[8];
+  char scriptres[8]; //script executed on failed steal
   long pitemoffset; 
   long pitemcount; 
   long offset;    //important
   long itemcount; //important
   long lore;
   long idprice; 
-  char dlgresref2[8];
+  char dlgresref2[8]; //drink rumor
   long drinkoffset;
   long drinkcount;
-  char dlgresref3[8];
+  char dlgresref3[8]; //donate rumor
   long rent;
   long prices[4];
   long cureoffset;
   long curecount;
-  unsigned char unknown[36];
+  long unknown[9]; //3x3
 } store_header;
 
 typedef struct {
@@ -544,9 +544,9 @@ typedef struct {
   char vvc[8];
   short spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
   short spknumber;  
-  long extflags;    //0x2c //flags used by gemrb
+  unsigned long extflags;//0x2c //flags used by gemrb
   long text;        //0x30 //text strref
-  long rgb;         //0x34 //rgb single pulse color
+  unsigned long rgb;         //0x34 //rgb single pulse color
   short pulsespeed; //0x38 //pulse speed
   short shake;      //0x3a //screen shake
   short affects;    //0x3c //ids targeting value (0-255) just like with ids targeting opcode
@@ -1291,7 +1291,7 @@ typedef struct
   short snow;
   short fog;
   short lightning;
-  short windspeed;
+  short overlaymode;
   long actoroffset;
   short actorcnt;
   short infocnt;
@@ -1310,8 +1310,8 @@ typedef struct
   long ambioffset;
   long variableoffset;
   short variablecnt;
-  short tileflagcnt;
-  long tileflagoffset;
+  short tileflagcnt;   //unused 
+  long tileflagoffset; //unused 
   char scriptref[8];
   long exploredsize;
   long exploredoffset;
@@ -1448,7 +1448,8 @@ typedef struct {
   char key[8];
   char scriptref[8]; //script of this trigger  
   short pointx, pointy;
-  char unknown[36];
+  unsigned long point2x, point2y; //same as above, but in IWD
+  char unknown[28];
   char wavres[8]; //pst thing too
   short pstpointx, pstpointy;
   long dialogstrref; //at least in pst, trigger points can talk
@@ -1521,18 +1522,18 @@ typedef struct {
   char ambiname[32];
   short posx, posy;
   short radius;
-  short unknown26;
+  short unknown26;  //padding
   unsigned long pitchvariance;
   short volumevariance;
   short volume;
   char ambients[10][8];
   short ambientnum;
-  short ambientnum2; // ????
+  short ambientnum2; // padding
   long period;  //was interval
   long periodvariance; // was sounds to use
   unsigned long schedule;
   long flags;
-  long unknown90;
+  long unknown90; //unused
   char unused[60];
 } area_ambient;
 
@@ -1594,7 +1595,8 @@ typedef struct {
   unsigned char progress;
   unsigned char skipcycle;
   char bmp[8];  //palette bmp
-  long unknown48;
+  short sizex;
+  short sizey;
 } area_anim;
 
 typedef struct {
@@ -1659,11 +1661,11 @@ typedef struct {
   char creatures[10][8];
   short creaturecnt; //entry number
   short difficulty; //creature number depends on this
-  long unknown9c;  //1000
-  short unknowna0; //1000
-  short unknowna2; //1000
+  long lifespan;  //1000
+  short huntingrange; //1000
+  short followrange; //1000
   short maxnumber; //??
-  short minnumber; //??
+  short activated; //??
   short day;
   short night;
   short unknownac;
@@ -1781,7 +1783,9 @@ typedef struct {
   long realtime;
   long ppoffset;
   long ppcount;
-  char unknown80[52];
+  long zoomlevel;
+  char encounter[8];
+  char unknown8c[40];
 } gam_header;
 
 typedef struct {

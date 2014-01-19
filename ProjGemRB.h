@@ -58,23 +58,26 @@ protected:
 	afx_msg void OnFlag16();
 	afx_msg void OnFlag17();
 	afx_msg void OnFlag18();
-	afx_msg void OnKillfocus();
 	afx_msg void OnFlag19();
-	afx_msg void OnKillfocusString();
-	virtual BOOL OnInitDialog();
 	afx_msg void OnFlag20();
 	afx_msg void OnFlag21();
 	afx_msg void OnFlag22();
 	afx_msg void OnFlag23();
-	afx_msg void OnColor();
 	afx_msg void OnFlag24();
-	afx_msg void OnBrowse();
-	afx_msg void OnBrowse2();
 	afx_msg void OnFlag25();
 	afx_msg void OnFlag26();
 	afx_msg void OnFlag27();
 	afx_msg void OnFlag28();
 	afx_msg void OnFlag29();
+	afx_msg void OnFlag30();
+	afx_msg void OnFlag31();
+	afx_msg void OnFlag32();
+	afx_msg void OnKillfocus();
+	afx_msg void OnKillfocusString();
+	virtual BOOL OnInitDialog();
+	afx_msg void OnColor();
+	afx_msg void OnBrowse();
+	afx_msg void OnBrowse2();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

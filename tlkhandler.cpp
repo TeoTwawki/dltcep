@@ -99,7 +99,7 @@ int CChitemDlg::write_file(CString str, int which)
 retry:
     if(rename(str,old))
     {
-      switch(MessageBox("Overwrite "+old+"?","Backup file already exists.",MB_YESNOCANCEL) )
+      switch(MessageBox("Overwrite "+old+"?","Backup file already exists.",MB_YESNOCANCEL|MB_TASKMODAL) )
       {
       case IDYES:
         unlink(old);
@@ -154,7 +154,7 @@ retry:
     CATCH_ALL(e)
     {
       ret=false;
-      MessageBox("Runtime exception...","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Runtime exception...","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
     }
     END_CATCH_ALL;
     close(fhandle);

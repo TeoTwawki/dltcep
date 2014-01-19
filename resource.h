@@ -408,6 +408,10 @@
 #define IDS_PVRZ                        366
 #define IDS_BIO                         367
 #define IDS_GLSL                        368
+#define IDS_FACEHINT                    369
+#define IDS_LAYERFLAGS                  370
+#define IDS_BGEE                        371
+#define IDS_UNUSED                      372
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -590,15 +594,12 @@
 #define IDC_FLAG24                      1177
 #define IDC_FLAG25                      1178
 #define IDC_FLAG26                      1179
-#define IDC_DIE                         1180
 #define IDC_FLAG27                      1180
-#define IDC_ADD                         1181
 #define IDC_FLAG28                      1181
-#define IDC_ADD2                        1182
 #define IDC_FLAG29                      1182
-#define IDC_EFFNUM                      1183
-#define IDC_ADD3                        1184
-#define IDC_HEADNUM                     1185
+#define IDC_FLAG30                      1183
+#define IDC_FLAG31                      1184
+#define IDC_FLAG32                      1185
 #define IDC_CHARGES                     1186
 #define IDC_ROLL2                       1187
 #define IDC_STRBONUS                    1188
@@ -691,7 +692,6 @@
 #define IDC_SOUND3                      1275
 #define IDC_UNKNOWN30                   1276
 #define IDC_BAM1                        1277
-#define IDC_UNKNOWN32                   1277
 #define IDC_SEQ1                        1278
 #define IDC_UNKNOWN4C                   1279
 #define IDC_UNKNOWN74                   1280
@@ -734,9 +734,7 @@
 #define IDC_COUNT                       1317
 #define IDC_COUNT2                      1318
 #define IDC_STORETYPE                   1319
-#define IDC_TILEX                       1319
 #define IDC_STORENAME                   1320
-#define IDC_TILEY                       1320
 #define IDC_BUYING                      1321
 #define IDC_STEALING                    1322
 #define IDC_SELLINGPERCENT              1323
@@ -747,7 +745,7 @@
 #define IDC_DONATE                      1328
 #define IDC_CAPACITY                    1329
 #define IDC_IDPRICE                     1330
-#define IDC_FENCED                      1331
+#define IDC_QUALITY1                    1331
 #define IDC_UNKNOWN10                   1332
 #define IDC_UNKNOWN54                   1333
 #define IDC_UNKNOWN60                   1334
@@ -882,7 +880,7 @@
 #define IDC_UNKNOWN2C                   1463
 #define IDC_UNKNOWN2A                   1464
 #define IDC_BLUE                        1465
-#define IDC_BLUE2                       1466
+#define IDC_RED2                        1466
 #define IDC_BYTE34                      1467
 #define IDC_IDX                         1468
 #define IDC_RESOLVE                     1469
@@ -1167,7 +1165,6 @@
 #define IDC_UNKNOWNAE                   1748
 #define IDC_MAXCONTAINER                1749
 #define IDC_TYPE                        1750
-#define IDC_DIFF                        1751
 #define IDC_TYPE2                       1751
 #define IDC_MAXITEM                     1752
 #define IDC_ITEMNUMPICKER               1753
@@ -1288,7 +1285,6 @@
 #define IDC_LIMIT                       1868
 #define IDC_SPELLNAME                   1869
 #define IDC_TRANSPARENT                 1870
-#define IDC_INVICON                     1871
 #define IDC_TRANSPARENT2                1871
 #define IDC_LEVELSLOT                   1872
 #define IDC_SPELLPICKER                 1873
@@ -1436,7 +1432,7 @@
 #define IDC_PASTE                       2015
 #define IDC_UNKNOWN90                   2016
 #define IDC_COPY2                       2017
-#define IDC_UNKNOWN8C                   2018
+#define IDC_UNKNOWN8E                   2018
 #define IDC_PASTE2                      2019
 #define IDC_WEATHER                     2020
 #define IDC_FOREST                      2021
@@ -1457,7 +1453,7 @@
 #define IDC_LOG                         2036
 #define IDC_INDENT                      2037
 #define IDC_DSIZE                       2038
-#define IDC_RED2                        2039
+#define IDC_BLUE2                       2039
 #define IDC_DECOMPILED                  2040
 #define IDC_EDITBLOCK2                  2041
 #define IDC_LABEL3                      2042
@@ -1570,7 +1566,6 @@
 #define IDC_ID2                         2149
 #define IDC_LENGTH                      2150
 #define IDC_TEXTAREA2                   2151
-#define IDC_LENGTH2                     2151
 #define IDC_TEXTAREA3                   2152
 #define IDC_LABEL1                      2153
 #define IDC_BUTTONBAM                   2154
@@ -1767,6 +1762,24 @@
 #define IDC_CONTINUOUS                  2352
 #define IDC_CONTINUOUS2                 2353
 #define IDC_UNDEAD                      2353
+#define IDC_QUALITY2                    2356
+#define IDC_ROULET                      2357
+#define IDC_CRAPS                       2358
+#define IDC_WHEEL                       2359
+#define IDC_LENGTH2                     2360
+#define IDC_UNKNOWN8C                   2361
+#define IDC_INVICON                     2362
+#define IDC_DIFF                        2363
+#define IDC_FENCED                      2364
+#define IDC_DIE                         2365
+#define IDC_ADD                         2366
+#define IDC_ADD2                        2367
+#define IDC_EFFNUM                      2368
+#define IDC_ADD3                        2369
+#define IDC_HEADNUM                     2370
+#define IDC_TILEX                       2371
+#define IDC_TILEY                       2372
+#define IDC_UNKNOWN32                   2373
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -2009,6 +2022,9 @@
 #define ID_TOOLS_FIXZEROFRAMES          33073
 #define ID_TOOLS_FIXLINEFEEDS           33074
 #define ID_EDIT_VEF                     33076
+#define ID_TOOLS_CREATESPELLLIST        33077
+#define ID_TOOLS_HUNTFORDISKSPACE       33078
+#define ID_OVERLAY_LOAD                 33079
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -2016,8 +2032,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        234
-#define _APS_NEXT_COMMAND_VALUE         33077
-#define _APS_NEXT_CONTROL_VALUE         2354
+#define _APS_NEXT_COMMAND_VALUE         33080
+#define _APS_NEXT_CONTROL_VALUE         2374
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

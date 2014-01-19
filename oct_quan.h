@@ -28,6 +28,7 @@ public:
     void SetBlue( BYTE b ) { data.blue = b; }
     void SetGreen( BYTE g ) { data.green = g; }
     void SetRed( BYTE r ) { data.red = r; }
+    bool IsEmpty() { return (data.blue+data.green+data.red)==0; }
 };
 
 class OctNode           // Octree node

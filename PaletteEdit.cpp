@@ -112,20 +112,30 @@ void CPaletteEdit::OnPalette2()
 void CPaletteEdit::OnPalette()
 {
   COLORREF mycolor;
+  int myidx;
 
   mypoint=mousepoint;
   MapWindowPoints(GetDlgItem(IDC_PALETTE),&mypoint,1);
   mypoint.x/=16;
   mypoint.y/=16;
   if(mypoint.x<0 || mypoint.y<0 || mypoint.x>15 || mypoint.y>15) return;
+  myidx=mypoint.x+mypoint.y*16;
+  m_blue=*((BYTE *) (palette+myidx));
+  m_green=*((BYTE *) (palette+myidx)+1);
+  m_red=*((BYTE *) (palette+myidx)+2);
+  mycolor=RGB(m_red,m_green,m_blue);
+  dlg.m_cc.rgbResult=mycolor;
+  dlg.m_cc.lpCustColors[0]=mycolor;
   if(dlg.DoModal()==IDOK)
   {    
-    palette[mypoint.x+mypoint.y*16]=dlg.GetColor();
+    mycolor=dlg.GetColor();
+    m_blue=GetRValue(mycolor);
+    m_green=GetGValue(mycolor);
+    m_red=GetBValue(mycolor);
   }
-  mycolor=palette[mypoint.x+mypoint.y*16];
-  m_red=GetRValue(mycolor);
-  m_green=GetGValue(mycolor);
-  m_blue=GetBValue(mycolor);
+  *((BYTE *) (palette+myidx)+2)=m_blue;
+  *((BYTE *) (palette+myidx)+1)=m_green;
+  *((BYTE *) (palette+myidx))=m_red;
   InitPaletteBitmap();
   UpdateData(UD_DISPLAY);
 }
@@ -199,9 +209,9 @@ BOOL CPaletteEdit::OnInitDialog()
   mypoint=0;
   palettehwnd=GetDlgItem(IDC_PALETTE)->m_hWnd;
   mycolor=palette[0];
-  m_red=GetRValue(mycolor);
+  m_red=GetBValue(mycolor);
   m_green=GetGValue(mycolor);
-  m_blue=GetBValue(mycolor);
+  m_blue=GetRValue(mycolor);
 	InitPaletteBitmap();
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -503,3 +513,4 @@ void CPaletteEdit::OnSwap()
 
 	UpdateData(UD_DISPLAY);	
 }
+

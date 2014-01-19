@@ -28,6 +28,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAreaGeneral)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -504,6 +506,7 @@ protected:
 	afx_msg void OnFit();
 	afx_msg void OnTreset();
 	afx_msg void OnKillfocusLocked();
+	afx_msg void OnNocut();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -716,6 +719,7 @@ protected:
   CToolTipCtrl m_tooltip;
 
 	afx_msg void DefaultKillfocus();
+  void RefreshFrameSize();
 	// Generated message map functions
 	//{{AFX_MSG(CAreaAnim)
 	virtual BOOL OnInitDialog();

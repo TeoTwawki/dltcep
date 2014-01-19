@@ -1447,7 +1447,7 @@ void Cvariable::OnAdd()
   {
     if(m_area.GetLength()!=6)
     {
-      MessageBox("Area must be exactly 6 characters long.","Warning",MB_OK);
+      MessageBox("Area must be exactly 6 characters long.","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
       return;
     }
     varname=m_area+m_varpicker;

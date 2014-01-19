@@ -287,11 +287,11 @@ restart:
     bgfolder.MakeLower();
     if(bgfolder.Right(10)!="chitin.key")
     {
-      MessageBox("You should select chitin.key","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("You should select chitin.key","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     }
     if(!checkfile(bgfolder,"KEY"))
     {
-      MessageBox("This is not a valid chitin.key file. (It must start with KEY)","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("This is not a valid chitin.key file. (It must start with KEY)","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
       goto restart;
     }
     m_filename=bgfolder;

@@ -106,6 +106,8 @@ BEGIN_MESSAGE_MAP(CImageView, CDialog)
 	ON_BN_CLICKED(IDC_SHOWGRID, OnShowgrid)
 	ON_BN_CLICKED(IDC_FILL, OnFill)
   ON_BN_CLICKED(IDC_OVERLAY, OnOverlay)
+	ON_WM_SIZE()
+	ON_WM_MOUSEWHEEL()
 	//}}AFX_MSG_MAP
 	ON_COMMAND(ID_REFRESH, RefreshDialog)
 END_MESSAGE_MAP()
@@ -249,12 +251,13 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int fram
   point=bam->GetFrameSize(frame);
   point.x/=m_mos->mosheader.dwBlockSize;
   point.y/=m_mos->mosheader.dwBlockSize;
-  tmpw=min(TMPX-point.x,TMPY-point.y);
-  if(tmpw<0) tmpw=0;
   m_animbam=bam;
   point=bam->GetFramePos(frame);
+  tmpw=min(TMPX-point.x,TMPY-point.y);
+  if(tmpw<0) tmpw=0;
   m_clipx=(orgx-point.x)/(signed) m_mos->mosheader.dwBlockSize;
   m_clipy=(orgy-point.y)/(signed) m_mos->mosheader.dwBlockSize;
+
   if(m_clipx>m_maxclipx-m_maxextentx)
   {
     if(m_maxclipx>=m_maxextentx) m_clipx=m_maxclipx-m_maxextentx;
@@ -275,6 +278,7 @@ void CImageView::SetupAnimationPlacement(Cbam *bam, int orgx, int orgy, int fram
     if(m_clipy>tmpw) m_clipy-=tmpw;
     else m_clipy=0;
   }
+
   m_mousepoint.x=orgx;
   m_mousepoint.y=orgy;
   m_confirmed = m_mousepoint;
@@ -880,6 +884,30 @@ void CImageView::DrawGrid()
   m_bitmap.ReleaseDC(pDC);
 }
 
+void CImageView::SetClipSize(int x, int y)
+{
+  m_clipx=x;
+  m_clipy=y;
+  if(m_clipx>m_maxclipx-m_maxextentx)
+  {
+    if(m_maxclipx>=m_maxextentx) m_clipx=m_maxclipx-m_maxextentx;
+    else m_clipx=0;
+  }
+  else
+  {
+    if(m_clipx<0) m_clipx=0;
+  }
+  if(m_clipy>m_maxclipy-m_maxextenty)
+  {
+    if(m_maxclipy>=m_maxextenty) m_clipy=m_maxclipy-m_maxextenty;
+    else m_clipy=0;
+  }
+  else
+  {
+    if(m_clipy<0) m_clipy=0;
+  }
+}
+
 //this was not completely implemented
 void CImageView::SetPoint(CPoint &point, int frame)
 {
@@ -958,38 +986,44 @@ void CImageView::RedrawContent()
   if(m_maxextentx>m_maxclipx) m_maxextentx=m_maxclipx;
   if(m_maxextenty>m_maxclipy) m_maxextenty=m_maxclipy;
   theScrollInfo.fMask=SIF_PAGE|SIF_POS|SIF_RANGE;
-  theScrollInfo.nPage=(m_maxclipx-m_minclipx+m_maxextentx-1)/m_maxextentx;
-  if(m_clipx<0) m_clipx=0;
-  theScrollInfo.nPos=m_clipx;
-  theScrollInfo.nMin=m_minclipx;
-  theScrollInfo.nMax=m_maxclipx-m_maxextentx+theScrollInfo.nPage-1;
-  m_horizontal.SetScrollInfo(&theScrollInfo,true);
-  if(m_maxclipx-m_minclipx>m_maxextentx)
+  adjustx=0;
+  if (m_horizontal && m_maxextentx)
   {
-    adjustx=20;
-    m_horizontal.ShowWindow(true);
-  }
-  else
-  {    
-    adjustx=0;
-    m_horizontal.ShowWindow(false);
+    theScrollInfo.nPage=(m_maxclipx-m_minclipx+m_maxextentx-1)/m_maxextentx;
+    if(m_clipx<0) m_clipx=0;
+    theScrollInfo.nPos=m_clipx;
+    theScrollInfo.nMin=m_minclipx;
+    theScrollInfo.nMax=m_maxclipx-m_maxextentx+theScrollInfo.nPage-1;
+    m_horizontal.SetScrollInfo(&theScrollInfo,true);
+    if(m_maxclipx-m_minclipx>m_maxextentx)
+    {
+      adjustx=20;
+      m_horizontal.ShowWindow(SW_SHOW);
+    }
+    else
+    {    
+      m_horizontal.ShowWindow(SW_HIDE);
+    }
   }
 
-  theScrollInfo.nPage=(m_maxclipy-m_minclipy+m_maxextenty-1)/m_maxextenty;
-  if(m_clipy<0) m_clipy=0; //why was this removed?
-  theScrollInfo.nPos=m_clipy;
-  theScrollInfo.nMin=m_minclipy;
-  theScrollInfo.nMax=m_maxclipy-m_maxextenty+theScrollInfo.nPage-1;
-  m_vertical.SetScrollInfo(&theScrollInfo,true);
-  if(m_maxclipy-m_minclipy>m_maxextenty)
+  adjusty=0;
+  if (m_vertical && m_maxextenty)
   {
-    m_vertical.ShowWindow(true);
-    adjusty=20;
-  }
-  else
-  {
-    m_vertical.ShowWindow(false);
-    adjusty=0;
+    theScrollInfo.nPage=(m_maxclipy-m_minclipy+m_maxextenty-1)/m_maxextenty;
+    if(m_clipy<0) m_clipy=0; //why was this removed?
+    theScrollInfo.nPos=m_clipy;
+    theScrollInfo.nMin=m_minclipy;
+    theScrollInfo.nMax=m_maxclipy-m_maxextenty+theScrollInfo.nPage-1;
+    m_vertical.SetScrollInfo(&theScrollInfo,true);
+    if(m_maxclipy-m_minclipy>m_maxextenty)
+    {
+      m_vertical.ShowWindow(SW_SHOW);
+      adjusty=20;
+    }
+    else
+    {
+      m_vertical.ShowWindow(SW_HIDE);
+    }
   }
   rect.SetRectEmpty();
   if(m_mos)
@@ -997,73 +1031,98 @@ void CImageView::RedrawContent()
     rect.right=m_maxextentx*m_mos->mosheader.dwBlockSize;
     rect.bottom=m_maxextenty*m_mos->mosheader.dwBlockSize;
   }
-  if(m_enablebutton&IW_NOREDRAW)
+
+  if (m_bitmap)
   {
-    m_bitmap.SetBitmap(m_bm);
-    if(m_bm)
+    if(m_enablebutton&IW_NOREDRAW)
     {
-      m_bitmap.GetWindowRect(rect);
+      m_bitmap.SetBitmap(m_bm);
+      if(m_bm)
+      {
+        m_bitmap.GetWindowRect(rect);
+      }
+    }
+    else
+    {
+      maxx=m_clipx+m_maxextentx;
+      maxy=m_clipy+m_maxextenty;
+      if(m_maxclipx<maxx) maxx=m_maxclipx;
+      if(m_maxclipy<maxy) maxy=m_maxclipy;
+      m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy, false);
+      m_bitmap.SetBitmap(m_bm);
     }
   }
-  else
+
+  if (m_button)
   {
-    maxx=m_clipx+m_maxextentx;
-    maxy=m_clipy+m_maxextenty;
-    if(m_maxclipx<maxx) maxx=m_maxclipx;
-    if(m_maxclipy<maxy) maxy=m_maxclipy;
-    m_mos->MakeBitmapWhole(GREY, m_bm, m_clipx, m_clipy, maxx, maxy, false);
-    m_bitmap.SetBitmap(m_bm);
-  }
-  m_button.GetWindowRect(brect);
-  m_adjust.x=10;
-  m_adjust.y=10;
-  m_oladjust=m_adjust;
-  m_bitmap.SetWindowPos(0,m_adjust.x,m_adjust.y,0,0,SWP_NOSIZE|SWP_NOZORDER);
-  if(rect.Width()<brect.Width() +20 ) rect.right=brect.Width()+20+rect.left;
-  if(rect.Width()<400)
-  {
-    if(m_enablebutton&(IW_EDITMAP|IW_SHOWGRID|IW_PLACEIMAGE) )
+    m_button.GetWindowRect(brect);
+    m_adjust.x=10;
+    m_adjust.y=10;
+    m_oladjust=m_adjust;
+    m_bitmap.SetWindowPos(0,m_adjust.x,m_adjust.y,0,0,SWP_NOSIZE|SWP_NOZORDER);
+    if(rect.Width()<brect.Width() +20 ) rect.right=brect.Width()+20+rect.left;
+    if(rect.Width()<400)
     {
-      rect.right=400+rect.left;
+      if(m_enablebutton&(IW_EDITMAP|IW_SHOWGRID|IW_PLACEIMAGE) )
+      {
+        rect.right=400+rect.left;
+      }
+    }
+    //if there are buttons (not preview), then move window to top left
+    UINT flags = SWP_NOACTIVATE|SWP_SHOWWINDOW|SWP_NOZORDER;
+    if (!(m_enablebutton&IW_ENABLEBUTTON)) flags |= SWP_NOMOVE;
+    
+    SetWindowPos(0, 0,0, rect.Width()+adjusty+20, rect.Height()+adjustx+80, flags);
+    m_horizontal.SetWindowPos(0,m_adjust.x,rect.Height()+m_adjust.y,rect.Width(),15,SWP_NOZORDER);
+    m_vertical.SetWindowPos(0,rect.Width()+m_adjust.x,m_adjust.y,15,rect.Height(),SWP_NOZORDER);
+    if(m_enablebutton&IW_PLACEIMAGE)
+    {
+      adjusty=(rect.Width()-brect.Width())/3;
+      m_setbutton.SetWindowPos(0,adjusty,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+      m_button.SetWindowPos(0,adjusty*2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+      m_spinx.SetWindowPos(0,25,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+      m_spiny.SetWindowPos(0,60,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+      m_spinx.SetRange32(0,m_mos->mosheader.wWidth);
+      m_spiny.SetRange32(0,m_mos->mosheader.wWidth);
+      m_spinx.SetPos(m_confirmed.x);
+      m_spiny.SetPos(m_confirmed.y);
+    }
+    else
+    {
+      m_button.SetWindowPos(0, (rect.Width()-brect.Width())/2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
+    }
+    m_button.ShowWindow(!!(m_enablebutton&IW_ENABLEBUTTON));
+  }
+  
+  if (m_overlay_control)
+  {
+    if(m_max>1)
+    {
+      m_overlay_control.ShowWindow((m_enablebutton&(IW_SHOWALL|IW_EDITMAP))==(IW_SHOWALL|IW_EDITMAP) );
+    }
+    else
+    {
+      m_overlay_control.ShowWindow(false);
     }
   }
-  //if there are buttons (not preview), then move window to top left
-  UINT flags = SWP_NOACTIVATE|SWP_SHOWWINDOW|SWP_NOZORDER;
-  if (!(m_enablebutton&IW_ENABLEBUTTON)) flags |= SWP_NOMOVE;
 
-  SetWindowPos(0, 0,0, rect.Width()+adjusty+20, rect.Height()+adjustx+80, flags);
-  m_horizontal.SetWindowPos(0,m_adjust.x,rect.Height()+m_adjust.y,rect.Width(),15,SWP_NOZORDER);
-  m_vertical.SetWindowPos(0,rect.Width()+m_adjust.x,m_adjust.y,15,rect.Height(),SWP_NOZORDER);
-  if(m_enablebutton&IW_PLACEIMAGE)
+  if (m_showall_control)
   {
-    adjusty=(rect.Width()-brect.Width())/3;
-    m_setbutton.SetWindowPos(0,adjusty,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_button.SetWindowPos(0,adjusty*2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_spinx.SetWindowPos(0,25,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_spiny.SetWindowPos(0,60,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-    m_spinx.SetRange32(0,m_mos->mosheader.wWidth);
-    m_spiny.SetRange32(0,m_mos->mosheader.wWidth);
-    m_spinx.SetPos(m_confirmed.x);
-    m_spiny.SetPos(m_confirmed.y);
+    m_showall_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
   }
-  else
-  {
-    m_button.SetWindowPos(0, (rect.Width()-brect.Width())/2,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
-  }
-  if(m_max>1)
-  {
-    m_overlay_control.ShowWindow((m_enablebutton&(IW_SHOWALL|IW_EDITMAP))==(IW_SHOWALL|IW_EDITMAP) );
-  }
-  else
-  {
-    m_overlay_control.ShowWindow(false);
-  }
-  m_showall_control.ShowWindow(!!(m_enablebutton&IW_SHOWALL));
 
-  m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_SHOWGRID));
-  m_fill_control.ShowWindow(!!(m_enablebutton&IW_ENABLEFILL));
-  m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
-  m_showgrid_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+70,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
+  if (m_showgrid_control)
+  {
+    m_showgrid_control.ShowWindow(!!(m_enablebutton&IW_SHOWGRID));
+    m_showgrid_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+70,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
+  }
+
+  if (m_fill_control)
+  {
+    m_fill_control.ShowWindow(!!(m_enablebutton&IW_ENABLEFILL));
+    m_fill_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
+  }
+
   if(m_enablebutton&IW_SHOWALL)
   {
     m_showall_control.SetWindowPos(0,(rect.Width()-brect.Width())*3/4+140,rect.Height()+adjustx+25 ,0,0, SWP_NOZORDER|SWP_NOSIZE);
@@ -1076,8 +1135,11 @@ void CImageView::RedrawContent()
       m_value_control.SetWindowPos(0,(rect.Width()-brect.Width())/4-20,rect.Height()+adjustx+25 ,0,0, SWP_SHOWWINDOW|SWP_NOZORDER|SWP_NOSIZE);
     }
   }
-  m_button.ShowWindow(!!(m_enablebutton&IW_ENABLEBUTTON));
-  m_setbutton.ShowWindow(!!(m_enablebutton&IW_PLACEIMAGE));
+  if (m_setbutton)
+  {
+    m_setbutton.ShowWindow(!!(m_enablebutton&IW_PLACEIMAGE));
+  }
+
   if(!(m_enablebutton&IW_NOREDRAW))
   {
     PostMessage(WM_COMMAND,ID_REFRESH,0);//need a redraw for selection of the bottom right side of the tis
@@ -1229,6 +1291,7 @@ void CImageView::DrawLine(CPoint source, CPoint destination, unsigned char color
 
 void CImageView::OnBitmap() 
 {
+  m_bitmap.SetFocus();
   m_confirmed = m_mousepoint;
   if( m_map && (m_enablebutton&IW_OVERLAY))
   {
@@ -1267,8 +1330,18 @@ void CImageView::OnBitmap()
 
     point=GetPoint(GP_POINT);
     if (m_maptype==MT_AMBIENT)
-    {
-      pos=FindAmbient((area_ambient *) m_map, point);
+    {      
+      if ((GetKeyState(VK_SHIFT)<0) && (m_value!=-1) )
+      {
+        the_area.ambientheaders[m_value].posx = (short) point.x;
+        the_area.ambientheaders[m_value].posy = (short) point.y;
+        PostMessage(WM_COMMAND,ID_REFRESH,0);
+        return;
+      }
+      else
+      {
+        pos=FindAmbient((area_ambient *) m_map, point);
+      }
     }
     else
     {
@@ -1279,8 +1352,10 @@ void CImageView::OnBitmap()
       m_value=pos;
       if (m_maptype==MT_AMBIENT)
       {
-        m_clipx = ((area_ambient *) m_map)[pos].posx/m_mos->mosheader.dwBlockSize-TMPX;
-        m_clipy = ((area_ambient *) m_map)[pos].posy/m_mos->mosheader.dwBlockSize-TMPY;
+        //m_clipx = ((area_ambient *) m_map)[pos].posx/m_mos->mosheader.dwBlockSize-TMPX;
+        //m_clipy = ((area_ambient *) m_map)[pos].posy/m_mos->mosheader.dwBlockSize-TMPY;
+        SetClipSize(((area_ambient *) m_map)[pos].posx/m_mos->mosheader.dwBlockSize-TMPX,
+          ((area_ambient *) m_map)[pos].posy/m_mos->mosheader.dwBlockSize-TMPY);
       }
       else
       {
@@ -1632,9 +1707,45 @@ void CImageView::OnOverlay()
   PostMessage(WM_COMMAND,ID_REFRESH,0);
 }
 
+void CImageView::OnSize( UINT /*type*/, int cx, int cy)
+{
+	CRect rect;
+	GetWindowRect(rect);
+	//if( (rect.Width() != cx || rect.Height() != cy) && m_bitmap && m_maptype!=-1) 
+  if( (rect.Width() != cx || rect.Height() != cy) && m_bitmap) 
+	{
+    if(m_horizontal && m_horizontal.IsWindowVisible())
+    {
+      cx-=20;
+    }
+    if(m_vertical && m_vertical.IsWindowVisible())
+    {
+      cy-=20;
+    }
+
+		rect.left = (cx-20)/64+1;
+		rect.top = (cy-80)/64+1;
+		//rect.left = (cx)/64;
+		//rect.top = (cy)/64;
+    if (m_maxextentx!=rect.left || m_maxextenty!=rect.top)
+    {
+      m_maxextentx=rect.left;
+      m_maxextenty=rect.top;
+		  RedrawContent();
+    }
+	}
+}
+
 void CImageView::OnSelchangeValue() 
 {
 	m_value=((CComboBox *) GetDlgItem(IDC_VALUE))->GetCurSel();
+  if ((m_maptype==MT_AMBIENT) && (m_value!=-1) )
+  {
+    //m_clipx = ((area_ambient *) m_map)[m_value].posx/m_mos->mosheader.dwBlockSize-TMPX;
+    //m_clipy = ((area_ambient *) m_map)[m_value].posy/m_mos->mosheader.dwBlockSize-TMPY;
+    SetClipSize( ((area_ambient *) m_map)[m_value].posx/m_mos->mosheader.dwBlockSize-TMPX,
+      ((area_ambient *) m_map)[m_value].posy/m_mos->mosheader.dwBlockSize-TMPY);
+  }
   PostMessage(WM_COMMAND,ID_REFRESH,0);
 }
 
@@ -1659,6 +1770,23 @@ void CImageView::OnDeltaposSpiny(NMHDR* pNMHDR, LRESULT* pResult)
   m_confirmed.y=y;
 	*pResult = 0;
   PostMessage(WM_COMMAND,ID_REFRESH,0);
+}
+
+
+BOOL CImageView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
+{
+  if (m_maptype==MT_AMBIENT)
+  {
+    if (m_value!=-1)
+    {
+      int tmp = the_area.ambientheaders[m_value].radius+zDelta;
+      if (tmp<0) tmp = 0;
+      else if (tmp>16383) tmp=16383;
+      the_area.ambientheaders[m_value].radius = (short) tmp;
+      PostMessage(WM_COMMAND,ID_REFRESH,0);
+    }
+  }
+	return CDialog::OnMouseWheel(nFlags, zDelta, pt);
 }
 
 BOOL CImageView::PreTranslateMessage(MSG* pMsg) 

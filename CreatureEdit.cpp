@@ -121,7 +121,8 @@ void CCreatureEdit::OnFileLoadchar()
 	res=pickerdlg.DoModal();
 	if(res==IDOK)
 	{
-		res=read_character(pickerdlg.m_picked);
+		res=read_character(pickerdlg.m_picked, &the_creature);
+    m_pModelessPropSheet->RefreshDialog();
     switch(res)
     {
     case -3:
@@ -141,7 +142,6 @@ void CCreatureEdit::OnFileLoadchar()
       break;
     }
     SetWindowText("Edit character: "+itemname);
-    m_pModelessPropSheet->RefreshDialog();
     UpdateData(UD_DISPLAY);
 	}
 }
@@ -155,7 +155,8 @@ void CCreatureEdit::OnLoad()
 	res=pickerdlg.DoModal();
 	if(res==IDOK)
 	{
-		res=read_creature(pickerdlg.m_picked);
+		res=read_creature(pickerdlg.m_picked, &the_creature);
+    m_pModelessPropSheet->RefreshDialog();
     switch(res)
     {
     case -3:
@@ -175,7 +176,6 @@ void CCreatureEdit::OnLoad()
       break;
     }
     SetWindowText("Edit creature: "+itemname);
-    m_pModelessPropSheet->RefreshDialog();
     UpdateData(UD_DISPLAY);
 	}
 }

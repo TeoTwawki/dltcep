@@ -48,12 +48,12 @@ protected:
 	afx_msg void OnCures();
 	afx_msg void OnDonate();
 	afx_msg void OnDrinks();
-	afx_msg void OnUnknown1();
-	afx_msg void OnUnknown2();
+	afx_msg void OnRoulet();
+	afx_msg void OnCraps();
+	afx_msg void OnQuality1();
+	afx_msg void OnQuality2();
+	afx_msg void OnWheel();
 	afx_msg void OnFenced();
-	afx_msg void OnUnknown3();
-	afx_msg void OnUnknown4();
-	afx_msg void OnUnknown5();
 	afx_msg void OnUnknown6();
 	afx_msg void OnUnknown7();
 	afx_msg void OnUnknown8();
@@ -99,7 +99,6 @@ protected:
 // Dialog Data
 	//{{AFX_DATA(CStoreRental)
 	enum { IDD = IDD_STORERENTAL };
-	CString	m_ubytes;
 	//}}AFX_DATA
 
 // Overrides

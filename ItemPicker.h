@@ -58,6 +58,7 @@ protected:
   Cbam my_bam;
   Cmos my_mos;
   Cchui my_chui;
+  CVVC my_vvc;
 
   void FillList(int restype, CListBox &list);
   void Preview(CString &key, loc_entry &fileloc, int restype);

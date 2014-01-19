@@ -90,11 +90,11 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_STRREF, the_area.intheader.strrefs[m_crenum]);
 
   DDX_Text(pDX, IDC_UNKNOWN9A, the_area.intheader.difficulty);
-  DDX_Text(pDX, IDC_UNKNOWN9C, the_area.intheader.unknown9c);
-  DDX_Text(pDX, IDC_UNKNOWNA0, the_area.intheader.unknowna0);
-  DDX_Text(pDX, IDC_UNKNOWNA2, the_area.intheader.unknowna2);
+  DDX_Text(pDX, IDC_UNKNOWN9C, the_area.intheader.lifespan);
+  DDX_Text(pDX, IDC_UNKNOWNA0, the_area.intheader.huntingrange);
+  DDX_Text(pDX, IDC_UNKNOWNA2, the_area.intheader.followrange);
   DDX_Text(pDX, IDC_MAX, the_area.intheader.maxnumber);
-  DDX_Text(pDX, IDC_MIN, the_area.intheader.minnumber);
+  DDX_Text(pDX, IDC_MIN, the_area.intheader.activated);
   DDX_Text(pDX, IDC_DAY, the_area.intheader.day);
   DDX_Text(pDX, IDC_NIGHT, the_area.intheader.night);
   DDX_Text(pDX, IDC_UNKNOWNAC, the_area.intheader.unknownac);
@@ -343,8 +343,8 @@ void CAreaInt::OnClear()
     the_area.intheader.strrefs[i]=10134; //seems to be ok for BG2/IWD2
   }
   the_area.intheader.difficulty=2;
-  the_area.intheader.unknown9c=the_area.intheader.unknowna0=the_area.intheader.unknowna2=1000;
-  the_area.intheader.minnumber=1;
+  the_area.intheader.lifespan=the_area.intheader.huntingrange=the_area.intheader.followrange=1000;
+  the_area.intheader.activated=1;
   the_area.intheader.maxnumber=1;
   the_area.intheader.day=the_area.intheader.night=10;
   RefreshInt();

@@ -400,7 +400,11 @@ static int iconboxids[16]={
   IDC_CRITICAL, IDC_TWOHAND, IDC_MOVABLE, IDC_DISPLAYABLE,
   IDC_CURSED, IDC_COPYABLE, IDC_MAGICAL, IDC_BOW,
   IDC_SILVER, IDC_COLD, IDC_STOLEN, IDC_CONVERSIBLE,
-  IDC_FLAG1, IDC_FLAG2, IDC_FLAG3, IDC_FLAG4
+  IDC_FLAG1, IDC_FLAG2, IDC_FLAG3, IDC_FLAG4};
+
+static int iconbox2ids[16]={
+  0,0,0,0,0,0,0,0,
+  0,0,0,0,0, IDC_FLAG5, IDC_FLAG6,IDC_FLAG7
 };
 
 void CItemIcons::DoDataExchange(CDataExchange* pDX)
@@ -408,11 +412,23 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
   CString tmpstr;
   int id, bit;
   CButton *checkbox;
+  CWnd *cw;
   CPoint newtopleft;
   int fc;
   BOOL itemexcl;
 
   RefreshIcons(); //doh
+  cw = GetDlgItem(IDC_FLAG1);
+  switch (the_item.revision)
+  {
+  case REV_PST:
+    cw->SetWindowText("Pulsating");
+    break;
+  default:
+    cw->SetWindowText("Fake twohanded");
+    break;
+  }
+
   CPropertyPage::DoDataExchange(pDX);
   for(fc=0;fc<4;fc++)
   {
@@ -553,7 +569,21 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
     for(id=0;id<16;id++)
     {
       checkbox=(class CButton *) GetDlgItem(iconboxids[id]);
-      checkbox->SetCheck(!!(the_item.header.itmattr&bit));
+      if (checkbox)
+      {
+        checkbox->SetCheck(!!(the_item.header.itmattr&bit));
+      }
+      bit=bit<<1;    
+    }
+
+    bit=1;
+    for(id=0;id<16;id++)
+    {
+      checkbox=(class CButton *) GetDlgItem(iconbox2ids[id]);
+      if (checkbox)
+      {
+        checkbox->SetCheck(!!(the_item.header.splattr&bit));
+      }
       bit=bit<<1;    
     }
   }
@@ -664,11 +694,14 @@ BEGIN_MESSAGE_MAP(CItemIcons, CPropertyPage)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_INVICON2, OnInvicon)
 	ON_BN_CLICKED(IDC_DESCICON2, OnDescicon)
 	ON_BN_CLICKED(IDC_DESCICON3, OnDescicon)
 	ON_BN_CLICKED(IDC_DESCICON4, OnDescicon)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -769,19 +802,29 @@ void CItemIcons::OnFlag4()
 	Togglebit(0x8000);	
 }
 
+void CItemIcons::OnFlag5() 
+{
+	Togglebit2(0x2000);
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemIcons::OnFlag6() 
+{
+	Togglebit2(0x4000);	
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemIcons::OnFlag7() 
+{
+	Togglebit2(0x8000);	
+  UpdateData(UD_DISPLAY);
+}
+
 void CItemIcons::OnMagical() 
 {
   CString tmpstr;
 
 	Togglebit(ATTR_MAGICAL);	
-  /* this is not really fun
-  if((the_item.header.itmattr&ATTR_MAGICAL))
-  { //nondesctructable
-    tmpstr.Empty();
-    StoreResref(tmpstr,the_item.header.destname);
-    UpdateData(UD_DISPLAY);
-  }
-  */
 }
 
 void CItemIcons::OnMovable() 
@@ -2031,6 +2074,7 @@ BEGIN_MESSAGE_MAP(CItemEquip, CPropertyPage)
 	ON_BN_CLICKED(IDC_EQUIPREMOVE, OnEquipremove)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_CBN_DBLCLK(IDC_EQUIPNUM, OnEdit)
+	ON_BN_CLICKED(IDC_ORDER, OnOrder)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2146,6 +2190,21 @@ void CItemEquip::OnEquippaste()
   {
     memcpy(&the_item.featblocks[equipnum],&featcopy,sizeof(feat_block) );
   }
+  RefreshEquip();
+  UpdateData(UD_DISPLAY);
+}
+
+int sort_effects(const void *a, const void *b)
+{
+  feat_block *feat_a = (feat_block *) a;
+  feat_block *feat_b = (feat_block *) b;
+  if (feat_a->feature!=feat_b->feature) return feat_a->feature-feat_b->feature;
+  return feat_a->par2.parl-feat_b->par2.parl;
+}
+
+void CItemEquip::OnOrder() 
+{
+	qsort(the_item.featblocks, the_item.featblkcount, sizeof(feat_block), sort_effects);
   RefreshEquip();
   UpdateData(UD_DISPLAY);
 }

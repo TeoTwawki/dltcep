@@ -113,10 +113,11 @@ BEGIN_MESSAGE_MAP(CWedTile, CDialog)
 	ON_BN_CLICKED(IDC_LOAD3, OnLoad3)
 	ON_BN_CLICKED(IDC_ADD, OnAddFrame)
 	ON_BN_CLICKED(IDC_REMOVE2, OnRemoveFrame)
+	ON_BN_CLICKED(IDC_CONV, OnConv)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN, DefaultKillfocus)
 	ON_LBN_DBLCLK(IDC_BLOCKPICKER, OnRemove)
-	ON_BN_CLICKED(IDC_CONV, OnConv)
+	ON_EN_KILLFOCUS(IDC_SPEED, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 ON_COMMAND(ID_REFRESH, OnTile)
 END_MESSAGE_MAP()
@@ -833,9 +834,7 @@ void CWedTile::InsertTiles(Cmos &tmpmos, int firsttile, int door)
     if(i>=m_maxtile)
     {
       MessageBox("Couldn't load the whole tileset.","Tile editor",MB_ICONWARNING|MB_OK);
-      RefreshTile();
-      UpdateData(UD_DISPLAY);	
-      return;
+      break;
     }
     if(door)
     {
@@ -853,10 +852,11 @@ void CWedTile::InsertTiles(Cmos &tmpmos, int firsttile, int door)
     if(the_mos.tisheader.numtiles<=nFrameWanted)
     {
       MessageBox("Couldn't load the whole tileset.","Tile editor",MB_ICONWARNING|MB_OK);
-      return;
+      break;
     }
     the_mos.SetFrameData(nFrameWanted, tmpmos.GetFrameData(i));
   }
+  the_area.wedchanged=true;
 }
 
 //flags = 1   door  (alternate)

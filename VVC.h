@@ -19,6 +19,7 @@ public:
 	virtual ~CVVC();
 	int ReadVVCFromFile(int fhandle, long maxlen);
   int WriteVVCToFile(int fhandle);
+  CString RetrieveResourceRef(int fh);
 };
 
 #endif // !defined(AFX_VVC_H__9EF7094C_4DCB_46D0_8A8F_1177EAE3AE70__INCLUDED_)

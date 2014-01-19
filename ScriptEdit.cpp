@@ -459,16 +459,6 @@ void CScriptEdit::OnLoadex()
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   if(readonly) res|=OFN_READONLY;
   szFilter=szFilterb;
-/*
-  if(m_bcs)
-  {
-    szFilter=szFiltera;
-  }
-  else
-  {
-    szFilter=szFilterb;
-  }
-*/
   CMyFileDialog m_getfiledlg(TRUE, m_bcs?"bcs":"baf", m_bcs ? makeitemname(".bcs",0): makeitemname(".baf",1), res, szFilter);
   m_getfiledlg.m_ofn.nFilterIndex = m_bcs+1;
 

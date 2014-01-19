@@ -88,36 +88,36 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CAreaEdit message handlers
-void CAreaEdit::OnLoad() 
+void CAreaEdit::OnLoad()
 {
 	int res;
-	
-  pickerdlg.m_restype=REF_ARE;
-  pickerdlg.m_picked=itemname;
+
+	pickerdlg.m_restype=REF_ARE;
+	pickerdlg.m_picked=itemname;
 	res=pickerdlg.DoModal();
 	if(res==IDOK)
 	{
-		res=read_area(pickerdlg.m_picked);
+		res=read_area(pickerdlg.m_picked, NULL);
     switch(res)
     {
     case -3:
       MessageBox("Not enough memory.","Error",MB_ICONSTOP|MB_OK);
-  		itemname=pickerdlg.m_picked;
+		itemname=pickerdlg.m_picked;
       break;
     case 3:
       MessageBox("Area loaded without wed (cannot edit doors).","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
+		itemname=pickerdlg.m_picked;
       break;
     case 2:
       MessageBox("Area loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
+		itemname=pickerdlg.m_picked;
       break;
     case 0:
-  		itemname=pickerdlg.m_picked;
+		itemname=pickerdlg.m_picked;
       break;
     case 1:
       MessageBox("Area will be reordered to official standard.","Warning",MB_ICONEXCLAMATION|MB_OK);
-  		itemname=pickerdlg.m_picked;
+		itemname=pickerdlg.m_picked;
       break;
     default:
       MessageBox("Cannot read area!","Error",MB_ICONSTOP|MB_OK);
@@ -132,16 +132,16 @@ void CAreaEdit::OnLoad()
 
 static char BASED_CODE szFilter[] = "Area files (*.are)|*.are|All files (*.*)|*.*||";
 
-void CAreaEdit::OnLoadex() 
+void CAreaEdit::OnLoadex()
 {
   int fhandle;
   int res;
-  
+
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
-  if(readonly) res|=OFN_READONLY;  
+  if(readonly) res|=OFN_READONLY;
   CMyFileDialog m_getfiledlg(TRUE, "are", makeitemname(".are",0), res, szFilter);
 
-restart:  
+restart:
   //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -155,7 +155,7 @@ restart:
     readonly=m_getfiledlg.GetReadOnlyPref();
     the_mos.new_mos();
     res=the_area.ReadAreaFromFile(fhandle,-1);
-    close(fhandle);    
+    close(fhandle);
     lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
     if(res>=0)
     {
@@ -198,17 +198,17 @@ restart:
   UpdateData(UD_DISPLAY);
 }
 
-void CAreaEdit::OnSave() 
+void CAreaEdit::OnSave()
 {
   SaveArea(1);
 }
 
-void CAreaEdit::OnSaveas() 
+void CAreaEdit::OnSaveas()
 {
   SaveArea(0);
 }
 
-void CAreaEdit::SaveArea(int save) 
+void CAreaEdit::SaveArea(int save)
 {
   CString tmpath;
   CString newname;
@@ -229,7 +229,7 @@ void CAreaEdit::SaveArea(int save)
     filepath=makeitemname(".are",0);
     goto gotname;
   }
-restart:  
+restart:
   //if (filepath.GetLength()) strncpy(m_getfiledlg.m_ofn.lpstrFile,filepath, filepath.GetLength()+1);
   if( m_getfiledlg.DoModal() == IDOK )
   {
@@ -315,17 +315,17 @@ endofquest:
   UpdateData(UD_DISPLAY);
 }
 
-void CAreaEdit::OnFileTbg() 
+void CAreaEdit::OnFileTbg()
 {
   ExportTBG(this, REF_ARE, 0);
 }
 
-void CAreaEdit::OnFileTp2() 
+void CAreaEdit::OnFileTp2()
 {
   ExportTBG(this, REF_ARE, 1);
 }
 
-void CAreaEdit::OnCheck() 
+void CAreaEdit::OnCheck()
 {
   int ret;
 
@@ -337,7 +337,7 @@ void CAreaEdit::OnCheck()
   }
 }
 
-void CAreaEdit::OnNew() 
+void CAreaEdit::OnNew()
 {
 	NewArea();
   SetWindowText("Edit area: "+itemname);
@@ -345,7 +345,7 @@ void CAreaEdit::OnNew()
   UpdateData(UD_DISPLAY);
 }
 
-BOOL CAreaEdit::OnInitDialog() 
+BOOL CAreaEdit::OnInitDialog()
 {
   CString tmpstr, tmpstr1, tmpstr2;
 
@@ -357,16 +357,16 @@ BOOL CAreaEdit::OnInitDialog()
 		m_pModelessPropSheet = new CAreaPropertySheet(this);
     if(!m_pModelessPropSheet) return TRUE; //not enough memory
 
-		if (!m_pModelessPropSheet->Create(this, 
+		if (!m_pModelessPropSheet->Create(this,
     DS_CONTROL | WS_CHILD | WS_VISIBLE ))
 		{
 			delete m_pModelessPropSheet;
 			m_pModelessPropSheet = NULL;
 			return TRUE;
 		}
-		m_pModelessPropSheet->SetWindowPos(0,0,0,0,0,SWP_NOSIZE);		
+		m_pModelessPropSheet->SetWindowPos(0,0,0,0,0,SWP_NOSIZE);
 	}
-	
+
 	if (m_pModelessPropSheet != NULL && !m_pModelessPropSheet->IsWindowVisible())
 		m_pModelessPropSheet->ShowWindow(SW_SHOW);
   //tooltips
@@ -374,7 +374,7 @@ BOOL CAreaEdit::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
-    
+
     m_tooltip.AddTool(GetDlgItem(IDCANCEL), IDS_CANCEL);
     tmpstr1.LoadString(IDS_LOAD);
     tmpstr2.LoadString(IDS_AREA);
@@ -392,15 +392,15 @@ BOOL CAreaEdit::OnInitDialog()
     tmpstr1.LoadString(IDS_CHECK);
     tmpstr.Format(tmpstr1, tmpstr2);
     m_tooltip.AddTool(GetDlgItem(IDC_CHECK), tmpstr);
-  }	
+  }
 	return TRUE;
 }
 
-void CAreaEdit::OnToolsMirrorareavertically() 
+void CAreaEdit::OnToolsMirrorareavertically()
 {
   POSITION pos;
   wed_tilemap alt;
-  DWORD nFrameWanted;  
+  DWORD nFrameWanted;
   int i,y;
   int minx, maxx, maxy;
 
@@ -427,7 +427,7 @@ void CAreaEdit::OnToolsMirrorareavertically()
     minx=the_area.m_width-the_area.triggerheaders[i].p2x;
     maxx=the_area.m_width-the_area.triggerheaders[i].p1x;
     the_area.triggerheaders[i].p1x=(short) minx;
-    the_area.triggerheaders[i].p2x=(short) maxx;    
+    the_area.triggerheaders[i].p2x=(short) maxx;
     the_area.triggerheaders[i].pointx=(short) (the_area.m_width-the_area.triggerheaders[i].pointx);
     the_area.FlipVertex(i,the_area.triggerheaders[i].vertexcount,the_area.m_width);
   }
@@ -493,7 +493,7 @@ void CAreaEdit::OnToolsMirrorareavertically()
   {
     the_mos.FlipTile(nFrameWanted);
   }
-  
+
   the_area.MirrorMap(the_area.lightmap);
   the_area.MirrorMap(the_area.heightmap);
   the_area.MirrorMap(the_area.searchmap);
@@ -524,7 +524,7 @@ void CAreaEdit::OnToolsMirrorareavertically()
   UpdateData(UD_DISPLAY);
 }
 
-void CAreaEdit::OnToolsCreateminimap() 
+void CAreaEdit::OnToolsCreateminimap()
 {
   CString tmpstr;
 
@@ -539,7 +539,7 @@ void CAreaEdit::OnToolsCreateminimap()
 }
 
 
-void CAreaEdit::OnRepairwed() 
+void CAreaEdit::OnRepairwed()
 {
 	CWedEdit dlg;
 
@@ -554,7 +554,7 @@ void CAreaEdit::OnRepairwed()
 void CAreaEdit::OnRepairwed2()
 {
 	CWedEdit dlg;
-	
+
   if(!(the_area.header.areatype&EXTENDED_NIGHT))
   {
     the_area.header.areatype|=EXTENDED_NIGHT;
@@ -568,16 +568,16 @@ void CAreaEdit::OnRepairwed2()
   UpdateData(UD_DISPLAY);
 }
 
-void CAreaEdit::OnToolsLookupstrref() 
+void CAreaEdit::OnToolsLookupstrref()
 {
 	CStrRefDlg dlg;
-	
+
   dlg.DoModal();
   m_pModelessPropSheet->RefreshDialog();
   UpdateData(UD_DISPLAY);
 }
 
-void CAreaEdit::OnToolsConvertnight() 
+void CAreaEdit::OnToolsConvertnight()
 {
   CString tmpstr;
 
@@ -600,17 +600,17 @@ void CAreaEdit::OnToolsConvertnight()
   UpdateData(UD_DISPLAY);
 }
 
-void CAreaEdit::PostNcDestroy() 
+void CAreaEdit::PostNcDestroy()
 {
   if (m_pModelessPropSheet)
   {
     delete m_pModelessPropSheet;
     m_pModelessPropSheet=NULL;
-  }	
+  }
 	CDialog::PostNcDestroy();
 }
 
-void CAreaEdit::OnCancel() 
+void CAreaEdit::OnCancel()
 {
   CString tmpstr;
 
@@ -655,3 +655,4 @@ BOOL CAreaEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
   return CDialog::PreTranslateMessage(pMsg);
 }
+

@@ -39,7 +39,7 @@ CStoreGeneral::~CStoreGeneral()
 
 static int flagboxids[16]={
   IDC_BUYING, IDC_SELLING,IDC_IDENTIFY,IDC_STEALING, IDC_DONATE, IDC_CURES, IDC_DRINKS,
-    IDC_UNKNOWN1, IDC_UNKNOWN2, IDC_FENCED, IDC_UNKNOWN3, IDC_UNKNOWN4, IDC_UNKNOWN5,
+    IDC_ROULET, IDC_CRAPS, IDC_QUALITY1, IDC_QUALITY2, IDC_WHEEL, IDC_FENCED,
     IDC_UNKNOWN6, IDC_UNKNOWN7, IDC_UNKNOWN8
 };
 
@@ -71,7 +71,7 @@ void CStoreGeneral::DoDataExchange(CDataExchange* pDX)
     the_store.header.type=strtonum(tmpstr);
 
 	  DDX_Text(pDX, IDC_DIALOGRES, tmpstr);
-    StoreResref(tmpstr, the_store.header.dlgresref1);
+    StoreResref(tmpstr, the_store.header.scriptres);
   	DDX_Text(pDX, IDC_RUMOURRES, tmpstr);
     StoreResref(tmpstr, the_store.header.dlgresref2);
 	  DDX_Text(pDX, IDC_ICONRES, tmpstr);
@@ -82,7 +82,7 @@ void CStoreGeneral::DoDataExchange(CDataExchange* pDX)
     tmpstr=format_storetype(the_store.header.type);
   	DDX_Text(pDX, IDC_STORETYPE, tmpstr);
 
-    RetrieveResref(tmpstr, the_store.header.dlgresref1);
+    RetrieveResref(tmpstr, the_store.header.scriptres);
   	DDX_Text(pDX, IDC_DIALOGRES, tmpstr);
   	DDV_MaxChars(pDX, tmpstr, 8);
     RetrieveResref(tmpstr, the_store.header.dlgresref2);
@@ -177,12 +177,12 @@ BEGIN_MESSAGE_MAP(CStoreGeneral, CPropertyPage)
 	ON_BN_CLICKED(IDC_CURES, OnCures)
 	ON_BN_CLICKED(IDC_DONATE, OnDonate)
 	ON_BN_CLICKED(IDC_DRINKS, OnDrinks)
-	ON_BN_CLICKED(IDC_UNKNOWN1, OnUnknown1)
-	ON_BN_CLICKED(IDC_UNKNOWN2, OnUnknown2)
+	ON_BN_CLICKED(IDC_ROULET, OnRoulet)
+	ON_BN_CLICKED(IDC_CRAPS, OnCraps)
+	ON_BN_CLICKED(IDC_QUALITY1, OnQuality1)
+	ON_BN_CLICKED(IDC_QUALITY2, OnQuality2)
+	ON_BN_CLICKED(IDC_WHEEL, OnWheel)
 	ON_BN_CLICKED(IDC_FENCED, OnFenced)
-	ON_BN_CLICKED(IDC_UNKNOWN3, OnUnknown3)
-	ON_BN_CLICKED(IDC_UNKNOWN4, OnUnknown4)
-	ON_BN_CLICKED(IDC_UNKNOWN5, OnUnknown5)
 	ON_BN_CLICKED(IDC_UNKNOWN6, OnUnknown6)
 	ON_BN_CLICKED(IDC_UNKNOWN7, OnUnknown7)
 	ON_BN_CLICKED(IDC_UNKNOWN8, OnUnknown8)
@@ -249,34 +249,34 @@ void CStoreGeneral::OnDrinks()
 	the_store.header.flags^=ST_DRINK;
 }
 
-void CStoreGeneral::OnUnknown1() 
+void CStoreGeneral::OnRoulet() 
 {
 	the_store.header.flags^=ST_UNKN1;
 }
 
-void CStoreGeneral::OnUnknown2() 
+void CStoreGeneral::OnCraps() 
 {
 	the_store.header.flags^=ST_UNKN2;
+}
+
+void CStoreGeneral::OnQuality1() 
+{
+	the_store.header.flags^=ST_QUALITY1;
+}
+
+void CStoreGeneral::OnQuality2() 
+{
+	the_store.header.flags^=ST_QUALITY2;
+}
+
+void CStoreGeneral::OnWheel() 
+{
+	the_store.header.flags^=ST_WHEEL;
 }
 
 void CStoreGeneral::OnFenced() 
 {
 	the_store.header.flags^=ST_FENCE;
-}
-
-void CStoreGeneral::OnUnknown3() 
-{
-	the_store.header.flags^=ST_UNKN3;
-}
-
-void CStoreGeneral::OnUnknown4() 
-{
-	the_store.header.flags^=ST_UNKN4;
-}
-
-void CStoreGeneral::OnUnknown5() 
-{
-	the_store.header.flags^=ST_UNKN5;
 }
 
 void CStoreGeneral::OnUnknown6() 
@@ -423,11 +423,11 @@ void CStoreGeneral::OnBrowse1()
 
 void CStoreGeneral::OnBrowse2() 
 {
-  pickerdlg.m_restype=REF_DLG;
-  RetrieveResref(pickerdlg.m_picked,the_store.header.dlgresref1);
+  pickerdlg.m_restype=REF_BCS;
+  RetrieveResref(pickerdlg.m_picked,the_store.header.scriptres);
   if(pickerdlg.DoModal()==IDOK)
   {
-    StoreResref(pickerdlg.m_picked,the_store.header.dlgresref1);
+    StoreResref(pickerdlg.m_picked,the_store.header.scriptres);
   }
 	UpdateData(UD_DISPLAY);	
 }
@@ -460,7 +460,6 @@ CStoreRental::CStoreRental() : CPropertyPage(CStoreRental::IDD)
 {
 	//{{AFX_DATA_INIT(CStoreRental)
 	//}}AFX_DATA_INIT
-  m_ubytes=CString(" ",36);
 }
 
 CStoreRental::~CStoreRental()
@@ -483,25 +482,12 @@ void CStoreRental::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_NOBLEPRICE, the_store.header.prices[2]);
 	DDX_Text(pDX, IDC_ROYALPRICE, the_store.header.prices[3]);
 	DDX_Text(pDX, IDC_UNKNOWN, the_store.header.rent);
-  for(i=0;i<36;i++)
+  for(i=0;i<9;i++)
   {
   	DDX_Text(pDX, IDC_U1+i, the_store.header.unknown[i]);
-    if(isprint(the_store.header.unknown[i]) )
-    {
-      m_ubytes.SetAt(i,the_store.header.unknown[i]);
-    }
-    else
-    {
-      m_ubytes.SetAt(i,' ');
-    }
   }
-  if(pDX->m_bSaveAndValidate==UD_RETRIEVE)
+  if(pDX->m_bSaveAndValidate!=UD_RETRIEVE)
   {
-  }
-  else
-  {
-  	DDX_Text(pDX, IDC_UBYTES, m_ubytes);
-	  DDV_MaxChars(pDX, m_ubytes, 36);
     j=1;
     for(i=0;i<16;i++)
     {

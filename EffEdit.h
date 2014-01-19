@@ -111,10 +111,10 @@ protected:
 	afx_msg void OnKillfocusText2();
 	afx_msg void OnToolsIdsbrowser();
 	afx_msg void OnDefaultKillfocus();
-	afx_msg void OnParSpecial();
 	afx_msg void OnHexadecimal();
 	afx_msg void OnMirror();
 	afx_msg void OnDiff();
+	afx_msg void OnParAnim();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -62,6 +62,11 @@ protected:
   int HandleOverlay(int x, int y, area_vertex *polygon, int size, int tile);
   //returns true if tile is fully opaque
   int RemoveOverlay(int x, int y, area_vertex *polygon, int size, int tile, int original);
+  void DropInvalidPolygons();
+  void DropWallPolygon(int index);
+  void DropDoorPolygon(int index);
+  int HandleStencil(Cmos &stencilmos, int tile1, int tile2);
+  void ApplyStencil(Cmos &stencilmos);
 
 	// Generated message map functions
 	//{{AFX_MSG(CWedEdit)
@@ -107,6 +112,7 @@ protected:
 	afx_msg void OnAdd();
 	afx_msg void OnKillfocusMove();
 	afx_msg void OnOverlayAdd();
+	afx_msg void OnOverlayLoad();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

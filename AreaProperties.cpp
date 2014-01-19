@@ -116,11 +116,12 @@ void CAreaGeneral::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_SNOW, the_area.header.snow);
   DDX_Text(pDX, IDC_FOG, the_area.header.fog);
   DDX_Text(pDX, IDC_LIGHTNING, the_area.header.lightning);
-  DDX_Text(pDX, IDC_UNKNOWN52, the_area.header.windspeed);
+  DDX_Text(pDX, IDC_OVERLAY, the_area.header.overlaymode);       //BGEE specific
 
   DDX_Text(pDX, IDC_UNKFLAG, the_area.header.unkflags);
 
-  DDX_Text(pDX, IDC_UNKNOWN90, the_area.header.tileflagoffset);
+  DDX_Text(pDX, IDC_UNKNOWN8E, the_area.header.tileflagcnt);     //unused
+  DDX_Text(pDX, IDC_UNKNOWN90, the_area.header.tileflagoffset);  //unused
 
   cb=(CButton *) GetDlgItem(IDC_SONG);
   cb2=(CButton *) GetDlgItem(IDC_SONGS);
@@ -239,6 +240,9 @@ BOOL CAreaGeneral::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
+    m_tooltip.AddTool(GetDlgItem(IDC_OVERLAY), IDS_BGEE);
+    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN8E), IDS_UNUSED);
+    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN90), IDS_UNUSED);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -267,6 +271,7 @@ BEGIN_MESSAGE_MAP(CAreaGeneral, CPropertyPage)
 	ON_BN_CLICKED(IDC_EDIT, OnEdit)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_NIGHT, OnNight)
+	ON_BN_CLICKED(IDC_EXPLORED, OnExplored)
 	ON_EN_KILLFOCUS(IDC_WED, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_AREATYPE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_LASTSAVED, DefaultKillfocus)
@@ -284,9 +289,9 @@ BEGIN_MESSAGE_MAP(CAreaGeneral, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_SNOW, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FOG, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_LIGHTNING, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN52, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKFLAG, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_EXPLORED, OnExplored)
+	ON_EN_KILLFOCUS(IDC_OVERLAY, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_UNKNOWN8E, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -602,6 +607,12 @@ void CAreaGeneral::OnNight()
 
   if(GetWed(true)) return;
   dlg.DoModal();
+}
+
+BOOL CAreaGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1214,7 +1225,7 @@ void CAreaActor::OnEmbed()
   else
   {
     RetrieveResref(tmpname,the_area.actorheaders[m_actornum].creresref);
-    if(read_creature(tmpname)<0)
+    if(read_creature(tmpname, &the_creature)<0)
     {
       return;
     }
@@ -1223,7 +1234,7 @@ void CAreaActor::OnEmbed()
     the_area.actorheaders[m_actornum].firstchar=tmpname[0];
     //reading creature into creature structure
     //moving creature structure into area data
-    ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
+    ReadTempCreature(&the_creature, the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
     the_area.actorheaders[m_actornum].creoffset=0xcdcdcdcd; //some fake nonzero value
     tmpname.SetAt(0,'*');
     StoreResref(tmpname,the_area.actorheaders[m_actornum].creresref);
@@ -1241,7 +1252,7 @@ void CAreaActor::OnEdit()
   tmpname=itemname;
   if(!the_area.credatapointers[m_actornum]) return;
   RetrieveResref(itemname,the_area.actorheaders[m_actornum].creresref);
-  ret=WriteTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
+  ret=WriteTempCreature(&the_creature, the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
   if(ret>=0)
   {
     the_creature.m_savechanges=false;
@@ -1252,7 +1263,7 @@ void CAreaActor::OnEdit()
   if(MessageBox("Do you want to keep the changes made on the creature?","Area editor",MB_YESNO)==IDYES)
   {
     the_area.m_changed=true;
-    ReadTempCreature(the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
+    ReadTempCreature(&the_creature, the_area.credatapointers[m_actornum],the_area.actorheaders[m_actornum].cresize);
 //    tmpname.SetAt(0,'*');
 //    StoreResref(itemname,the_area.actorheaders[m_actornum].creresref);
     RefreshActor();
@@ -2120,7 +2131,7 @@ void CAreaTrigger::OnSelection()
 
   if(SetupSelectPoint(0)) return;
   dlg.SetMapType(MT_REGION, (LPBYTE) &the_area.vertexheaderlist);
-  dlg.m_max=the_area.triggercount;
+  dlg.m_max=the_area.triggercount-1;
   dlg.m_value=m_triggernum;
   dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_GETPOLYGON, &the_mos);
 	dlg.DoModal();
@@ -3360,7 +3371,7 @@ void CAreaAmbient::OnSelection()
 
   if(SetupSelectPoint(0)) return;
   dlg.SetMapType(MT_AMBIENT, the_area.ambientheaders);
-  dlg.m_max=the_area.ambientcount;
+  dlg.m_max=the_area.ambientcount-1;
   dlg.m_value=m_ambientnum;
   dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_GETPOLYGON|IW_SHOWALL, &the_mos);
   dlg.SetupAnimationPlacement(&the_bam, the_area.ambientheaders[m_ambientnum].posx,
@@ -3605,7 +3616,7 @@ IDC_UNKNOWN80,IDC_UNKNOWN56,IDC_STRREF, IDC_TEXT,IDC_RECALCBOX, IDC_EDITPOLYGON,
 IDC_SCRIPTNAME,IDC_UNKNOWN8,IDC_IDENTIFIED,IDC_NOSTEAL,IDC_STOLEN,IDC_NODROP,
 IDC_BROWSE, IDC_BROWSE2,IDC_BROWSE3,IDC_ADDITEM,IDC_DELITEM,IDC_UNKNOWN,
 IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_SET, IDC_SELECTION,IDC_HIDDEN, IDC_NOPC,
-IDC_TRESET, IDC_FIT,
+IDC_NOCUT, IDC_TRESET, IDC_FIT,
 0};
 
 //all except additem
@@ -3727,7 +3738,7 @@ void CAreaContainer::DoDataExchange(CDataExchange* pDX)
 }
 #pragma warning(default:4706)   
 
-int lockids[8]={IDC_HIDDEN, 0, 0, IDC_TRESET, 0, IDC_NOPC,0,0};
+int lockids[8]={IDC_HIDDEN, 0, 0, IDC_TRESET, 0, IDC_NOPC,IDC_NOCUT,0};
 
 void CAreaContainer::RefreshContainer()
 {
@@ -3834,6 +3845,7 @@ BEGIN_MESSAGE_MAP(CAreaContainer, CPropertyPage)
 	ON_BN_CLICKED(IDC_SELECTION, OnSelection)
 	ON_BN_CLICKED(IDC_FIT, OnFit)
 	ON_BN_CLICKED(IDC_TRESET, OnTreset)
+	ON_EN_KILLFOCUS(IDC_LOCKED, OnKillfocusLocked)
 	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TYPE, DefaultKillfocus)
@@ -3859,7 +3871,7 @@ BEGIN_MESSAGE_MAP(CAreaContainer, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_SCRIPTNAME, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_KEY, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DETECTED, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_LOCKED, OnKillfocusLocked)
+	ON_BN_CLICKED(IDC_NOCUT, OnNocut)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -3928,6 +3940,13 @@ void CAreaContainer::OnTreset()
 void CAreaContainer::OnNopc() 
 {
 	the_area.containerheaders[m_containernum].locked^=32;
+  RefreshContainer();
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaContainer::OnNocut() 
+{
+	the_area.containerheaders[m_containernum].locked^=64;
   RefreshContainer();
 	UpdateData(UD_DISPLAY);
 }
@@ -4383,7 +4402,7 @@ void CAreaContainer::OnSelection()
 
   if(SetupSelectPoint(0)) return;
   dlg.SetMapType(MT_CONTAINER, (LPBYTE) &the_area.vertexheaderlist);
-  dlg.m_max=the_area.containercount;
+  dlg.m_max=the_area.containercount-1;
   dlg.m_value=m_containernum;
   dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_GETPOLYGON, &the_mos);
 	dlg.DoModal();
@@ -4399,7 +4418,7 @@ void CAreaContainer::OnSet()
 
   if(SetupSelectPoint(0)) return;
   dlg.SetMapType(MT_CONTAINER, (LPBYTE) &the_area.vertexheaderlist);
-  dlg.m_max=the_area.containercount;
+  dlg.m_max=the_area.containercount-1;
   dlg.m_value=m_containernum;
 
   dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_PLACEIMAGE, &the_mos);
@@ -5999,7 +6018,7 @@ void CAreaDoor::OnSelection()
 
   if(SetupSelectPoint(0)) return;
   dlg.SetMapType(MT_DOOR, (LPBYTE) &the_area.vertexheaderlist);
-  dlg.m_max=the_area.doorcount*2;
+  dlg.m_max=the_area.doorcount*2-1;
   dlg.m_value=m_doornum*2+!m_openclose;
   dlg.InitView(IW_SHOWGRID|IW_ENABLEBUTTON|IW_GETPOLYGON, &the_mos);
   dlg.DoModal();
@@ -6044,7 +6063,7 @@ CAreaAnim::~CAreaAnim()
 }
 
 static int animboxids[]={IDC_ANIMPICKER, IDC_POSX, IDC_POSY, IDC_BAM,
-IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_HEIGHT, IDC_U48, IDC_TRANSPARENT,
+IDC_FRAME, IDC_CYCLE, IDC_FLAGS, IDC_HEIGHT, IDC_X, IDC_Y, IDC_TRANSPARENT,
 IDC_U3C, IDC_CHANCE, IDC_SKIPEXT, IDC_BMP, IDC_FLAG1, IDC_FLAG2, 
 IDC_FLAG3, IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8,
 IDC_FLAG9, IDC_FLAG10, IDC_FLAG11, IDC_FLAG12, IDC_FLAG13, IDC_FLAG14,
@@ -6077,6 +6096,8 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
     cb=GetDlgItem(animboxids[i++]);
     cb->EnableWindow(flg);
   }
+  RefreshFrameSize();
+
   if(flg)
   {
     tmpstr.Format("%d. %-.32s",m_animnum+1,the_area.animheaders[m_animnum].animname);
@@ -6109,7 +6130,8 @@ void CAreaAnim::DoDataExchange(CDataExchange* pDX)
     tmpstr.Format("0x%08x", the_area.animheaders[m_animnum].flags);
     DDX_Text(pDX, IDC_FLAGS, tmpstr);
     the_area.animheaders[m_animnum].flags = strtonum(tmpstr);
-    DDX_Text(pDX, IDC_U48,the_area.animheaders[m_animnum].unknown48);
+    DDX_Text(pDX, IDC_X,the_area.animheaders[m_animnum].sizex);
+    DDX_Text(pDX, IDC_Y,the_area.animheaders[m_animnum].sizey);
     DDX_Text(pDX, IDC_HEIGHT,the_area.animheaders[m_animnum].height);
 		DDX_Text(pDX, IDC_TRANSPARENT,the_area.animheaders[m_animnum].transparency);
 		DDX_Text(pDX, IDC_U3C,the_area.animheaders[m_animnum].current);
@@ -6247,6 +6269,8 @@ BEGIN_MESSAGE_MAP(CAreaAnim, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_TRANSPARENT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_SKIPEXT, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_CHANCE, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_X, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_Y, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -6377,6 +6401,12 @@ void CAreaAnim::OnFlag8()
 void CAreaAnim::OnFlag9() 
 {
 	the_area.animheaders[m_animnum].flags^=256;
+  /*
+  if (the_area.animheaders[m_animnum].flags&256)
+  {
+    the_area.animheaders[m_animnum].flags&=~0x4000;
+  }
+  */
 	UpdateData(UD_DISPLAY);
 }
 
@@ -6406,26 +6436,58 @@ void CAreaAnim::OnFlag13()
 
 void CAreaAnim::OnFlag14() 
 {
-	the_area.animheaders[m_animnum].flags^=8192;
+	the_area.animheaders[m_animnum].flags^=AA_WBM;
+  RefreshFrameSize();
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaAnim::OnFlag15() 
 {
 	the_area.animheaders[m_animnum].flags^=0x4000;
+  /*
+  if (the_area.animheaders[m_animnum].flags&0x4000)
+  {
+    the_area.animheaders[m_animnum].flags&=~256;
+  }
+  */
 	UpdateData(UD_DISPLAY);
 }
 
 void CAreaAnim::OnFlag16() 
 {
 	the_area.animheaders[m_animnum].flags^=0x8000;
+  RefreshFrameSize();
 	UpdateData(UD_DISPLAY);
+}
+
+void CAreaAnim::RefreshFrameSize()
+{
+  CWnd *cw;
+  bool flg;
+
+  if (m_animnum!=-1)
+  {
+    flg = !!(the_area.animheaders[m_animnum].flags&(AA_WBM|0x8000) );
+    cw=GetDlgItem(IDC_RESOURCE);
+    cw->SetWindowText(flg?"Movie":"BAM");
+    cw=GetDlgItem(IDC_X);
+    cw->EnableWindow(flg); //movie or pvrz
+    cw=GetDlgItem(IDC_Y);
+    cw->EnableWindow(flg); //movie or pvrz
+  }
 }
 
 void CAreaAnim::OnBrowse() 
 {
   if(m_animnum<0) return;
-  pickerdlg.m_restype=REF_BAM;
+  if (the_area.animheaders[m_animnum].flags&AA_WBM)
+  {
+    pickerdlg.m_restype=REF_WBM;
+  }
+  else
+  {
+    pickerdlg.m_restype=REF_BAM;
+  }
   RetrieveResref(pickerdlg.m_picked,the_area.animheaders[m_animnum].bam);
   if(pickerdlg.DoModal()==IDOK)
   {

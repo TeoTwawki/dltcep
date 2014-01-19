@@ -50,6 +50,7 @@ protected:
   int GetCurrentControlType(int &pos2, char *&oldtype);
   int DeleteControls(int firstcontrol, int controlcount);
   void OnLabelFlag(int flag);
+  short GetWindowId();
 
 	afx_msg void DefaultKillfocus();
 	// Generated message map functions
@@ -63,6 +64,7 @@ protected:
 	afx_msg void OnSelchangeWindowpicker();
 	afx_msg void OnAddwin();
 	afx_msg void OnDelwin();
+	afx_msg void OnCopywin();
 	afx_msg void OnSave();
 	afx_msg void OnBrowse();
 	afx_msg void OnBackground();

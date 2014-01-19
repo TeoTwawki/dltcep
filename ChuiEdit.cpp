@@ -38,7 +38,7 @@ IDC_MOS, IDC_BACKGROUND, IDC_FLAGS, IDC_U1, IDC_SHADOW, IDC_OTHER,
 IDC_CTRLCNT, IDC_CONTROLPICKER,
 
 //buttons
-IDC_BROWSE, IDC_DELWIN, IDC_ADDCTRL,
+IDC_BROWSE, IDC_DELWIN, IDC_ADDCTRL, IDC_COPY,
 0};
 
 static int ctrlboxids[]={IDC_ID2, IDC_XPOS2, IDC_YPOS2, IDC_WIDTH2, IDC_HEIGHT2,
@@ -395,10 +395,10 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_CBN_SELCHANGE(IDC_WINDOWPICKER, OnSelchangeWindowpicker)
 	ON_BN_CLICKED(IDC_ADDWIN, OnAddwin)
 	ON_BN_CLICKED(IDC_DELWIN, OnDelwin)
+	ON_BN_CLICKED(IDC_COPY, OnCopywin)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BACKGROUND, OnBackground)
-	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
 	ON_CBN_SELCHANGE(IDC_CONTROLPICKER, OnSelchangeControlpicker)
 	ON_CBN_KILLFOCUS(IDC_TYPE, OnKillfocusType)
 	ON_BN_CLICKED(IDC_ADDCTRL, OnAddctrl)
@@ -422,6 +422,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	ON_EN_KILLFOCUS(IDC_ID2, OnKillfocusId2)
+	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
 	ON_BN_CLICKED(IDC_LOADEX, OnLoadex)
 	ON_BN_CLICKED(IDC_SAVEAS, OnSaveas)
@@ -888,11 +889,23 @@ void CChuiEdit::OnKillfocusType()
 	UpdateData(UD_DISPLAY);	
 }
 
+short CChuiEdit::GetWindowId()
+{
+  int i;
+  short ret = 0;
+  for(i=0;i<the_chui.windowcnt;i++)
+  {
+    if (ret<=the_chui.windows[i].windowid) ret = (short) (the_chui.windows[i].windowid+1);
+  }
+  return ret;
+}
+
 void CChuiEdit::OnAddwin() 
 {
 	chui_window *newwindows;
   int first;
 
+  short windowid = GetWindowId();
 	newwindows=new chui_window[the_chui.windowcnt+1];
   if(!newwindows)
   {
@@ -909,6 +922,7 @@ void CChuiEdit::OnAddwin()
     first=0;
   }
   newwindows[the_chui.windowcnt].controlidx=(short) first;
+  newwindows[the_chui.windowcnt].windowid=windowid;
 
   delete [] the_chui.windows;
   the_chui.windows=newwindows;
@@ -971,6 +985,59 @@ int CChuiEdit::DeleteControls(int firstcontrol, int controlcount)
 
   the_chui.controlcnt-=controlcount;
   return 0;
+}
+
+void CChuiEdit::OnCopywin() 
+{
+  int windowcnt;
+  int controlcnt;
+  int newwin;
+  int i;
+  chui_control_common *orig;
+  chui_control_common *ctrl;
+  int oldsize, newsize;
+
+  windowcnt=m_windowpicker.GetCurSel();
+  if(windowcnt<0) return;
+
+  controlcnt = the_chui.windows[windowcnt].controlcount;
+	OnAddwin();
+  newwin = the_chui.windowcnt-1;  
+  the_chui.windows[newwin].flags = the_chui.windows[windowcnt].flags;
+  the_chui.windows[newwin].height = the_chui.windows[windowcnt].height;
+  memcpy(the_chui.windows[newwin].mos,the_chui.windows[windowcnt].mos,8);
+  the_chui.windows[newwin].other = the_chui.windows[windowcnt].other;
+  the_chui.windows[newwin].unknown1 = the_chui.windows[windowcnt].unknown1;
+  the_chui.windows[newwin].width = the_chui.windows[windowcnt].width;
+  the_chui.windows[newwin].xpos = the_chui.windows[windowcnt].xpos;
+  the_chui.windows[newwin].ypos = the_chui.windows[windowcnt].ypos;
+
+  //
+  for (i=0;i<controlcnt;i++)
+  {
+    OnAddctrl();
+    orig = &the_chui.controls[i+the_chui.windows[windowcnt].controlidx];    
+    ctrl = &the_chui.controls[i+the_chui.windows[newwin].controlidx];
+    ctrl->controlid = orig->controlid;
+    ctrl->controltype = orig->controltype;
+    ctrl->height = orig->height;
+    ctrl->idflags = orig->idflags;
+    ctrl->unknown = orig->unknown;
+    ctrl->width = orig->width;
+    ctrl->xpos = orig->xpos;
+    ctrl->ypos = orig->ypos;
+
+    oldsize=ChuiControlSize(ctrl->controltype);
+    newsize=ChuiControlSize(orig->controltype);
+    BYTE *newextension=new BYTE[newsize];
+    if(oldsize>newsize) oldsize=newsize;
+    memcpy(newextension,the_chui.extensions[i+the_chui.windows[windowcnt].controlidx],newsize);
+    delete [] the_chui.extensions[i+the_chui.windows[newwin].controlidx];
+    the_chui.extensions[i+the_chui.windows[newwin].controlidx]=newextension;
+    the_chui.controltable[i+the_chui.windows[newwin].controlidx].y=newsize+sizeof(chui_control_common);
+  }
+  RefreshDialog();
+  UpdateData(UD_DISPLAY);
 }
 
 void CChuiEdit::OnDelwin() 
@@ -1635,4 +1702,3 @@ BOOL CChuiEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);	
   return CDialog::PreTranslateMessage(pMsg);
 }
-

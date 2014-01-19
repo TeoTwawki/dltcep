@@ -316,7 +316,7 @@ void CEditOpt::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CEditOpt)
 	DDX_Text(pDX, IDC_WIDTH, winsize);
-	DDV_MinMaxInt(pDX, winsize, 10, 32);
+	DDV_MinMaxInt(pDX, winsize, 6, 32);
 	//}}AFX_DATA_MAP
 }
 
@@ -651,6 +651,9 @@ void CWeiDUOpt::DoDataExchange(CDataExchange* pDX)
   }
   cb=(CButton *) GetDlgItem(IDC_LOG);
   cb->SetCheck(!!(weiduflg&WEI_LOGGING));
+  cb=(CButton *) GetDlgItem(IDC_USE1);
+  cb->SetCheck(!!(weiduflg&WEI_USELANG));
+  cb->EnableWindow(!language.IsEmpty());
 }
 
 BEGIN_MESSAGE_MAP(CWeiDUOpt, CDialog)
@@ -666,6 +669,7 @@ BEGIN_MESSAGE_MAP(CWeiDUOpt, CDialog)
 	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
 	ON_EN_KILLFOCUS(IDC_LANGUAGE, OnKillfocusLanguage)
 	ON_CBN_KILLFOCUS(IDC_LANGUAGE, OnKillfocusLanguage)
+	ON_BN_CLICKED(IDC_USE1, OnUseLang)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -708,12 +712,12 @@ restart:
     tmp.MakeLower();
     if(tmp.Right(9)!="weidu.exe")
     {
-      MessageBox("You should select weidu.exe","Warning",MB_OK);
+      MessageBox("You should select weidu.exe","Warning",MB_OK|MB_TASKMODAL);
       goto restart;
     }
     if(!checkfile(tmp,"MZ"))
     {
-      MessageBox("This is not a valid WeiDU.exe file. (It must be an executable)","Warning",MB_OK);
+      MessageBox("This is not a valid WeiDU.exe file. (It must be an executable)","Warning",MB_OK|MB_TASKMODAL);
       goto restart;
     }
     weidupath=tmp;
@@ -779,6 +783,12 @@ void CWeiDUOpt::OnFlag5()
 void CWeiDUOpt::OnLog() 
 {
 	weiduflg^=WEI_LOGGING;
+  Refresh();
+}
+
+void CWeiDUOpt::OnUseLang() 
+{
+	weiduflg^=WEI_USELANG;
   Refresh();
 }
 

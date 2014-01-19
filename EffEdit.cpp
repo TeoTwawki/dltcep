@@ -277,7 +277,7 @@ void CEffEdit::RefreshDialog()
     break;
   case 2: //ids
     tmp=IDSName2(the_effect.header.par2.parl, true);
-    if((unsigned long) the_effect.header.par2.parl <9)
+    if((unsigned long) the_effect.header.par2.parl <10)
     {
       m_param2.Format("%d-%s",the_effect.header.par2.parl, IDSType(the_effect.header.par2.parl, true) );
     }
@@ -293,7 +293,7 @@ void CEffEdit::RefreshDialog()
     break;
   case 4:
     m_param2.Format(longformat,the_effect.header.par2.parl);
-    cb=(CButton *) GetDlgItem(IDC_PAR_SPECIAL);
+    cb=(CButton *) GetDlgItem(IDC_PAR_ANIM);
     break;
   }
   cb->SetCheck(true);
@@ -562,10 +562,10 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_COMMAND(ID_TOOLS_DURATION, OnToolsDuration)
 	ON_EN_KILLFOCUS(IDC_TEXT2, OnKillfocusText2)
 	ON_COMMAND(ID_TOOLS_IDSBROWSER, OnToolsIdsbrowser)
-	ON_EN_KILLFOCUS(IDC_PAR4, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_PAR_SPECIAL, OnParSpecial)
 	ON_BN_CLICKED(IDC_HEXADECIMAL, OnHexadecimal)
 	ON_BN_CLICKED(IDC_MIRROR, OnMirror)
+	ON_BN_CLICKED(IDC_DIFF, OnDiff)
+	ON_EN_KILLFOCUS(IDC_PAR4, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_EFFTARGET, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DURATION, DefaultKillfocus)
@@ -603,7 +603,7 @@ BEGIN_MESSAGE_MAP(CEffEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_POS2X, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_POS2Y, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAGS, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_DIFF, OnDiff)
+	ON_BN_CLICKED(IDC_PAR_ANIM, OnParAnim)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -829,11 +829,17 @@ void CEffEdit::DefaultKillfocus()
 
 void CEffEdit::OnKillfocusPar1() 
 {
+  CString filename;
+
   UpdateData(UD_RETRIEVE);
   switch(m_par_type) {
   case 4:
     the_effect.header.par1.parl=IDSKey2("ANIMATE", m_param1);
-    break;    
+    break;
+  case 2:
+    filename = IDSName2(the_effect.header.par2.parl,true);
+    the_effect.header.par1.parl=IDSKey2(filename, m_param1);
+    break;
     //fall through
   default:
     the_effect.header.par1.parl=strtonum(m_param1);
@@ -900,6 +906,7 @@ void CEffEdit::OnKillfocusPar2()
     break;
   case 2: //ids
     the_effect.header.par2.parl = IDSIndex(tmp, true);
+    goto endofquest;
     break;
   case 3:
     y=0x10000;
@@ -978,15 +985,9 @@ void CEffEdit::OnParUndefined()
 void CEffEdit::OnParColor() 
 {
   CButton *cb;
-  int i;
 
   cb=(CButton *) GetDlgItem(IDC_EXPLODE1);
   cb->SetCheck(false);
-  GetDlgItem(IDC_PAR1)->ShowWindow(true);  
-  for(i=0;i<4;i++)
-  {
-    GetDlgItem(par1boxids[i])->ShowWindow(false);
-  }
   Explode(par1boxids,IDC_PAR1,IDC_EXPLODE1);
   cb->SetWindowText("Pick color");
 	m_par_type=1;
@@ -995,15 +996,41 @@ void CEffEdit::OnParColor()
 
 void CEffEdit::OnParIds() 
 {
+  CButton *cb;
+
+  cb=(CButton *) GetDlgItem(IDC_EXPLODE1);
+  cb->SetCheck(false);
+  GetDlgItem(IDC_PAR1)->ShowWindow(true);  
   Explode(par1boxids,IDC_PAR1,IDC_EXPLODE1);
+  cb=(CButton *) GetDlgItem(IDC_EXPLODE2);
+  cb->SetCheck(false);
+  Explode(par2boxids,IDC_PAR2,IDC_EXPLODE2);
 	m_par_type=2;
   RefreshDialog();
 }
 
 void CEffEdit::OnParDamage() 
 {
-  Explode(par1boxids,IDC_PAR1,IDC_EXPLODE1);
+  CButton *cb;
+
+  cb=(CButton *) GetDlgItem(IDC_EXPLODE2);
+  cb->SetCheck(false);
+  GetDlgItem(IDC_PAR2)->ShowWindow(true);  
+  Explode(par2boxids,IDC_PAR2,IDC_EXPLODE2);
   m_par_type=3;
+  RefreshDialog();
+}
+
+
+void CEffEdit::OnParAnim() 
+{
+  CButton *cb;
+
+  cb=(CButton *) GetDlgItem(IDC_EXPLODE1);
+  cb->SetCheck(false);
+  GetDlgItem(IDC_PAR1)->ShowWindow(true);  
+  Explode(par1boxids,IDC_PAR1,IDC_EXPLODE1);
+  m_par_type=4;
   RefreshDialog();
 }
 
@@ -1011,13 +1038,6 @@ void CEffEdit::OnHexadecimal()
 {
   m_hexadecimal = !m_hexadecimal;
 	RefreshDialog();
-}
-
-void CEffEdit::OnParSpecial() 
-{
-  Explode(par1boxids,IDC_PAR1,IDC_EXPLODE1);
-  m_par_type=4;
-  RefreshDialog();
 }
 
 void CEffEdit::OnKillfocusPar1b1() 
@@ -1095,6 +1115,14 @@ void CEffEdit::OnBrowse()
   RetrieveResref(pickerdlg.m_picked,the_effect.header.resource);
   if(pickerdlg.DoModal()==IDOK)
   {    
+    if (is_this_bgee() && (the_effect.header.feature==319))
+    {
+      Ccreature tmpcre;
+
+      read_creature(pickerdlg.m_picked, &tmpcre);
+      pickerdlg.m_picked = CString(tmpcre.header.dvar,8);
+    }
+
     StoreResref(pickerdlg.m_picked,the_effect.header.resource);
   }
   UpdateData(UD_DISPLAY);	

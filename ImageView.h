@@ -125,6 +125,7 @@ protected:
   void DrawCircle(int x, int y, int radius, int colorindex);
   void DrawLines(POINTS *polygon, unsigned int count, CString title, int fill, int actv);
   void DrawMap(); //light, height, search maps
+  void SetClipSize(int x, int y);
 	// Generated message map functions
 	//{{AFX_MSG(CImageView)
 	virtual BOOL OnInitDialog();
@@ -140,6 +141,8 @@ protected:
 	afx_msg void OnShowgrid();
 	afx_msg void OnFill();
 	afx_msg void OnOverlay();
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

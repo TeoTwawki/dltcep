@@ -143,14 +143,14 @@ void C2DAEdit::OnLoad()
     switch(res)
     {
     case 1:
-      MessageBox("2da loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("2da loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
   		itemname=pickerdlg.m_picked;
       break;
     case 0:
   		itemname=pickerdlg.m_picked;
       break;
     default:
-      MessageBox("Cannot read 2da!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot read 2da!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       New2DA();
       break;
     }
@@ -177,7 +177,7 @@ restart:
     fhandle=open(filepath, O_RDONLY|O_BINARY);
     if(!fhandle)
     {
-      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
@@ -187,7 +187,7 @@ restart:
     switch(res)
     {
     case 1:
-      MessageBox("2da loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("2da loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
@@ -196,7 +196,7 @@ restart:
       itemname.MakeUpper();
       break;
     default:
-      MessageBox("Cannot read 2da!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot read 2da!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       New2DA();
       break;
     }
@@ -222,7 +222,7 @@ void C2DAEdit::SaveTable(int save)
 
   if(readonly)
   {
-    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
@@ -257,7 +257,7 @@ gotname:
     }
     if(newname!=itemname && file_exists(filepath) )
     {
-      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
+      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO|MB_TASKMODAL);
       if(res==IDNO) goto restart;
     }
 
@@ -269,10 +269,10 @@ gotname:
       itemname=newname;
       break; //saved successfully
     case -2:
-      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       break;
     default:
-      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
     }
   }
   RefreshDialog();
@@ -591,7 +591,7 @@ escape:
       {
         if(m_integer && invalidnumber(tmpstr) )
         {
-          MessageBox("Enter a decimal or hexadecimal value!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+          MessageBox("Enter a decimal or hexadecimal value!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
         }
         else
         {
@@ -669,7 +669,7 @@ void C2DAEdit::OnRemove()
 {
   if(m_item<0)
   {
-    MessageBox("Please select a row!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a row!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	if(the_2da.RemoveRow(m_item))
@@ -678,14 +678,14 @@ void C2DAEdit::OnRemove()
     if(m_item>=the_2da.rows) m_item=the_2da.rows-1;
     RefreshSelection();
   }
-  else MessageBox("Cannot remove row!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+  else MessageBox("Cannot remove row!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
 }
 
 void C2DAEdit::OnRemove2() 
 {
 	if(m_subitem<1)
   {
-    MessageBox("Please select a column (can't remove label column).","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a column (can't remove label column).","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	if(the_2da.RemoveColumn(m_subitem))
@@ -693,14 +693,14 @@ void C2DAEdit::OnRemove2()
     RefreshDialog();
     m_subitem--;
   }
-  else MessageBox("Cannot remove column!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+  else MessageBox("Cannot remove column!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
 }
 
 void C2DAEdit::OnCopy() 
 {
 	if(m_item<0)
   {
-    MessageBox("Please select a row!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a row!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	the_2da.CopyRow(m_item);
@@ -710,7 +710,7 @@ void C2DAEdit::OnCopy2()
 {
 	if(m_subitem<0)
   {
-    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	the_2da.CopyColumn(m_subitem);
@@ -720,7 +720,7 @@ void C2DAEdit::OnPaste()
 {
 	if(m_item<0)
   {
-    MessageBox("Please select a row!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a row!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	the_2da.PasteRow(m_item);
@@ -731,7 +731,7 @@ void C2DAEdit::OnPaste2()
 {
 	if(m_subitem<0)
   {
-    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	the_2da.PasteColumn(m_subitem);
@@ -742,7 +742,7 @@ void C2DAEdit::OnOrder()
 {
 	if(m_subitem<0)
   {
-    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a column!","2DA editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	the_2da.OrderByColumn(m_subitem, m_integer);
@@ -1003,14 +1003,14 @@ void CIDSEdit::OnLoad()
     switch(res)
     {
     case 1:
-      MessageBox("Identifiers loaded with some errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Identifiers loaded with some errors.","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
   		itemname=pickerdlg.m_picked;
       break;
     case 0:
   		itemname=pickerdlg.m_picked;
       break;
     default:
-      MessageBox("Cannot read identifiers!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot read identifiers!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       NewIDS();
       break;
     }
@@ -1038,7 +1038,7 @@ restart:
     fhandle=open(filepath, O_RDONLY|O_BINARY);
     if(!fhandle)
     {
-      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
@@ -1048,7 +1048,7 @@ restart:
     switch(res)
     {
     case 1:
-      MessageBox("Identifiers loaded with some errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Identifiers loaded with some errors.","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
@@ -1057,7 +1057,7 @@ restart:
       itemname.MakeUpper();
       break;
     default:
-      MessageBox("Cannot read identifiers!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot read identifiers!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       NewIDS();
       break;
     }
@@ -1092,7 +1092,7 @@ void CIDSEdit::SaveIDS(int save)
 
   if(readonly || m_readonly) //m_readonly is the local read only flag
   {
-    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
@@ -1126,13 +1126,13 @@ gotname:
     }
     if(newname!=itemname && file_exists(filepath) )
     {
-      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
+      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO|MB_TASKMODAL);
       if(res==IDNO) goto restart;
     }
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       goto restart;
     }
     res=the_ids.WriteIDSToFile(fhandle);
@@ -1144,10 +1144,10 @@ gotname:
       itemname=newname;
       break; //saved successfully
     case -2:
-      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       break;
     default:
-      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
     }
   }
   RefreshDialog();
@@ -1288,7 +1288,7 @@ void CIDSEdit::OnRemove()
 {
   if(m_item<0)
   {
-    MessageBox("Please select an item to remove.","IDS editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select an item to remove.","IDS editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	if(the_ids.RemoveRow(m_item))
@@ -1298,7 +1298,7 @@ void CIDSEdit::OnRemove()
   }
   else
   {
-    MessageBox("Cannot remove item.","IDS editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Cannot remove item.","IDS editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
   }
   UpdateData(UD_DISPLAY);
 }
@@ -1558,14 +1558,14 @@ void CMUSEdit::OnLoad()
     switch(res)
     {
     case 1:
-      MessageBox("Musiclist loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Musiclist loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
   		itemname=pickerdlg.m_picked;
       break;
     case 0:
   		itemname=pickerdlg.m_picked;
       break;
     default:
-      MessageBox("Cannot read list!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot read list!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       NewMUS();
       break;
     }
@@ -1592,7 +1592,7 @@ restart:
     fhandle=open(filepath, O_RDONLY|O_BINARY);
     if(!fhandle)
     {
-      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       goto restart;
     }
     readonly=m_getfiledlg.GetReadOnlyPref();
@@ -1602,7 +1602,7 @@ restart:
     switch(res)
     {
     case 1:
-      MessageBox("Musiclist loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK);
+      MessageBox("Musiclist loaded with some errors (minor inconsistency).","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
       itemname=m_getfiledlg.GetFileTitle();
       itemname.MakeUpper();
       break;
@@ -1611,7 +1611,7 @@ restart:
       itemname.MakeUpper();
       break;
     default:
-      MessageBox("Cannot read list!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Cannot read list!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       NewMUS();
       break;
     }
@@ -1629,7 +1629,7 @@ void CMUSEdit::OnSaveas()
 
   if(readonly)
   {
-    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("You opened it read only!","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
@@ -1655,13 +1655,13 @@ restart:
     }
     if(newname!=itemname && file_exists(filepath) )
     {
-      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
+      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO|MB_TASKMODAL);
       if(res==IDNO) goto restart;
     }
     fhandle=open(filepath, O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
     if(fhandle<1)
     {
-      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Can't write file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       goto restart;
     }
     if(the_mus.internal.IsEmpty()) the_mus.internal=newname;
@@ -1676,10 +1676,10 @@ restart:
       itemname=newname;
       break; //saved successfully
     case -2:
-      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
       break;
     default:
-      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK);
+      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
     }
   }
   RefreshDialog();
@@ -1727,14 +1727,14 @@ void CMUSEdit::OnRemove()
 {
   if(m_item<0)
   {
-    MessageBox("Please select a row!","Musiclist editor",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Please select a row!","Musiclist editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     return;
   }
 	if(the_mus.RemoveRow(m_item))
   {
     RefreshDialog();
   }
-  else MessageBox("Cannot remove row!","Musiclist editor",MB_ICONEXCLAMATION|MB_OK);
+  else MessageBox("Cannot remove row!","Musiclist editor",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
 }
 
 void CMUSEdit::OnRow() 

@@ -1556,12 +1556,12 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
           switch(ret)
           {
           case -3:
-            MessageBox(0,"Out of memory","Error",MB_ICONSTOP|MB_OK);
+            MessageBox(0,"Out of memory","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
             break;
           case 0:
             break;
           default:
-            MessageBox(0,"Can't load "+parpoi->idsfile+".ids!","Warning",MB_ICONWARNING|MB_OK);
+            MessageBox(0,"Can't load "+parpoi->idsfile+".ids!","Warning",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
             break;
           }
         }

@@ -135,7 +135,7 @@ void CVVCEdit::DoDataExchange(CDataExchange* pDX)
   the_videocell.header.unknown24=strtonum(tmpstr);
 
   tmpstr.Format("0x%0x",the_videocell.header.hasorient);
-  DDX_Text(pDX, IDC_UNKNOWN30, tmpstr);
+  DDX_Text(pDX, IDC_FACE, tmpstr);
   the_videocell.header.hasorient=strtonum(tmpstr);
 
   tmpstr.Format("0x%0x",the_videocell.header.facecount);
@@ -257,7 +257,7 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN10, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN1C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN24, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_UNKNOWN30, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FACE, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN38, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN3C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN44, DefaultKillfocus)
@@ -532,6 +532,8 @@ BOOL CVVCEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_USEBAM), IDS_SEQFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_PALETTE), IDS_SEQFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_WALL), IDS_SEQFLAG);
+    tmpstr1.LoadString(IDS_FACEHINT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FACE), tmpstr1);
   }	
 	return TRUE;
 }

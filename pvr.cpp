@@ -48,6 +48,10 @@ int Cpvr::ReadPvrFromFile(int fhandle, int size)
   unsigned long origsize;
   int myhandle = fhandle;
 
+  if (size==-1)
+  {
+    size = filelength(fhandle);
+  }
   if (read(fhandle, &origsize, 4)!=4) return -1;
   if (origsize!='\3RVP')
   {

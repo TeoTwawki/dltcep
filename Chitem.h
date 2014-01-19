@@ -177,6 +177,7 @@ extern int act_num_weaprof;
 
 #define SLOT_SHIELD 2
 #define SLOT_WEAPON 9
+#define SLOT_QUIVER 35 //offset
 
 #define NUM_ITEMTYPE   0x4a
 //itemtype vs. two handed
@@ -277,10 +278,10 @@ extern int itvs2h[NUM_ITEMTYPE];
 #define REF_VEF   0x03fc  //27
 #define REF_PRO   0x03fd  //28
 #define REF_BIO   0x03fe  //29
-#define REF_INI   0x0802  //30
-#define REF_SRC   0x0803  //31
-#define REF_FNT   0x400  //32
-#define REF_WBM   0x401  //33
+#define REF_WBM   0x03ff  //30
+#define REF_INI   0x0802  //31
+#define REF_SRC   0x0803  //32
+#define REF_FNT   0x400  //33
 #define REF_GUI   0x402  //34
 #define REF_SQL   0x403  //35
 #define REF_PVRZ  0x404  //36
@@ -518,12 +519,12 @@ extern CString DELETED_REFERENCE;
 #define ST_DONAT 16
 #define ST_CURE  32
 #define ST_DRINK 64
-#define ST_UNKN1  128
-#define ST_UNKN2  256
-#define ST_FENCE  512
-#define ST_UNKN3  1024
-#define ST_UNKN4  2048
-#define ST_UNKN5  4096
+#define ST_UNKN1  128 //roulet
+#define ST_UNKN2  256 //craps
+#define ST_QUALITY1  512
+#define ST_QUALITY2  1024
+#define ST_WHEEL  2048
+#define ST_FENCE  4096
 #define ST_UNKN6  8192
 #define ST_UNKN7  0x4000
 #define ST_UNKN8  0x8000
@@ -585,6 +586,9 @@ extern CString DELETED_REFERENCE;
 #define PROJ_NOTIDS2     0x4000000//negate the result of the second IDS check
 #define PROJ_BOTH        0x8000000//both IDS check must succeed for a pass
 #define PROJ_DELAY       0x10000000//delay payload until initial animation finishes
+#define PROJ_LIMITPATH   0x20000000//path limited
+#define PROJ_UNUSED1     0x40000000//
+#define PROJ_UNUSED2     0x80000000//
 
 //extended area flags for gemrb
 #define APF_TINT      1     //use tint for spread animation
@@ -648,8 +652,8 @@ void ConvertToV10Eff(const creature_effect *v20effect, feat_block *v10effect);
 void ConvertToV20Eff(creature_effect *v20effect, const feat_block *v10effect);
 int CheckDestination(CString area, CString entrance);
 int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd);
-int ReadTempCreature(char *&creature, long &esize);
-int WriteTempCreature(char *creature, long esize);
+int ReadTempCreature(Ccreature *cre, char *&creature, long &esize);
+int WriteTempCreature(Ccreature *cre, char *creature, long esize);
 
 extern char BASED_CODE cfbFilter[];
 
@@ -755,6 +759,8 @@ extern CStringMapLocEntry *resources[NUM_OBJTYPE+1];
 extern CStringListLocEntry *duplicates[NUM_OBJTYPE+1];
 extern CStringMapInt variables;
 extern CIntMapJournal journals;
+extern CStringMapString usedtis;
+extern CStringMapString usedwed;
 
 extern const unsigned char xorblock[64];
 extern CString setupname;
@@ -800,7 +806,7 @@ extern CString iwd2_slot_names[IWD2_SLOT_COUNT];
 extern CString slot_names[IWD2_SLOT_COUNT];
 extern CString snd_slots[SND_SLOT_COUNT];
 
-#define MAX_ACTION 360
+#define MAX_ACTION 370
 extern CString action_defs[MAX_ACTION];
 #define MAX_TRIGGER 256
 extern CString trigger_defs[MAX_TRIGGER];
@@ -880,6 +886,7 @@ extern CStringMapPoint entries;
 //area animation flags
 #define AA_MIRROR 2048
 #define AA_COMBAT 4096
+#define AA_WBM    0x2000
 
  //0 button, 1 progress,2 slider, 3 editbox,4 unknown, 5 scrolltext,
 #define CC_BUTTON    0
@@ -1004,6 +1011,7 @@ CString format_animtype(int animtype);
 int getanimationidx(int animtype);
 int find_animtype(unsigned short *percents);
 CString format_spell_id(int id);
+int get_max_levels(int type);
 CString convert_degree(int value);
 CString convert_radius(int value, int direction=0);
 CString get_face_value(int fvalue);
@@ -1189,15 +1197,15 @@ int GetLightMap(bool night);
 int GetWed(bool night);
 int ReadWed(int res);
 int get_script_handle(CString key);
-int read_area(CString key);
+int read_area(CString key, Carea *myarea);
 int read_projectile(CString key);
 int read_chui(CString key);
 int write_chui(CString key, CString filepath);
 int read_map(CString key);
 int write_map(CString key, CString filepath);
 int read_src(CString key);
-int read_character(CString key);
-int read_creature(CString key);
+int read_character(CString key, Ccreature *mycre);
+int read_creature(CString key, Ccreature *mycre);
 int read_pvrz(CString key, Cpvr *cb, int lazy=0);
 int write_creature(CString key, CString filepath);
 int write_character(CString key, CString filepath);

@@ -104,9 +104,9 @@ protected:
     the_item.header.itmattr^=value;  
     the_item.m_changed=true;
   }
-  inline void Setbit(int value)
+  inline void Togglebit2(int value)
   {
-    the_item.header.itmattr|=value;
+    the_item.header.splattr^=value;  
     the_item.m_changed=true;
   }
 	// Generated message map functions
@@ -148,6 +148,9 @@ protected:
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse4();
 	afx_msg void OnBrowse();
+	afx_msg void OnFlag5();
+	afx_msg void OnFlag6();
+	afx_msg void OnFlag7();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -385,6 +388,7 @@ protected:
 	afx_msg void OnEquippaste();
 	afx_msg void OnEquipremove();
 	afx_msg void OnEdit();
+	afx_msg void OnOrder();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

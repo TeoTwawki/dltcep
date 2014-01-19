@@ -51,3 +51,21 @@ int CVVC::ReadVVCFromFile(int fhandle, long maxlen)
   }
   return 0;
 }
+
+CString CVVC::RetrieveResourceRef(int fh)
+{
+  CString tmpstr;
+  int required;
+
+  if(fh<1) return "";
+  required=(BYTE *) &header.bam-(BYTE *) &header+8;
+  if(read(fh, &header, required)!=required)
+  {
+    close(fh);
+    return "";
+  }
+  close(fh);
+  RetrieveResref(tmpstr,header.bam);
+  return tmpstr;
+}
+

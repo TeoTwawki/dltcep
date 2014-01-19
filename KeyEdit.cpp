@@ -1182,10 +1182,17 @@ void CKeyEdit::do_copy_file(CString dest, CString key, CString ext, loc_entry fi
   }
   else
   {
-    tmp=bifs[fileloc.bifindex].bifname+"@";
+    tmp=bifs[fileloc.bifindex].bifname;
     tmp.Replace("\\","_");
     tmp.Replace("/","_");
-    tmp.Replace(".bif@","");
+    int i = tmp.ReverseFind('.');
+    if (i>0)
+    {
+      if(!tmp.Mid(i).CompareNoCase(".bif"))
+      {
+        tmp = tmp.Left(i);
+      }
+    }
   }
 
   filename=dest+"\\"+tmp+"\\"+key+ext;
@@ -1278,10 +1285,17 @@ void CKeyEdit::OnToolsExplode()
   }
   for(i=0;i<key_headerinfo.numbif;i++)
   {
-    tmp=bifs[i].bifname+"@";
+    tmp=bifs[i].bifname;
     tmp.Replace("\\","_");
     tmp.Replace("/","_");
-    tmp.Replace(".bif@","");
+    int j = tmp.ReverseFind('.');
+    if (j>0)
+    {
+      if(!tmp.Mid(j).CompareNoCase(".bif"))
+      {
+        tmp = tmp.Left(j);
+      }
+    }
     mkdir(fb.initial+"\\"+tmp);
   }
   if(!(editflg&IGNOREOVERRIDE))

@@ -87,6 +87,7 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
 
   switch(restype)
   {
+  case REF_VVC:
   case REF_BMP:
   case REF_BAM:
   case REF_ITM:
@@ -104,6 +105,10 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
       fhandle=locate_file(fileloc, 0);
       if(restype==REF_ITM) tmpstr=my_item.RetrieveResourceRef(fhandle);
       else tmpstr=my_spell.RetrieveResourceRef(fhandle);
+      break;
+    case REF_VVC:
+      fhandle=locate_file(fileloc, 0);
+      tmpstr=my_vvc.RetrieveResourceRef(fhandle);
       break;
     case REF_BMP: case REF_BAM:
       tmpstr=key;
@@ -265,6 +270,7 @@ BOOL CItemPicker::OnInitDialog()
   case REF_BAM:
   case REF_ITM:
   case REF_SPL:
+  case REF_VVC:
   case REF_MOS:
   case REF_CHU:
     m_preview_control.ShowWindow(true);

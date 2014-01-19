@@ -470,7 +470,7 @@ COLORREF Cmos::GetPixelData(int x, int y)
   //creates m_overlaytile
   nFrameWanted=ResolveFrameNumber(y/tisheader.pixelsize*mosheader.wColumn+x/tisheader.pixelsize);
   p=GetFrameData(nFrameWanted);
-  if (!p)
+  if (!p || !p->pFrameData)
   {
     //this is an invalid condition, no such tile
     val = TRANSPARENT_GREEN;
@@ -753,6 +753,9 @@ int Cmos::WriteTisToFile(int fhandle, int clipx, int clipy, int maxclipx, int ma
   ret=0;
   //this hack makes sure the header contains as many tiles as we wanted
   memcpy(&tisheader.filetype,"TIS V1  ",8);
+  //only v1 tis
+  tisheader.tilelength = 5120;
+
   tisheader.offset=sizeof(tisheader);
   tmpsave=tisheader.numtiles;
   if(maxclipx!=-1)
@@ -1325,6 +1328,10 @@ int Cmos::ReadTisFromFile(int fhandle, loc_entry *fl, bool header, bool preview)
   if(header)
   {
     read(fhandle,&tisheader,sizeof(tis_header) );
+    if (tisheader.offset!=sizeof(tis_header) )
+    {
+      m_changed = true;
+    }
     mosheader.wRow=(WORD) tisheader.numtiles;
     mosheader.wColumn=1;
     mosheader.wHeight=(WORD) (tisheader.pixelsize*tisheader.numtiles);

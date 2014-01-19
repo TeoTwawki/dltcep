@@ -1111,6 +1111,16 @@ int Cbam::ReducePalette(int fhandle, bmp_header sHeader, int scanline)
       memcpy(prFrameBuffer+y*sHeader.width+x,pRawData+(sHeader.height-y-1)*scanline+x*rows,rows);
     }     
   }
+
+  if (rows==4)
+  {
+    if (CheckPixelData(prFrameBuffer, GetFrameData(nFrameWanted), nFrameSize))
+    {
+      m_palettesize=1024;
+      goto endofquest;
+    }
+  }
+
   //cpoint is required due to one of the color reduction algorithms
   oc.BuildTree(prFrameBuffer,GetFrameData(nFrameWanted),CPoint(nFrameSize,1),m_palette);
   m_palettesize=1024; //this could be better estimated
@@ -1145,7 +1155,7 @@ static int ReadHeader(int fhandle, bmp_header &sHeader)
     return 0;
   }
   //Windows BMP?
-  if (sHeader.headersize!=0x28 && sHeader.headersize!=0x7c)
+  if (sHeader.headersize!=0x28 && sHeader.headersize!=0x38 && sHeader.headersize!=0x6c && sHeader.headersize!=0x7c)
   {
     return -2;
   }
@@ -1154,6 +1164,30 @@ static int ReadHeader(int fhandle, bmp_header &sHeader)
     return -2;
   }  
   return 0;
+}
+
+//convert alpha-channel only bitmaps
+bool Cbam::CheckPixelData(const DWORD *pRawBits, LPBYTE pFrameData, int pixelcount)
+{
+  int colordata = 0, alphadata = 0;
+
+  int i = pixelcount;
+  while(i--)
+  {
+    colordata |= pRawBits[i]&0xffffff;
+    alphadata |= pRawBits[i]&0xff000000;
+  }
+  if (colordata || !alphadata) return false; //got pixel data or no alpha channel
+  i=pixelcount;
+  while(i--)
+  {
+    pFrameData[i] = pRawBits[i]>>24;
+  }
+  for(i=0;i<256;i++)
+  {
+    m_palette[i]=RGB(255-i,255-i,255-i);
+  }
+  return true;
 }
 
 int Cbam::ReadBmpFromFile(int fhandle, int ml)
@@ -1178,24 +1212,34 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
   {
     return ret;
   }
-  /*
-  if(read(fhandle,&sHeader,sizeof(bmp_header))!=sizeof(bmp_header) )
-  {
-    return -2;
-  }
-  */
+ 
   if((*(unsigned short *) sHeader.signature)!='MB') return -2; //BM
   if(sHeader.fullsize>(unsigned long) ml) return -2;
   //if(sHeader.headersize!=0x28) return -2;
   if(sHeader.planes!=1) return -1;                  //unsupported
+
+  //default bitfields
+  extHeader.alpha=0xff000000;
+  extHeader.red=0xff0000;
+  extHeader.green=0xff00;
+  extHeader.blue=0xff;
+
+  //read bitfields and extra header data, if available
+  tmpsize=sHeader.headersize-40;
+  if (tmpsize)
+  {
+    if (sizeof(extHeader)<tmpsize) return -1;
+    if (read(fhandle, &extHeader, tmpsize)!=tmpsize) return -1;
+  }
+
+  //check if bitfields are in the supported format
   if(sHeader.compression!=BI_RGB)
   {
-    if ((sHeader.headersize==0x7c) && (sHeader.compression!=BI_BITFIELDS))
+    if (sHeader.compression!=BI_BITFIELDS)
     {
       return -1;        //unsupported
     }
-    if (read(fhandle, &extHeader, sizeof(extHeader))!=sizeof(extHeader)) return -1;
-    if (extHeader.alpha!=0xff000000 && extHeader.red!=0xff0000 && extHeader.green!=0xff00 && extHeader.blue!=0xff) return -1;
+    if ((extHeader.alpha!=0xff000000) && (extHeader.red!=0xff0000) && (extHeader.green!=0xff00) && (extHeader.blue!=0xff)) return -1;
     //bitfield
   }
   if(sHeader.height<0 || sHeader.width<0) return -1; //unsupported
@@ -1230,6 +1274,10 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
     }
     else
     {
+      if (sHeader.headersize==0x6c)
+      {
+        if (read(fhandle, &extHeader, sizeof(extHeader)-16)!=sizeof(extHeader)-16) return -1;
+      }
       tmpsize=m_palettesize;
       if(read(fhandle,&m_palette, m_palettesize)!=m_palettesize)
       {
@@ -1323,7 +1371,8 @@ int Cbam::ReadBmpFromFile(int fhandle, int ml)
       if(ret) goto endofquest;
     }
     break;
-  case 24: case 32: //truecolor frame, needs palette reduction
+  case 32: 
+  case 24: 
     ret=ReducePalette(fhandle, sHeader, scanline);
     break;
   }

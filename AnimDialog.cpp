@@ -112,7 +112,7 @@ void CAnimDialog::FillList()
   idx=determinetype(m_restype);
   if(!idx)
   {
-    MessageBox("Internal error (no method for filling listbox)","Error",MB_OK);
+    MessageBox("Internal error (no method for filling listbox)","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
     return;
   }
   if (m_filter.IsEmpty()) {

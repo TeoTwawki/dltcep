@@ -122,7 +122,7 @@ protected:
   int CollectAcms();
   int rescan_only_storeitems();
   bool SkipOriginal(CString bifname);
-  int process_items(bool check_or_search);
+  int process_items(int check_or_search);
   int process_stores(bool check_or_search);
   int process_spells(int check_or_search, CStringList *list); //three states
   int process_pros(bool check_or_search);
@@ -180,6 +180,7 @@ protected:
   int check_point_string(CString point);
   int check_ambient_overlap(int exclude, CString name, int x, int y, int radius);
   int check_trigger_overlap(CString name);
+  int check_area_entrance(CString areaname, CString wmpentrance);
   int check_area_actors();
   int check_area_trigger();
   int check_area_spawn();
@@ -289,6 +290,7 @@ protected:
   void which_transition(int idx);
   int OnAvatars(bool anisound);
   CString GetTitle(CString str);
+  void StoreWedAndTileset(CString key);
 	// Generated message map functions
 	//{{AFX_MSG(CChitemDlg)
 	virtual BOOL OnInitDialog();
@@ -401,6 +403,8 @@ protected:
 	afx_msg void OnPvrUnpack();
 	afx_msg void OnCheckSql();
 	afx_msg void OnToolsCreatequestlist();
+	afx_msg void OnToolsCreatespelllist();
+	afx_msg void OnToolsHunt();
 	//}}AFX_MSG
 	afx_msg void OnOk5();
 	afx_msg void OnOk6();

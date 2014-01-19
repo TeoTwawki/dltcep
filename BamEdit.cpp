@@ -740,7 +740,8 @@ void CBamEdit::Savebam(Cbam &my_bam, int save)
     the_bam.m_bCompressed=0;
   }
   res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
-  CMyFileDialog m_getfiledlg(FALSE, "", makeitemname(".bam",0), res, ImageFilter(0x35));
+  CMyFileDialog m_getfiledlg(FALSE, (background&1)?"bmp":"bam", makeitemname((background&1)?".bmp":".bam",0), res, ImageFilter(0x35));
+  m_getfiledlg.m_ofn.nFilterIndex = (background&1)+1;
   
   if(save)
   {
@@ -1190,6 +1191,7 @@ void CBamEdit::OnColorscale()
   COLORREF mycolor;
   
   dlg.m_cc.lpTemplateName="Pick a shade colour";
+  //free(dlg.m_cc.lpCustColors);
   dlg.m_cc.lpCustColors=predefcolors;
   if(dlg.DoModal()==IDOK)
   {
@@ -1266,7 +1268,7 @@ void CBamEdit::OnDelframe()
   nCycle=m_cyclenum_control.GetCurSel();
   if(the_bam.RemoveFrameFromCycle(nCycle,nIndex,1))
   {
-    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
+    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
   }
   RefreshDialog();
   if(m_cycleframe_control.SetCurSel(nIndex)<0)
@@ -1284,7 +1286,7 @@ void CBamEdit::OnCycleDropframe10()
   nCycle=m_cyclenum_control.GetCurSel();
   if(the_bam.RemoveFrameFromCycle(nCycle,nIndex,10))
   {
-    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
+    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
   }
   RefreshDialog();
   if(m_cycleframe_control.SetCurSel(nIndex)<0)
@@ -1319,7 +1321,7 @@ badframe:
   nCycle=m_cyclenum_control.GetCurSel();
   if(the_bam.AddFrameToCycle(nCycle, nIndex, m_framenum2,1))
   {
-    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
+    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
   }
   RefreshDialog(); //refreshing ALL
   m_cycleframe_control.SetCurSel(nIndex);
@@ -1351,7 +1353,7 @@ badframe:
   nCycle=m_cyclenum_control.GetCurSel();
   if(the_bam.SetFrameIndex(nCycle,nIndex, m_framenum2))
   {
-    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
+    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
   }
   RefreshDialog();
 }
@@ -1363,7 +1365,7 @@ void CBamEdit::OnDropframe()
   nFrameIndex=m_framenum_control.GetCurSel();
   if(the_bam.DropFrame(nFrameIndex))
   {
-    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK);
+    MessageBox("Failed...","Bam editor",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
   }
   RefreshDialog();
 }
@@ -1559,7 +1561,7 @@ endofquest:
     break;
   case -2:
   case -1:
-    MessageBox("Animation loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    MessageBox("Animation loaded with errors.","Warning",MB_ICONEXCLAMATION|MB_OK|MB_TASKMODAL);
     break;
   case 0:
     //adding the 1+ frames into the new cycle
@@ -1570,7 +1572,7 @@ endofquest:
     }
     break;
   default:
-    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK);
+    MessageBox("Out of memory","Error",MB_ICONSTOP|MB_OK|MB_TASKMODAL);
     break;
   }
   RefreshDialog();

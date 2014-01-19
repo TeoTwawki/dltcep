@@ -336,9 +336,10 @@ CStringListLocEntry *duplicates[NUM_OBJTYPE+1]={0,&d_darefs,&d_musics,
 &d_fonts, &d_sqls, &d_guis, &d_wbms, &d_pvrz, &d_glsl
 };
 
-
 CStringMapInt variables;
 CIntMapJournal journals;
+CStringMapString usedtis;
+CStringMapString usedwed;
 
 ///
 /////////////////////////////////////////////////////////////////////////////
@@ -2442,6 +2443,7 @@ CString format_animtype(int animtype)
 }
 
 static CString spellnames[]={"SPPR","SPWI","SPIN","SPCL"};
+static int maxlevels[]={7,9,1,1};
 
 CString format_spell_id(int id)
 {
@@ -2450,6 +2452,12 @@ CString format_spell_id(int id)
   if(id<1000 || id>5000) return "????";
   tmpstr.Format("%s%03d", spellnames[(id-1000)/1000],id%1000);
   return tmpstr;
+}
+
+int get_max_levels(int type)
+{
+  if ( (unsigned int) type>sizeof(maxlevels) ) return 1;
+  return maxlevels[type];
 }
 
 int get_spell_id(CString spellname)
@@ -2706,7 +2714,7 @@ CString get_damage_type(int dtype)
 }
 
 CString charge_types[NUM_CHTYPE]={
-  "0-Don't vanish","1-Expended","2-Exp. w/o sound","3-Per day",
+  "0-Don't vanish","1-Destroyed","2-Morphed","3-Disabled",
 };
 
 CString get_charge_type(int chtype)
@@ -2782,11 +2790,18 @@ int feature_resource(int feature)
     }
     break;
     //case 291: this doesn't use a vvc
+  case 68: //uses vvc at least in bgee
   case 215:
   case 296:
     return REF_VVC;
   case 146: case 147: case 148: case 171: case 172:
     return REF_SPL;
+  case 321: case 318:
+    if (is_this_bgee()) return REF_SPL;
+    break;
+  case 319:
+    if (is_this_bgee()) return REF_CRE; //scripting name, but BGEE uses cre names for scripting name
+    break;
   case 206:
     //all but PST
     if (!pst_compatible_var()) {
@@ -2972,7 +2987,11 @@ char *idsname_pst[NUM_IDS_PST]={"EA","TEAM","FACTION","GENERAL","RACE","CLASS","
 CString IDSType(int ids, bool addtwo)
 {
   if(addtwo) ids-=2;
-  if(ids<0 || ids>=NUM_IDS) return "unknown";
+  if(ids<0 || ids>=NUM_IDS)
+  {
+    if (is_this_bgee() && ids==7) return "kit";
+    return "unknown";
+  }
   return idstype[ids];
 }
 
@@ -2986,6 +3005,10 @@ int IDSIndex(CString name, bool addtwo)
       return x+(addtwo?2:0);
     }
   }
+  if(is_this_bgee() && addtwo)
+  {
+    if (name=="kit") return 9;
+  }
   return strtonum(name);
 }
 
@@ -2993,7 +3016,11 @@ CString IDSName2(int ids, bool addtwo)
 {
   if(addtwo) ids-=2;
   if(ids<0) return "unknown";
-  if(ids>=NUM_IDS) return "unknown";
+  if(ids>=NUM_IDS)
+  {
+    if (is_this_bgee() && ids==7) return "KIT";
+    return "unknown";
+  }
   if(iwd2_structures())
   {
     return base_idsname_iwd2[ids];
@@ -3890,6 +3917,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define st CHECK_STRREF
 #define jr CHECK_JOURNAL
 #define TO sf(CHECK_STORE, IS_VAR)
+#define TI sf(CHECK_STORE, CHECK_ITEM)
 //#define VA sf(ADD_VAR2, IS_VAR)
 #define VA sf(ADD_VAR3, CHECK_SCOPE)
 #define VO sf(ADD_VAR, IS_VAR)
@@ -4037,6 +4065,8 @@ int tob_action_flags[MAX_ACTION]={
     OO,   pa,   st,   OO,   OO,   OO,   st,   AA,   OO,   OO,
 //350,  351,  352,  353,  354,  355,  356,  357,  358,  359,  
     AE,   AE,   bO,   OO,   CO,   CO,   II,   aO,   OO,   OO,
+//360,  361,  362,  363,  364,  365,  366,  367,  368,  369
+    TO,   OO,   TI,   TI,   VO,   OO,   OO,   OO,   OO,   OO,
 };
 
 int iwd2_trigger_flags[MAX_TRIGGER]={
@@ -4166,6 +4196,8 @@ int iwd2_action_flags[MAX_ACTION]={
 //340,  341,  342,  343,  344,  345,  346,  347,  348,  349,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //350,  351,  352,  353,  354,  355,  356,  357,  358,  359,  
+    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+//360,  361,  362,  363,  364,  365,  366,  367,  368,  369
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 };
 
@@ -4297,6 +4329,8 @@ int pst_action_flags[MAX_ACTION]={
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //350,  351,  352,  353,  354,  355,  356,  357,  358,  359,  
     OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,
+//360,  361,  362,  363,  364,  365,  366,  367,  368,  369
+    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 };
 
 int handle_action(int opcode)
@@ -4494,7 +4528,7 @@ int get_script_handle(CString key)
   return -2;
 }
 
-int read_area(CString key)
+int read_area(CString key, Carea *myarea)
 {
   loc_entry fileloc, wedfileloc;
   int ret;
@@ -4515,14 +4549,18 @@ int read_area(CString key)
   }
   if(fhandle<1) return -2;
   areas.SetAt(key,fileloc);
-  the_mos.new_mos();
-  ret=the_area.ReadAreaFromFile(fhandle, fileloc.size);
-  close(fhandle);
-  if(ret>=0)
-  {
-    ret=ReadWed(ret);
+  if (myarea) {
+    //use this only for consistency checkers
+    ret = myarea->ReadAreaFromFile(fhandle, fileloc.size);
+  } else {
+    ret=the_area.ReadAreaFromFile(fhandle, fileloc.size);
+    close(fhandle);
+    the_mos.new_mos();
+    if(ret>=0)
+    {
+      ret=ReadWed(ret);
+    }
   }
- 
   return ret;
 }
 
@@ -5075,7 +5113,7 @@ int read_src(CString key)
   return ret;
 }
 
-int read_character(CString key)
+int read_character(CString key, Ccreature *cre)
 {
   loc_entry fileloc;
   int ret;
@@ -5087,26 +5125,28 @@ int read_character(CString key)
     fhandle=locate_file(fileloc, 0);
     if(fhandle<1) return -2;
     chars.SetAt(key,fileloc);
-    ret=the_creature.ReadCreatureFromFile(fhandle, fileloc.size);
+    ret=cre->ReadCreatureFromFile(fhandle, fileloc.size);
     close(fhandle);
   }
   else return -1;
   return ret;
 }
 
-int read_creature(CString key)
+int read_creature(CString key, Ccreature *cre)
 {
   loc_entry fileloc;
   int ret;
   int fhandle;
   CString tmp;
   
+  if (!cre) cre = &the_creature;
+
   if(creatures.Lookup(key,fileloc))
   {
     fhandle=locate_file(fileloc, 0);
     if(fhandle<1) return -2;
     creatures.SetAt(key,fileloc);
-    ret=the_creature.ReadCreatureFromFile(fhandle, fileloc.size);
+    ret=cre->ReadCreatureFromFile(fhandle, fileloc.size);
     close(fhandle);
   }
   else return -1;
@@ -6311,6 +6351,7 @@ CString AssembleWeiduCommandLine(CString filename, CString outpath, bool inout)
     syscommand+=tlkname;
   }
   if(weiduflg&WEI_LOGGING) syscommand+=" --log "+WEIDU_LOG;
+  if((weiduflg&WEI_USELANG) && language.GetLength() ) syscommand+=" --use-lang "+language;
   return syscommand;
 } 
 
@@ -6952,13 +6993,13 @@ int BrowseForFolder(folderbrowse_t *pfb, HWND hwnd)
   return IDCANCEL;
 }
 
-int ReadTempCreature(char *&creature, long &esize)
+int ReadTempCreature(Ccreature *mycre, char *&creature, long &esize)
 {
   int fhandle;
   
   fhandle=open("dltcep.tmp",O_RDWR|O_BINARY|O_TRUNC|O_CREAT|O_TEMPORARY, S_IWRITE|S_IREAD);
   if(fhandle<1) return -2;
-  the_creature.WriteCreatureToFile(fhandle,0);
+  mycre->WriteCreatureToFile(fhandle,0);
   lseek(fhandle,0,SEEK_SET);
   esize=filelength(fhandle);
   if(creature) delete creature;
@@ -6978,7 +7019,7 @@ int ReadTempCreature(char *&creature, long &esize)
   return 0;
 }
 
-int WriteTempCreature(char *creature, long esize)
+int WriteTempCreature(Ccreature *mycre, char *creature, long esize)
 {
   int fhandle;
   int ret;
@@ -6991,7 +7032,7 @@ int WriteTempCreature(char *creature, long esize)
     return -2;
   }
   lseek(fhandle,0,SEEK_SET);
-  ret=the_creature.ReadCreatureFromFile(fhandle,esize);
+  ret=mycre->ReadCreatureFromFile(fhandle,esize);
   close(fhandle);
   unlink("dltcep.tmp");
   return ret;
@@ -7137,28 +7178,34 @@ int CreateBmpHeader(int fhandle, DWORD width, DWORD height, DWORD bytes)
   int compression;
   int extsize;
 
-  if(bytes==1)
+  switch(bytes)
   {
+  case 1:
     psize=256;
     compression = BI_RGB;
     extsize = 0;
-  }
-  else
-  {
+    break;
+  case 3:
+    psize=0;
+    compression = BI_RGB;
+    extsize = 0;
+    break;
+  case 4:
     psize=0;
     compression = BI_BITFIELDS;
     extsize = sizeof(bmp_extheader);
+    break;
   }
   fullsize=GetScanLineLength(width,8*bytes)*height;
   bmp_header header={'B','M',fullsize+sizeof(header)+extsize, 0,
   sizeof(header)+extsize+psize*4, 40+extsize, width, height, (short) 1, (short) (8*bytes), compression, fullsize,
   0xb12, 0xb12,psize,0};
 
-  if (bytes==1)
+  if (!extsize)
   {
     return write(fhandle,&header,sizeof(header))==sizeof(header);
   }
-  bmp_extheader extheader={0xff0000, 0xff00, 0xff,0xff000000,'sRGB'};
+  bmp_extheader extheader={0xff0000, 0xff00, 0xff,0xff000000,LCS_sRGB};
   int res = write(fhandle,&header,sizeof(header))==sizeof(header);
   res |= write(fhandle,&extheader,sizeof(extheader))==sizeof(extheader);
   return res;
