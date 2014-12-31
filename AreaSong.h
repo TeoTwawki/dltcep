@@ -19,6 +19,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAreaSong)
 	enum { IDD = IDD_AREASONGS };
+	CComboBox	m_alt5control;
+	CComboBox	m_alt4control;
+	CComboBox	m_alt3control;
+	CComboBox	m_alt2control;
+	CComboBox	m_alt1control;
 	CComboBox	m_battlecontrol;
 	CComboBox	m_u2control;
 	CComboBox	m_u1control;
@@ -60,6 +65,11 @@ protected:
 	afx_msg void OnBrowse1();
 	afx_msg void OnBrowse3();
 	afx_msg void OnBrowse2();
+	afx_msg void OnMusalt1();
+	afx_msg void OnMusalt2();
+	afx_msg void OnMusalt3();
+	afx_msg void OnMusalt4();
+	afx_msg void OnMusalt5();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

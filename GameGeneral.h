@@ -25,6 +25,8 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CGameGeneral)
+	public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
@@ -44,10 +46,13 @@ protected:
 	afx_msg void OnFlag6();
 	afx_msg void OnFlag7();
 	afx_msg void OnFlag8();
-	afx_msg void OnBrowse();
-	virtual BOOL OnInitDialog();
-	afx_msg void OnBrowse2();
 	afx_msg void OnFlag9();
+	afx_msg void OnBrowse();
+	afx_msg void OnBrowse2();
+	afx_msg void OnBrowse3();
+	afx_msg void OnBrowse4();
+	virtual BOOL OnInitDialog();
+	afx_msg void OnKillfocusCampaign();
 	//}}AFX_MSG
 	afx_msg void OnDefaultKillfocusX(NMHDR *, LRESULT *);
 	DECLARE_MESSAGE_MAP()

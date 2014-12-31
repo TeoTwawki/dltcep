@@ -89,6 +89,7 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
   {
   case REF_VVC:
   case REF_BMP:
+  case REF_PLT:
   case REF_BAM:
   case REF_ITM:
   case REF_SPL:
@@ -110,12 +111,16 @@ void CItemPicker::Preview(CString &key, loc_entry &fileloc, int restype)
       fhandle=locate_file(fileloc, 0);
       tmpstr=my_vvc.RetrieveResourceRef(fhandle);
       break;
-    case REF_BMP: case REF_BAM:
+    case REF_BMP: case REF_BAM: case REF_PLT:
       tmpstr=key;
       break;
     }
-    if(restype==REF_BMP) fc=read_bmp(tmpstr, &my_bam);
-    else fc=read_bam_preview(tmpstr,&my_bam);
+    switch(restype)
+    {
+    case REF_BMP: fc=read_bmp(tmpstr, &my_bam); break;
+    case REF_PLT: fc=read_plt(tmpstr, &my_bam); break;
+    default: fc=read_bam_preview(tmpstr,&my_bam);
+    }
     if(!fc)
     {
       fc=my_bam.GetFrameIndex(0,0);
@@ -267,6 +272,7 @@ BOOL CItemPicker::OnInitDialog()
     read_2da("MAPNAME",the_2da);
     //falling through
   case REF_BMP:
+  case REF_PLT:
   case REF_BAM:
   case REF_ITM:
   case REF_SPL:

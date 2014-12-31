@@ -134,7 +134,7 @@ int INF_BAM_FRAMEDATA::TakePltData(const LPWORD pRawBits, plt_header &sHeader, i
   }
   for(i=0;i<sHeader.dwWidth;i++)
   {
-    pFrameData[(sHeader.dwHeight-row-1)*sHeader.dwWidth+i]=(BYTE) (pRawBits[i]>>8);
+    pFrameData[(sHeader.dwHeight-row-1)*sHeader.dwWidth+i]=(BYTE) (pRawBits[i]);
   }
   return 0;
 }
@@ -506,6 +506,13 @@ int INF_BAM_FRAMEDATA::ExpandBamBits(BYTE chTransparentIndex, COLORREF clrTransp
     nPixelCount+=nColumn-nWidth;
 	} 
 	return nReplaced;
+}
+
+bool INF_BAM_FRAMEDATA::IsEqual(INF_BAM_FRAMEDATA &other)
+{
+  if (other.nFrameSize!=nFrameSize) return false;
+  if (other.pFrameData==pFrameData) return true;
+  return memcmp(other.pFrameData,pFrameData, nFrameSize)==0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1190,7 +1197,7 @@ bool Cbam::CheckPixelData(const DWORD *pRawBits, LPBYTE pFrameData, int pixelcou
   return true;
 }
 
-int Cbam::ReadBmpFromFile(int fhandle, int ml)
+int Cbam::ReadBmpFromFile(int fhandle, int ml, bool png)
 {
   bmp_header sHeader;      //BMP header
   bmp_extheader extHeader;
@@ -1470,6 +1477,20 @@ int Cbam::ReadPltFromFile(int fhandle, int ml)
     m_pFrameData[0].TakePltData(filedata, m_pltheader, i);
   }
 endofquest:
+  if(!ret)
+  {
+    memset(m_pFrames,0,sizeof(INF_BAM_FRAME) );
+    m_pFrames[0].dwFrameDataOffset=0x80000000;
+    m_pFrames[0].wWidth=(unsigned short) m_pltheader.dwWidth;
+    m_pFrames[0].wHeight=(unsigned short) m_pltheader.dwHeight;
+    m_header.wFrameCount=(unsigned short) m_nFrames;
+    memset(m_pCycles,0,sizeof(INF_BAM_CYCLE) );
+    m_pCycles[0].wFirstFrameIndex=0;
+    m_pCycles[0].wFrameIndexCount=1;
+    m_pFrameLookup[0]=0;
+  }
+
+
   delete [] filedata;
   m_changed=false;
   return ret;
@@ -1835,6 +1856,32 @@ int Cbam::CheckFrameSizes()
   return nBad;
 }
 
+int Cbam::DropDuplicateFrames()
+{
+  int tmp;
+
+  for (int nCycleWanted=0;nCycleWanted<m_nCycles;nCycleWanted++)
+  {
+    tmp=m_pCycles[nCycleWanted].wFrameIndexCount;
+
+    for (int i = 0; i<tmp; i++)
+    {
+      int nFrameWanted1 = m_pFrameLookup[m_pCycles[nCycleWanted].wFirstFrameIndex+i];
+      for (int nFrameWanted2 = 0; nFrameWanted2<nFrameWanted1;nFrameWanted2++)
+      {
+        if (m_pFrameData[nFrameWanted1].IsEqual(m_pFrameData[nFrameWanted2]))
+        {
+          if(m_pFrames[nFrameWanted2].wCenterX!=m_pFrames[nFrameWanted1].wCenterX) continue;
+          if(m_pFrames[nFrameWanted2].wCenterY!=m_pFrames[nFrameWanted1].wCenterY) continue;
+          m_pFrameLookup[m_pCycles[nCycleWanted].wFirstFrameIndex+i] = nFrameWanted2;
+          break;
+        }
+      }
+    }
+  }
+  return DropUnusedFrame(1);
+}
+
 //drops unreferenced frames, reports the number
 int Cbam::DropUnusedFrame(int flag)
 {
@@ -1994,6 +2041,7 @@ int Cbam::AddFrameToCycle(int nCycle, int nCyclePos, int nFrameWanted, int nRepe
   CPoint CycleData;
   short *newFrameLookup;
 
+  if (nCyclePos>m_nFrameLookupSize) return -1;
   if(!nRepeat) nRepeat=1;
   CycleData=GetCycleData(nCycle);
   if(CycleData.x<0) return -1;
@@ -2093,6 +2141,24 @@ int Cbam::ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex)
   
   return oc.QuantizeAllColors(m_pFrameData[nFrameIndex].pFrameData,
     tmpbam.GetFrameData(nImportFrameIndex),point,tmpbam.m_palette,m_palette);
+}
+
+void Cbam::CopyFrameData(int nFrameIndex, int nImportFrameIndex)
+{
+  CPoint point;
+
+  if (nFrameIndex==nImportFrameIndex) return;
+  memset(m_pFrames+nFrameIndex,0,sizeof(INF_BAM_FRAME) );
+  m_pFrames[nFrameIndex].dwFrameDataOffset=m_pFrames[nImportFrameIndex].dwFrameDataOffset;
+  point=GetFramePos(nImportFrameIndex);
+  SetFramePos(nFrameIndex,point.x,point.y);
+  point=GetFrameSize(nImportFrameIndex);
+  m_pFrames[nFrameIndex].wWidth=(unsigned short) point.x;
+  m_pFrames[nFrameIndex].wHeight=(unsigned short) point.y;
+  delete [] m_pFrameData[nFrameIndex].pFrameData;
+  int nFrameSize = m_pFrameData[nFrameIndex].nFrameSize;
+  m_pFrameData[nFrameIndex].pFrameData=new BYTE[nFrameSize];
+  memcpy(m_pFrameData[nFrameIndex].pFrameData, m_pFrameData[nImportFrameIndex].pFrameData, nFrameSize);
 }
 
 //creates a new, empty frame; readjusts lookup
@@ -2443,6 +2509,9 @@ int Cbam::MakeBitmap(int nFrameWanted, COLORREF clrTrans, Cmos &host, int nMode,
 	if (m_nFrames <= nFrameWanted )  //not enough frames
 		return -1;
 
+  if (!m_pFrames)
+    return -1;
+
 	if (m_pFrames[nFrameWanted].wWidth > MAX_ICON_WIDTH || m_pFrames[nFrameWanted].wHeight > MAX_ICON_HEIGHT)
 		return -1;
 
@@ -2621,18 +2690,28 @@ static int colourorder(const void *a, const void *b)
   int asum, bsum;
   int tmp;
   int i;
+  int afields[3];
+  int bfields[3];
 
   asum=0;
   bsum=0;
   for(i=0;i<3;i++)
   {
     tmp=*(((BYTE *) a)+i);
+    afields[i]=tmp;
     asum+=squares[tmp];
     tmp=*(((BYTE *) b)+i);
+    bfields[i]=tmp;
     bsum+=squares[tmp];
   }
   if(asum>bsum) return -1;
-  return asum<bsum;
+  if(asum<bsum) return 1;
+  for(i=0;i<3;i++)
+  {
+    if (afields[i]>bfields[i]) return -1;
+    if (afields[i]<bfields[i]) return 1;
+  }
+  return 0;
 }
 
 void Cbam::OrderPalette()
@@ -2694,8 +2773,9 @@ void Cbam::ReorderPixels()
   }
 }
 
-void Cbam::ForcePalette(palettetype &newpalette)
+void Cbam::ForcePalette(palettetype &newpalette, bool reorder)
 {
+  BYTE *pClr;
   int nOrigIndex, nFoundIndex, nForceIndex;
   int nDiff, nMinDiff;
 
@@ -2716,6 +2796,15 @@ void Cbam::ForcePalette(palettetype &newpalette)
     }
     // now we have the closest match in nFoundIndex, lets pick it
     m_palette[nOrigIndex]=newpalette[nFoundIndex];
+    if (reorder)
+    {
+      pClr = (BYTE *) (m_palette+nOrigIndex);
+      *(pClr+3) = nFoundIndex;
+    }
+  }
+  if (reorder)
+  {
+    ReorderPixels();
   }
 }
 
@@ -2884,6 +2973,22 @@ void Cbam::CreateAlpha()
       pClr[3]= (BYTE) (tmp>255?255:tmp);
     }
   }
+}
+
+int Cbam::DropAlpha()
+{
+  int n=0;
+
+  for(int i=0;i<256;i++)
+  {
+    BYTE *pClr = (BYTE *) (m_palette+i);
+    if (pClr[3])
+    {
+      pClr[3]=0;
+      n++;
+    }
+  }
+  return n;
 }
 
 //works only for description bams

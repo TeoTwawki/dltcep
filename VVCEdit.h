@@ -62,10 +62,13 @@ protected:
 	afx_msg void OnGrey();
 	afx_msg void OnUnknown();
 	afx_msg void OnBrightest();
+	afx_msg void OnLighteffect();
 	afx_msg void OnCheck();
 	afx_msg void OnSave();
 	afx_msg void OnPos1();
 	afx_msg void OnPos2();
+	afx_msg void OnPos3();
+	afx_msg void OnPos4();
 	afx_msg void OnUsebam();
 	afx_msg void OnLightspot();
 	afx_msg void OnHeight();
@@ -78,6 +81,10 @@ protected:
 	afx_msg void OnPalette();
 	afx_msg void OnBrowse4();
 	afx_msg void OnPlay3();
+	afx_msg void OnShadow();
+	afx_msg void OnTranslucent();
+	afx_msg void OnIgnoregrey();
+	afx_msg void OnIgnorered();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

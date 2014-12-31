@@ -132,6 +132,9 @@ protected:
 	afx_msg void OnFlag12();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnFlag13();
+	afx_msg void OnFlag14();
+	afx_msg void OnFlag15();
+	afx_msg void OnFlag16();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

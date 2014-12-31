@@ -1,4 +1,5 @@
 
+
 #if !defined(AFX_STRUCTS_H__42E3FDEA_0FCA_4733_8AD1_6E396250B019__INCLUDED_)
 #define AFX_STRUCTS_H__42E3FDEA_0FCA_4733_8AD1_6E396250B019__INCLUDED_
 
@@ -537,13 +538,13 @@ typedef struct {
   char revision[4];       //'V1.0'
   short type;
   short speed;
-  short sparks;
-  short unknown0e;
+  short sparks;    //flags
+  short unknown0e; //flags high word
   char wavc1[8];
   char wavc2[8];
   char vvc[8];
   short spkcolour;   //cannot be 0 if there are sparks (must be 1-12)
-  short spknumber;  
+  short width;
   unsigned long extflags;//0x2c //flags used by gemrb
   long text;        //0x30 //text strref
   unsigned long rgb;         //0x34 //rgb single pulse color
@@ -555,7 +556,7 @@ typedef struct {
   short atype2;     //0x42 //second ids targeting type
   char failspell[8];//0x44 //un-hardcoded failure effect for projectile specific effects
   char succspell[8];//0x4c //un-hardcoded success effect for projectile specific effects
-  char unknown54[172]; //unknown till next 256 block
+  char unknown54[172]; //unused till next 256 block
   unsigned long attr;
   char bam1[8];
   char bam2[8];
@@ -1227,9 +1228,9 @@ typedef struct
   unsigned char trans2;
   unsigned char colouring;
   unsigned char col2;
-  long unknown1c;
+  long transvalue;
   long sequencing;
-  long unknown24;
+  long colorvalue;
   long xpos;
   long ypos;
   long hasorient;
@@ -1248,11 +1249,11 @@ typedef struct
   long seq2;
   long currentseq;
   long spanseq;
-  char sound1[8];
-  char sound2[8];
+  char sound1[8];  //startsound
+  char sound2[8];  //loopsound
   char alpha[8];
-  long unknown90;
-  char sound3[8];
+  long seq3;       //endsequence
+  char sound3[8];  //endsound
   char unused[336];
 } vvc_header;
 
@@ -1462,17 +1463,20 @@ typedef struct {
   char creatures[10][8];
   short creaturecnt;
   short difficulty;
-  short delay; //seconds
+  short checkrate; //seconds
   short method; //usually 1
   long expiry;
-  short randomwalk;
-  short unknown82;
+  short walkdistance;
+  short huntdistance;
   short max;
-  short min; // ?
+  short activated;
   unsigned long schedule;
   short percent1;
   short percent2;
-  char unused[56];
+  unsigned long frequency;
+  unsigned long countdown;
+  unsigned char weights[10];
+  char unused[38];
 } area_spawn;
 
 typedef struct {
@@ -1571,7 +1575,7 @@ typedef struct {
   short launchx, launchy;
   char key[8];
   char openscript[8];
-  long locked;
+  long doordetect;
   long lockremoval;
   short locp1x, locp1y;   //open location 1
   short locp2x, locp2y;   //open location 2
@@ -1602,7 +1606,7 @@ typedef struct {
 typedef struct {
   short px,py;
   long strref;
-  short unknownc;
+  short user;
   short colour;
   long cnt;
   char unused[36];
@@ -1631,7 +1635,7 @@ typedef struct {
 typedef struct {
   char tilename[32];
   char resref[8]; //script ?
-  long unknown;
+  long flags;  //1 secondarystate  2 see through
   long prstr;
   long prnum;
   long secstr;
@@ -1668,9 +1672,9 @@ typedef struct {
   short activated; //??
   short day;
   short night;
-  short unknownac;
-  short unknownae;
-  char unused[52];
+  short flags;
+  unsigned char weights[10];
+  char unused[44];
 } area_int;
 
 typedef struct {
@@ -1785,7 +1789,10 @@ typedef struct {
   long ppcount;
   long zoomlevel;
   char encounter[8];
-  char unknown8c[40];
+  char worldmap[8];
+  char campaign[8];
+  long familiarowner;
+  char unknowna0[20];
 } gam_header;
 
 typedef struct {

@@ -8,6 +8,7 @@
 
 #include "chitem.h"
 #include "area.h"
+#include "ChitemDlg.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -1916,6 +1917,176 @@ int Carea::ReadWedFromFile(int fh, long ml)
     ret|=2;
   }
   return ret;
+}
+
+extern int read_string(FILE *fpoi, char *pattern, char *tmpbuff=NULL, int length=0);
+extern int read_line_until(FILE *fpoi, CString line);
+extern void SetupReader(int max);
+
+int Carea::LoadSVG(int fhandle)
+{
+  int res;
+  FILE *fpoi;
+  CString tmpstr;
+  CString *points;
+  int i;
+  int count;
+  int a,b;
+  area_vertex *newvertices;
+  wed_polygon *newpolygons;
+  POSITION pos;
+
+  maxlen=filelength(fhandle);
+  if(maxlen<1) return -1; //short file, invalid item
+
+  fpoi=fdopen(fhandle,"rb");
+  if(!fpoi)
+  {
+    close(fhandle);
+    return -1;
+  }
+
+  SetupReader(maxlen);  
+
+  do
+  {
+    res = read_string( fpoi, "\n", external, sizeof(external) );
+    if (!res) break;
+    if (memcmp(external,"<polygon points=\"",17)) continue;
+    
+    ((CChitemDlg *) AfxGetMainWnd())->log("%s",external);
+
+    for(i=17;external[i]!='\"';i++);
+    tmpstr = CString(external+17, i-17);
+    points = explode(tmpstr, ' ', count);
+    if (count<3) continue;
+
+    newvertices = new area_vertex[count];
+
+    for(i=0;i<count;i++)
+    {
+      sscanf(points[i],"%d,%d",&a,&b);
+      newvertices[i].x = (unsigned short) a;
+      newvertices[i].y = (unsigned short) b;
+    }
+    delete [] points;
+
+
+    newpolygons = new wed_polygon [the_area.secheader.wallpolycnt+1];
+    if(!newpolygons)
+    {
+      delete [] newvertices;
+      return -3;
+    }
+    
+    memcpy(newpolygons,the_area.wallpolygonheaders,the_area.secheader.wallpolycnt*sizeof(wed_polygon) );
+    memcpy(newpolygons+the_area.secheader.wallpolycnt+1,the_area.wallpolygonheaders+the_area.secheader.wallpolycnt,(the_area.secheader.wallpolycnt-the_area.secheader.wallpolycnt)*sizeof(wed_polygon) );
+    memset(newpolygons+the_area.secheader.wallpolycnt,0,sizeof(wed_polygon) );
+    newpolygons[the_area.secheader.wallpolycnt].unkflags=255;
+    delete [] the_area.wallpolygonheaders;
+    the_area.wallpolygonheaders=newpolygons;
+
+    pos=the_area.wedvertexheaderlist.FindIndex(the_area.secheader.wallpolycnt);
+    the_area.wedvertexheaderlist.InsertBefore(pos,newvertices);
+    the_area.secheader.wallpolycnt++;
+    the_area.wallpolygoncount=the_area.secheader.wallpolycnt;
+  }
+  while(res==1);
+  the_area.RecalcBoundingBoxes();
+  the_area.wedchanged=true;
+  return res;
+}
+
+int Carea::LoadPLY(int fhandle)
+{
+  int res;
+  FILE *fpoi;
+  CString tmpstr;
+  CString *points;
+  int i;
+  int count;
+  int a,b;
+  area_vertex *newvertices;
+  wed_polygon *newpolygons;
+  POSITION pos;
+
+  maxlen=filelength(fhandle);
+  if(maxlen<1) return -1; //short file, invalid item
+
+  fpoi=fdopen(fhandle,"rb");
+  if(!fpoi)
+  {
+    close(fhandle);
+    return -1;
+  }
+
+  SetupReader(maxlen);  
+  //skip version header
+  res = read_string( fpoi, "\n", external, sizeof(external) );
+  do
+  {
+    res = read_string( fpoi, "\n", external, sizeof(external) );
+    if (res) break;
+    
+    ((CChitemDlg *) AfxGetMainWnd())->log("%s",external);
+
+    points = explode(tmpstr, ' ', count);
+    if (count<3) continue;
+
+    newvertices = new area_vertex[count];
+
+    for(i=0;i<count;i++)
+    {
+      sscanf(points[i],"%d,%d",&a,&b);
+      newvertices[i].x = (unsigned short) a;
+      newvertices[i].y = (unsigned short) b;
+    }
+    delete [] points;
+
+    newpolygons = new wed_polygon [the_area.secheader.wallpolycnt+1];
+    if(!newpolygons)
+    {
+      delete [] newvertices;
+      return -3;
+    }
+    
+    memcpy(newpolygons,the_area.wallpolygonheaders,the_area.secheader.wallpolycnt*sizeof(wed_polygon) );
+    memcpy(newpolygons+the_area.secheader.wallpolycnt+1,the_area.wallpolygonheaders+the_area.secheader.wallpolycnt,(the_area.secheader.wallpolycnt-the_area.secheader.wallpolycnt)*sizeof(wed_polygon) );
+    memset(newpolygons+the_area.secheader.wallpolycnt,0,sizeof(wed_polygon) );
+    newpolygons[the_area.secheader.wallpolycnt].unkflags=255;
+    delete [] the_area.wallpolygonheaders;
+    the_area.wallpolygonheaders=newpolygons;
+
+    pos=the_area.wedvertexheaderlist.FindIndex(the_area.secheader.wallpolycnt);
+    the_area.wedvertexheaderlist.InsertBefore(pos,newvertices);
+    the_area.secheader.wallpolycnt++;
+    the_area.wallpolygoncount=the_area.secheader.wallpolycnt;  
+  }
+  while(!res);
+  return res;
+}
+
+int Carea::SavePLY(int fhandle)
+{
+  int i,j,count;
+  POSITION pos;
+  char tmp[20];
+
+  write(fhandle,"PLY V2.0\r\n",10);
+
+  for (i=0;i<the_area.secheader.wallpolycnt;i++)
+  {
+    count = the_area.wallpolygonheaders[i].countvertex;
+    pos = the_area.wedvertexheaderlist.FindIndex(i);
+    area_vertex *poly = (area_vertex *) the_area.wedvertexheaderlist.GetAt(pos);
+    for (j=0;j<count;j++)
+    {
+      if (j) write(fhandle, ", ",2);
+      sprintf(tmp, "%d.%d\r\n", poly[j].x, poly[j].y);
+      write(fhandle, tmp, strlen(tmp));
+    }
+  }
+  return 0;
 }
 
 int Carea::ReadActorData()

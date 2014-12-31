@@ -90,6 +90,7 @@ protected:
 	afx_msg void OnFlag7();
 	afx_msg void OnFlag8();
 	afx_msg void OnFlag9();
+	afx_msg void OnFlag10();
 	afx_msg void OnKillfocusId2();
 	afx_msg void OnShadow();
 	//}}AFX_MSG

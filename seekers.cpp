@@ -2324,6 +2324,16 @@ bool CChitemDlg::match_creature()
   memset(&tmpdata,0,sizeof(tmpdata) );
   tmpdata.which=-1;
   found=false;
+/*
+  if(!stricmp(the_creature.iwdheader.scriptname2,"KILL_INNOCENT"))
+  {
+   // log(" ");
+  }
+  else if(the_creature.iwdheader.scriptname2[0])
+  {
+    log("Special var: %s",the_creature.iwdheader.scriptname2);
+  }
+*/
   if(searchflags&MS)
   {
     if(searchdata.strref!=the_creature.header.shortname &&
@@ -3017,6 +3027,24 @@ bool CChitemDlg::match_area()
   }
 #endif
   //#endif
+#if 0
+  for(i=0;i<the_area.triggercount;i++)
+  {
+    if(the_area.triggerheaders[i].triggertype != 1) continue;
+    if (the_area.triggerheaders[i].launchx<searchdata.feature)
+    {
+      searchdata.feature = the_area.triggerheaders[i].launchx;
+      strncpy(searchdata.foundres, itemname, 8);
+    }
+    if (the_area.m_width-the_area.triggerheaders[i].launchx<searchdata.feature2)
+    {
+      searchdata.feature2 = the_area.m_width-the_area.triggerheaders[i].launchx;
+      strncpy(searchdata.newresource, itemname, 8);
+    }
+  }
+  return false;
+#endif
+
   memset(&tmpdata,0,sizeof(tmpdata) );
   found=true;
   
@@ -4750,20 +4778,20 @@ int CChitemDlg::check_videocell()
   if((the_videocell.header.trans2&1) && (the_videocell.header.transparency&128) )
   {
     ret|=BAD_ATTR;
-    log("0x1 in trans2 and 0x80 in transparancy causes assertion failure!");
+    log("Using both CVIDCELL_FXCLEAR (0x100) and CVIDCELL_FXPREP_COPYFROMBACK (0x80) causes assertion failure!");
   }
   if(the_videocell.header.transparency&4)
   {
     if(!(the_videocell.header.shadow[0]) )
     {
       ret|=BAD_ATTR;
-      log("0x4 in transparency causes crash if shadow isn't set!");
+      log("Transparent shadow (4) causes crash if shadow isn't set!");
     }
   }
   if((the_videocell.header.transparency&10)==10)
   {
     ret|=BAD_ATTR;
-    log("Transparency+brightest flag causes assertion failure!");
+    log("Using both Transparency and brightest (0xa) flags cause assertion failure!");
   }
   
   if(the_videocell.header.sequencing&8)
@@ -5097,8 +5125,6 @@ int CChitemDlg::check_area_anim()
   return ret;
 }
 
-#define CONT_PILE  4
-
 int CChitemDlg::check_area_container()
 {
   int i;
@@ -5132,7 +5158,7 @@ int CChitemDlg::check_area_container()
       b2y=the_area.containerheaders[i].p2y;
       if (the_area.containerheaders[i].type==CONT_PILE)
       {
-        if (b1x!=0xffffffff && b1y!=0xffffffff)
+        if ( ((b1x!=0xffffffff) || (b1y!=0xffffffff)) && ((b1x!=0) || (b1y!=0)) )
         {
           ret|=BAD_VERTEX;
           log("Container #%d (%-.32s [%d.%d]) is a pile with bounding box.",
@@ -5259,6 +5285,17 @@ int CChitemDlg::check_area_door()
       {
         log("Door #%d (%-.32s) collides with region (#%d) of same name.", i+1, doorname, region);
         ret=BAD_VAR;
+      }
+
+      if (the_area.doorheaders[i].trapflags)
+      {
+        region = !(the_area.doorheaders[i].flags&8);
+        if (region != !(the_area.doorheaders[i].trapdetect<100))
+        {
+          log("Door #%d (%-.32s) has conflicting trap detection flags (trap %s vs. %d%% trap detection difficulty)",
+            i+1, doorname, region?"undetectable":"detectable",the_area.doorheaders[i].trapdetect);
+          ret=BAD_ATTR;
+        }
       }
     }
     
@@ -5605,7 +5642,7 @@ int CChitemDlg::check_area_spawn()
         i+1,spawnname,px,py);
     }
     
-    if(!the_area.spawnheaders[i].delay)
+    if(!the_area.spawnheaders[i].checkrate)
     {
       ret|=BAD_ATTR;
       log("Spawnpoint #%d (%-.32s [%d.%d]) has 0 delay, causing crash!",
@@ -6703,11 +6740,19 @@ int CChitemDlg::check_bam()
   }
   else
   {
-    ret=the_bam.DropUnusedFrame(0);
-    if(ret)
+    if (the_bam.m_version==1)
     {
-      log("Could drop %d unused frame(s).",ret);
-      ret=BAD_COMPRESS;
+      ret=the_bam.DropUnusedFrame(0);
+      if(ret)
+      {
+        log("Could drop %d unused frame(s).",ret);
+        ret=BAD_COMPRESS;
+      }
+      if(the_bam.HasAlpha())
+      {
+        log("This bam's palette has an alpha channel.");
+        ret|=BAD_USE;
+      }
     }
   }
   if(the_bam.GetTransparentIndex())
@@ -6715,6 +6760,7 @@ int CChitemDlg::check_bam()
     log("This bam has a nonzero transparent index.");
     ret|=BAD_INDEX;
   }
+
   
   //compression check
   if(!no_compress() && !(chkflg&WARNINGS))
@@ -8239,7 +8285,7 @@ int CChitemDlg::check_treasure()
     tables.AddHead("RT_FURY");
     tables.AddHead("RT_NORM");
   }
-  else if (has_xpvar())
+  else if (has_xpvar() || is_this_bgee())
   {
     tables.AddHead("RNDTRES");
     if (darefs.Lookup("RNDTRES", tmploc))
@@ -8248,7 +8294,8 @@ int CChitemDlg::check_treasure()
     }
     used.AddHead("RNDTRES");
   }
-  else
+  
+  if (!iwd2_structures() && !has_xpvar())
   {
     tables.AddHead("RNDTREAS");
     used.AddHead("RNDTREAS");
@@ -8265,8 +8312,8 @@ int CChitemDlg::check_treasure()
     int rows = da2da.rows;
     int cols = da2da.cols;
     pos=da2da.data->GetHeadPosition();
-    row = (CString *) da2da.data->GetNext(pos);
-    for (i=1;i<rows; i++)
+    //row = (CString *) da2da.data->GetNext(pos);
+    for (i=0;i<rows; i++)
     {
       row = (CString *) da2da.data->GetNext(pos);
       for (j=1;j<cols; j++)

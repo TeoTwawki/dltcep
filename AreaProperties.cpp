@@ -2234,18 +2234,20 @@ CAreaSpawn::~CAreaSpawn()
 }
 
 static int spawnboxids[]={IDC_SPAWNPICKER, IDC_POSX, IDC_POSY, IDC_SCHEDULE, IDC_TIMEOFDAY,
-IDC_DIFF,IDC_DELAY,IDC_METHOD,IDC_UNKNOWN7C, IDC_UNKNOWN80, IDC_UNKNOWN82,
-IDC_MIN,IDC_MAX, IDC_LOW, IDC_HIGH, IDC_CRERES, IDC_SPAWNNUMPICKER,IDC_ADDCRE, IDC_DELCRE,
-IDC_MAXCRE, IDC_BROWSE, IDC_UNKNOWN, IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_SET,
-0};
+IDC_DIFF, IDC_DELAY, IDC_METHOD, IDC_UNKNOWN7C, IDC_UNKNOWN80, IDC_UNKNOWN82, IDC_ACTIVATED,
+IDC_MAX, IDC_LOW, IDC_HIGH, IDC_CRERES, IDC_SPAWNNUMPICKER,IDC_ADDCRE, IDC_DELCRE,
+IDC_MAXCRE, IDC_BROWSE, IDC_UNKNOWN, IDC_COPY, IDC_PASTE, IDC_REMOVE, IDC_SET, IDC_WEIGHT,
+IDC_FLAG1, IDC_FLAG2, IDC_FLAG3, IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8,
+IDC_FLAG9, IDC_FLAG10, IDC_FREQUENCY, IDC_TIMING, 0};
 
 #pragma warning(disable:4706)   
 void CAreaSpawn::DoDataExchange(CDataExchange* pDX)
 {
   CWnd *cb;
+  CButton *cb2;
   CString tmpstr;
-  int flg, flg2;
-  int i;
+  int flg, flg2, flg3, flg4;
+  int i,j;
   int id;
 
 	CPropertyPage::DoDataExchange(pDX);
@@ -2259,18 +2261,32 @@ void CAreaSpawn::DoDataExchange(CDataExchange* pDX)
   flg=m_spawnnum>=0;
   if(flg) flg2=!!the_area.spawnheaders[m_spawnnum].creaturecnt;      
   else flg2=false;
+  if(flg) flg3=is_this_bgee() && !!(the_area.spawnheaders[m_spawnnum].method&16); //use frequency field
+  else flg3=false;
+  if(flg2) flg4=is_this_bgee() && !!(the_area.spawnheaders[m_spawnnum].method&32); //use weight fields
+  else flg4=false;
   tmpstr.Format("/ %d",the_area.spawncount);
   cb->SetWindowText(tmpstr);
   i=0;
   while(id=spawnboxids[i])
   {
     cb=GetDlgItem(id);
-    if(flg && (id==IDC_CRERES || id==IDC_BROWSE || id==IDC_DELCRE))
+    switch(id)
     {
+    case IDC_WEIGHT:
+      cb->EnableWindow(flg4);
+      break;
+    case IDC_FLAG4: case IDC_FLAG5: case IDC_FLAG6: case IDC_FLAG7:
+    case IDC_FLAG8: case IDC_FLAG9: case IDC_FLAG10:
+      cb->EnableWindow(flg&&is_this_bgee());
+      break;
+    case IDC_CRERES: case IDC_BROWSE: case IDC_DELCRE:
       cb->EnableWindow(flg2);
-    }
-    else
-    {
+      break;
+    case IDC_FREQUENCY: case IDC_TIMING:
+      cb->EnableWindow(flg3);
+      break;
+    default:
       cb->EnableWindow(flg);
     }
     i++;
@@ -2285,18 +2301,26 @@ void CAreaSpawn::DoDataExchange(CDataExchange* pDX)
     tmpstr.Format("/ %d",the_area.spawnheaders[m_spawnnum].creaturecnt);
     DDX_Text(pDX, IDC_MAXCRE, tmpstr);
     DDX_Text(pDX,IDC_DIFF,the_area.spawnheaders[m_spawnnum].difficulty);
-    DDX_Text(pDX,IDC_DELAY,the_area.spawnheaders[m_spawnnum].delay);
-//    if(!the_area.spawnheaders[m_spawnnum].delay) the_area.spawnheaders[m_spawnnum].delay=1;
-    tmpstr=get_spawntype(the_area.spawnheaders[m_spawnnum].method);
-    DDX_Text(pDX,IDC_METHOD,tmpstr);
-    the_area.spawnheaders[m_spawnnum].method=(short) strtonum(tmpstr);
+    DDX_Text(pDX,IDC_DELAY,the_area.spawnheaders[m_spawnnum].checkrate);
+    DDX_Text(pDX,IDC_METHOD,the_area.spawnheaders[m_spawnnum].method);
     DDX_Text(pDX,IDC_UNKNOWN7C,the_area.spawnheaders[m_spawnnum].expiry);
-    DDX_Text(pDX,IDC_UNKNOWN80,the_area.spawnheaders[m_spawnnum].randomwalk);
-    DDX_Text(pDX,IDC_UNKNOWN82,the_area.spawnheaders[m_spawnnum].unknown82);
-    DDX_Text(pDX,IDC_MIN,the_area.spawnheaders[m_spawnnum].min);
+    DDX_Text(pDX,IDC_UNKNOWN80,the_area.spawnheaders[m_spawnnum].walkdistance);
+    DDX_Text(pDX,IDC_UNKNOWN82,the_area.spawnheaders[m_spawnnum].huntdistance);
+    DDX_Text(pDX,IDC_ACTIVATED,the_area.spawnheaders[m_spawnnum].activated);
     DDX_Text(pDX,IDC_MAX,the_area.spawnheaders[m_spawnnum].max);
     DDX_Text(pDX,IDC_LOW,the_area.spawnheaders[m_spawnnum].percent1);
     DDX_Text(pDX,IDC_HIGH,the_area.spawnheaders[m_spawnnum].percent2);
+    DDX_Text(pDX,IDC_FREQUENCY,the_area.spawnheaders[m_spawnnum].frequency);
+    DDX_Text(pDX,IDC_TIMING,the_area.spawnheaders[m_spawnnum].countdown);
+
+    j=1;
+    for(i=0;i<10;i++)
+    {
+      cb2=(CButton *) GetDlgItem(IDC_FLAG1+i);
+      if(the_area.spawnheaders[m_spawnnum].method&j) cb2->SetCheck(true);
+      else cb2->SetCheck(false);
+      j<<=1;
+    }
   }
   if(flg2)
   {
@@ -2304,6 +2328,10 @@ void CAreaSpawn::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_CRERES, tmpstr);
     DDV_MaxChars(pDX, tmpstr, 8);
     StoreResref(tmpstr, the_area.spawnheaders[m_spawnnum].creatures[m_crenum]);
+  }
+  if(flg4)
+  {
+    DDX_Text(pDX, IDC_WEIGHT, the_area.spawnheaders[m_spawnnum].weights[m_crenum]);
   }
 }
 #pragma warning(default:4706)   
@@ -2361,17 +2389,8 @@ void CAreaSpawn::RefreshSpawn()
 
 BOOL CAreaSpawn::OnInitDialog() 
 {
-  int i;
-  CComboBox *cb;
-
 	CPropertyPage::OnInitDialog();
 	RefreshSpawn();
-  cb=(CComboBox *) GetDlgItem(IDC_METHOD);
-  cb->ResetContent();
-  for(i=0;i<NUM_SPTYPE;i++)
-  {
-    cb->AddString(get_spawntype(i));
-  }
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -2379,6 +2398,12 @@ BOOL CAreaSpawn::OnInitDialog()
     m_tooltip.SetTipBkColor(RGB(240,224,160));
 
     m_tooltip.AddTool(GetDlgItem(IDC_SPAWNPICKER), IDS_LABEL);
+    m_tooltip.AddTool(GetDlgItem(IDC_DELAY), IDS_CHECKRATE);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG1), IDS_NONCONTINUOUS);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG2), IDS_PERMANENT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG3), IDS_RECENT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG4), IDS_DIFFICULTY);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG5), IDS_FREQUENCY);
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -2386,13 +2411,10 @@ BOOL CAreaSpawn::OnInitDialog()
 
 BEGIN_MESSAGE_MAP(CAreaSpawn, CPropertyPage)
 	//{{AFX_MSG_MAP(CAreaSpawn)
-	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_SPAWNPICKER, OnKillfocusSpawnpicker)
 	ON_CBN_SELCHANGE(IDC_SPAWNPICKER, OnSelchangeSpawnpicker)
 	ON_CBN_KILLFOCUS(IDC_SPAWNNUMPICKER, OnKillfocusSpawnnumpicker)
 	ON_CBN_SELCHANGE(IDC_SPAWNNUMPICKER, OnSelchangeSpawnnumpicker)
-	ON_EN_KILLFOCUS(IDC_DELAY, DefaultKillfocus)
 	ON_BN_CLICKED(IDC_SCHEDULE, OnSchedule)
 	ON_EN_KILLFOCUS(IDC_CRERES, OnKillfocusCreres)
 	ON_BN_CLICKED(IDC_COPY, OnCopy)
@@ -2401,18 +2423,34 @@ BEGIN_MESSAGE_MAP(CAreaSpawn, CPropertyPage)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
 	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
+	ON_BN_CLICKED(IDC_SET, OnSet)
+	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG3, OnFlag3)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG5, OnFlag5)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
+	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
+	ON_EN_KILLFOCUS(IDC_POSX, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_POSY, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_DELAY, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_DIFF, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN80, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN7C, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_HIGH, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_LOW, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_MAX, DefaultKillfocus)
-	ON_EN_KILLFOCUS(IDC_MIN, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_EN_KILLFOCUS(IDC_ACTIVATED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN82, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
-	ON_CBN_KILLFOCUS(IDC_METHOD, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_SET, OnSet)
+	ON_EN_KILLFOCUS(IDC_METHOD, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FREQUENCY, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_TIMING, DefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_WEIGHT, OnKillfocusCreres)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2454,6 +2492,67 @@ void CAreaSpawn::OnSelchangeSpawnpicker()
 void CAreaSpawn::DefaultKillfocus() 
 {
 	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+
+void CAreaSpawn::OnFlag1() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=1;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag2() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=2;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag3() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=4;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag4() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=8;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag5() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=16;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag6() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=32;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag7() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=64;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag8() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=128;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag9() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=256;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaSpawn::OnFlag10() 
+{
+	the_area.spawnheaders[m_spawnnum].method^=512;
 	UpdateData(UD_DISPLAY);
 }
 
@@ -2534,14 +2633,23 @@ void CAreaSpawn::OnAdd()
   tmpstr.Format("Spawn %d",the_area.header.spawncnt);
   StoreName(tmpstr,newspawns[the_area.spawncount].spawnname);
   //all seen spawnheaders had these values, so we set them
-  newspawns[the_area.spawncount].min=1;
+  newspawns[the_area.spawncount].activated=1;
+  newspawns[the_area.spawncount].checkrate=6;
   newspawns[the_area.spawncount].schedule=0xffffff;
   newspawns[the_area.spawncount].percent1=100;
   newspawns[the_area.spawncount].percent2=100;
   newspawns[the_area.spawncount].method=1;
   newspawns[the_area.spawncount].expiry=1000;
-  newspawns[the_area.spawncount].randomwalk=1000;
-  newspawns[the_area.spawncount].unknown82=1000;
+  newspawns[the_area.spawncount].walkdistance=1000;
+  newspawns[the_area.spawncount].huntdistance=1000;
+  for (int i=0;i<10;i++)
+  {
+    newspawns[the_area.spawncount].weights[i]=1;
+  }
+  if(is_this_bgee())
+  {
+    newspawns[the_area.spawncount].frequency=480; //frequency default would be 480 (8 hours), on BGEE
+  }
 
   if(the_area.spawnheaders)
   {
@@ -3796,14 +3904,18 @@ void CAreaContainer::RefreshContainer()
 BOOL CAreaContainer::OnInitDialog() 
 {
   int i;
+  int cnum;
 
 	CPropertyPage::OnInitDialog();	
 	RefreshContainer();
+  cnum = containericons.GetCount();
+  if (cnum<=0) cnum=NUM_CITYPE;
   m_containertype_control.ResetContent();
-  for(i=0;i<NUM_CITYPE;i++)
+  for(i=0;i<cnum;i++)
   {
     m_containertype_control.AddString(get_container_icon(i));
   }
+
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -3965,8 +4077,18 @@ void CAreaContainer::OnRecalcbox()
 {
   POINTS min, max;
 
-  RecalcBox(the_area.containerheaders[m_containernum].vertexcount,
-            the_area.triggercount+m_containernum,min,max);
+  if (the_area.containerheaders[m_containernum].type==CONT_PILE)
+  {
+    min.x=0;
+    min.y=0;
+    max.x=0;
+    max.y=0;
+  }
+  else
+  {
+    RecalcBox(the_area.containerheaders[m_containernum].vertexcount,
+      the_area.triggercount+m_containernum,min,max);
+  }
   the_area.containerheaders[m_containernum].p1x=min.x;
   the_area.containerheaders[m_containernum].p1y=min.y;
   the_area.containerheaders[m_containernum].p2x=max.x;
@@ -4496,7 +4618,7 @@ IDC_UNKNOWN20, IDC_UNKNOWN24, IDC_UNKNOWN, IDC_REMOVE, IDC_COPY, IDC_PASTE,
 0};
 
 static int noteboxids[]={IDC_NOTEPICKER,IDC_POS1X, IDC_POS1Y,IDC_STRREF,IDC_NOTE,
-IDC_COLOR,IDC_UNKNOWNC, IDC_UNKNOWN2, IDC_REMOVE2, IDC_COPY2, IDC_PASTE2, IDC_TAGGED,
+IDC_COLOR,IDC_ORIGINAL, IDC_REMOVE2, IDC_COPY2, IDC_PASTE2, IDC_TAGGED,
 IDC_SET,
 0};
 
@@ -4560,7 +4682,7 @@ void CAreaVariable::DoDataExchange(CDataExchange* pDX)
     i=the_area.mapnoteheaders[m_notenum].colour;
     DDX_CBIndex(pDX, IDC_COLOR, i);
     the_area.mapnoteheaders[m_notenum].colour=(short) i;
-    DDX_Text(pDX, IDC_UNKNOWNC, the_area.mapnoteheaders[m_notenum].unknownc);
+    DDX_Text(pDX, IDC_ORIGINAL, the_area.mapnoteheaders[m_notenum].user);
  }
 }
 
@@ -4615,12 +4737,31 @@ BOOL CAreaVariable::OnInitDialog()
 
 	CPropertyPage::OnInitDialog();
   RefreshVariable();
+  cb = (CComboBox *) GetDlgItem(IDC_COLOR);
+  cb->ResetContent();
   if(pst_compatible_var())
   {
-    cb = (CComboBox *) GetDlgItem(IDC_COLOR);
-    cb->ResetContent();
     cb->AddString("0 - User note");
     cb->AddString("1 - Read only");
+  }
+  else
+  {
+    CStringMapInt *tmp;
+    if (idsmaps.Lookup("MAPNOTES", tmp))
+    {
+      FillCombo("MAPNOTES", cb, -1);
+    }
+    else
+    {
+      cb->AddString("0 - Gray (default)");
+      cb->AddString("1 - Violet");
+      cb->AddString("2 - Green");
+      cb->AddString("3 - Orange");
+      cb->AddString("4 - Red");
+      cb->AddString("5 - Blue");
+      cb->AddString("6 - Dark Blue");
+      cb->AddString("7 - Light Gray");
+    }
   }
   //tooltips
   {
@@ -4646,7 +4787,7 @@ BEGIN_MESSAGE_MAP(CAreaVariable, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
 	ON_CBN_KILLFOCUS(IDC_COLOR, OnKillfocusColor)
 	ON_EN_KILLFOCUS(IDC_NOTE, OnKillfocusNote)
-	ON_EN_KILLFOCUS(IDC_UNKNOWNC, OnKillfocusUnknownc)
+	ON_EN_KILLFOCUS(IDC_ORIGINAL, OnKillfocusUnknownc)
 	ON_BN_CLICKED(IDC_ADD, OnAdd)
 	ON_BN_CLICKED(IDC_REMOVE, OnRemove)
 	ON_BN_CLICKED(IDC_COPY, OnCopy)
@@ -4916,7 +5057,7 @@ void CAreaVariable::OnAdd2()
   }
   memcpy(newnotes, the_area.mapnoteheaders, the_area.mapnotecount*sizeof(area_mapnote));
   memset(newnotes+the_area.mapnotecount,0,sizeof(area_mapnote) );
-  newnotes[the_area.mapnotecount].unknownc=1; //marks original/custom note ??
+  newnotes[the_area.mapnotecount].user=1; //marks original/custom note ??
   newnotes[the_area.mapnotecount].strref=-1;
   
   if(the_area.mapnoteheaders)
@@ -5132,7 +5273,7 @@ void CAreaDoor::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_REMOVAL, the_area.doorheaders[m_doornum].trapremoval);
     DDX_Text(pDX, IDC_TRAPPED, the_area.doorheaders[m_doornum].trapflags);
     DDX_Text(pDX, IDC_DETECTED, the_area.doorheaders[m_doornum].trapdetflags);
-    DDX_Text(pDX, IDC_LOCKED, the_area.doorheaders[m_doornum].locked);
+    DDX_Text(pDX, IDC_LOCKED, the_area.doorheaders[m_doornum].doordetect);
     DDX_Text(pDX, IDC_DIFF, the_area.doorheaders[m_doornum].lockremoval);
     DDX_Text(pDX, IDC_AC, the_area.doorheaders[m_doornum].ac);
     DDX_Text(pDX, IDC_MAXHP, the_area.doorheaders[m_doornum].hp);
@@ -6211,16 +6352,20 @@ BOOL CAreaAnim::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG3), IDS_ANOLIGHT);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG4), IDS_APARTIAL);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG5), IDS_ASYNC);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG6), IDS_ASTART);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG7), IDS_ANOWALL);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG8), IDS_AFOG);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG9), IDS_GROUND);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG10), IDS_AALL);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG11), IDS_APALETTE);
-    m_tooltip.AddTool(GetDlgItem(IDC_BMP), IDS_APALETTE);
-    m_tooltip.AddTool(GetDlgItem(IDC_BROWSE2), IDS_APALETTE);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG12), IDS_AMIRROR);
     m_tooltip.AddTool(GetDlgItem(IDC_FLAG13), IDS_ACOMBAT);
-    m_tooltip.AddTool(GetDlgItem(IDC_FLAG14), IDS_CHANCE);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG14), IDS_AMOVIE);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG15), IDS_AFLIGHT);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG16), IDS_APVRZ);
+    m_tooltip.AddTool(GetDlgItem(IDC_BMP), IDS_APALETTE);
+    m_tooltip.AddTool(GetDlgItem(IDC_BROWSE2), IDS_APALETTE);
+    m_tooltip.AddTool(GetDlgItem(IDC_CHANCE), IDS_CHANCE);
     m_tooltip.AddTool(GetDlgItem(IDC_TRANSPARENT), IDS_ATRANSP);
   }
 	return TRUE;  
@@ -7467,3 +7612,4 @@ BEGIN_MESSAGE_MAP(CAreaPropertySheet, CPropertySheet)
 //{{AFX_MSG_MAP(CAreaPropertySheet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+

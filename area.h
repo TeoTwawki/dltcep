@@ -19,6 +19,9 @@ private:
   long maxlena, maxlenw;
   long fullsizea, fullsizew;
   long startpointa, startpointw;
+  int fhandle;
+  int startpoint;
+  int maxlen;
 public:
   //.wed
   bool m_night;
@@ -116,6 +119,9 @@ public:
   int WriteAreaToFile(int fh, int calculate);
   int WriteWedToFile(int fh);
   int WriteMap(const char *suffix, unsigned char *pixels, COLORREF *pal, int palsize);
+  int LoadPLY(int fhandle);
+  int LoadSVG(int fhandle);
+  int SavePLY(int fhandle);
   int ReadActorData();
   void ConvertFromPstMapnote();
   void ConvertToPstMapnote();

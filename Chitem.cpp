@@ -217,6 +217,7 @@ CStringMapArray store_spell_desc;
 CStringList sectype_names;
 CStringList school_names;
 CString2List songlist;
+CStringList containericons;
 int base_slot=35;
 CStringMapInt internal_slot_names;
 CString slot_names[IWD2_SLOT_COUNT]; //IWD2 has more slots
@@ -231,6 +232,8 @@ CIntMapString listsongs;         //iwd2 song list (number to resref mapping)
 CIntMapString listshapes;        //iwd2 wildshape list (number to resref mapping)
 CStringMapInt ini_entry;         //acceptable spawn ini entries
 CStringMapPoint entries;         //entries.2da mapping
+CIntMapInt statdesc;             //portrait icon descriptions for certain effects
+CStringList campaignrefs;        //bgee campaign names
 
 CColorPicker colordlg;
 CItemPicker pickerdlg;
@@ -340,7 +343,6 @@ CStringMapInt variables;
 CIntMapJournal journals;
 CStringMapString usedtis;
 CStringMapString usedwed;
-
 ///
 /////////////////////////////////////////////////////////////////////////////
 // CChitemApp
@@ -2229,6 +2231,20 @@ CString format_exclusion(unsigned long exclusion)
   return tmpstr;
 }
 
+CString format_statdesc(unsigned int stat)
+{
+  CString name = "unknown";
+  CString tmpstr;
+  int ref = -1;
+
+  if (statdesc.Lookup(stat, ref))
+  {
+    name = resolve_tlk_text(ref);
+  }
+  tmpstr.Format("%d - %s", stat, name);
+  return tmpstr;
+}
+
 CString format_schooltype(unsigned int schooltype)
 {
   POSITION pos;
@@ -2536,9 +2552,11 @@ CString get_spark_colour(int spktype)
 }
 
 CString area_flags[NUM_ARFLAGS]={"-No save/rest","-Tutorial",
-"-Antimagic area","-Dream", "-Arena"};
+"-Antimagic area","-Dream","-Unknown","-Unknown","-Unknown"};
+CString area_flags_bgee[NUM_ARFLAGS]={"-No save/rest","-Tutorial",
+"-Antimagic area","-Dream", "-Arena", "-No rest", "-No travel"};
 CString area_flags_iwd2[NUM_ARFLAGS]={"-No save","-No rest",
-"-Lock battle music","-Unknown","-Unknown"};
+"-Lock battle music","-Unknown","-Unknown","-Unknown","-Unknown"};
 
 CString get_areaflag(unsigned long arflags)
 {
@@ -2553,7 +2571,11 @@ CString get_areaflag(unsigned long arflags)
   {
     if(arflags&j)
     {
-      if(has_xpvar()||pst_compatible_var())
+      if (is_this_bgee())
+      {
+        tmp+=area_flags_bgee[i];
+      }
+      else if(has_xpvar()||pst_compatible_var())
       {
         tmp+=area_flags_iwd2[i];
       }
@@ -2753,6 +2775,7 @@ static int opcode_opcodes_iwd[]={101,198,261,276,-1};
 static int state_opcodes_tob[]={-1};
 static int state_opcodes_iwd[]={288,-1};
 static int projectile_opcodes[]={83,197,430,-1};
+static int statdesc_opcodes[]={142, 169, 240, -1};
 
 int feature_resource(int feature)
 {
@@ -2778,12 +2801,15 @@ int feature_resource(int feature)
     break;
   case 174:
     return REF_WAV;
-  case 177: case 248: case 249: case 272: case 283:
+  case 177: case 183: case 248: case 249: case 272: case 283:
     return REF_EFF;
   case 127: case 214: case 298:
     return REF_2DA;
     //case 201: doesn't use resref
     //in PST these used to be some BAM resources
+  case 331:
+    if (is_this_bgee()) return REF_2DA;
+    break;
   case 187: case 188: case 189: case 190: case 191:
     if (pst_compatible_var()) {
       return REF_BAM;
@@ -2796,11 +2822,11 @@ int feature_resource(int feature)
     return REF_VVC;
   case 146: case 147: case 148: case 171: case 172:
     return REF_SPL;
-  case 321: case 318:
+  case 321: case 318: case 326: case 333: case 335: case 340: case 341:
     if (is_this_bgee()) return REF_SPL;
     break;
   case 319:
-    if (is_this_bgee()) return REF_CRE; //scripting name, but BGEE uses cre names for scripting name
+    if (is_this_bgee()) return REF_CRE; //319 is scripting name, but BGEE uses cre names for scripting name
     break;
   case 206:
     //all but PST
@@ -2912,8 +2938,14 @@ CString get_opcode_desc(int opcode, int par2)
     goto got_text;
   }
 
+  if(member_array(opcode,statdesc_opcodes)!=-1)
+  {
+    tmp=format_statdesc(par2);
+    goto got_text;
+  }
 got_text:
-    return opcodes[opcode].opcodedesc+"\r\n"+tmp;
+  if (tmp.IsEmpty()) return opcodes[opcode].opcodedesc;
+  return opcodes[opcode].opcodedesc+"\r\nAdditional info: "+tmp;
 }
 
 CString get_par1_label(int opcode)
@@ -3090,7 +3122,14 @@ CString IDSToken(CString filename, int value, bool unused)
   CStringMapInt *idsfile;
   POSITION pos;
   
-  if(!idsmaps.Lookup(filename,idsfile)) return "";
+  if(!idsmaps.Lookup(filename,idsfile))
+  {
+    if (!get_idsfile(filename, false)) return "";
+    if(!idsmaps.Lookup(filename,idsfile))
+    {
+      return "";
+    }
+  }
   if(!idsfile)
   {    
     return "";   //internal error (no file loaded)
@@ -3503,7 +3542,22 @@ CString container_types[NUM_CITYPE]={"0 <n/a>","1 BAG","2 CHEST","3 DRAWER",
 
 CString get_container_icon(int citype)
 {
+  POSITION pos;
   CString tmp;
+  
+  if (containericons.GetCount())
+  {
+    pos=containericons.FindIndex(citype);
+    if (pos)
+    {
+      tmp.Format("%d %s", citype, containericons.GetAt(pos) );
+    }
+    else
+    {
+      tmp.Format("%d Unknown",citype);
+    }
+    return tmp;
+  }
   
   if(citype<0 || citype>=NUM_CITYPE)
   {
@@ -3929,6 +3983,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define VT sf(ADD_VAR, VALID_TAG)
 #define VV sf(ADD_VAR, ADD_VAR)
 #define vv sf(ADD_VAR2, ADD_VAR2)
+#define WM sf(CHECK_WORLDMAP, IS_VAR)
 #define WO sf(CHECK_2DA, IS_VAR)
 #define wO sf(CHECK_2DA2, IS_VAR)
 #define XO sf(CHECK_VVC, IS_VAR)
@@ -3936,6 +3991,7 @@ CString *explode(const CString &array, char separator, int &count)
 #define XP sf(CHECK_XPLIST, IS_VAR)
 #define xp sf(CHECK_XPLIST, IS_VAR)|CHECK_STRREF
 #define YO sf(CHECK_GAME,IS_VAR)
+#define O1 sf(IS_VAR,IS_VAR)|CHECK_ZERO
 
 int tob_trigger_flags[MAX_TRIGGER]={
 //0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 
@@ -3953,7 +4009,7 @@ int tob_trigger_flags[MAX_TRIGGER]={
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
     OO,   OO,   OO,   VA,   VA,   VA,   IO,   OO,   OO,   OO,  
 //0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   O1,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 
     OO,   DV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 
@@ -4066,7 +4122,7 @@ int tob_action_flags[MAX_ACTION]={
 //350,  351,  352,  353,  354,  355,  356,  357,  358,  359,  
     AE,   AE,   bO,   OO,   CO,   CO,   II,   aO,   OO,   OO,
 //360,  361,  362,  363,  364,  365,  366,  367,  368,  369
-    TO,   OO,   TI,   TI,   VO,   OO,   OO,   OO,   OO,   OO,
+    TO,   OO,   TI,   TI,   VO,   OO,   st,   WM,   OO,   OO,
 };
 
 int iwd2_trigger_flags[MAX_TRIGGER]={
@@ -4085,7 +4141,7 @@ int iwd2_trigger_flags[MAX_TRIGGER]={
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
     OO,   OO,   OO,   VA,   VA,   VA,   IO,   OO,   OO,   OO,  
 //0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   O1,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 
     OO,   DV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 
@@ -4217,7 +4273,7 @@ int pst_trigger_flags[MAX_TRIGGER]={
 //0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
     OO,   OO,   OO,   VA,   VA,   VA,   IO,   OO,   OO,   OO,  
 //0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
-    OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
+    OO,   O1,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 
     OO,   DV,   OO,   OO,   OO,   OO,   OO,   OO,   OO,   OO,  
 //0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, 0x60, 0x61, 0x62, 0x63, 
@@ -5703,12 +5759,48 @@ int read_bmp(CString key, Cbam *cb, int lazy)
     goto endofquest;
   }
   bitmaps.SetAt(key,fileloc);
-  ret=cb->ReadBmpFromFile(fhandle, fileloc.size);
+  ret=cb->ReadBmpFromFile(fhandle, fileloc.size,0);
   close(fhandle);
 
 endofquest:
   if(ret) cb->m_name.Empty();
   else cb->m_name=key+".bmp";
+  return ret;
+}
+
+int read_plt(CString key, Cbam *cb, int lazy)
+{
+  loc_entry fileloc;
+  int ret;
+  int fhandle;
+  CString tmp;
+  
+  if(!cb) cb=&the_bam;
+  if(lazy && key==cb->m_name+".plt") return 0;
+  if(paperdolls.Lookup(key,fileloc))
+  {
+    fhandle=locate_file(fileloc, 0);
+  }
+  else
+  {
+    fhandle=-1;
+  }
+  if(fhandle<1)
+  {
+    fhandle=open(lastopenedoverride+"//"+key+".plt",O_RDONLY|O_BINARY);
+  }
+  if(fhandle<1)
+  {
+    ret=-2;
+    goto endofquest;
+  }
+  paperdolls.SetAt(key,fileloc);
+  ret=cb->ReadPltFromFile(fhandle, fileloc.size);
+  close(fhandle);
+
+endofquest:
+  if(ret) cb->m_name.Empty();
+  else cb->m_name=key+".plt";
   return ret;
 }
 

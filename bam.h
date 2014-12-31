@@ -148,6 +148,7 @@ public:
   int TakeBmp4Data(const LPBYTE pRawBits, bmp_header &sHeader, int row);
   int ExpandBamBits(BYTE chTransparentIndex, COLORREF clrTransparent, COLORREF *pDIBits,
       bool bIsCompressed, int nColumn, COLORREF *pPal, int nHeight, int nWidth);
+  bool IsEqual(INF_BAM_FRAMEDATA &other);
 };
 
 class Cbam  
@@ -162,7 +163,7 @@ public:
   int WriteBmpToFile(int fhandle, int frame);
   int WritePltToFile(int fhandle, int frame);
   int WriteBamToFile(int fhandle);
-  int ReadBmpFromFile(int fhandle, int ml);
+  int ReadBmpFromFile(int fhandle, int ml, bool png);
   int ReadPltFromFile(int fhandle, int ml);
   int ReadBamFromFile(int fhandle, int maxlen, bool onlyheader);
   int ReadBamPreviewFromFile(int fhandle, int maxlen);
@@ -188,10 +189,11 @@ public:
   int SetFrameData(int nFrameWanted, LPBYTE pFrameData, const CPoint &cpFrameSize);
   CPoint GetFramePos(int nFrameWanted);
   int GetFrameDataSize(int nFrameWanted);
-  void ForcePalette(palettetype &palette);
+  void ForcePalette(palettetype &palette, bool reorder = false);
   void OrderPalette();
   void ReorderPixels();
   void DropUnusedPalette();
+  int DropAlpha();
   bool GetFrameRLE(int nFrameWanted);
   bool SetFrameRLE(int nFrameWanted, BOOL NewRLE);
   CPoint GetCycleData(int nCycle);
@@ -201,9 +203,11 @@ public:
   //returns quality loss
   //palettetype &oldpalette,const LPBYTE pRawData, int nFrameSize);
   int ImportFrameData(int nFrameIndex, Cbam &tmpbam, int nImportFrameIndex = 0);
+  void CopyFrameData(int nFrameIndex, int nImportFrameIndex);
   int AddFrameToCycle(int nCycle, int nCyclePos, int nFrameWanted, int nRepeat); //cycle, cyclepos, framewanted, repeat
   int RemoveFrameFromCycle(int nCycle, int nCyclePos, int nRepeat);
   int CheckFrameSizes();
+  int DropDuplicateFrames();
   int DropUnusedFrame(int bDropIt);
   int InsertCycle(int nCycleWanted);
   int ReplaceCycle(int nCycleWanted, short *pNewLookup, int nLen);
@@ -223,6 +227,15 @@ public:
   void CreateAlpha();
   bool MergeStructure(Cbam &original, int width, int height);
 	bool CopyStructure(Cbam &original, int skipwidth, int skipheight, int width, int height);
+
+  inline bool HasAlpha()
+  {
+    for(int i=0;i<256;i++) {
+      BYTE *pClr = (BYTE *) (m_palette+i);
+      if (pClr[3]) return true;
+    }
+    return false;
+  }
 
   inline int GetTransparentIndex()
   {

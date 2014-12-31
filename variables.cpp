@@ -41,6 +41,14 @@ int CChitemDlg::check_integers(const int *bytes, int storeflags, int opcode, int
       break;
     }
   }
+  if(storeflags&CHECK_ZERO)
+  {
+    if (bytes[2]==0)
+    {
+      ret|=BAD_ATTR;
+      log("Second parameter may not be zero: %s",tmp);
+    }
+  }
   if(storeflags&CHECK_POINT)
   {
     //check bytes[1]/bytes[2]

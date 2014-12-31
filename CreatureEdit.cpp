@@ -77,6 +77,7 @@ void CCreatureEdit::NewCreature()
   //-1 is -1 always
   memset(the_creature.header.strrefs,-1,sizeof(the_creature.header.strrefs) );
   the_creature.header.sex=1;
+  the_creature.header.reputation=100;
   the_creature.header.globalID=-1;
   the_creature.header.localID=-1;
   memset(the_creature.itemslots,-1,sizeof(the_creature.itemslots) );

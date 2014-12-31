@@ -46,7 +46,6 @@ protected:
 	afx_msg void OnKillfocusMin();
 	afx_msg void OnKillfocusMax();
 	afx_msg void OnKillfocusCreres();
-	afx_msg void OnKillfocusStrref();
 	afx_msg void OnKillfocusText();
 	afx_msg void OnKillfocusUnknown9a();
 	afx_msg void OnKillfocusUnknown9c();
@@ -61,11 +60,15 @@ protected:
 	afx_msg void OnSelchangeSpawnnumpicker();
 	afx_msg void OnClear();
 	afx_msg void OnKillfocusUnknownac();
-	afx_msg void OnKillfocusUnknownae();
 	afx_msg void OnKillfocusDaymovie();
 	afx_msg void OnKillfocusNightmovie();
 	afx_msg void OnBrowse2();
 	afx_msg void OnBrowse3();
+	afx_msg void OnFlag4();
+	afx_msg void OnFlag10();
+	afx_msg void OnFlag6();
+	afx_msg void OnFlag2();
+	afx_msg void OnFlag7();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

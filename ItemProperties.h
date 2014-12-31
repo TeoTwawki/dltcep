@@ -67,7 +67,7 @@ class CItemIcons : public CPropertyPage
 // Construction
 public:
 	CItemIcons();
-	~CItemIcons();
+	~CItemIcons();  
   void RefreshIcons();
 
 // Dialog Data
@@ -85,6 +85,7 @@ public:
   HBITMAP hbmi1, hbmi2;
   HBITMAP hbmg;
   HBITMAP hbmd[4];
+  //CStringMapInt itemflags;
 
 // Overrides
 	// ClassWizard generate virtual function overrides
@@ -151,6 +152,7 @@ protected:
 	afx_msg void OnFlag5();
 	afx_msg void OnFlag6();
 	afx_msg void OnFlag7();
+	afx_msg void OnFlag8();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
@@ -496,12 +498,16 @@ protected:
 	afx_msg void OnSelchangeMelee();
 	afx_msg void OnFlag1();
 	afx_msg void OnFlag2();
+	afx_msg void OnFlag11();
+	afx_msg void OnFlag12();
 	afx_msg void OnRecharges();
 	afx_msg void OnStrbonus();
 	afx_msg void OnBreakable();
 	afx_msg void OnHostile();
 	afx_msg void OnKillfocusSectype();
 	afx_msg void OnKillfocusSchool();
+	afx_msg void OnStrthac0();
+	afx_msg void OnDamage();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

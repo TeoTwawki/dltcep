@@ -193,6 +193,7 @@ BOOL CTormentCre::OnInitDialog()
 	CDialog::OnInitDialog();
 
 	cb=(CComboBox *) GetDlgItem(IDC_DEATH);
+  //cb->ResetContent();
   pos=beastkillvars.GetHeadPosition();
   while(pos)
   {

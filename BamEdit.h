@@ -145,6 +145,11 @@ protected:
 	afx_msg void OnImportCycles();
 	afx_msg void OnCycleDuplicate();
 	virtual void OnCancel();
+	afx_msg void OnToolsFixzeroframes();
+	afx_msg void OnCycleClonecycle();
+	afx_msg void OnPaletteRemovealpha();
+	afx_msg void OnFileLoadplt();
+	afx_msg void DropDuplicateFrames();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

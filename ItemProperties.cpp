@@ -404,7 +404,7 @@ static int iconboxids[16]={
 
 static int iconbox2ids[16]={
   0,0,0,0,0,0,0,0,
-  0,0,0,0,0, IDC_FLAG5, IDC_FLAG6,IDC_FLAG7
+  IDC_FLAG5, IDC_FLAG6, IDC_FLAG7, IDC_FLAG8,0,0,0,0
 };
 
 void CItemIcons::DoDataExchange(CDataExchange* pDX)
@@ -572,6 +572,16 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
       if (checkbox)
       {
         checkbox->SetCheck(!!(the_item.header.itmattr&bit));
+        checkbox->GetWindowText(tmpstr);
+        if (tmpstr=="???")
+        {
+          tmpstr = IDSToken("ITEMFLAG", bit, false);
+          if (tmpstr.GetLength())
+          {
+            tmpstr.SetAt(0, toupper(tmpstr.GetAt(0)));
+            checkbox->SetWindowText(tmpstr);
+          }
+        }
       }
       bit=bit<<1;    
     }
@@ -583,6 +593,16 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
       if (checkbox)
       {
         checkbox->SetCheck(!!(the_item.header.splattr&bit));
+        checkbox->GetWindowText(tmpstr);
+        if (tmpstr=="???")
+        {
+          tmpstr = IDSToken("ITEMFLAG", bit<<16, false);
+          if (tmpstr.GetLength())
+          {
+            tmpstr.SetAt(0, toupper(tmpstr.GetAt(0)));
+            checkbox->SetWindowText(tmpstr);
+          }
+        }
       }
       bit=bit<<1;    
     }
@@ -591,6 +611,10 @@ void CItemIcons::DoDataExchange(CDataExchange* pDX)
 
 BOOL CItemIcons::OnInitDialog() 
 {
+  CString tmpstr;
+  CWnd *cb;
+  int id;
+
 	CPropertyPage::OnInitDialog();
 	RefreshIcons();
   //tooltips
@@ -598,6 +622,16 @@ BOOL CItemIcons::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
+
+    for(id=0;id<16;id++)
+    {
+      tmpstr.Format("0x%08x", 1<<id);
+      cb = GetDlgItem(iconboxids[id]);
+      if (cb) m_tooltip.AddTool(cb, tmpstr);
+      tmpstr.Format("0x%08x", 1<<(id+16));
+      cb = GetDlgItem(iconbox2ids[id]);
+      if (cb) m_tooltip.AddTool(cb, tmpstr);
+    }
   }
   UpdateData(UD_DISPLAY);
 	return TRUE;
@@ -702,6 +736,7 @@ BEGIN_MESSAGE_MAP(CItemIcons, CPropertyPage)
 	ON_BN_CLICKED(IDC_DESCICON2, OnDescicon)
 	ON_BN_CLICKED(IDC_DESCICON3, OnDescicon)
 	ON_BN_CLICKED(IDC_DESCICON4, OnDescicon)
+	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -804,19 +839,25 @@ void CItemIcons::OnFlag4()
 
 void CItemIcons::OnFlag5() 
 {
-	Togglebit2(0x2000);
+	Togglebit2(0x100);
   UpdateData(UD_DISPLAY);
 }
 
 void CItemIcons::OnFlag6() 
 {
-	Togglebit2(0x4000);	
+	Togglebit2(0x200);	
   UpdateData(UD_DISPLAY);
 }
 
 void CItemIcons::OnFlag7() 
 {
-	Togglebit2(0x8000);	
+	Togglebit2(0x400);	
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemIcons::OnFlag8() 
+{
+	Togglebit2(0x800);	
   UpdateData(UD_DISPLAY);
 }
 
@@ -2014,7 +2055,7 @@ void CItemEquip::EnableWindow_Equip(bool value)
 
 void CItemEquip::RefreshEquip()
 {
-  CString tmpstr;
+  CString tmpstr, tmp2;
   int i;
 
   if(m_equipnum_control)
@@ -2027,6 +2068,12 @@ void CItemEquip::RefreshEquip()
         the_item.featblocks[i].par1.parl,
         the_item.featblocks[i].par2.parl,
         the_item.featblocks[i].vvc);      
+      if (the_item.featblocks[i].feature==OPC_DAMAGE)
+      {
+        tmp2.Format("[%dd%d %s]", the_item.featblocks[i].count, the_item.featblocks[i].sides,DamageType(the_item.featblocks[i].par2.parl));
+        tmpstr+=tmp2;
+      }
+
       m_equipnum_control.AddString(tmpstr);
     }
     if(equipnum<0 || equipnum>=i) equipnum=0;
@@ -2240,10 +2287,14 @@ CItemExtended::~CItemExtended()
 
 static int forceidboxids[8]={IDC_ID, IDC_NOID,0,0,0,0,0,0};
 
-static int keenboxids[32]={IDC_STRBONUS,IDC_BREAKABLE,0,0,0,0,0,0,
+static int keenboxids[32]={IDC_STRBONUS,IDC_BREAKABLE,IDC_DAMAGE,IDC_STRTHAC0,0,0,0,0,
 0,0,IDC_HOSTILE,IDC_RECHARGES,0,0,0,0,
 IDC_FLAG1, IDC_FLAG2,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0};
+0, 0, IDC_FLAG11,IDC_FLAG12,0,0,0,0
+};
+
+static int iwd_boxes[] = { IDC_FLAG1, IDC_FLAG2, 0 };
+static int bgee_boxes[] = { IDC_FLAG11, IDC_FLAG12, 0 };
 
 void CItemExtended::DoDataExchangeExtended(CDataExchange* pDX)
 {
@@ -2510,7 +2561,7 @@ void CItemExtended::DoDataExchange(CDataExchange* pDX)
 //
 void CItemExtended::RefreshExtended()
 {
-  CString tmp;
+  CString tmp, tmp2;
   int fbc;
   int i;
 
@@ -2546,6 +2597,11 @@ void CItemExtended::RefreshExtended()
           the_item.featblocks[fbc+i].par1.parl,
           the_item.featblocks[fbc+i].par2.parl,
           the_item.featblocks[fbc+i].vvc);
+        if (the_item.featblocks[fbc+i].feature==OPC_DAMAGE)
+        {
+          tmp2.Format("[%dd%d %s]", the_item.featblocks[fbc+i].count, the_item.featblocks[fbc+i].sides, DamageType(the_item.featblocks[fbc+i].par2.parl));
+          tmp+=tmp2;
+        }
         m_exteffnum_control.AddString(tmp);
       }
       if(exteffnum<0 || exteffnum>=i) exteffnum=0;
@@ -2663,8 +2719,9 @@ static int extids[]={
   IDC_ROLL, IDC_DIE, IDC_ADD, IDC_ROLL2, IDC_DIE2, IDC_ADD2,
   IDC_SCHOOL, IDC_SECTYPE, IDC_DAMAGETYPE, IDC_BOW, IDC_XBOW, IDC_MISC,
   IDC_ANIM1, IDC_ANIM2, IDC_ANIM3, IDC_CHARGES, IDC_PERDAY, 
-  IDC_FLAGS, IDC_STRBONUS, IDC_BREAKABLE, IDC_HOSTILE, IDC_RECHARGES, 
-  IDC_FLAG1, IDC_FLAG2, IDC_PROJID,  IDC_ID, IDC_NOID, IDC_MELEE, 
+  IDC_FLAGS, IDC_STRBONUS, IDC_BREAKABLE, IDC_STRTHAC0, IDC_DAMAGE,
+  IDC_HOSTILE, IDC_RECHARGES, IDC_FLAG1, IDC_FLAG2, IDC_PROJID,  
+  IDC_ID, IDC_NOID, IDC_MELEE, IDC_FLAG11, IDC_FLAG12,
   //buttons
   //last button really belongs here!
   IDC_EXTREMOVE, IDC_EXTCOPY, IDC_EXTPASTE, IDC_EXTEFFADD,
@@ -2684,6 +2741,18 @@ void CItemExtended::EnableWindow_Extended(bool value, bool second)
   {
     extwnd=(class CWnd *) GetDlgItem(extids2[id]);
     extwnd->EnableWindow(second);
+  }
+  
+  for (id=0; iwd_boxes[id]; id++)
+  {
+    extwnd = (class CWnd *) GetDlgItem(iwd_boxes[id]);
+    extwnd -> ShowWindow(the_item.revision==REV_IWD2);
+  }
+
+  for (id=0; bgee_boxes[id]; id++)
+  {
+    extwnd = (class CWnd *) GetDlgItem(bgee_boxes[id]);
+    extwnd -> ShowWindow(the_item.revision==REV_BG);
   }
 }
 
@@ -2723,11 +2792,16 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_MELEE, OnSelchangeMelee)
 	ON_BN_CLICKED(IDC_FLAG1, OnFlag1)
 	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
+	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
 	ON_BN_CLICKED(IDC_RECHARGES, OnRecharges)
 	ON_BN_CLICKED(IDC_STRBONUS, OnStrbonus)
 	ON_BN_CLICKED(IDC_BREAKABLE, OnBreakable)
 	ON_BN_CLICKED(IDC_HOSTILE, OnHostile)
+	ON_CBN_KILLFOCUS(IDC_SECTYPE, OnKillfocusSectype)
 	ON_CBN_KILLFOCUS(IDC_SCHOOL, OnKillfocusSchool)
+	ON_BN_CLICKED(IDC_STRTHAC0, OnStrthac0)
+	ON_BN_CLICKED(IDC_DAMAGE, OnDamage)
 	ON_CBN_KILLFOCUS(IDC_LOC, OnDefaultKillfocus)
 	ON_CBN_KILLFOCUS(IDC_TARGET, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_RANGE, OnDefaultKillfocus)
@@ -2740,7 +2814,6 @@ BEGIN_MESSAGE_MAP(CItemExtended, CPropertyPage)
 	ON_EN_KILLFOCUS(IDC_FLAGS, OnDefaultKillfocus)
 	ON_CBN_DBLCLK(IDC_EXTEFFNUM, OnEdit)
 	ON_CBN_KILLFOCUS(IDC_IDENTIFY, OnDefaultKillfocus)
-	ON_CBN_KILLFOCUS(IDC_SECTYPE, OnKillfocusSectype)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -2817,6 +2890,20 @@ void CItemExtended::OnFlag2()
   UpdateData(UD_DISPLAY);
 }
 
+void CItemExtended::OnFlag11() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=4<<24;
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemExtended::OnFlag12() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=8<<24;
+  UpdateData(UD_DISPLAY);
+}
+
 void CItemExtended::OnHostile() 
 {
   UpdateData(UD_RETRIEVE);
@@ -2842,6 +2929,20 @@ void CItemExtended::OnBreakable()
 {
   UpdateData(UD_RETRIEVE);
   the_item.extheaders[extheadnum].flags^=2;
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemExtended::OnDamage() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=4;
+  UpdateData(UD_DISPLAY);
+}
+
+void CItemExtended::OnStrthac0() 
+{
+  UpdateData(UD_RETRIEVE);
+  the_item.extheaders[extheadnum].flags^=8;
   UpdateData(UD_DISPLAY);
 }
 

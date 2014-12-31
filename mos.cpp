@@ -1883,7 +1883,7 @@ int Cmos::AddTileCopy(DWORD nFrameWanted, unsigned char *optionalpixels, int fla
   }
   else
   {
-    p->TakeMosData(o->pFrameData, o->nWidth,o->nHeight,false);
+    p->TakeMosData(o->pFrameData, o->nWidth,o->nHeight, false);
   }
   //create transparent green color on 0. palette entry
   if(flags&2)

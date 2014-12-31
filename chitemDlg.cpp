@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#define PRG_VERSION "7.6h"
+#define PRG_VERSION "7.7"
 
 #include <fcntl.h>
 #include <direct.h>
@@ -670,6 +670,10 @@ int CChitemDlg::scan_2da()
     MessageBox("object.ids not found, action/trigger checks may fail.","Warning",MB_ICONEXCLAMATION|MB_OK);
   }
 
+  darefs.Lookup("CONTAINR", tmploc);
+  val=Read2da(tmploc, containericons);
+  if (val<0) containericons.RemoveAll();
+
   if(has_xpvar()) //iwd1/iwd2
   {
     darefs.Lookup("MUSIC",tmploc);
@@ -704,6 +708,27 @@ int CChitemDlg::scan_2da()
     MessageBox("songlist.2da or music.2da not found, song names are unavailable.","Warning",MB_ICONEXCLAMATION|MB_OK);
   }
     
+  if (pst_compatible_var())
+  {
+    statdesc.RemoveAll();
+  }
+  else
+  {
+    darefs.Lookup("STATDESC",tmploc);
+    val=Read2daStrref(tmploc,statdesc,0);
+    if(val<0)
+    {
+      MessageBox("statdesc.2da not found.","Warning",MB_ICONEXCLAMATION|MB_OK);
+    }
+  }
+
+  //campaign list (optional)
+  if (is_this_bgee())
+  {
+    darefs.Lookup("CAMPAIGN", tmploc);
+    Read2daColumn(tmploc, campaignrefs, 0, true);
+  }
+
   
   int newtype = !pst_compatible_var() && !bg1_compatible_area();
 
@@ -2141,6 +2166,10 @@ int CChitemDlg::process_areas(int check_or_search)
   UpdateData(UD_DISPLAY);
   gret=0;
   
+#if 0
+  searchdata.feature = 0x7fff;
+  searchdata.feature2 = 0x7fff;
+#endif
   log("Checking areas...");
   pos=areas.GetStartPosition();
   start_panic();
@@ -2177,6 +2206,10 @@ int CChitemDlg::process_areas(int check_or_search)
   end_panic();
   the_area.new_area(); //freeing up area memory
   log("Done.");
+#if 0
+  log("Left edge: %d in %.8s",searchdata.feature, searchdata.foundres);
+  log("Right edge:%d in %.8s", searchdata.feature2, searchdata.newresource);
+#endif
   return gret;
 }
 
@@ -2265,6 +2298,7 @@ int CChitemDlg::process_bams(bool check_or_search)
     if (SkipOriginal(fileloc.bifname)) continue;
     
     changeitemname(key);
+    //log("\r");
     ret=read_next_bam(fileloc,check_or_search);
     if(ret) gret=1;
     if(ret>=0)
@@ -4333,9 +4367,10 @@ void CChitemDlg::OnToolsCreatespelllist()
 {
   C2da hidespell;
   Cspell tmpspell;
+  CString x, spellname;
   loc_entry loc;
   int types; //spell types
-	int slot = 48; //first entry
+	int slot = 49; //first entry
   int j; //index within level
   int level;
   int fh;
@@ -4351,10 +4386,19 @@ void CChitemDlg::OnToolsCreatespelllist()
     for (level = 1; level<=get_max_levels(types); level++)
     {
       if (level>5) break;
-      for (j=1;j<100;j++)
+      bool lastspell = false;
+      //spell list is blocked over 50
+      for (j=1;j<50 && !lastspell;j++)
       {
-        CString spellname = format_spell_id((types+1)*1000+level*100+j);
-        CString x = hidespell.FindValue(spellname,1);
+        spellname = format_spell_id((types+1)*1000+level*100+j);
+        //last spell
+        x = hidespell.FindValue(spellname,2);
+        if (atoi(x))
+        {
+          lastspell = true;
+        }
+        //hide spell
+        x = hidespell.FindValue(spellname,1);
         if (atoi(x))
         {
           continue;

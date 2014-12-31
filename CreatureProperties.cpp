@@ -2124,73 +2124,73 @@ void CCreatureUnknown::OnKillfocusMissile()
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU1() 
+void CCreatureUnknown::OnKillfocusU1() //76
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU2() 
+void CCreatureUnknown::OnKillfocusU2() //77
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU3() 
+void CCreatureUnknown::OnKillfocusU3() //78
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU4() 
+void CCreatureUnknown::OnKillfocusU4() //79
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU5() 
+void CCreatureUnknown::OnKillfocusU5() //7a 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU6() 
+void CCreatureUnknown::OnKillfocusU6() //7b 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU7() 
+void CCreatureUnknown::OnKillfocusU7() //7c 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU8() 
+void CCreatureUnknown::OnKillfocusU8() //7d 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU9() 
+void CCreatureUnknown::OnKillfocusU9() //7e 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU10() 
+void CCreatureUnknown::OnKillfocusU10() //7f
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU11() 
+void CCreatureUnknown::OnKillfocusU11()  //80
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);
 }
 
-void CCreatureUnknown::OnKillfocusU12() 
+void CCreatureUnknown::OnKillfocusU12() //81 
 {
   UpdateData(UD_RETRIEVE);
   UpdateData(UD_DISPLAY);

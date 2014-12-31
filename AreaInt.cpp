@@ -59,6 +59,8 @@ BOOL CAreaInt::OnInitDialog()
 void CAreaInt::DoDataExchange(CDataExchange* pDX)
 {
   CString tmpstr;
+  CButton *cb2;
+  int i,j;
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaInt)
@@ -81,6 +83,7 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
   DDV_MaxChars(pDX, tmpstr, 32);
   StoreVariable(tmpstr,the_area.intheader.intname);
 
+  if(m_crenum<0) m_crenum=0;
   tmpstr.Format("/ %d", the_area.intheader.creaturecnt);
   DDX_Text(pDX, IDC_MAXCRE, tmpstr);
   RetrieveResref(tmpstr,the_area.intheader.creatures[m_crenum]);
@@ -88,6 +91,7 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
   DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr,the_area.intheader.creatures[m_crenum]);
   DDX_Text(pDX, IDC_STRREF, the_area.intheader.strrefs[m_crenum]);
+  DDX_Text(pDX, IDC_WEIGHT, the_area.intheader.weights[m_crenum]);
 
   DDX_Text(pDX, IDC_UNKNOWN9A, the_area.intheader.difficulty);
   DDX_Text(pDX, IDC_UNKNOWN9C, the_area.intheader.lifespan);
@@ -97,8 +101,20 @@ void CAreaInt::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_MIN, the_area.intheader.activated);
   DDX_Text(pDX, IDC_DAY, the_area.intheader.day);
   DDX_Text(pDX, IDC_NIGHT, the_area.intheader.night);
-  DDX_Text(pDX, IDC_UNKNOWNAC, the_area.intheader.unknownac);
-  DDX_Text(pDX, IDC_UNKNOWNAE, the_area.intheader.unknownae);
+  DDX_Text(pDX, IDC_UNKNOWNAC, the_area.intheader.flags);
+
+  j=1;
+  for(i=0;i<10;i++)
+  {
+    cb2=(CButton *) GetDlgItem(IDC_FLAG1+i);
+    if (cb2)
+    {
+      if(the_area.intheader.flags&j) cb2->SetCheck(true);
+      else cb2->SetCheck(false);
+    }
+    j<<=1;
+  }
+
 }
 
 BEGIN_MESSAGE_MAP(CAreaInt, CDialog)
@@ -107,26 +123,31 @@ BEGIN_MESSAGE_MAP(CAreaInt, CDialog)
 	ON_EN_KILLFOCUS(IDC_MIN, OnKillfocusMin)
 	ON_EN_KILLFOCUS(IDC_MAX, OnKillfocusMax)
 	ON_EN_KILLFOCUS(IDC_CRERES, OnKillfocusCreres)
-	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusStrref)
 	ON_EN_KILLFOCUS(IDC_TEXT, OnKillfocusText)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN9A, OnKillfocusUnknown9a)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN9C, OnKillfocusUnknown9c)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNA0, OnKillfocusUnknowna0)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNA2, OnKillfocusUnknowna2)
+	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
+	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
 	ON_EN_KILLFOCUS(IDC_DAY, OnKillfocusDay)
 	ON_EN_KILLFOCUS(IDC_NIGHT, OnKillfocusNight)
 	ON_CBN_KILLFOCUS(IDC_SPAWNNUMPICKER, OnKillfocusSpawnnumpicker)
 	ON_CBN_SELCHANGE(IDC_SPAWNNUMPICKER, OnSelchangeSpawnnumpicker)
+	ON_BN_CLICKED(IDC_CLEAR, OnClear)
 	ON_EN_KILLFOCUS(IDC_UNKNOWNAC, OnKillfocusUnknownac)
-	ON_EN_KILLFOCUS(IDC_UNKNOWNAE, OnKillfocusUnknownae)
 	ON_EN_KILLFOCUS(IDC_DAYMOVIE, OnKillfocusDaymovie)
 	ON_EN_KILLFOCUS(IDC_NIGHTMOVIE, OnKillfocusNightmovie)
-	ON_BN_CLICKED(IDC_CLEAR, OnClear)
-	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
-	ON_BN_CLICKED(IDC_ADDCRE, OnAddcre)
-	ON_BN_CLICKED(IDC_DELCRE, OnDelcre)
+	ON_BN_CLICKED(IDC_FLAG4, OnFlag4)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
+	ON_BN_CLICKED(IDC_FLAG6, OnFlag6)
+	ON_BN_CLICKED(IDC_FLAG2, OnFlag2)
+	ON_EN_KILLFOCUS(IDC_WEIGHT, OnKillfocusCreres)
+	ON_EN_KILLFOCUS(IDC_STRREF, OnKillfocusCreres)
+	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -153,13 +174,6 @@ void CAreaInt::OnKillfocusMax()
 }
 
 void CAreaInt::OnKillfocusCreres() 
-{
-	UpdateData(UD_RETRIEVE);
-  RefreshInt();
-	UpdateData(UD_DISPLAY);
-}
-
-void CAreaInt::OnKillfocusStrref() 
 {
 	UpdateData(UD_RETRIEVE);
   RefreshInt();
@@ -228,12 +242,6 @@ void CAreaInt::OnKillfocusUnknownac()
 	UpdateData(UD_DISPLAY);
 }
 
-void CAreaInt::OnKillfocusUnknownae() 
-{
-	UpdateData(UD_RETRIEVE);
-	UpdateData(UD_DISPLAY);
-}
-
 void CAreaInt::OnKillfocusDaymovie() 
 {
 	UpdateData(UD_RETRIEVE);
@@ -246,6 +254,35 @@ void CAreaInt::OnKillfocusNightmovie()
 	UpdateData(UD_DISPLAY);
 }
 
+void CAreaInt::OnFlag2() 
+{
+	the_area.intheader.flags^=2;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaInt::OnFlag4() 
+{
+	the_area.intheader.flags^=8;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaInt::OnFlag6() 
+{
+	the_area.intheader.flags^=32;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaInt::OnFlag7() 
+{
+	the_area.intheader.flags^=64;
+	UpdateData(UD_DISPLAY);
+}
+
+void CAreaInt::OnFlag10() 
+{
+	the_area.intheader.flags^=512;
+	UpdateData(UD_DISPLAY);
+}
 
 void CAreaInt::OnBrowse() 
 {
@@ -356,3 +393,4 @@ BOOL CAreaInt::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

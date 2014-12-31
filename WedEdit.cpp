@@ -58,6 +58,9 @@ static int wallgroupboxids[]={IDC_WALLGROUPPICKER, IDC_EDITWALLPOLY, IDC_SELECTI
 IDC_REMOVE2, IDC_COPY2, IDC_PASTE2, IDC_TRANSPARENT, IDC_CLEAR,
 0};
 
+static char BASED_CODE polygons[] = "Svg files (*.svg)|*.svg|Polygons (*.ply)|*.ply|All files (*.*)|*.*||";
+static char BASED_CODE polygons2[] = "Polygons (*.ply)|*.ply|All files (*.*)|*.*||";
+
 void CWedEdit::DoDataExchange(CDataExchange* pDX)
 {
   CWnd *cb;
@@ -395,8 +398,10 @@ BEGIN_MESSAGE_MAP(CWedEdit, CDialog)
 	ON_COMMAND(IDC_ADD, OnAdd)
 	ON_EN_KILLFOCUS(IDC_MOVE, OnKillfocusMove)
 	ON_COMMAND(ID_OVERLAY_ADD, OnOverlayAdd)
-	ON_BN_CLICKED(IDC_ADDOVERLAY, OnOverlayAdd)
 	ON_COMMAND(ID_OVERLAY_LOAD, OnOverlayLoad)
+	ON_BN_CLICKED(IDC_ADDOVERLAY, OnOverlayAdd)
+	ON_COMMAND(ID_WALL_IMPORT, OnWallImport)
+	ON_COMMAND(ID_WALL_EXPORT, OnWallExport)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -454,13 +459,17 @@ void CWedEdit::OnKillfocusHeight()
 
 void CWedEdit::OnKillfocusUnknown0c() 
 {
-	UpdateData(UD_RETRIEVE);	
+	UpdateData(UD_RETRIEVE);
+  the_area.wedchanged=true;
+  RefreshWed();
 	UpdateData(UD_DISPLAY);	
 }
 
 void CWedEdit::OnKillfocusMove() 
 {
-	UpdateData(UD_RETRIEVE);	
+	UpdateData(UD_RETRIEVE);
+  the_area.wedchanged=true;
+  RefreshWed();
 	UpdateData(UD_DISPLAY);	
 }
 
@@ -977,6 +986,108 @@ void CWedEdit::OnPaste2()
   UpdateData(UD_DISPLAY);
 }
 
+//load svg or ply files
+void CWedEdit::OnWallImport() 
+{
+  CString filepath;
+  int res;
+  int fhandle;
+
+  res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
+  
+  CMyFileDialog m_getfiledlg(TRUE, "svg", "*.svg", res, polygons );
+  m_getfiledlg.m_ofn.nFilterIndex=2;
+
+restart:  
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    fhandle=open(filepath, O_RDONLY|O_BINARY);
+    if(!fhandle)
+    {
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      goto restart;
+    }
+
+    filepath.MakeLower();
+    if(filepath.Right(4)==".ply")
+    {
+      res=the_area.LoadPLY(fhandle);
+    }
+    else
+    {
+      res=the_area.LoadSVG(fhandle);
+    }
+    
+    close(fhandle);
+  }
+  RefreshOverlay();
+  RefreshWed();
+	UpdateData(UD_DISPLAY);	
+}
+
+
+void CWedEdit::OnWallExport() 
+{
+  CString filepath, newname;
+  int res;
+  int fhandle;
+
+  res=OFN_HIDEREADONLY|OFN_ENABLESIZING|OFN_EXPLORER;
+  CMyFileDialog m_getfiledlg(FALSE, "ply", makeitemname(".ply",0), res, polygons2);
+
+restart:  
+  if( m_getfiledlg.DoModal() == IDOK )
+  {
+    filepath=m_getfiledlg.GetPathName();
+    filepath.MakeLower();
+    if(filepath.Right(4)!=".ply")
+    {
+      filepath+=".ply";
+    }
+    newname=m_getfiledlg.GetFileName();
+    newname.MakeUpper();
+    if(newname.Right(4)==".PLY") newname=newname.Left(newname.GetLength()-4);
+
+    if(newname!=itemname && file_exists(filepath) )
+    {
+      res=MessageBox("Do you want to overwrite "+newname+"?","Warning",MB_ICONQUESTION|MB_YESNO);
+      if(res==IDNO) goto restart;
+    }
+
+    filepath=m_getfiledlg.GetPathName();
+    fhandle=open(filepath, O_RDONLY|O_BINARY);
+    if(!fhandle)
+    {
+      MessageBox("Cannot open file!","Error",MB_ICONSTOP|MB_OK);
+      goto restart;
+    }
+
+    res = the_area.SavePLY(fhandle);
+    close(fhandle);
+    if(res)
+    {
+      goto endofquest;
+    }
+    lastopenedoverride=filepath.Left(filepath.ReverseFind('\\'));
+endofquest:
+    switch(res)
+    {
+    case 0:
+      break; //saved successfully
+    case -2:
+      MessageBox("Error while writing file!","Error",MB_ICONSTOP|MB_OK);
+      break;
+    case -1:
+      MessageBox("Internal Error!","Error",MB_ICONSTOP|MB_OK);
+      break;
+    default:
+      MessageBox("Unhandled error!","Error",MB_ICONSTOP|MB_OK);
+    }
+  }
+  UpdateData(UD_DISPLAY);
+}
+
 //returns true if the whole tile became transparent
 int CWedEdit::HandleOverlay(int x, int y, area_vertex *polygon, int size, int tile)
 {
@@ -1213,6 +1324,27 @@ void CWedEdit::DropDoorPolygon(int index)
   the_area.wedchanged=true;
 }
 */
+int CWedEdit::DropInvalidAltTiles()
+{
+  int i;
+  int bug = 0;
+
+  if (the_area.overlaycount<1) return -1;
+
+  i=the_area.overlayheaders[0].height*the_area.overlayheaders[0].width;
+
+  while(i--)
+  {
+    int alt = the_area.overlaytileheaders[i].alternate;
+    if (alt>=0 && (unsigned) alt>=the_mos.tisheader.numtiles)
+    {
+      the_area.overlaytileheaders[i].alternate = -1;
+      bug++;
+    }
+  }
+  return bug;
+}
+
 void CWedEdit::DropInvalidPolygons()
 {
   int i;
@@ -1241,6 +1373,25 @@ void CWedEdit::DropInvalidPolygons()
 void CWedEdit::OnCleanup() 
 {
 	int ret;
+  CString tmpstr;
+
+  ret = DropInvalidAltTiles();
+  if (ret)
+  {
+    if (ret>0)
+    {
+      the_area.wedchanged=true;
+    }
+    if (ret<0)
+    {
+      MessageBox("No overlays? Don't try to kill me!","Area editor",MB_ICONINFORMATION|MB_OK);
+    }
+    else
+    {
+      tmpstr.Format("%d",ret);
+      MessageBox("Dropped "+tmpstr+" invalid overlay tiles.","Area editor",MB_ICONINFORMATION|MB_OK);
+    }
+  }
 
   DropInvalidPolygons();
   ret=the_area.RecalcBoundingBoxes();
@@ -1571,12 +1722,16 @@ int CWedEdit::HandleStencil(Cmos &stencilmos, int tile1, int tile2)
 {
   CPoint tmp;
   unsigned char *framebuffer;
+  unsigned char *origfb = NULL;
   COLORREF *framepal;
+  COLORREF *origfp;
   int i;
   bool replace=false;
+  int ret;
 
   framebuffer=stencilmos.GetFrameBuffer(tile2);
   framepal=stencilmos.GetFramePalette(tile2);
+  origfp=the_mos.GetFramePalette(tile1);
   tmp = stencilmos.GetFrameSize(tile2);
   if(!framebuffer) return -1;
   i = tmp.x*tmp.y;
@@ -1590,9 +1745,49 @@ int CWedEdit::HandleStencil(Cmos &stencilmos, int tile1, int tile2)
   }
   if (replace)
   {
-    return the_mos.AddTileCopy(tile1, framebuffer, 0);
+    int tranindex;
+    int flag;
+
+    for (tranindex=0;tranindex<256;tranindex++) if(origfp[tranindex]==TRANSPARENT_GREEN) break;
+    if (tranindex==256)
+    {
+      tranindex = 0;
+      flag = 2;
+    }
+    else flag = 0;
+    i = tmp.x*tmp.y;
+    origfb = new unsigned char[i];
+    memcpy(origfb, the_mos.GetFrameBuffer(tile1), i);
+    while(i--)
+    {
+      if (flag)
+      {
+        if (origfb[i]==0)
+        {
+          origfb[i]=255;
+          continue;
+        }
+        if (framepal[framebuffer[i]]==TRANSPARENT_GREEN)
+        {
+          origfb[i]=0;
+        }
+      }
+      else
+      {
+        if (framepal[framebuffer[i]]==TRANSPARENT_GREEN)
+        {
+          origfb[i]=(unsigned char) tranindex;
+        }
+      }
+    }
+    ret = the_mos.AddTileCopy(tile1, origfb, flag);
   }
-  return -1;
+  else
+  {
+    ret = -1;
+  }
+  delete [] origfb;
+  return ret;
 }
 
 void CWedEdit::ApplyStencil(Cmos &stencilmos)
@@ -1638,7 +1833,7 @@ void CWedEdit::OnOverlayLoad()
   res=OFN_FILEMUSTEXIST|OFN_ENABLESIZING|OFN_EXPLORER;
   
   CMyFileDialog m_getfiledlg(TRUE, "bmp", makeitemname(".bmp",0), res, ImageFilter(0x032) );
-  m_getfiledlg.m_ofn.nFilterIndex=1;
+  m_getfiledlg.m_ofn.nFilterIndex=2;
 
 restart:  
   if( m_getfiledlg.DoModal() == IDOK )
@@ -1694,3 +1889,4 @@ void CWedEdit::PostNcDestroy()
   }
 	CDialog::PostNcDestroy();
 }
+

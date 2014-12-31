@@ -60,6 +60,7 @@ void CProjGemRB::DoDataExchange(CDataExchange* pDX)
   the_projectile.header.rgb=strtonum(tmpstr);
   DDX_Text(pDX, IDC_SPEED, the_projectile.header.pulsespeed);
   DDX_Text(pDX, IDC_SCREEN, the_projectile.header.shake);
+  DDX_Text(pDX, IDC_WIDTH, the_projectile.header.width);
 
   idsname=IDSName2(the_projectile.header.atype, true);
   tmpstr.Format("%d %s", the_projectile.header.atype, idsname);
@@ -142,6 +143,7 @@ BEGIN_MESSAGE_MAP(CProjGemRB, CDialog)
 	ON_EN_KILLFOCUS(IDC_SPELL2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_IDS2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_VALUE2, OnKillfocus)
+	ON_EN_KILLFOCUS(IDC_WIDTH, OnKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -517,6 +519,10 @@ BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
 	ON_BN_CLICKED(IDC_FLAG11, OnFlag11)
 	ON_BN_CLICKED(IDC_FLAG12, OnFlag12)
+	ON_BN_CLICKED(IDC_FLAG13, OnFlag13)
+	ON_BN_CLICKED(IDC_FLAG14, OnFlag14)
+	ON_BN_CLICKED(IDC_FLAG15, OnFlag15)
+	ON_BN_CLICKED(IDC_FLAG16, OnFlag16)
 	ON_EN_KILLFOCUS(IDC_SOUND1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM1, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM2, OnKillfocus)
@@ -524,7 +530,6 @@ BEGIN_MESSAGE_MAP(CProjAreaGemRB, CDialog)
 	ON_EN_KILLFOCUS(IDC_COUNT2, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_TILEX, OnKillfocus)
 	ON_EN_KILLFOCUS(IDC_TILEY, OnKillfocus)
-	ON_BN_CLICKED(IDC_FLAG13, OnFlag13)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -611,6 +616,24 @@ void CProjAreaGemRB::OnFlag13()
   GetDlgItem(IDC_TILEX)->EnableWindow(flag);
   GetDlgItem(IDC_TILEY)->EnableWindow(flag);
 	UpdateData(UD_DISPLAY);
+}
+
+void CProjAreaGemRB::OnFlag14() 
+{
+  the_projectile.extension.gemrbflags^=APF_BRIGHTEST;
+	UpdateData(UD_DISPLAY);	
+}
+
+void CProjAreaGemRB::OnFlag15() 
+{
+  the_projectile.extension.gemrbflags^=APF_GLOW;
+	UpdateData(UD_DISPLAY);	
+}
+
+void CProjAreaGemRB::OnFlag16() 
+{
+  the_projectile.extension.gemrbflags^=APF_16;
+	UpdateData(UD_DISPLAY);	
 }
 
 void CProjAreaGemRB::OnKillfocus() 

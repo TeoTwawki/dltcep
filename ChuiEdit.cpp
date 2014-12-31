@@ -28,8 +28,8 @@ CChuiEdit::CChuiEdit(CWnd* pParent /*=NULL*/)	: CDialog(CChuiEdit::IDD, pParent)
 	//}}AFX_DATA_INIT
 }
 
-static int labelbits[9]={1,2,4,8,16,32,64,128,0};
-static int buttonbits[9]={0,0,0,1,2,4,0,8,32};
+static int labelbits[10]={1,2,4,8,16,32,64,128,0,256};
+static int buttonbits[10]={0,0,0,1,2,4,0,8,32,64};
 
 static int winids[]={IDC_WINDOWPICKER,
 0};
@@ -48,7 +48,7 @@ IDC_LENGTH, IDC_TYPE, IDC_U3, IDC_DELCTRL,
 static int buttonboxids[]={IDC_BAM, IDC_BROWSE2, IDC_CYCLE,
 IDC_BAMFRAME1,IDC_BAMFRAME2, IDC_BAMFRAME3,IDC_BAMFRAME4,
 IDC_BUTTONCYCLE, IDC_BUTTONBAM, IDC_BUTTONFLAG, IDC_BAM2,
-IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG8, IDC_FLAG9,
+IDC_FLAG4, IDC_FLAG5, IDC_FLAG6, IDC_FLAG8, IDC_FLAG9, IDC_FLAG10,
 IDC_BUTTONFRAME1,IDC_BUTTONFRAME2, IDC_BUTTONFRAME3,IDC_BUTTONFRAME4,
 0};
 
@@ -79,6 +79,7 @@ IDC_UNKNOWN7,IDC_UNKNOWN8,IDC_UNKNOWN9,
 static int labelboxids[]={IDC_BAM, IDC_BROWSE2, IDC_CYCLE, IDC_TEXT,
 IDC_LABEL1, IDC_LABEL2, IDC_LABEL3, IDC_TEXTAREA2, IDC_BAMFRAME6,
 IDC_FLAG1,IDC_FLAG2,IDC_FLAG3,IDC_FLAG4,IDC_FLAG5,IDC_FLAG6,IDC_FLAG7,IDC_FLAG8,
+IDC_FLAG10,
 IDC_UNKNOWN1,IDC_UNKNOWN2,IDC_UNKNOWN3,IDC_UNKNOWN4,IDC_UNKNOWN5,IDC_UNKNOWN6,
 0};
 
@@ -148,7 +149,7 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
     DDX_ushort(IDC_BAMFRAME2, cc->pressed);
     DDX_ushort(IDC_BAMFRAME3, cc->selected);
     DDX_ushort(IDC_BAMFRAME4, cc->disabled);
-    for(i=0;i<9;i++)
+    for(i=0;i<10;i++)
     {
       k=!!(cc->flags&buttonbits[i]);
       DDX_Check(pDX,IDC_FLAG1+i,k);
@@ -271,7 +272,7 @@ void CChuiEdit::RefreshControls(CDataExchange* pDX, int type, int position)
 
     DDX_Text(pDX,IDC_BAMFRAME6, cc->justify);
     
-    for(i=0;i<9;i++)
+    for(i=0;i<10;i++)
     {
       k=!!(cc->justify&labelbits[i]);
       DDX_Check(pDX,IDC_FLAG1+i,k);
@@ -421,6 +422,7 @@ BEGIN_MESSAGE_MAP(CChuiEdit, CDialog)
 	ON_BN_CLICKED(IDC_FLAG7, OnFlag7)
 	ON_BN_CLICKED(IDC_FLAG8, OnFlag8)
 	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
+	ON_BN_CLICKED(IDC_FLAG10, OnFlag10)
 	ON_EN_KILLFOCUS(IDC_ID2, OnKillfocusId2)
 	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
 	ON_BN_CLICKED(IDC_LOAD, OnLoad)
@@ -1490,6 +1492,11 @@ void CChuiEdit::OnFlag8()
 void CChuiEdit::OnFlag9() 
 {
 	OnLabelFlag(8);
+}
+
+void CChuiEdit::OnFlag10() 
+{
+	OnLabelFlag(9);
 }
 
 void CChuiEdit::OnPreview() 

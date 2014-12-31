@@ -34,6 +34,11 @@ BOOL CAreaSong::OnInitDialog()
 	m_u1control.ResetContent();
   m_battlecontrol.ResetContent();
   m_u2control.ResetContent();
+	m_alt1control.ResetContent();
+	m_alt2control.ResetContent();
+	m_alt3control.ResetContent();
+	m_alt4control.ResetContent();
+	m_alt5control.ResetContent();
 	pos=songlist.GetHeadPosition();
   i=0;
   while(pos)
@@ -44,6 +49,11 @@ BOOL CAreaSong::OnInitDialog()
     m_u1control.AddString(tmpstr);
     m_battlecontrol.AddString(tmpstr);
     m_u2control.AddString(tmpstr);
+    m_alt1control.AddString(tmpstr);
+    m_alt2control.AddString(tmpstr);
+    m_alt3control.AddString(tmpstr);
+    m_alt4control.AddString(tmpstr);
+    m_alt5control.AddString(tmpstr);
   }
   //tooltips
   {
@@ -62,6 +72,11 @@ void CAreaSong::DoDataExchange(CDataExchange* pDX)
 
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CAreaSong)
+	DDX_Control(pDX, IDC_ALT5, m_alt5control);
+	DDX_Control(pDX, IDC_ALT4, m_alt4control);
+	DDX_Control(pDX, IDC_ALT3, m_alt3control);
+	DDX_Control(pDX, IDC_ALT2, m_alt2control);
+	DDX_Control(pDX, IDC_ALT1, m_alt1control);
 	DDX_Control(pDX, IDC_BATTLE, m_battlecontrol);
 	DDX_Control(pDX, IDC_UNKNOWN2, m_u2control);
 	DDX_Control(pDX, IDC_UNKNOWN1, m_u1control);
@@ -88,12 +103,32 @@ void CAreaSong::DoDataExchange(CDataExchange* pDX)
   DDX_Text(pDX, IDC_UNKNOWN2,tmpstr);
   the_area.songheader.songs[4]=strtonum(tmpstr);
 
+  tmpstr=get_songname(the_area.songheader.songs[5]);
+  DDX_Text(pDX, IDC_ALT1,tmpstr);
+  the_area.songheader.songs[5]=strtonum(tmpstr);
+
+  tmpstr=get_songname(the_area.songheader.songs[6]);
+  DDX_Text(pDX, IDC_ALT2,tmpstr);
+  the_area.songheader.songs[6]=strtonum(tmpstr);
+
+  tmpstr=get_songname(the_area.songheader.songs[7]);
+  DDX_Text(pDX, IDC_ALT3,tmpstr);
+  the_area.songheader.songs[7]=strtonum(tmpstr);
+
+  tmpstr=get_songname(the_area.songheader.songs[8]);
+  DDX_Text(pDX, IDC_ALT4,tmpstr);
+  the_area.songheader.songs[8]=strtonum(tmpstr);
+
+  tmpstr=get_songname(the_area.songheader.songs[9]);
+  DDX_Text(pDX, IDC_ALT5,tmpstr);
+  the_area.songheader.songs[9]=strtonum(tmpstr);
+  /*
   DDX_Text(pDX, IDC_UNKNOWN3, the_area.songheader.songs[5]);
   DDX_Text(pDX, IDC_UNKNOWN4, the_area.songheader.songs[6]);
   DDX_Text(pDX, IDC_UNKNOWN5, the_area.songheader.songs[7]);
   DDX_Text(pDX, IDC_UNKNOWN6, the_area.songheader.songs[8]);
   DDX_Text(pDX, IDC_UNKNOWN7, the_area.songheader.songs[9]);
-
+*/
   RetrieveResref(tmpstr,the_area.songheader.dayambi1);
   DDX_Text(pDX, IDC_AMBI1D, tmpstr);
   DDV_MaxChars(pDX, tmpstr, 8);
@@ -136,6 +171,11 @@ BEGIN_MESSAGE_MAP(CAreaSong, CDialog)
 	ON_BN_CLICKED(IDC_BROWSE1, OnBrowse1)
 	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_MUSALT1, OnMusalt1)
+	ON_BN_CLICKED(IDC_MUSALT2, OnMusalt2)
+	ON_BN_CLICKED(IDC_MUSALT3, OnMusalt3)
+	ON_BN_CLICKED(IDC_MUSALT4, OnMusalt4)
+	ON_BN_CLICKED(IDC_MUSALT5, OnMusalt5)
 	ON_EN_KILLFOCUS(IDC_AMBI2D, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_VOLUMED, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_AMBI1N, DefaultKillfocus)
@@ -152,6 +192,11 @@ BEGIN_MESSAGE_MAP(CAreaSong, CDialog)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN5, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN6, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN7, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ALT1, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ALT2, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ALT3, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ALT4, DefaultKillfocus)
+	ON_CBN_KILLFOCUS(IDC_ALT5, DefaultKillfocus)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -237,6 +282,31 @@ void CAreaSong::OnMusbattle()
 void CAreaSong::OnMuslose() 
 {
   Musiclist(the_area.songheader.songs[4]);
+}
+
+void CAreaSong::OnMusalt1() 
+{
+  Musiclist(the_area.songheader.songs[5]);
+}
+
+void CAreaSong::OnMusalt2() 
+{
+  Musiclist(the_area.songheader.songs[6]);
+}
+
+void CAreaSong::OnMusalt3() 
+{
+  Musiclist(the_area.songheader.songs[7]);
+}
+
+void CAreaSong::OnMusalt4() 
+{
+  Musiclist(the_area.songheader.songs[8]);
+}
+
+void CAreaSong::OnMusalt5() 
+{
+  Musiclist(the_area.songheader.songs[9]);
 }
 
 void CAreaSong::OnPlay() 

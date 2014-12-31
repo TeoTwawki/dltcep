@@ -41,7 +41,7 @@
 
 class C2da;
 //
-#define MAXBUFFSIZE 4096
+#define MAXBUFFSIZE 8192
 #define MAXIDSIZE   512
 
 extern char external[MAXBUFFSIZE]; //we need some hacks sometimes
@@ -82,6 +82,9 @@ extern UINT WM_FINDREPLACE;
 #define GP_TILE      1
 #define GP_BLOCK     2
 #define GP_EXPLORED  3
+
+//special container type
+#define CONT_PILE  4
 
 //bounding box index symbols
 #define BBMINX 0
@@ -293,7 +296,7 @@ extern CString proj_facing_desc[NUM_FVALUE];
 
 #define NUM_SPKCOL 13
 
-#define NUM_ARFLAGS 5
+#define NUM_ARFLAGS 7
 //area types
 #define AR_NORMAL
 #define AR_NOSAVE
@@ -483,7 +486,8 @@ extern CString DELETED_REFERENCE;
 #define CHECK_SRC    25 //pst src file
 #define CHECK_GAME   26 //iwd2 party file
 #define CHECK_SCOPE  27
-#define ADD_VAR3     28
+#define CHECK_WORLDMAP 28
+#define ADD_VAR3     29
 
 #define CHECK_SOUND2 30
 #define CHECK_ITEM2  31
@@ -508,6 +512,7 @@ extern CString DELETED_REFERENCE;
 #define INANIMATE     0x200000
 #define CHECK_DOOR    0x600000 //inanimate + door
 #define CHECK_TRIGGER 0xa00000 //inanimate + trigger
+#define CHECK_ZERO    0x1000000
 
 //#define MERGE_VARS 0xff
 
@@ -587,8 +592,8 @@ extern CString DELETED_REFERENCE;
 #define PROJ_BOTH        0x8000000//both IDS check must succeed for a pass
 #define PROJ_DELAY       0x10000000//delay payload until initial animation finishes
 #define PROJ_LIMITPATH   0x20000000//path limited
-#define PROJ_UNUSED1     0x40000000//
-#define PROJ_UNUSED2     0x80000000//
+#define PROJ_UNUSED1     0x40000000//IWD style ids targeting
+#define PROJ_UNUSED2     0x80000000//apply every hit on self
 
 //extended area flags for gemrb
 #define APF_TINT      1     //use tint for spread animation
@@ -604,6 +609,9 @@ extern CString DELETED_REFERENCE;
 #define APF_COUNT_HD  0x400 //count enemies' HD (only if affect one is set)
 #define APF_REVERSE   0x800 //reverse targeting of enemy and ally (party only/enemy)
 #define APF_TILE      0x1000//place the spread animation all over the AOE (cone is honoured)
+#define APF_BRIGHTEST 0x2000//brightest flag (blend1)
+#define APF_GLOW      0x4000//glow flag (blend2)
+#define APF_16        0x8000
 
 #define TRANSPARENT_GREEN  0x00ff00
 
@@ -798,6 +806,7 @@ extern CStringMapInt rnditems;
 extern CStringList sectype_names;
 extern CStringList school_names;
 extern CString2List songlist;
+extern CStringList containericons;
 extern CStringMapInt internal_slot_names;
 extern int base_slot;
 extern CString bg2_slot_names[SLOT_COUNT];
@@ -879,6 +888,8 @@ extern CIntMapString listsongs;
 extern CIntMapString listshapes;
 extern CStringMapInt ini_entry;
 extern CStringMapPoint entries;
+extern CIntMapInt statdesc;
+extern CStringList campaignrefs;
 
 #define INI_CREATURE 1
 #define INI_SPAWN    2
@@ -1216,6 +1227,7 @@ CString GetMapTypeValue(int maptype, int value);
 int read_bmp(CString key,HBITMAP &hb);
 int read_bmp(CString key, Cbam *cb, int lazy=0); //cb can't be NULL due to polymorphism
 int read_bmp(CString key, Cmos *cb, int lazy=0);
+int read_plt(CString key, Cbam *cb, int lazy=0);
 int read_bam(CString key, Cbam *cb=NULL, int lazy=0);
 int read_bam_preview(CString key, Cbam *cb=NULL, int lazy=0);
 int write_bam(CString key, CString filepath, Cbam *cb);

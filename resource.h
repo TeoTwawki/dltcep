@@ -412,6 +412,17 @@
 #define IDS_LAYERFLAGS                  370
 #define IDS_BGEE                        371
 #define IDS_UNUSED                      372
+#define IDS_AMOVIE                      373
+#define IDS_APVRZ                       374
+#define IDS_AFLIGHT                     375
+#define IDS_ASTART                      376
+#define IDS_BYTE34                      377
+#define IDS_CHECKRATE                   378
+#define IDS_NONCONTINUOUS               379
+#define IDS_PERMANENT                   380
+#define IDS_RECENT                      381
+#define IDS_DIFFICULTY                  382
+#define IDS_FREQUENCY                   383
 #define IDC_RESCAN                      1000
 #define IDC_RESCAN2                     1001
 #define IDC_ICONCHK                     1002
@@ -933,10 +944,15 @@
 #define IDC_HOUR24                      1516
 #define IDC_DAY                         1517
 #define IDC_ALL                         1518
+#define IDC_ALT1                        1518
 #define IDC_TWILIGHT                    1519
+#define IDC_ALT2                        1519
 #define IDC_NONE                        1520
+#define IDC_ALT3                        1520
 #define IDC_FUNCTION                    1521
+#define IDC_ALT4                        1521
 #define IDC_KEEPGRAY                    1522
+#define IDC_ALT5                        1522
 #define IDC_PAR1B1                      1523
 #define IDC_PAR1B2                      1524
 #define IDC_PAR1B3                      1525
@@ -1253,7 +1269,9 @@
 #define IDC_STARTAREA                   1836
 #define IDC_GAMETIME                    1837
 #define IDC_JOURNALPICKER               1838
+#define IDC_ENCOUNTER                   1838
 #define IDC_ADDJOURNAL                  1839
+#define IDC_WORLDMAP                    1839
 #define IDC_DELJOURNAL                  1840
 #define IDC_MODIFIED                    1841
 #define IDC_CAPTION                     1842
@@ -1369,7 +1387,9 @@
 #define IDC_GLOW                        1952
 #define IDC_TINT                        1953
 #define IDC_CHAOTIC                     1954
+#define IDC_IGNOREGREY                  1954
 #define IDC_BARD                        1955
+#define IDC_IGNORERED                   1955
 #define IDC_CLERIC                      1956
 #define IDC_CLMAGE                      1957
 #define IDC_CLTHIEF                     1958
@@ -1593,10 +1613,15 @@
 #define IDC_MUSBATTLE                   2176
 #define IDC_MUSLOSE                     2177
 #define IDC_BOTTOM                      2178
+#define IDC_MUSALT1                     2178
 #define IDC_DELCTRL                     2179
+#define IDC_MUSALT2                     2179
 #define IDC_CONTROLPICKER               2180
+#define IDC_MUSALT3                     2180
 #define IDC_ADDCTRL                     2181
+#define IDC_MUSALT4                     2181
 #define IDC_SAVETIS                     2182
+#define IDC_MUSALT5                     2182
 #define IDC_ADDWIN                      2183
 #define IDC_DELWIN                      2184
 #define IDC_EXTRACT                     2185
@@ -1659,7 +1684,9 @@
 #define IDC_POS1                        2242
 #define IDC_POS2                        2243
 #define IDC_EDITBLOCK                   2244
+#define IDC_POS3                        2244
 #define IDC_STH1                        2245
+#define IDC_POS4                        2245
 #define IDC_STH2                        2246
 #define IDC_STH3                        2247
 #define IDC_STH4                        2248
@@ -1668,6 +1695,7 @@
 #define IDC_MIRROR                      2251
 #define IDC_MIRROR2                     2252
 #define IDC_INSERT                      2253
+#define IDC_MIRROR3                     2253
 #define IDC_EDITPOLYGON                 2254
 #define IDC_MOVE                        2255
 #define IDC_KILLXP                      2256
@@ -1727,6 +1755,7 @@
 #define IDC_PROJPICKER                  2310
 #define IDC_BREAKABLE                   2311
 #define IDC_SKILL                       2312
+#define IDC_STRTHAC0                    2312
 #define IDC_SKILLPICKER                 2313
 #define IDC_HEXADECIMAL                 2314
 #define IDC_HOSTILE                     2315
@@ -1780,6 +1809,11 @@
 #define IDC_TILEX                       2371
 #define IDC_TILEY                       2372
 #define IDC_UNKNOWN32                   2373
+#define IDC_LIGHTEFFECT                 2374
+#define IDC_TRANSLUCENT                 2375
+#define IDC_ACTIVATED                   2376
+#define IDC_ORIGINAL                    2377
+#define IDC_CAMPAIGN                    2378
 #define ID_RESCAN                       32771
 #define ID_RESCAN2                      32772
 #define ID_EDIT_ITEM                    32773
@@ -2025,6 +2059,12 @@
 #define ID_TOOLS_CREATESPELLLIST        33077
 #define ID_TOOLS_HUNTFORDISKSPACE       33078
 #define ID_OVERLAY_LOAD                 33079
+#define ID_CYCLE_CLONECYCLE             33080
+#define ID_PALETTE_REMOVEALPHA          33081
+#define ID_FILE_LOADPLT                 33082
+#define ID_WALL_IMPORT                  33083
+#define ID_WALL_EXPORT                  33084
+#define ID_TOOLS_CLEANUPDUPLICATES      33085
 #define ID_CONTEXT                      0xF180
 
 // Next default values for new objects
@@ -2032,8 +2072,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        234
-#define _APS_NEXT_COMMAND_VALUE         33080
-#define _APS_NEXT_CONTROL_VALUE         2374
+#define _APS_NEXT_COMMAND_VALUE         33086
+#define _APS_NEXT_CONTROL_VALUE         2383
 #define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

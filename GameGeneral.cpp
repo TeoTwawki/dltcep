@@ -69,15 +69,31 @@ void CGameGeneral::DoDataExchange(CDataExchange* pDX)
 	{
     DDX_Text(pDX, IDC_REALTIME, the_game.header.realtime);
 		DDX_Text(pDX, IDC_REPUTATION, the_game.header.reputation);
+		DDX_Text(pDX, IDC_ZOOM, the_game.header.zoomlevel);
 		RetrieveResref(tmpstr,the_game.header.currentarea);
 		DDX_Text(pDX, IDC_STARTAREA, tmpstr);
 		StoreResref(tmpstr,the_game.header.currentarea);
     RetrieveResref(tmpstr,the_game.header.masterarea);
 		DDX_Text(pDX, IDC_AREA, tmpstr);
 		StoreResref(tmpstr,the_game.header.masterarea);
-		DDX_Text(pDX, IDC_SCREEN, the_game.header.controls);
+
+    RetrieveResref(tmpstr,the_game.header.encounter);
+		DDX_Text(pDX, IDC_ENCOUNTER, tmpstr);
+		StoreResref(tmpstr,the_game.header.encounter);
+
+    RetrieveResref(tmpstr,the_game.header.worldmap);
+		DDX_Text(pDX, IDC_WORLDMAP, tmpstr);
+		StoreResref(tmpstr,the_game.header.worldmap);
+
+    RetrieveResref(tmpstr,the_game.header.campaign);
+		DDX_CBString(pDX, IDC_CAMPAIGN, tmpstr);
+    DDV_MaxChars(pDX, tmpstr, 8);
+		StoreResref(tmpstr,the_game.header.campaign);
+    
+    DDX_Text(pDX, IDC_SCREEN, the_game.header.controls);
     DDX_Text(pDX, IDC_UNKNOWN48, the_game.header.currentlink);
     DDX_Text(pDX, IDC_UNKNOWN64, the_game.header.version);
+    DDX_Text(pDX, IDC_FAMILIAR, the_game.header.familiarowner);
 		i = the_game.header.formation;
 		DDX_Slider(pDX, IDC_SLIDER,i);
 		the_game.header.formation = (short) i;
@@ -120,6 +136,9 @@ BEGIN_MESSAGE_MAP(CGameGeneral, CDialog)
 	ON_BN_CLICKED(IDC_FLAG9, OnFlag9)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBrowse2)
+	ON_BN_CLICKED(IDC_BROWSE3, OnBrowse3)
+	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
+	ON_CBN_KILLFOCUS(IDC_CAMPAIGN, OnKillfocusCampaign)
 	ON_EN_KILLFOCUS(IDC_GAMETIME, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_GOLD, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_WEATHER, OnDefaultKillfocus)
@@ -135,6 +154,10 @@ BEGIN_MESSAGE_MAP(CGameGeneral, CDialog)
 	ON_EN_KILLFOCUS(IDC_AREA, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN64, OnDefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_REALTIME, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_ENCOUNTER, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_WORLDMAP, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_ZOOM, OnDefaultKillfocus)
+	ON_EN_KILLFOCUS(IDC_FAMILIAR, OnDefaultKillfocus)
 	//}}AFX_MSG_MAP
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER, OnDefaultKillfocusX)
 END_MESSAGE_MAP()
@@ -144,9 +167,21 @@ END_MESSAGE_MAP()
 
 BOOL CGameGeneral::OnInitDialog() 
 {
+  CComboBox *cb;
+  CStringList refs;
+  POSITION pos;
+
 	CDialog::OnInitDialog();
 
 	m_slider_control.SetRange(0, 4, TRUE);
+  cb=(CComboBox *) GetDlgItem(IDC_CAMPAIGN);
+  //cb->ResetContent();
+  pos = campaignrefs.GetHeadPosition();
+  while(pos)
+  {
+    cb->AddString(campaignrefs.GetNext(pos));
+  }
+
   //tooltips
   {
     m_tooltip.Create(this,TTS_NOPREFIX);
@@ -252,3 +287,41 @@ void CGameGeneral::OnBrowse2()
 	UpdateData(UD_DISPLAY);
 }
 
+
+void CGameGeneral::OnBrowse3() 
+{
+  CString tmpstr;
+  
+  pickerdlg.m_restype=REF_ARE;
+  RetrieveResref(pickerdlg.m_picked,the_game.header.encounter);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_game.header.encounter);
+  }
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameGeneral::OnBrowse4() 
+{
+  CString tmpstr;
+  
+  pickerdlg.m_restype=REF_WMP;
+  RetrieveResref(pickerdlg.m_picked,the_game.header.worldmap);
+  if(pickerdlg.DoModal()==IDOK)
+  {
+    StoreResref(pickerdlg.m_picked,the_game.header.worldmap);
+  }
+	UpdateData(UD_DISPLAY);
+}
+
+void CGameGeneral::OnKillfocusCampaign() 
+{
+	UpdateData(UD_RETRIEVE);
+	UpdateData(UD_DISPLAY);
+}
+
+BOOL CGameGeneral::PreTranslateMessage(MSG* pMsg) 
+{
+  m_tooltip.RelayEvent(pMsg);
+	return CDialog::PreTranslateMessage(pMsg);
+}

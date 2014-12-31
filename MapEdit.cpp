@@ -1529,7 +1529,9 @@ void CMapLink::RefreshLink()
   {
     link=the_map.arealinks[m_map][m_first+i].link;
     RetrieveResref(tmp, the_map.areas[m_map][link].arearesref);
+    //m_caption=resolve_tlk_text(the_map.areas[m_map][link].caption);
     tmpstr.Format("%d %s %-.32s",i+1, tmp, the_map.arealinks[m_map][m_first+i].entryname);
+    //tmpstr.Format("%d %s %s",i+1, tmp, resolve_tlk_text(the_map.areas[m_map][link].caption));
     cb->AddString(tmpstr);
   }
   if((pos<0) || (pos>=i)) pos=0;
@@ -1566,7 +1568,8 @@ BOOL CMapLink::OnInitDialog()
   for(i=0;i<the_map.headers[m_map].areacount;i++)
   {
     RetrieveResref(tmpstr,the_map.areas[m_map][i].arearesref);
-    m_areapicker.AddString(tmpstr);
+    tmp.Format("%s %s",tmpstr, resolve_tlk_text(the_map.areas[m_map][i].caption) );
+    m_areapicker.AddString(tmp);
   }
   if(the_map.areas[m_map][0].northcnt)
   {

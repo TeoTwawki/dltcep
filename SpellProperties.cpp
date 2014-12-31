@@ -330,6 +330,8 @@ BOOL CSpellGeneral::OnInitDialog()
     m_tooltip.Create(this,TTS_NOPREFIX);
     m_tooltip.SetMaxTipWidth(200);
     m_tooltip.SetTipBkColor(RGB(240,224,160));
+    tmpstr.LoadString(IDS_BYTE34);
+    m_tooltip.AddTool(GetDlgItem(IDC_BYTE34), tmpstr);
   }
 
   UpdateData(UD_DISPLAY);
@@ -715,7 +717,7 @@ void CSpellEquip::EnableWindow_Equip(bool value)
 
 void CSpellEquip::RefreshEquip()
 {
-  CString tmpstr;
+  CString tmpstr,tmp2;
   int i;
 
   if(m_equipnum_control)
@@ -728,6 +730,12 @@ void CSpellEquip::RefreshEquip()
       the_spell.featblocks[i].par1.parl,
       the_spell.featblocks[i].par2.parl,
       the_spell.featblocks[i].vvc);
+      if (the_spell.featblocks[i].feature==OPC_DAMAGE)
+      {
+        tmp2.Format("[%dd%d %s]", the_spell.featblocks[i].count, the_spell.featblocks[i].sides,DamageType(the_spell.featblocks[i].par2.parl));
+        tmpstr+=tmp2;
+      }
+
       m_equipnum_control.AddString(tmpstr);
     }
     if(equipnum<0 || equipnum>=i) equipnum=0;
@@ -1067,7 +1075,7 @@ void CSpellExtended::DoDataExchange(CDataExchange* pDX)
 //m_extheadnum_control doesn't exist all the time
 void CSpellExtended::RefreshExtended()
 {
-  CString tmp;
+  CString tmp, tmp2;
   int fbc;
   int i;
 
@@ -1097,6 +1105,11 @@ void CSpellExtended::RefreshExtended()
           the_spell.featblocks[fbc+i].par1.parl,
           the_spell.featblocks[fbc+i].par2.parl,
           the_spell.featblocks[fbc+i].vvc);
+        if (the_spell.featblocks[fbc+i].feature==OPC_DAMAGE)
+        {
+          tmp2.Format("[%dd%d %s]", the_spell.featblocks[fbc+i].count, the_spell.featblocks[fbc+i].sides, DamageType(the_spell.featblocks[fbc+i].par2.parl));
+          tmp+=tmp2;
+        }
         m_exteffnum_control.AddString(tmp);
       }
       if(m_exteffnum<0 || m_exteffnum>=i) m_exteffnum=0;

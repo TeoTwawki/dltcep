@@ -283,9 +283,18 @@ protected:
 	afx_msg void OnAddcre();
 	afx_msg void OnDelcre();
 	afx_msg void OnBrowse();
-	afx_msg void OnKillfocusUnknown82();
 	afx_msg void OnUnknown();
 	afx_msg void OnSet();
+	afx_msg void OnFlag1();
+	afx_msg void OnFlag2();
+	afx_msg void OnFlag3();
+	afx_msg void OnFlag4();
+	afx_msg void OnFlag5();
+	afx_msg void OnFlag6();
+	afx_msg void OnFlag7();
+	afx_msg void OnFlag9();
+	afx_msg void OnFlag8();
+	afx_msg void OnFlag10();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

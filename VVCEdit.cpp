@@ -27,9 +27,9 @@ CVVCEdit::CVVCEdit(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 }
 
-static int tranboxid1[]={0,IDC_TRANSPARENT,0,IDC_BRIGHTEST,IDC_MIRROR,IDC_MIRROR2,0,0};
-static int tranboxid2[]={0,0,0,0,0,0,0,0};
-static int tranboxid3[]={IDC_BLEND,IDC_TINT,0,IDC_GREY,0,IDC_GLOW,0,0};
+static int tranboxid1[]={IDC_TRANSPARENT,IDC_TRANSLUCENT,IDC_SHADOW,IDC_BRIGHTEST,IDC_MIRROR,IDC_MIRROR2,0,0};
+static int tranboxid2[]={0,IDC_GLOW,0,IDC_IGNOREGREY,IDC_IGNORERED,0,0,0};
+static int tranboxid3[]={IDC_BLEND,IDC_TINT,0,IDC_GREY,0,IDC_LIGHTEFFECT,0,0};
 static int tranboxid4[]={0,IDC_RED,0,0,0,0,0,0};
 
 void CVVCEdit::checkflags(int *boxids, int value)
@@ -126,13 +126,15 @@ void CVVCEdit::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr,the_videocell.header.shadow);
 
-  tmpstr.Format("0x%0x",the_videocell.header.unknown1c);
+  //supposed to be transparency level
+  tmpstr.Format("0x%0x",the_videocell.header.transvalue);
   DDX_Text(pDX, IDC_UNKNOWN1C, tmpstr);
-  the_videocell.header.unknown1c=strtonum(tmpstr);
+  the_videocell.header.transvalue=strtonum(tmpstr);
 
-  tmpstr.Format("0x%0x",the_videocell.header.unknown24);
+  //supposed to be tint color?
+  tmpstr.Format("0x%0x",the_videocell.header.colorvalue);
   DDX_Text(pDX, IDC_UNKNOWN24, tmpstr);
-  the_videocell.header.unknown24=strtonum(tmpstr);
+  the_videocell.header.colorvalue=strtonum(tmpstr);
 
   tmpstr.Format("0x%0x",the_videocell.header.hasorient);
   DDX_Text(pDX, IDC_FACE, tmpstr);
@@ -186,7 +188,7 @@ void CVVCEdit::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, tmpstr, 8);
   StoreResref(tmpstr,the_videocell.header.alpha);
 
-  DDX_Text(pDX, IDC_UNKNOWN90, the_videocell.header.unknown90);
+  DDX_Text(pDX, IDC_UNKNOWN90, the_videocell.header.seq3);
 
   RetrieveResref(tmpstr,the_videocell.header.sound3);
   DDX_Text(pDX, IDC_UNKNOWN94, tmpstr);
@@ -229,10 +231,12 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_GREY, OnGrey)
 	ON_BN_CLICKED(IDC_UNKNOWN, OnUnknown)
 	ON_BN_CLICKED(IDC_BRIGHTEST, OnBrightest)
+	ON_BN_CLICKED(IDC_LIGHTEFFECT, OnLighteffect)
 	ON_BN_CLICKED(IDC_CHECK, OnCheck)
 	ON_COMMAND(ID_FILE_SAVE, OnSave)
 	ON_BN_CLICKED(IDC_POS1, OnPos1)
 	ON_BN_CLICKED(IDC_POS2, OnPos2)
+	ON_BN_CLICKED(IDC_POS4, OnPos4)
 	ON_BN_CLICKED(IDC_USEBAM, OnUsebam)
 	ON_BN_CLICKED(IDC_LIGHTSPOT, OnLightspot)
 	ON_BN_CLICKED(IDC_HEIGHT, OnHeight)
@@ -243,6 +247,12 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_BN_CLICKED(IDC_RED, OnRed)
 	ON_BN_CLICKED(IDC_PALETTE, OnPalette)
 	ON_BN_CLICKED(IDC_BROWSE4, OnBrowse4)
+	ON_BN_CLICKED(IDC_PLAY3, OnPlay3)
+	ON_BN_CLICKED(IDC_SHADOW, OnShadow)
+	ON_BN_CLICKED(IDC_TRANSLUCENT, OnTranslucent)
+	ON_BN_CLICKED(IDC_IGNOREGREY, OnIgnoregrey)
+	ON_BN_CLICKED(IDC_IGNORERED, OnIgnorered)
+	ON_BN_CLICKED(IDC_POS3, OnPos3)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN90, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_BAM, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_FLAG1, DefaultKillfocus)
@@ -283,7 +293,6 @@ BEGIN_MESSAGE_MAP(CVVCEdit, CDialog)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN40, OnKillfocusSequencing)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN94, DefaultKillfocus)
 	ON_EN_KILLFOCUS(IDC_UNKNOWN8C, DefaultKillfocus)
-	ON_BN_CLICKED(IDC_PLAY3, OnPlay3)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -457,7 +466,7 @@ int checkbuttons[]={
   IDC_LOOP, IDC_LIGHTSPOT, IDC_HEIGHT, IDC_USEBAM, IDC_PALETTE, -1, IDC_WALL, 0
 };
 
-int posbuttons[]={IDC_POS1, IDC_POS2,0
+int posbuttons[]={IDC_POS1, IDC_POS2, IDC_POS3, IDC_POS4, 0
 };
   
 void CVVCEdit::RefreshDialog()
@@ -518,13 +527,24 @@ BOOL CVVCEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_BAM), IDS_BAM);
     m_tooltip.AddTool(GetDlgItem(IDC_BROWSE), IDS_BAM);
     m_tooltip.AddTool(GetDlgItem(IDC_FRAMERATE), IDS_FRAME15);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG1), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG2), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG3), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_FLAG4), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_TRANSLUCENT), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_TRANSPARENT), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_SHADOW), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_BRIGHTEST), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_MIRROR), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_MIRROR2), IDS_VVCFLAG);
-    m_tooltip.AddTool(GetDlgItem(IDC_GREY), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_GLOW), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_IGNOREGREY), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_IGNORERED), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_GREY), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_LIGHTEFFECT), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_BLEND), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_TINT), IDS_VVCFLAG);
+    m_tooltip.AddTool(GetDlgItem(IDC_RED), IDS_VVCFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_SEQUENCING), IDS_SEQFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_LOOP), IDS_SEQFLAG);
     m_tooltip.AddTool(GetDlgItem(IDC_LIGHTSPOT), IDS_SEQFLAG);
@@ -534,6 +554,9 @@ BOOL CVVCEdit::OnInitDialog()
     m_tooltip.AddTool(GetDlgItem(IDC_WALL), IDS_SEQFLAG);
     tmpstr1.LoadString(IDS_FACEHINT);
     m_tooltip.AddTool(GetDlgItem(IDC_FACE), tmpstr1);
+    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN1C),IDS_UNUSED);
+    m_tooltip.AddTool(GetDlgItem(IDC_UNKNOWN24),IDS_UNUSED);
+    m_tooltip.AddTool(GetDlgItem(IDC_POS3),IDS_UNUSED);
   }	
 	return TRUE;
 }
@@ -596,6 +619,18 @@ void CVVCEdit::OnPos1()
 void CVVCEdit::OnPos2() 
 {
 	the_videocell.header.position^=2;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnPos3() 
+{
+	the_videocell.header.position^=4;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnPos4() 
+{
+	the_videocell.header.position^=8;
   UpdateData(UD_DISPLAY);
 }
 
@@ -669,12 +704,24 @@ void CVVCEdit::OnBrowse4()
 
 void CVVCEdit::OnTransparent() 
 {
+	the_videocell.header.transparency^=1;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnTranslucent() 
+{
 	the_videocell.header.transparency^=2;
   if((the_videocell.header.transparency&0xa)==0xa)
   {
     the_videocell.header.transparency&=~8;
     MessageBox("Turning off brightest flag.","VVC editor",MB_OK);
   }
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnShadow() 
+{
+	the_videocell.header.transparency^=4;
   UpdateData(UD_DISPLAY);
 }
 
@@ -701,6 +748,24 @@ void CVVCEdit::OnMirror2()
   UpdateData(UD_DISPLAY);
 }
 
+void CVVCEdit::OnGlow() 
+{
+	the_videocell.header.trans2^=2;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnIgnoregrey() 
+{
+	the_videocell.header.trans2^=8;
+  UpdateData(UD_DISPLAY);
+}
+
+void CVVCEdit::OnIgnorered() 
+{
+	the_videocell.header.trans2^=0x10;
+  UpdateData(UD_DISPLAY);
+}
+
 //this isn't blend?
 void CVVCEdit::OnBlend() 
 {
@@ -720,10 +785,10 @@ void CVVCEdit::OnGrey()
   UpdateData(UD_DISPLAY);
 }
 
-void CVVCEdit::OnGlow() 
+void CVVCEdit::OnLighteffect() 
 {
 	the_videocell.header.colouring^=0x20;
-  UpdateData(UD_DISPLAY);
+	UpdateData(UD_DISPLAY);
 }
 
 void CVVCEdit::OnRed() 
@@ -758,3 +823,4 @@ BOOL CVVCEdit::PreTranslateMessage(MSG* pMsg)
   m_tooltip.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
 }
+

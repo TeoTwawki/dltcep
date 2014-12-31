@@ -450,6 +450,7 @@ int ReadIds3(loc_entry entry, CString *refs, int maxindex, CStringMapCompiler &a
   if(fhandle<1) return -1;
   return ReadIdsFromFile3(fhandle, refs, maxindex, entry.size, atdata, trigger_or_action);
 }
+
 //reads string mapped to int ids style
 int ReadIdsFromFile4(int fhandle, CStringMapInt &refs, int length)
 {
@@ -1400,6 +1401,11 @@ int add_compiler_data(CString prototype, int cnt, CStringMapCompiler &at_data, i
       }
       subtype=params[j].Mid(p1+1,p2-p1-1);
       subtype.MakeLower();
+      if (subtype.Find(' ')>=0 && parpoi->idsfile.GetLength())
+      {
+        //MessageBox(0,"Dialogs won't be able to parse "+parpoi->idsfile+".ids for "+compiler_data.keyword+" because the parameter name contains space!","Warning",MB_ICONWARNING|MB_OK|MB_TASKMODAL);
+        ((CChitemDlg *) AfxGetMainWnd())->log("Dialogs won't be able to parse "+parpoi->idsfile+".ids for the "+(trigger_or_action?"trigger ":"action ")+compiler_data.keyword+" because the parameter name contains space!");
+      }
       parpoi->type=params[j].GetAt(0);
       if(validtypes.Find((char) parpoi->type)<0) //invalid type
       {
@@ -2955,7 +2961,10 @@ int C2da::Write2DAToFile(int fhandle)
     for (i = 0;i<cols; i++)
     {
       int len = tmppoi[i].GetLength();
-      if (len>30) len=30;
+      if (len>30)
+      {
+        len=30;
+      }
       if(collen[i]<tmppoi[i].GetLength() )
       {
         collen[i]=tmppoi[i].GetLength();
