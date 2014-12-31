@@ -1,14 +1,90 @@
 Dragonlance TC Editor Pro
-Unofficial game file editor/checker/browser for IE (Infinity Engine) games.
-Official game file editor for GemRB
+Unofficial game file editor/checker/browser for old IE (Infinity Engine) games.
+Official game file editor for GemRB and BGEE
 
-Current version: V7.5
+Current version: V7.7j
 
 Changes:
+
+v7.7j
+- improved stencil bmp reader
+- improved the spell list generator for BGEE
+- permanent/allow save projectile flags
+- read plts as greyscale bmp
+- fixed chitin exploder to handle upper case bif extensions correctly
+- added a bunch of experimental opcode descriptions
+- added lance projectile width for BGEE
+- added a bunch of other projectile flags for BGEE
+
+v7.6g
+- added bgee specific flag to area (per area water transparency)
+- fixed area editor resizing (again)
+- added use_lang flag to weidu parameters
+- fixed extracting tileset into bmp
+
+v7.6f
+- fixed area editor window resizing
+- fixed many off by one errors in the area editor that may have caused memory corruption
+- you can change ambient radius via mousewheel in the ambient selection mode
+- shift click will relocate the ambient in ambient selection mode
+- spell assign key entry generator for BGEE
+- unused large files finder for BGEE
+- creature loader updates window before small inconsistency popup appears (otherwise it breaks the load)
+
+v7.6e
+- don't corrupt area if it has map notes but no rest interruption header
+- item bam checker improvements
+- correctly allocate wed walls to wallgroup lists
+- auto correct missing tileset offset
+- some new flags in area and projectile (BGEE specific)
+
+v7.6d
+- scanning of variables now handles scripting names in areas
+- updated resource checking
+- vef editor
+
+V7.6b
+- ambush area reference checks (wmp)
+- fixed item description checker feedback
+- fixed several problems in the wed editor
+- added .glsl fileformat to the resource list (textfile)
+- fixed last opened bcs/baf logic
+
+V7.6a
+- fixed a bug with loading saved games while in the pocket plane (ToB)
+- you can add empty overlays in wed editor
+- entrance names are generated without space
+- tileset checker is aware of new tileset format
+- fix zero frames in BAMs
+- new functionality: fix linefeed problems in tlk
+- proper bam splitting
+
+V7.6
+- game and dialog editor asks before quitting after changed
+- worldmap editor - now it is possible to select area from worldmap
+- fixed handling of four letter extensions (pvrz)
+- csv import/export for tlk
+
+V7.5c
+- fixed bmp saving
+- more item checking functionality
+- fixed spawn method names
+- area animation height field accepts negative numbers
+
+V7.5b
+- improved the dialog editor
+- scrollbar ID in editbox (might be BGEE only)
+- saving a composite description icon BAM as single BMP (BGEE)
+- fixed displaying BMP description icons (BGEE)
+
+
+V7.5a
+- halfway compatible with BGEE compressed tilesets
 
 V7.5
 - priority for BMP over BAM when displaying description icons
 - key editor won't complain about bifs in lang path
+- dialog checker improvements
 
 V7.4i
 - text search will highlight the find
